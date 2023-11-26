@@ -150,10 +150,6 @@ fi
 # ========================================
 # Per-machine extras
 # ========================================
-[[ -e ${HOME}/.zsh_local ]] && source ${HOME}/.zsh_local
-
-# ========================================
-# Banners and messages
-# ========================================
-
-[ -x "$(command -v show-motd)" ] && show-motd login
+if [ -e ${HOME}/.zsh_local ]; then
+    source ${HOME}/.zsh_local
+fi

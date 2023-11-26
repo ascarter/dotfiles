@@ -2,7 +2,7 @@
 if [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
   export HOMEBREW_NO_EMOJI=1
-  brew analytics off
+  export HOMEBREW_NO_ANALYTICS=1
   fpath+=($HOMEBREW_PREFIX/share/zsh/site-functions $HOMEBREW_PREFIX/share/zsh-completions)
 fi
 
@@ -24,7 +24,9 @@ fi
 
 # Rubies support
 # Add Ruby 3.2.2 to MANPATH until I can patch chruby...
-[ -d "$HOME/.rubies/ruby-3.2.2/share/man" ] && export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
+if [ -d "$HOME/.rubies/ruby-3.2.2/share/man" ]; then
+    export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
+fi
 
 # Python
 if [ -d /Library/Frameworks/Python.framework ]; then
@@ -33,7 +35,7 @@ fi
 
 # User pip installed binaries are in ~/Library
 local pyver=$(python3 -c "import sys; print ('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
-if [[ -d ${HOME}/Library/Python/${pyver} ]]; then
+if [ -d ${HOME}/Library/Python/${pyver} ]; then
     export LC_ALL=en_US.UTF-8
     export LANG=en_US.UTF-8
     path+=${HOME}/Library/Python/${pyver}/bin
