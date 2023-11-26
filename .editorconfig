@@ -9,12 +9,5 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[{home/config/zsh/*,config/zsh/**/*}]
-mode = unix-shell-script
-
 [{gitconfig,config/git/*}]
-mode = ini-file
 indent_style = tab
-
-[home/irbrc]
-mode = ruby
