@@ -48,7 +48,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # Default: PS1="%m%# "
 declare +x PS1
-prompt dev
+prompt dev --timestamp
 
 # ========================================
 # Shell preferences
