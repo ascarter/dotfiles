@@ -110,7 +110,7 @@ VERBOSE=0
 HOMEBREW=0
 MACPORTS=0
 
-while getopts "hv" opt; do
+while getopts "bhmv" opt; do
   case ${opt} in
     b ) HOMEBREW=1 ;;
     h ) usage && exit 0 ;;
