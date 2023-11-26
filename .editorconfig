@@ -9,7 +9,7 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[{config/zsh/*,config/zsh/**/*,zsh*}]
+[{home/config/zsh/*,config/zsh/**/*}]
 mode = unix-shell-script
 
 [{gitconfig,config/git/*}]
