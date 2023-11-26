@@ -1,0 +1,90 @@
+# developer zsh prompt theme
+# Andrew Carter <ascarter@uw.edu>
+#
+# Developer prompt with Git information
+#
+
+prompt_dev_help () {
+  cat <<'EOH'
+Developer prompt with minimal vcs info (git branch and dirty state)
+
+By default, this script provides a custom command prompt that includes information
+about the git repository for the current folder. However, with certain large repositories,
+this can result in a slow command prompt due to the performance of needed git operations.
+
+For performance reasons, a "dirty" indicator that tells you whether or not there are
+uncommitted changes is disabled by default. You can opt to turn this on for smaller repositories
+by entering the following in a terminal or adding it to your postCreateCommand:
+
+```
+git config devcontainers-theme.show-dirty 1
+```
+
+To completely disable the git portion of the prompt for the current folder's repository,
+you can use this configuration setting instead:
+
+```
+git config devcontainers-theme.hide-status 1
+```
+EOH
+}
+
+prompt_dev_setup () {
+  zparseopts -D -E -F -twoline=twoline -timestamp=timestamp
+
+  # Enable vcs info
+  autoload -Uz vcs_info
+
+  if [[ "$TERM" = "xterm-256color" ]]; then
+    SEPARATOR='➜'
+    GIT_DIRTY='✗'
+    STATUS_OK='⏺'
+    STATUS_ERR='⊗'
+  else
+    SEPARATOR='|'
+    GIT_DIRTY='x'
+    STATUS_OK=' '
+    STATUS_ERR='x'
+  fi
+
+  [[ -n ${twoline} ]] && NEWLINE=$'\n'
+  [[ ${TERM_PROGRAM} != 'vscode' ]] && STATUS="%(?.%F{14}${STATUS_OK}%f.%F{9}${STATUS_ERR}%f) "
+
+
+  # Check if vcs_info is available
+  if [[ $(whence -w 'vcs_info' | cut -d ':' -f 2 | xargs) == function ]]; then
+    # Prompt: user@host ~/path vcs_info %
+    PROMPT='${STATUS}%F{10}%n@%m%f ${SEPARATOR} %F{12}%3~%f ${vcs_info_msg_0_}${NEWLINE}%# '
+    PROMPT4='+%N:%i:%_>'
+    [[ -n ${timestamp} ]] && RPROMPT='%F{6}[%!|%*]%f'
+    prompt_opts=( cr percent subst sp )
+
+    # Use misc field to set dirty status and supress staged/unstaged
+    +vi-dirty() {
+      if [[ ! $(git config --bool devcontainers-theme.hide-status) == "true" && $(git config --bool devcontainers-theme.show-dirty) == "true" ]]  && \
+              git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then
+          hook_com[misc]=" ${GIT_DIRTY}"
+      else
+          hook_com[misc]=""
+      fi
+    }
+
+    zstyle ':vcs_info:*' enable git
+    zstyle ':vcs_info:git:*' check-for-changes false
+    zstyle ':vcs_info:git:*' formats "(%F{2}%b%f%F{11}%m%f) "
+    zstyle ':vcs_info:git:*' actionformats "(%F{2}%b%f|%F{11}%a%f%F{11}%m%f) "
+    zstyle ':vcs_info:git*+set-message:*' hooks dirty
+
+    terminal_title() {
+      # Update terminal title
+      case $(uname) in (Linux) print -Pn "\e]0;%n@%m: %1~\a"; esac
+    }
+
+    precmd() {
+      vcs_info
+      terminal_title
+    }
+  fi
+}
+
+prompt_dev_setup "$@"
