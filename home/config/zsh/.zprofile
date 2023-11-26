@@ -6,6 +6,12 @@ if [ -d /opt/homebrew ]; then
   fpath+=($HOMEBREW_PREFIX/share/zsh/site-functions $HOMEBREW_PREFIX/share/zsh-completions)
 fi
 
+# Configure MacPorts shell environment
+if [ -d /opt/local ]; then
+  export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+  export MANPATH=/opt/local/share/man:$MANPATH
+fi
+
 # ========================================
 # Developer Tools
 # ========================================
