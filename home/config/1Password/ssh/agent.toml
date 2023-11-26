@@ -40,4 +40,3 @@ vault = "Microsoft"
 
 [[ssh-keys]]
 vault = "Alpental"
-{{- end }}
