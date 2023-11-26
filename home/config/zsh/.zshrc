@@ -78,8 +78,8 @@ bindkey "^[[3~" delete-char
 
 # Editor
 if (( $+commands[bbedit] )); then
-  export EDITOR="bbedit --wait --resume"
-  export EDITOR="bbedit --wait --resume"
+  export EDITOR="bbedit --wait --resume --new-window"
+  export EDITOR="bbedit --wait --resume --new-window"
 else
   export EDITOR="vim"
   export VISUAL="vim -g"
