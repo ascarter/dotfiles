@@ -6,14 +6,13 @@
 set -ueo pipefail
 
 usage() {
-  echo "Usage: $0 [-bmv] [HOMEDIR [DOTFILES]]"
+  echo "Usage: $0 [-nv] [HOMEDIR [DOTFILES]]"
   echo ""
   echo "Install dotfiles to HOMEDIR from DOTFILES."
   echo ""
   echo "HOMEDIR: Home directory (default: \$HOME)"
   echo "DOTFILES: Dotfiles directory (default: \$HOMEDIR/.config/dotfiles)"
-  echo "-b: Install homebrew"
-  echo "-m: Install MacPorts"
+  echo "-n: Do not install homebrew"
   echo "-v: Verbose output"
   echo ""
   echo "Example:"
@@ -55,43 +54,18 @@ install_prerequisites() {
 install_homebrew() {
   case $(uname) in
   Darwin )
-    echo "Installing homebrew"
-
     # Install Homebrew
     if ! command -v brew >/dev/null 2>&1; then
+      echo "Installing homebrew"
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
       echo "Homebrew installed"
     fi
 
     # Install packages
-    if $(command -v brew); then
+    if command -v brew >/dev/null 2>&1; then
       # brew bundle --file="$PWD/home/Brewfile"
       echo "TODO: install from Brewfile..."
-    fi
-    ;;
-  Linux )
-    # TODO
-    ;;
-  esac
-}
-
-install_macports() {
-  case $(uname) in
-  Darwin )
-    echo "Installing MacPorts"
-
-    # Install MacPorts
-    if ! command -v port >/dev/null 2>&1; then
-      echo "TODO: install MacPorts..."
-      #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    else
-      echo "MacPorts installed"
-    fi
-
-    # Update MacPorts
-    if $(command -v port); then
-      sudo port selfupdate
     fi
     ;;
   Linux )
@@ -113,14 +87,12 @@ remove_broken_symlinks() {
 
 # Options
 VERBOSE=0
-HOMEBREW=0
-MACPORTS=0
+SKIP_HOMEBREW=0
 
-while getopts "bhmv" opt; do
+while getopts "hnv" opt; do
   case ${opt} in
-    b ) HOMEBREW=1 ;;
     h ) usage && exit 0 ;;
-    m ) MACPORTS=1 ;;
+    n ) SKIP_HOMEBREW=1 ;;
     v ) VERBOSE=1 ;;
     \? ) usage && exit 1 ;;
   esac
@@ -134,8 +106,7 @@ echo "Installing dotfiles to ${DOTFILES}"
 echo "Home is ${HOMEDIR}"
 
 install_prerequisites
-[ $HOMEBREW -eq 1 ] && install_homebrew
-[ $MACPORTS -eq 1 ] && install_macports
+[ $SKIP_HOMEBREW -eq 0 ] && install_homebrew
 
 # Clone dotfiles
 echo "Installing dotfiles to ${HOMEDIR} from ${DOTFILES}"
