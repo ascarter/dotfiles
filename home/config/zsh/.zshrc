@@ -6,7 +6,7 @@
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add local zsh functions
-if [[ -d ${HOME}/.local/share/zsh/functions ]]; then
+if [ -d "${HOME}/.local/share/zsh/functions" ]; then
   fpath+=(${HOME}/.local/share/zsh/functions)
 fi
 

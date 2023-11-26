@@ -6,30 +6,20 @@ if [ -d /opt/homebrew ]; then
   fpath+=($HOMEBREW_PREFIX/share/zsh/site-functions $HOMEBREW_PREFIX/share/zsh-completions)
 fi
 
-# Configure MacPorts shell environment
-if [ -d /opt/local ]; then
-  export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-  export MANPATH=/opt/local/share/man:$MANPATH
-fi
-
 # ========================================
 # Developer Tools
 # ========================================
 
 # chruby
-if [ -n "${HOMEBREW_PREFIX}" ]; then
+if (( $+commands[brew] )); then
   CHRUBY_PREFIX="$(brew --prefix chruby)"
 else
   CHRUBY_PREFIX=/usr/local
 fi
+
 if [ -d "$CHRUBY_PREFIX/share/chruby" ]; then
   source "${CHRUBY_PREFIX}/share/chruby/chruby.sh"
   source "${CHRUBY_PREFIX}/share/chruby/auto.sh"
-fi
-
-# Ruby
-if (( $+commands[ruby] )) && (( $+commands[gem] )); then
-  path+=$(ruby -r rubygems -e 'puts Gem.user_dir')/bin
 fi
 
 # Python
