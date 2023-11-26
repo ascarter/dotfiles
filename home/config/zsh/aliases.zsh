@@ -97,6 +97,7 @@ esac
 # dotfiles
 alias dotfiles="cd $DOTFILES"
 alias dfedit="$EDITOR $DOTFILES"
+alias dfvedit="$VISUAL $DOTFILES"
 alias dfu="$DOTFILES/install.sh"
 
 # zsh

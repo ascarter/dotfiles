@@ -56,3 +56,32 @@ if [[ -d ${HOME}/Library/Android/sdk ]]; then
   export ANDROID_HOME=${HOME}/Library/Android/sdk
   path+=(${ANDROID_HOME}/tools ${ANDROID_HOME}/tools/bin ${ANDROID_HOME}/platform-tools)
 fi
+
+# ========================================
+# SSH
+# ========================================
+
+# Use 1Password SSH Agent if installed
+if [ -S ${HOME}/.1password/agent.sock ]; then
+  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
+elif [[ $(uname) == "Linux" ]]; then
+  if [[ $(uname -r) == *Microsoft* ]]; then
+    # WSL - use named pipe to Windows host ssh-agent
+    if type npiperelay.exe &>/dev/null; then
+      export SSH_AUTH_SOCK=${HOME}/.ssh/agent.sock
+      ss -a | grep -q $SSH_AUTH_SOCK
+      if [ $? -ne 0 ]; then
+        rm -f ${SSH_AUTH_SOCK}
+        ( setsid socat UNIX-LISTEN:${SSH_AUTH_SOCK},fork EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork & ) >/dev/null 2>&1
+      fi
+    fi
+  fi
+fi
+
+# ========================================
+# 1Password
+# ========================================
+
+if [ -f ${HOME}/.config/op/plugins.sh ]; then
+  source ${HOME}/.config/op/plugins.sh
+fi
