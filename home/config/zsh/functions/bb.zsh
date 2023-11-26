@@ -1,0 +1,16 @@
+# Open BBEdit
+# If the bb command is called without an argument, launch BBEdit
+
+emulate -L zsh
+
+if [[ -z "$1" ]]; then
+    bbedit --launch
+else
+    # If bb is passed a file, open it in BBEdit
+    bbedit "$1"
+    if [[ -d "$1" ]]; then
+        # If bb is passed a directory, cd to it
+        cd "$1"
+    fi
+fi
+

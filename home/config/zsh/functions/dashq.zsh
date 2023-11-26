@@ -1,0 +1,9 @@
+# Open query in dash
+
+emulate -L zsh
+
+if [ "${2}" ]; then
+    open dash://${1}:${2}
+else
+    open dash://${1}
+fi

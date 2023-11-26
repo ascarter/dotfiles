@@ -1,0 +1,5 @@
+# Run command and send results to new BBEdit window
+
+emulate -L zsh
+
+($* 2>&1) | bbedit --new-window +1 -t "$*"

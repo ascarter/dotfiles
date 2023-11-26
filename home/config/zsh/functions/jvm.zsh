@@ -1,0 +1,18 @@
+# Set JVM
+
+emulate -L zsh
+
+case $(uname) in
+Darwin )
+    if [[ "${1}" == "android" ]]; then
+        export JAVA_HOME=/Applications/Android\ Studio.app/Contents/jre/jdk/Contents/Home
+    else
+        export JAVA_HOME=`/usr/libexec/java_home --failfast -v $1`
+    fi
+    ;;
+Linux )
+    # TODO
+    ;;
+esac
+
+java -version

@@ -1,0 +1,5 @@
+# Open manpage in BBEdit
+
+emulate -L zsh
+
+MANWIDTH=80 MANPAGER='col -bx' man ${@} | bbedit --clean --view-top --language Manpage -t "man ${@}"

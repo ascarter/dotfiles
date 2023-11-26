@@ -1,0 +1,34 @@
+# Set or turn off bbedit debug expert prefs
+
+emulate -L zsh
+
+local cmd=${1:-status}
+
+local keys=(
+    DebugProjectListExpansion
+    DebuggingLogSyntheticProject
+    LogExceptions
+    IncludeBacktraceWhenLoggingExceptions
+)
+
+case "$cmd" in
+on)
+    for key in "${keys[@]}"; do
+        defaults write com.barebones.bbedit ${key} -bool YES
+    done
+    ;;
+off)
+    for key in "${keys[@]}"; do
+        defaults delete com.barebones.bbedit ${key}
+    done
+    ;;
+ls|status)
+    for key in "${keys[@]}"; do
+        echo ${key} = $(defaults read com.barebones.bbedit ${key})
+    done
+    ;;
+*)
+    echo bbdebug [on|off|status]
+    return
+    ;;
+esac

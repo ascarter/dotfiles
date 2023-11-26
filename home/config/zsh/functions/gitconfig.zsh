@@ -1,0 +1,118 @@
+emulate -L zsh
+
+# gitconfig - generate git config global file
+
+_gc_set() {
+  git config --file $1 "${2}" "${3}"
+}
+
+_gc_add() {
+  git config --file $1 --add "${2}" "${3}"
+}
+
+_gc_unset() {
+  git config --file $1 --unset "${2}"
+}
+
+_gc_clear() {
+  git config --file $1 --unset-all "${2}"
+}
+
+_gc_update() {
+  _gc_unset $1 "${2}"
+  if [ -n "${3}" ]; then
+    _gc_set $1 "${2}" "${3}"
+  fi
+}
+
+# Prompt for git config key
+_gc_prompt() {
+  local input="$(git config --file $1 --get "${2}")"
+  vared -p "${2}: " input
+  _gc_update ${1} "${2}" "${input}"
+}
+
+# Configure git credential managers
+_gc_credentials() {
+  local gh_urls=("https://github.com" "https://gist.github.com")
+  local az_urls=("https://dev.azure.com" "https://*.visualstudio.com/")
+  local op_helper=$(command -v op)
+  local gh_helper=$(command -v gh)
+  local gcm_helper=$(command -v git-credential-manager)
+  local git_cred_helper
+
+  if [ -n "${op_helper}" ]; then
+    # Use 1Password for GitHub
+    git_cred_helper="\!${op_helper} plugin run -- gh auth git-credential"
+  elif [ -n "${gh_helper}" ]; then
+    # Use GitHub CLI
+    git_cred_helper="\!${gh_helper} auth git-credential"
+  elif [ -n "${gcm_helper}" ]; then
+    # Use Git Credential Manager
+    git_cred_helper=${gcm_helper}
+  else
+    # Use keychain caching
+    case $(uname) in
+    Darwin ) git_cred_helper="osxkeychain" ;;
+    Linux  ) git_cred_helper="cache" ;;
+    esac
+  fi
+
+  # Clear default credential helper
+  _gc_clear $1 credential.helper
+
+  # Configure GitHub
+  for url in "${gh_urls[@]}"; do
+    _gc_clear $1 credential.${url}.helper
+    _gc_add $1 credential.${url}.helper ''
+    _gc_add $1 credential.${url}.helper $git_cred_helper
+  done
+
+  # Configure Azure DevOps if GCM is installed
+  if [ -n "${gcm_helper}" ]; then
+    for url in "${az_urls[@]}"; do
+      _gc_clear $1 credential.${url}.helper
+      _gc_add $1 credential.${url}.helper ''
+      _gc_add $1 credential.${url}.helper ${gcm_helper}
+      _gc_set $1 credential.${url}.useHttpPath true
+    done
+  fi
+
+  # Configure gpg signing
+  if [ -n "${op_helper}" ]; then
+    # Use 1Password SSH for signing
+    local signing_key=$(op read "op://Developer/SSH Key/public key")
+    if [ -n "${signing_key}" ]; then
+      _gc_set $1 user.signingkey "${signing_key}"
+      _gc_set $1 gpg.format ssh
+      _gc_set $1 gpg.program.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      _gc_set $1 commit.gpgsign true
+    fi
+}
+
+gitconfig() {
+  zparseopts -D -E -F -color=color -opt=opt -help=help
+  help=${#help}
+
+  # Show help
+  if [ ${help} = "1" ]; then
+    print "$(tput bold)$0$(tput sgr0) -- Generate git config\n  $0 [config file path]\n"
+    return 1
+  fi
+
+  local GIT_CONFIG_FILE=${1:-${HOME}/.gitconfig}
+
+  echo "Generating $GIT_CONFIG_FILE"
+  touch $GIT_CONFIG_FILE
+
+  # Include defaults and aliases
+  # _gc_set $GIT_CONFIG_FILE include.path ${DOTFILES}/gitconfig
+
+  # User info
+  _gc_prompt $GIT_CONFIG_FILE user.name "User name"
+  _gc_prompt $GIT_CONFIG_FILE user.email "Email"
+
+  _gc_credentials $GIT_CONFIG_FILE
+}
+
+gitconfig "$@"

@@ -1,0 +1,17 @@
+emulate -L zsh
+
+_resetaudio() {
+    sudo killall coreaudiod
+}
+
+_resetvideo() {
+    sudo killall VDCAssistant
+    sudo killall AppleCameraAssistant
+}
+
+_resetav() {
+    _resetaudio
+    _resetvideo
+}
+
+resetav "$@"

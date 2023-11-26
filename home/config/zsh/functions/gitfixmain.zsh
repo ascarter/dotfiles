@@ -1,0 +1,10 @@
+# gitfixmain converts git master branch to main branch for upstream main
+
+emulate -L zsh
+
+git checkout master
+git branch -m master main
+git fetch
+git branch --unset-upstream
+git branch -u origin/main
+git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main

@@ -1,0 +1,5 @@
+# Set tab name
+
+emulate -L zsh
+
+printf "\e]1;${1}\a"

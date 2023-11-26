@@ -1,0 +1,20 @@
+# Open man page in a window
+
+emulate -L zsh
+
+case $(uname) in
+Darwin )
+  # Opens in a terminal window
+  if [ "${2}" ]; then
+    open x-man-page://${1}/${2}
+  else
+    open x-man-page://${1}
+  fi
+  ;;
+Linux )
+  # Use yelp to open man page
+  if (( $+commands[yelp] )); then
+    yelp man:${1} 2&>/dev/null &
+  fi
+  ;;
+esac
