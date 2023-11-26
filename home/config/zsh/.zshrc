@@ -92,10 +92,8 @@ export TEXEDIT='vim +%d %s'
 export PAGER="less -r"
 export LESS="--status-column --long-prompt --no-init --quit-if-one-screen --quit-at-eof -R"
 
-# dircolors
-if [[ $(uname) == "Linux" ]]; then
-  test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
-fi
+# terminal theme
+ttheme panic
 
 # ========================================
 # Developer
