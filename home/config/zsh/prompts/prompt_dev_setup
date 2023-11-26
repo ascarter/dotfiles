@@ -54,7 +54,7 @@ prompt_dev_setup () {
   fi
 
   # ~/working/directory
-  PROMPT+="%F{12}%(5~|…/%3~|%~)%f"
+  PROMPT+="%F{12}%40<…<%3~%f%<<% "
 
   # VCS info
   PROMPT+='${vcs_info_msg_0_}'
