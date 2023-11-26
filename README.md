@@ -6,11 +6,12 @@ It is untested with other Linux distributions but should work with any reasonabl
 
 ## Layout
 
-Path    | Description
-------  | -----------
-home    | Files to be symlinked to user's home directory
-scripts | Scripts for setting up different environments
-themes  | Useful themes
+Path     | Description
+------   | -----------
+home     | Files to be symlinked to user's home directory
+homebrew | Brewfiles for homebrew packages
+scripts  | Scripts for setting up different environments
+themes   | Useful themes
 
 ## Requirements
 
