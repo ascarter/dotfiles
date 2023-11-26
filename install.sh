@@ -61,6 +61,8 @@ install_homebrew() {
     if ! command -v brew >/dev/null 2>&1; then
       echo "TODO: Install homebrew..."
       #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      [ $VERBOSE -eq 1 ] && echo "Homebrew installed"
     fi
 
     # Install packages
@@ -81,6 +83,8 @@ install_macports() {
     if ! command -v port >/dev/null 2>&1; then
       echo "TODO: install MacPorts..."
       #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      [ $VERBOSE -eq 1 ] && echo "MacPorts installed"
     fi
 
     # Update MacPorts
