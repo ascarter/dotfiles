@@ -12,7 +12,7 @@ fi
 
 # Ruby
 if (( $+commands[brew] )); then
-  CHRUBY_PREFIX="$(brew --prefix chruby)"
+  CHRUBY_PREFIX="${HOMEBREW_PREFIX}/opt/chruby"
 else
   CHRUBY_PREFIX=/usr/local
 fi
@@ -24,12 +24,12 @@ fi
 
 # Add Ruby 3.2.2 to MANPATH until I can patch chruby...
 if [ -d "$HOME/.rubies/ruby-3.2.2/share/man" ]; then
-    export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
+  export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
 fi
 
 # Node.JS
 if (( $+commands[brew] )); then
-  CHNODE_PREFIX="$(brew --prefix chnode)"
+  CHNODE_PREFIX="${HOMEBREW_PREFIX}/opt/chnode"
 else
   CHNODE_PREFIX=/usr/local
 fi
@@ -47,9 +47,9 @@ fi
 # User pip installed binaries are in ~/Library
 local pyver=$(python3 -c "import sys; print ('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
 if [ -d ${HOME}/Library/Python/${pyver} ]; then
-    export LC_ALL=en_US.UTF-8
-    export LANG=en_US.UTF-8
-    path+=${HOME}/Library/Python/${pyver}/bin
+  export LC_ALL=en_US.UTF-8
+  export LANG=en_US.UTF-8
+  path+=${HOME}/Library/Python/${pyver}/bin
 fi
 
 # Go

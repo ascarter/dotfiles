@@ -100,9 +100,9 @@ prompt_dev_setup () {
 
     # Node.js version (via chnode)
     if [[ -n "${CHNODE_ROOT}" ]]; then
-        node_version=${CHNODE_ROOT##*/}
-        node_version=${node_version/-/:}
-        node_version="${node_version:+ }${node_version}"
+      node_version=${CHNODE_ROOT##*/}
+      node_version=${node_version/-/:}
+      node_version="${node_version:+ }${node_version}"
     fi
 
     typeset -g dev_info_msg="${ruby_version}${node_version}"

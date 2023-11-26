@@ -74,7 +74,12 @@ bindkey -e
 bindkey "^[[3~" delete-char
 
 # fzf key bindings
-[ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
+if (( $+commands[fzf] )); then
+  if [ -d "$(brew --prefix fzf)" ]; then
+    source "/opt/homebrew/opt/fzf/shell/completion.zsh"
+    source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
+  fi
+fi
 
 # Editor
 if (( $+commands[nova] )); then
@@ -124,5 +129,5 @@ fi
 # Per-machine extras
 # ========================================
 if [ -e ${HOME}/.zsh_local ]; then
-    source ${HOME}/.zsh_local
+  source ${HOME}/.zsh_local
 fi
