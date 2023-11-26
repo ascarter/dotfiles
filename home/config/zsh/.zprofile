@@ -22,6 +22,10 @@ if [ -d "$CHRUBY_PREFIX/share/chruby" ]; then
   source "${CHRUBY_PREFIX}/share/chruby/auto.sh"
 fi
 
+# Rubies support
+# Add Ruby 3.2.2 to MANPATH until I can patch chruby...
+[ -d "$HOME/.rubies/ruby-3.2.2/share/man" ] && export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
+
 # Python
 if [ -d /Library/Frameworks/Python.framework ]; then
   path+=/Library/Frameworks/Python.framework/Versions/Current/bin
