@@ -71,6 +71,9 @@ Darwin )
   # Tailscale
   alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
+  # Proxyman
+  alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+
   # Apple Podcasts downloads
   alias podcastlib="/Users/acarter/Library/Group Containers/243LU875E5.groups.com.apple.podcasts/Library"
   ;;
