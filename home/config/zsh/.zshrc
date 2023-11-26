@@ -15,7 +15,6 @@
 # setopt XTRACE
 # =====================================
 
-
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add local zsh functions
@@ -99,9 +98,10 @@ export TEXEDIT='vim +%d %s'
 export PAGER="less -r"
 export LESS="--status-column --long-prompt --no-init --quit-if-one-screen --quit-at-eof -R"
 
-{{- if eq .chezmoi.os "linux" }}
-test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
-{{- end }}
+# dircolors
+if [[ $(uname) == "Linux" ]]; then
+  test -r ~/.dir_colors && eval $(dircolors ~/.dir_colors)
+fi
 
 # ========================================
 # Developer Tools
@@ -118,9 +118,9 @@ if (( $+commands[rbenv] )); then
 fi
 
 # Python
-{{- if eq .chezmoi.os "darwin" }}
-# Installed Python
-path+=/Library/Frameworks/Python.framework/Versions/Current/bin
+if [ -d /Library/Frameworks/Python.framework ]; then
+  path+=/Library/Frameworks/Python.framework/Versions/Current/bin
+fi
 
 # User pip installed binaries are in ~/Library
 local pyver=$(python3 -c "import sys; print ('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
@@ -129,7 +129,6 @@ if [[ -d ${HOME}/Library/Python/${pyver} ]]; then
     export LANG=en_US.UTF-8
     path+=${HOME}/Library/Python/${pyver}/bin
 fi
-{{- end }}
 
 # Android
 if [[ -d ${HOME}/Library/Android/sdk ]]; then
@@ -146,8 +145,8 @@ fi
 # Aliases
 # ========================================
 
-if [ -f ${ZDOTDIR}/aliases ]; then
-  source ${ZDOTDIR}/aliases
+if [ -f ${ZDOTDIR}/aliases.zsh ]; then
+  source ${ZDOTDIR}/aliases.zsh
 fi
 
 # ========================================
@@ -166,25 +165,18 @@ fi
 # Use 1Password SSH Agent if installed
 if [ -S ${HOME}/.1password/agent.sock ]; then
   export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
-{{- if eq .chezmoi.os "linux" }}
-else
-{{-   if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-  # WSL - use named pipe to Windows host ssh-agent
-  if type npiperelay.exe &>/dev/null; then
-    export SSH_AUTH_SOCK=${HOME}/.ssh/agent.sock
-    ss -a | grep -q $SSH_AUTH_SOCK
-    if [ $? -ne 0 ]; then
-      rm -f ${SSH_AUTH_SOCK}
-      ( setsid socat UNIX-LISTEN:${SSH_AUTH_SOCK},fork EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork & ) >/dev/null 2>&1
+elif [[ $(uname) == "Linux" ]]; then
+  if [[ $(uname -r) == *Microsoft* ]]; then
+    # WSL - use named pipe to Windows host ssh-agent
+    if type npiperelay.exe &>/dev/null; then
+      export SSH_AUTH_SOCK=${HOME}/.ssh/agent.sock
+      ss -a | grep -q $SSH_AUTH_SOCK
+      if [ $? -ne 0 ]; then
+        rm -f ${SSH_AUTH_SOCK}
+        ( setsid socat UNIX-LISTEN:${SSH_AUTH_SOCK},fork EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork & ) >/dev/null 2>&1
+      fi
     fi
   fi
-{{-   else }}
-  if (( $+commands[keychain] )); then
-    # Use keychain if installed
-    eval `keychain --eval --agents ssh id_rsa id_ed25519`
-  fi
-{{-   end }}
-{{- end }}
 fi
 
 # ========================================
@@ -200,13 +192,11 @@ fi
 # ========================================
 [[ -e ${ZDOTDIR}_local ]] && source ${ZDOTDIR}_local
 
-{{- if eq .chezmoi.os "linux" }}
 # ========================================
 # Banners and messages
 # ========================================
 
-if [ -x "$(command -v show-motd)" ] && show-motd login
-{{- end }}
+[ -x "$(command -v show-motd)" ] && show-motd login
 
 # =====================================
 # End tracing

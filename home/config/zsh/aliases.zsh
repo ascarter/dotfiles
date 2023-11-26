@@ -97,6 +97,7 @@ esac
 # dotfiles
 alias dotfiles='cd ${DOTFILES}'
 alias dfedit='code --new-window ${DOTFILES}'
+alias dfu='${DOTFILES}/install.sh'
 
 # zsh
 alias resetcomp='rm -f ${HOME}/.zcompdump && compinit'

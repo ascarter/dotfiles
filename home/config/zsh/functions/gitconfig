@@ -88,6 +88,7 @@ _gc_credentials() {
       _gc_set $1 gpg.program.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
       _gc_set $1 commit.gpgsign true
     fi
+  fi
 }
 
 gitconfig() {

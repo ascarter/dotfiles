@@ -1,6 +1,5 @@
-export ZDOTDIR=${XDG_CONFIG_HOME:=$HOME/.config}/zsh
-
-if (( +commands[brew] )); then
+# Configure homebrew shell environment
+if [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
   export HOMEBREW_NO_EMOJI=1
   brew analytics off
