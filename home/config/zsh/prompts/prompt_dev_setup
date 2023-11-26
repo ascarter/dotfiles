@@ -33,12 +33,7 @@ EOH
 }
 
 prompt_dev_setup () {
-  # Enable vcs info
   autoload -Uz vcs_info
-
-  ruby_info() {
-    [ ${RUBY_VERSION} ] && echo "${RUBY_VERSION} "
-  }
 
   if [[ "$TERM" = "xterm-256color" ]]; then
     GIT_CLEAN=' ≡'
@@ -58,14 +53,16 @@ prompt_dev_setup () {
     PROMPT+="%F{10}%n@%m%f${SEPARATOR}"
   fi
 
-  # Ruby vesion
-  PROMPT+='%F{8}$(ruby_info)%f'
-
   # ~/working/directory
   PROMPT+="%F{12}%(5~|…/%3~|%~)%f"
 
   # VCS info
   PROMPT+='${vcs_info_msg_0_}'
+
+  # Ruby version (via chruby)
+  PROMPT+='%F{8}${RUBY_VERSION:+ $RUBY_VERSION}%f'
+
+  # Input prompt
   PROMPT+=$' %# '
   PROMPT4='+%N:%i:%_>'
 
@@ -88,9 +85,15 @@ prompt_dev_setup () {
   zstyle ':vcs_info:git:*' actionformats " %F{11}${GIT_ICON}%b%f%F{10}%m%f%F{1}%c%f|%F{11}%a%f"
   zstyle ':vcs_info:git*+set-message:*' hooks dirty
 
-  precmd() {
-    vcs_info
-  }
+  # Execute chruby_auto before each prompt
+  if [[ $(whence -w 'chruby_auto' | cut -d ':' -f 2 | xargs) == function ]] && [[ ! "$precmd_functions" == *chruby_auto* ]]; then
+    precmd_functions+=("chruby_auto")
+  fi
+
+  # Update vcs_info before each prompt
+  if [[ $(whence -w 'vcs_info' | cut -d ':' -f 2 | xargs) == function ]] && [[ ! "$precmd_functions" == *vcs_info* ]]; then
+    precmd_functions+=("vcs_info")
+  fi
 }
 
 prompt_dev_setup "$@"
