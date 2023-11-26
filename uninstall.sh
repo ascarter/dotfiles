@@ -21,3 +21,8 @@ for f in $(find ${SRCDIR} -type f -print); do
     fi
   fi
 done
+
+# Remove zshenv
+if [ -f "${HOMEDIR}/.zshenv" ]; then
+  rm "${HOMEDIR}/.zshenv"
+fi
