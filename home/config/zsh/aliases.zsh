@@ -1,7 +1,7 @@
 case $(uname) in
 Darwin )
   # ls
-  alias ls='ls -hFH'
+  alias ls="ls -hFH"
 
   # macOS appearance
   alias darkmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to true"'
@@ -9,14 +9,14 @@ Darwin )
   alias switchmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
 
   # System shortcuts
-  alias lockscreen='/System/Library/CoreServices/"Menu Extras"/User.menu/Contents/Resources/CGSession -suspend'
+  alias lockscreen="/System/Library/CoreServices/"Menu Extras"/User.menu/Contents/Resources/CGSession -suspend"
   alias ejectall='osascript -e "tell application \"Finder\" to eject (every disk whose ejectable is true)"'
 
   # System information
-  alias about='system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
+  alias about="system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType"
 
   # Use sw_vers for version
-  alias sysver='sw_vers'
+  alias sysver="sw_vers"
 
   # IP addresses
 
@@ -40,32 +40,32 @@ Darwin )
   alias airport=/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport
 
   # Power managment
-  alias keepawake='caffeinate -d -i -s'
-  alias sleepnow='pmset sleepnow'
-  alias batterycapacity='ioreg -w0 -c AppleSmartBattery -b -f | grep -i capacity'
+  alias keepawake="caffeinate -d -i -s"
+  alias sleepnow="pmset sleepnow"
+  alias batterycapacity="ioreg -w0 -c AppleSmartBattery -b -f | grep -i capacity"
 
   # QuickLook
   alias ql='qlmanage -p "$@" >& /dev/null'
 
   # YubiKey
-  alias ykman='/Applications/YubiKey\ Manager.app/Contents/MacOS/ykman'
+  alias ykman="/Applications/YubiKey\ Manager.app/Contents/MacOS/ykman"
 
   # Dev tools
-  alias extags='/opt/homebrew/bin/ctags'
-  alias verifyxcode='spctl --assess --verbose /Applications/Xcode.app'
+  alias extags="/opt/homebrew/bin/ctags"
+  alias verifyxcode="spctl --assess --verbose /Applications/Xcode.app"
   alias sketchtool="$(mdfind kMDItemCFBundleIdentifier = 'com.bohemiancoding.sketch3' | head -n 1)/Contents/Resources/sketchtool/bin/sketchtool"
 
   # BBEdit aliases
   if (( $+commands[bbedit] )); then
-    alias bb='bbedit'
-    alias bbcl='bbedit --clean'
-    alias bbclw='bbedit --clean --new-window'
-    alias bbctags='/Applications/BBEdit.app/Contents/Helpers/ctags'
+    alias bb="bbedit"
+    alias bbcl="bbedit --clean"
+    alias bbclw="bbedit --clean --new-window"
+    alias bbctags="/Applications/BBEdit.app/Contents/Helpers/ctags"
     alias bbd=bbdiff
     alias bbmake="bbr make"
-    alias bbp='pbpaste | bbedit --clean --view-top'
-    alias bbtags='bbedit --maketags'
-    alias bbw='bbedit --new-window'
+    alias bbp="pbpaste | bbedit --clean --view-top"
+    alias bbtags="bbedit --maketags"
+    alias bbw="bbedit --new-window"
   fi
 
   # Tailscale
@@ -76,44 +76,44 @@ Darwin )
   ;;
 
 Linux )
-  alias ls='ls -hFH'
+  alias ls="ls -hFH"
   alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-  alias glock='gnome-screensaver-command --lock'
-  alias xlock='xscreensaver-command -lock'
+  alias glock="gnome-screensaver-command --lock"
+  alias xlock="xscreensaver-command -lock"
 
   # Linux version of macOS pbcopy/pbpaste.
   if (( $+commands[xsel] )); then
-    alias pbcopy='xsel --clipboard --input'
-    alias pbpaste='xsel --clipboard --output'
+    alias pbcopy="xsel --clipboard --input"
+    alias pbpaste="xsel --clipboard --output"
   fi
 
   # Use Fork on Windows with WSL
   if [ -n "${WSL_DISTRO_NAME}" ] && (( $+commands[Fork.exe] )); then
-      alias fork='Fork.exe $(wslpath -w $(git root))'
+      alias fork="Fork.exe $(wslpath -w $(git root))"
   fi
   ;;
 esac
 
 # dotfiles
-alias dotfiles='cd ${DOTFILES}'
-alias dfedit='code --new-window ${DOTFILES}'
-alias dfu='${DOTFILES}/install.sh'
+alias dotfiles="cd $DOTFILES"
+alias dfedit="$EDITOR $DOTFILES"
+alias dfu="$DOTFILES/install.sh"
 
 # zsh
-alias resetcomp='rm -f ${HOME}/.zcompdump && compinit'
+alias resetcomp="rm -f $HOME/.zcompdump && compinit"
 
 # 1Password
 if (( $+commands[op] )); then
-  alias 1pid='op user get --me --format json | jq .id -r'
+  alias 1pid="op user get --me --format json | jq .id -r"
 fi
 
 # Developer projects
-alias dev='cd ${HOME}/Developer'
+alias dev="cd $HOME/Developer"
 
 # ls
-alias ll='ls -l'
-alias la='ls -a'
-alias lla='ls -la'
+alias ll="ls -l"
+alias la="ls -a"
+alias lla="ls -la"
 alias lsd="ls -l | grep --color=never '^d'"
 alias lsz="ls -lAh | grep -m 1 total | sed 's/total //'"
 alias filetree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
@@ -123,7 +123,7 @@ alias devgrep="grep -n -r --exclude='.svn' --exclude='*.swp' --exclude='.git'"
 
 # SSH
 alias sshpw="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no"
-alias sshagentstart='eval $(ssh-agent -s) && ssh-add -A'
+alias sshagentstart="eval $(ssh-agent -s) && ssh-add -A"
 
 # MicroK8s/Kubernetes
 if ! (( $+commands[kubectl] )) && (( $+commands[microk8s] )); then
@@ -132,7 +132,7 @@ if ! (( $+commands[kubectl] )) && (( $+commands[microk8s] )); then
 fi
 
 # Stopwatch
-alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
+alias timer="echo "Timer started. Stop with Ctrl-D." && date && time cat && date"
 
 # Intuitive map function
 # For example, to list all directories that contain a certain file:
@@ -143,19 +143,19 @@ alias map="xargs -n1"
 command -v hd > /dev/null || alias hd="hexdump -C"
 
 # Resize terminal
-alias rs='resize -s 40 120'
-alias rst='resize -s 0 120'
+alias rs="resize -s 40 120"
+alias rst="resize -s 0 120"
 
 # Weather
-alias wfc='wttr Snoqualmie'
-alias wnow='wttr Snoqualmie format=3'
+alias wfc="wttr Snoqualmie"
+alias wnow="wttr Snoqualmie format=3"
 
 # Universal Development Container
-alias udc='docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /workspace mcr.microsoft.com/devcontainers/universal:latest'
+alias udc="docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /workspace mcr.microsoft.com/devcontainers/universal:latest"
 
 # Ruby
-alias createrbc='docker volume create ruby-bundle-cache'
-alias docked='docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli'
+alias createrbc="docker volume create ruby-bundle-cache"
+alias docked="docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli"
 # alias binit="bundle install --path vendor/bundle"
 # alias bstubs="bundle install --binstubs"
 # alias bexec="bundle exec"
@@ -166,24 +166,24 @@ alias docked='docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle 
 # alias gemuinstall="gem install --user-install"
 
 # Go
-alias gopresent='present -play=true &; open -g http://127.0.0.1:3999; fg'
-alias godocw='godoc -http=:6060 -play -q'
+alias gopresent="present -play=true &; open -g http://127.0.0.1:3999; fg"
+alias godocw="godoc -http=:6060 -play -q"
 
 # Node.js
-alias npmlist='npm list --depth=0'
+alias npmlist="npm list --depth=0"
 
 # Python
-alias rmpyc='find . -type f -name \*.pyc -print | xargs rm'
-alias pydocv='python -m pydoc'
-alias editvenv='bbedit --new-window ${VIRTUAL_ENV}'
-alias pipbrew='CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip'
-alias pdb='python -m pdb'
-alias pyunittest='python -m unittest discover --buffer'
+alias rmpyc="find . -type f -name \*.pyc -print | xargs rm"
+alias pydocv="python -m pydoc"
+alias editvenv="bbedit --new-window $VIRTUAL_ENV"
+alias pipbrew="CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip"
+alias pdb="python -m pdb"
+alias pyunittest="python -m unittest discover --buffer"
 
 # View HTTP traffic
 alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
 alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 
 # Networking
-alias tcplisten='lsof -nP -iTCP -sTCP:LISTEN'
-alias udplisten='lsof -nP -iUDP'
+alias tcplisten="lsof -nP -iTCP -sTCP:LISTEN"
+alias udplisten="lsof -nP -iUDP"
