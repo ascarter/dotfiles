@@ -39,10 +39,12 @@ prompt_dev_setup () {
     GIT_CLEAN=' ≡'
     GIT_DIRTY=' ✘'
     SEPARATOR=' ➜ '
+    TRUNC_CHAR='…'
   else
     GIT_CLEAN=' ='
     GIT_DIRTY=' x'
     SEPARATOR=' | '
+    TRUNC_CHAR='...'
   fi
 
   # Reset PROMPT
@@ -54,7 +56,7 @@ prompt_dev_setup () {
   fi
 
   # ~/working/directory
-  PROMPT+="%F{12}%40<…<%3~%f%<<% "
+  PROMPT+="%F{12}%40<${TRUNC_CHAR}<%3~%<<%f"
 
   # VCS info
   PROMPT+='${vcs_info_msg_0_}'
