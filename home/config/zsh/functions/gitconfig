@@ -90,7 +90,7 @@ _gc_credentials() {
     if [ -n "${signing_key}" ]; then
       _gc_set $1 user.signingkey "${signing_key}"
       _gc_set $1 gpg.format ssh
-      _gc_set $1 gpg.program.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      _gc_set $1 gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
       _gc_set $1 commit.gpgsign true
     fi
   fi
@@ -99,13 +99,8 @@ _gc_credentials() {
 _gc_tools() {
   case $(uname) in
   Darwin )
-    if (( $+commands[bbdiff] )); then
-      _gc_set $1 diff.tool "bbdiff"
-      _gc_set $1 diff.guitool "bbdiff"
-    else
-      _gc_set $1 diff.tool "opendiff"
-      _gc_set $1 diff.guitool "opendiff"
-    fi
+    _gc_set $1 diff.tool "opendiff"
+    _gc_set $1 diff.guitool "opendiff"
     _gc_set $1 merge.tool "opendiff"
     _gc_set $1 merge.guitool "opendiff"
     ;;
