@@ -16,14 +16,20 @@ fi
 # Developer Tools
 # ========================================
 
+# chruby
+if [ -n "${HOMEBREW_PREFIX}" ]; then
+  CHRUBY_PREFIX="$(brew --prefix chruby)"
+else
+  CHRUBY_PREFIX=/usr/local
+fi
+if [ -d "$CHRUBY_PREFIX/share/chruby" ]; then
+  source "${CHRUBY_PREFIX}/share/chruby/chruby.sh"
+  source "${CHRUBY_PREFIX}/share/chruby/auto.sh"
+fi
+
 # Ruby
 if (( $+commands[ruby] )) && (( $+commands[gem] )); then
   path+=$(ruby -r rubygems -e 'puts Gem.user_dir')/bin
-fi
-
-# rbenv
-if (( $+commands[rbenv] )); then
-  eval "$(rbenv init - zsh)"
 fi
 
 # Python
