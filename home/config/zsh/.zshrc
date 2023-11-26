@@ -94,7 +94,7 @@ else
 fi
 
 # less
-export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen --quit-at-eof -R"
+export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
 # terminal theme
 ttheme nova
