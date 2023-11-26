@@ -58,7 +58,7 @@ prompt_dev_setup () {
     CWD=$'%1~'
     SEPARATOR=':'
   else
-    CWD=$'%3~'
+    CWD=$'%(5~|…/%3~|%~)'
   fi
 
   if [[ $(whence -w 'vcs_info' | cut -d ':' -f 2 | xargs) == function ]]; then
