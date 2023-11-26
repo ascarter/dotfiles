@@ -32,33 +32,64 @@
 !--------------------------------------
 ! Git Hub Dimmed colors
 !--------------------------------------
-*.foreground:   #ADBAC7
-*.background:   #22262C
-*.cursorColor:  #FFFFFF
+!*.foreground:   #ADBAC7
+!*.background:   #22262C
+!*.cursorColor:  #FFFFFF
 ! black
-*.color0:       #22272E
-*.color8:       #2D333B
+!*.color0:       #22272E
+!*.color8:       #2D333B
 ! red
-*.color1:       #F47067
-*.color9:       #FF938A
+!*.color1:       #F47067
+!*.color9:       #FF938A
 ! green
-*.color2:       #57AB5A
-*.color10:      #6BC46D
+!*.color2:       #57AB5A
+!*.color10:      #6BC46D
 ! yellow
-*.color3:       #C69026
-*.color11:      #DAAA3F
+!*.color3:       #C69026
+!*.color11:      #DAAA3F
 ! blue
-*.color4:       #539BF5
-*.color12:      #6CB6FF
+!*.color4:       #539BF5
+!*.color12:      #6CB6FF
 ! magenta
-*.color5:       #B083F0
-*.color13:      #DCBDFB
+!*.color5:       #B083F0
+!*.color13:      #DCBDFB
 ! cyan
-*.color6:       #76E3EA
-*.color14:      #B3F0FF
+!*.color6:       #76E3EA
+!*.color14:      #B3F0FF
 ! white
-*.color7:       #909DAB
-*.color15:      #909DAB
+!*.color7:       #909DAB
+!*.color15:      #909DAB
+
+!--------------------------------------
+! Apple Developer colors
+!--------------------------------------
+*.foreground:   #F4F4F4
+*.background:   #202020
+*.cursorColor:  #606060
+! black
+*.color0:       #000000
+*.color8:       #666666
+! red
+*.color1:       #941100
+*.color9:       #E50000
+! green
+*.color2:       #00A600
+*.color10:      #00D900
+! yellow
+*.color3:       #999900
+*.color11:      #E5E500
+! blue
+*.color4:       #0000B2
+*.color12:      #0000FF
+! magenta
+*.color5:       #B200B2
+*.color13:      #E500E5
+! cyan
+*.color6:       #00A6B2
+*.color14:      #00E5E5
+! white
+*.color7:       #BFBFBF
+*.color15:      #E5E5E5
 
 !--------------------------------------
 ! Nord colors
