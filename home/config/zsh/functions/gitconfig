@@ -26,8 +26,13 @@ _gc_update() {
 }
 
 # Prompt for git config key
+# Parameters:
+#   $1 == gitconfig file
+#   $2 == key
+#   $3 == default value
 _gc_prompt() {
-  local input="$(git config --file $1 --get "${2}")"
+  local gc_email=$(git config --file $1 --get "${2}")
+  local input="${gc_email:-$3}"
   vared -p "${2}: " input
   _gc_update ${1} "${2}" "${input}"
 }
@@ -94,15 +99,15 @@ _gc_credentials() {
 _gc_tools() {
   case $(uname) in
   Darwin )
-    if $(command -v bbdiff)
-      _gc_set $1 diff.tool 'bbdiff'
-      _gc_set $1 diff.guitool 'bbdiff'
+    if (( $+commands[bbdiff] )); then
+      _gc_set $1 diff.tool "bbdiff"
+      _gc_set $1 diff.guitool "bbdiff"
     else
-      _gc_set $1 diff.tool 'opendiff'
-      _gc_set $1 diff.guitool 'opendiff'
+      _gc_set $1 diff.tool "opendiff"
+      _gc_set $1 diff.guitool "opendiff"
     fi
-    _gc_set $1 merge.tool 'opendiff'
-    _gc_set $1 merge.guitool 'opendiff'
+    _gc_set $1 merge.tool "opendiff"
+    _gc_set $1 merge.guitool "opendiff"
     ;;
   Linux ) ;;
   esac
@@ -123,15 +128,13 @@ gitconfig() {
   echo "Generating $GIT_CONFIG_FILE"
   touch $GIT_CONFIG_FILE
 
-  # Include defaults and aliases
-  # _gc_set $GIT_CONFIG_FILE include.path ${DOTFILES}/gitconfig
-
   # User info
-  _gc_prompt $GIT_CONFIG_FILE user.name "User name"
-  _gc_prompt $GIT_CONFIG_FILE user.email "Email"
+  _gc_prompt $GIT_CONFIG_FILE user.name "$USERNAME"
+  _gc_prompt $GIT_CONFIG_FILE user.email "$USERNAME@users.noreply.github.com"
 
   _gc_credentials $GIT_CONFIG_FILE
   _gc_tools $GIT_CONFIG_FILE
+
 }
 
 gitconfig "$@"
