@@ -29,9 +29,6 @@ bashcompinit
 # Enable completion for aliases
 setopt completealiases
 
-# Enable vcs info
-autoload -Uz vcs_info
-
 # Completion configuration
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' completer _extensions _complete _approximate
@@ -51,7 +48,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # Default: PS1="%m%# "
 declare +x PS1
-prompt vscode
+prompt vcs
 
 # ========================================
 # Shell preferences
