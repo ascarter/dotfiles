@@ -48,7 +48,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # Default: PS1="%m%# "
 declare +x PS1
-prompt dev --timestamp
+prompt dev --nostatus
 
 # ========================================
 # Shell preferences
@@ -74,12 +74,10 @@ bindkey -e
 bindkey "^[[3~" delete-char
 
 # Editor
+export EDITOR="vim"
+export VISUAL="vim -g"
 if (( $+commands[bbedit] )); then
-  export EDITOR="bbedit --wait --resume --new-window"
-  export EDITOR="bbedit --wait --resume --new-window"
-else
-  export EDITOR="vim"
-  export VISUAL="vim -g"
+  export VISUAL="bbedit --wait --resume --new-window"
 fi
 
 export LESSEDIT='vim ?lm+%lm. %f'

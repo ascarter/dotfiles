@@ -15,3 +15,6 @@ mode = unix-shell-script
 [{gitconfig,config/git/*}]
 mode = ini-file
 indent_style = tab
+
+[home/irbrc]
+mode = ruby
