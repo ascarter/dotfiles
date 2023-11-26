@@ -45,19 +45,11 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'xu-cheng/brew.vim'
 
-" Disabled plugins
-"Plug 'dense-analysis/ale'
-
 " Color schemes
 Plug 'arcticicestudio/nord-vim'
 Plug 'ascarter/vim-rain'
 Plug 'cocopon/iceberg.vim'
-Plug 'haishanh/night-owl.vim'
 Plug 'Lokaltog/vim-monotone'
-Plug 'lunacookies/vim-colors-xcode'
-Plug 'macguirerintoul/night_owl_light.vim'
-Plug 'romainl/Apprentice'
-Plug 'romainl/vim-dichromatic'
 Plug 'vim/colorschemes'
 Plug '0mp/vim-robpike'
 
@@ -213,10 +205,6 @@ set autoindent
 
 " Ensure word wrap does not split words
 set linebreak
-
-" Chezmoi
-" Automatically apply chezmoi changes
-autocmd BufWritePost ~/.local/share/chezmoi/* ! chezmoi apply --source-path "%"
 
 " Go
 let g:go_fmt_command = "gofmt"
