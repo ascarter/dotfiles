@@ -27,6 +27,17 @@ log() {
   fi
 }
 
+prompt() {
+  choice=y
+  read -p "$1 (y/N)" -n1 choice
+  echo
+  case $choice in
+  [yY]*) return 0 ;;
+  esac
+
+  return 1
+}
+
 install_prerequisites() {
   case $(uname) in
   Darwin )
@@ -52,7 +63,11 @@ install_prerequisites() {
     fi
 
     # Install Rosetta 2
-    softwareupdate --install-rosetta
+    if ! pgrep -q oahd ; then
+      softwareupdate --install-rosetta
+    else
+      echo "Rosetta 2 installed"
+    fi
     ;;
   Linux )
     # TODO
@@ -67,13 +82,19 @@ install_homebrew() {
     if ! command -v brew >/dev/null 2>&1; then
       echo "Installing homebrew"
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      eval "$(/opt/homebrew/bin/brew shellenv)"
     else
       echo "Homebrew installed"
     fi
 
     # Install packages
     if command -v brew >/dev/null 2>&1; then
-      brew bundle --file="$PWD/home/Brewfile"
+      local files=(${DOTFILES}/home/Brewfile ${DOTFILES}/homebrew/apps.brewfile ${DOTFILES}/homebrew/fonts.brewfile)
+      for f in "${files[@]}"; do
+        if prompt "Install Homebrew packages from $(basename ${f})?" ; then
+          brew bundle --file="${f}"
+        fi
+      done
     fi
     ;;
   Linux )

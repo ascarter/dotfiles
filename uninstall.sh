@@ -9,8 +9,8 @@ usage() {
   echo ""
   echo "Uninstall dotfiles"
   echo ""
+  echo "-d: Dryrun (non-destructive)"
   echo "-n: Do not not prompt for confirmation"
-  echo "-v: Verbose output"
 }
 
 log() {
@@ -18,13 +18,13 @@ log() {
 }
 
 safe_rm() {
-  if [ $DRYRUN -eq 0 ]; then
+  if [ -z ${DRYRUN} ]; then
     rm "$1"
   fi
 }
 
 safe_mv() {
-  if [ $DRYRUN -eq 0 ]; then
+  if [ -z ${DRYRUN} ]; then
     mv "$1" "$2"
   fi
 }
@@ -50,14 +50,14 @@ remove_zshenv() {
 
 remove_homebrew() {
   log "Uninstalling Homebrew"
-  if [ $DRYRUN -eq 0 ]; then
+  if [ -z ${DRYRUN} ]; then
     /bin/bash -c "$(curl -fsSL ${HOMEBREW_UNINSTALL_URL})"
   fi
 }
 
 prompt() {
   choice=y
-  if [ $NON_INTERACTIVE -eq 0 ]; then
+  if [ -z ${NONINTERACTIVE} ]; then
     read -p "$1 (y/N)" -n1 choice
     echo
   fi
@@ -69,16 +69,14 @@ prompt() {
 }
 
 # Options
-DRYRUN=0
-NON_INTERACTIVE=0
-VERBOSE=0
+DRYRUN=
+NONINTERACTIVE=
 
 while getopts "dhnv" opt; do
   case ${opt} in
     d ) DRYRUN=1 ;;
     h ) usage && exit 0 ;;
-    n ) NON_INTERACTIVE=1 ;;
-    v ) VERBOSE=1 ;;
+    n ) NONINTERACTIVE=1 ;;
     \? ) usage && exit 1 ;;
   esac
 done
