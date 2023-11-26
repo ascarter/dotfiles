@@ -73,19 +73,23 @@ bindkey -e
 # Forward delete
 bindkey "^[[3~" delete-char
 
+# fzf key bindings
+[ -f ${HOME}/.fzf.zsh ] && source ${HOME}/.fzf.zsh
+
 # Editor
-export EDITOR="vim"
-export VISUAL="vim -g"
-if (( $+commands[bbedit] )); then
-  export VISUAL="bbedit --wait --resume --new-window"
+if (( $+commands[nova] )); then
+  export EDITOR="nova --wait"
+  export VISUAL="${EDITOR}"
+elif (( $+commands[bbedit] )); then
+  export EDITOR="bbedit --wait --resume --new-window"
+  export VISUAL="${EDITOR}"
+else
+  export EDITOR="vim"
+  export VISUAL="vim -g"
 fi
 
-export LESSEDIT='vim ?lm+%lm. %f'
-export TEXEDIT='vim +%d %s'
-
 # less
-export PAGER="less -r"
-export LESS="--status-column --long-prompt --no-init --quit-if-one-screen --quit-at-eof -R"
+export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen --quit-at-eof -R"
 
 # terminal theme
 ttheme panic
