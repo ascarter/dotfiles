@@ -91,6 +91,23 @@ _gc_credentials() {
   fi
 }
 
+_gc_tools() {
+  case $(uname) in
+  Darwin )
+    if $(command -v bbdiff)
+      _gc_set $1 diff.tool 'bbdiff'
+      _gc_set $1 diff.guitool 'bbdiff'
+    else
+      _gc_set $1 diff.tool 'opendiff'
+      _gc_set $1 diff.guitool 'opendiff'
+    fi
+    _gc_set $1 merge.tool 'opendiff'
+    _gc_set $1 merge.guitool 'opendiff'
+    ;;
+  Linux ) ;;
+  esac
+}
+
 gitconfig() {
   zparseopts -D -E -F -color=color -opt=opt -help=help
   help=${#help}
@@ -114,6 +131,7 @@ gitconfig() {
   _gc_prompt $GIT_CONFIG_FILE user.email "Email"
 
   _gc_credentials $GIT_CONFIG_FILE
+  _gc_tools $GIT_CONFIG_FILE
 }
 
 gitconfig "$@"

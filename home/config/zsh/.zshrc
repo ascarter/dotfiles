@@ -77,8 +77,14 @@ bindkey -e
 bindkey "^[[3~" delete-char
 
 # Editor
-export EDITOR="vim"
-export VISUAL="vim -g"
+if (( $+commands[bbedit] )); then
+  export EDITOR="bbedit --wait --resume"
+  export EDITOR="bbedit --wait --resume"
+else
+  export EDITOR="vim"
+  export VISUAL="vim -g"
+fi
+
 export LESSEDIT='vim ?lm+%lm. %f'
 export TEXEDIT='vim +%d %s'
 
