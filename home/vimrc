@@ -1,4 +1,3 @@
-" vimrc
 " Multi-platform vimrc for software development
 "
 " Author: Andrew Carter <ascarter@uw.edu>
@@ -71,12 +70,11 @@ if has("termguicolors")
   endif
 endif
 
-set background=dark
-try
-  colorscheme quiet
-catch
-  colorscheme default
-endtry
+" try
+"  colorscheme default
+" catch
+"  colorscheme default
+" endtry
 
 " Signify configuration - similar to Xcode
 let g:signify_sign_add    = ''
