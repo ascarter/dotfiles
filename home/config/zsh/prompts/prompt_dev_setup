@@ -8,24 +8,6 @@ prompt_dev_help () {
   cat <<'EOH'
 Developer prompt with minimal vcs info (git branch and dirty state)
 
-## Usage
-
-```
-prompt dev [--twoline|--timestamp|--compact|--icon|--vcsr]
-
-Options:
-  --compact      Compact prompt
-  --icon         Show icons
-  --nostatus     Hide last command status
-  --rtimestamp   Show timestamp on RPROMPT
-  --ruby         Show Ruby version when in chruby environment
-  --rvcs         VCS info on RPROMPT
-  --timestamp    Show timestamp on PROMPT
-  --twoline      Two-line version
-```
-
-## Configuration
-
 By default, this script provides a custom command prompt that includes information
 about the git repository for the current folder. However, with certain large repositories,
 this can result in a slow command prompt due to the performance of needed git operations.
@@ -51,44 +33,25 @@ EOH
 }
 
 prompt_dev_setup () {
-  zparseopts -D -E -F -compact=compact -host=host -icon=icon -nostatus=nostatus -rtimestamp=rtimestamp -ruby=ruby -rvcs=rvcs -timestamp=timestamp -twoline=twoline
-
   # Enable vcs info
   autoload -Uz vcs_info
+
+  ruby_info() {
+    [ ${RUBY_VERSION} ] && echo "${RUBY_VERSION} "
+  }
 
   if [[ "$TERM" = "xterm-256color" ]]; then
     GIT_CLEAN=' ≡'
     GIT_DIRTY=' ✘'
     SEPARATOR=' ➜ '
-    STATUS_ERR='⊗'
-    STATUS_OK='⏺'
-
-    if [[ -n ${icon} ]]; then
-      GIT_ICON='⎇ '
-      TIME_ICON='⏱ '
-    fi
   else
-    GIT_CLEAN='='
-    GIT_DIRTY='x'
+    GIT_CLEAN=' ='
+    GIT_DIRTY=' x'
     SEPARATOR=' | '
   fi
 
-  CWD=$'%(5~|…/%3~|%~)'
-
-  if [[ -n ${compact} ]]; then
-    CWD=$'%1~'
-    SEPARATOR=':'
-  fi
-
+  # Reset PROMPT
   PROMPT=
-  PROMPT4=
-  RPROMPT=
-
-  # Two-line - prefix with blank line
-  [[ -n ${twoline} ]] && PROMPT+=$'\n'
-
-  # Last command status
-  [[ -z ${nostatus} ]] && [[ ${TERM_PROGRAM} != 'vscode' ]] && [[ "$TERM" = "xterm-256color" ]] && PROMPT+="%(?.%F{14}${STATUS_OK}%f.%F{9}${STATUS_ERR}%f) "
 
   # user@host
   if [[ -n ${host} ]] || [[ -n ${SSH_TTY} ]]; then
@@ -96,29 +59,14 @@ prompt_dev_setup () {
   fi
 
   # Ruby vesion
-  [[ -n ${ruby} ]] && PROMPT+="%F{4}$(get_ruby_version)%f "
+  PROMPT+='%F{8}$(ruby_info)%f'
 
   # ~/working/directory
-  PROMPT+="%F{12}${CWD}%f"
+  PROMPT+="%F{12}%(5~|…/%3~|%~)%f"
 
   # VCS info
-  if [[ -n ${rvcs} ]]; then
-    RPROMPT='${vcs_info_msg_0_}'
-  else
-    PROMPT+='${vcs_info_msg_0_}'
-  fi
-
-  # Timestamp
-  [[ -n ${rtimestamp} ]] && RPROMPT+="%F{6}${TIME_ICON}%*%f"
-  [[ -n ${timestamp} ]] && PROMPT+=" %F{6}${TIME_ICON}%*%f"
-
-  # Two-line
-  if [[ -n ${twoline} ]]; then
-    PROMPT+=$'\n%# '
-  else
-    PROMPT+=$' %# '
-  fi
-
+  PROMPT+='${vcs_info_msg_0_}'
+  PROMPT+=$' %# '
   PROMPT4='+%N:%i:%_>'
 
   prompt_opts=( cr percent subst sp )
@@ -140,18 +88,8 @@ prompt_dev_setup () {
   zstyle ':vcs_info:git:*' actionformats " %F{11}${GIT_ICON}%b%f%F{10}%m%f%F{1}%c%f|%F{11}%a%f"
   zstyle ':vcs_info:git*+set-message:*' hooks dirty
 
-  terminal_title() {
-    # Update terminal title on Linux
-    case $(uname) in (Linux) print -Pn "\e]0;%n@%m: %1~\a"; esac
-  }
-
-  get_ruby_version() {
-    [[ -n ${RUBY_VERSION} ]] && echo '${RUBY_VERSION}'
-  }
-
   precmd() {
     vcs_info
-    terminal_title
   }
 }
 
