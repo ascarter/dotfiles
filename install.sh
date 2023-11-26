@@ -89,10 +89,9 @@ install_homebrew() {
 
     # Install packages
     if command -v brew >/dev/null 2>&1; then
-      local files=(${DOTFILES}/home/Brewfile ${DOTFILES}/homebrew/apps.brewfile ${DOTFILES}/homebrew/fonts.brewfile)
-      for f in "${files[@]}"; do
+      for f in ${DOTFILES}/homebrew/* ; do
         if prompt "Install Homebrew packages from $(basename ${f})?" ; then
-          brew bundle --file="${f}"
+          brew bundle --no-lock --file="${f}"
         fi
       done
     fi
