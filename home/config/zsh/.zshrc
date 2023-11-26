@@ -10,8 +10,6 @@ if [[ -d ${HOME}/.local/share/zsh/functions ]]; then
   fpath+=(${HOME}/.local/share/zsh/functions)
 fi
 
-ztraceon
-
 autoload -Uz compinit
 compinit -u
 
@@ -151,12 +149,10 @@ fi
 # ========================================
 # Per-machine extras
 # ========================================
-[[ -e ${ZDOTDIR}_local ]] && source ${ZDOTDIR}_local
+[[ -e ${HOME}/.zsh_local ]] && source ${HOME}/.zsh_local
 
 # ========================================
 # Banners and messages
 # ========================================
 
 [ -x "$(command -v show-motd)" ] && show-motd login
-
-ztraceoff
