@@ -9,14 +9,6 @@
 [color]
 	ui = auto
 
-[color "status"]
-	added = green bold
-	changed = red bold
-	untracked = cyan bold
-	branch = yellow bold
-	localBranch = yellow bold
-	remoteBranch = cyan bold
-
 [instaweb]
 	httpd = webrick
 

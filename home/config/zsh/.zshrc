@@ -92,7 +92,7 @@ fi
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen --quit-at-eof -R"
 
 # terminal theme
-ttheme panic
+ttheme nova
 
 # ========================================
 # Developer
