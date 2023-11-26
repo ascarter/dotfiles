@@ -33,7 +33,7 @@ install_prerequisites() {
       open https://itunes.apple.com/us/app/xcode/id497799835?mt=12
       exit 1
     else
-      [ $VERBOSE -eq 1 ] && echo "Xcode installed"
+      echo "Xcode installed"
     fi
 
     # Install Xcode command line tools
@@ -43,7 +43,7 @@ install_prerequisites() {
       echo
       sudo xcodebuild -runFirstLaunch
     else
-      [ $VERBOSE -eq 1 ] && echo "Xcode command line tools installed"
+      echo "Xcode command line tools installed"
     fi
     ;;
   Linux )
@@ -59,14 +59,16 @@ install_homebrew() {
 
     # Install Homebrew
     if ! command -v brew >/dev/null 2>&1; then
-      echo "TODO: Install homebrew..."
-      #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
-      [ $VERBOSE -eq 1 ] && echo "Homebrew installed"
+      echo "Homebrew installed"
     fi
 
     # Install packages
-    # brew bundle --file="$PWD/home/Brewfile"
+    if $(command -v brew); then
+      # brew bundle --file="$PWD/home/Brewfile"
+      echo "TODO: install from Brewfile..."
+    fi
     ;;
   Linux )
     # TODO
@@ -84,7 +86,7 @@ install_macports() {
       echo "TODO: install MacPorts..."
       #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
-      [ $VERBOSE -eq 1 ] && echo "MacPorts installed"
+      echo "MacPorts installed"
     fi
 
     # Update MacPorts
@@ -127,6 +129,9 @@ shift $((OPTIND -1))
 
 HOMEDIR="${1:-${HOME}}"
 DOTFILES="${2:-${HOMEDIR}/.config/dotfiles}"
+
+echo "Installing dotfiles to ${DOTFILES}"
+echo "Home is ${HOMEDIR}"
 
 install_prerequisites
 [ $HOMEBREW -eq 1 ] && install_homebrew
