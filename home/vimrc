@@ -72,7 +72,7 @@ endif
 
 set background=dark
 try
-  colorscheme nord
+  colorscheme rain
 catch
   colorscheme default
 endtry
