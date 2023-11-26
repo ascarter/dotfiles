@@ -38,6 +38,11 @@ if (( $+commands[go] )); then
   path+=$(go env GOPATH)/bin
 fi
 
+# Rust
+if [ -d "${HOME}/.cargo" ]; then
+  . "$HOME/.cargo/env"
+fi
+
 # Android
 if [[ -d ${HOME}/Library/Android/sdk ]]; then
   export ANDROID_HOME=${HOME}/Library/Android/sdk
