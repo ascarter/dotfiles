@@ -73,8 +73,7 @@ install_homebrew() {
 
     # Install packages
     if command -v brew >/dev/null 2>&1; then
-      # brew bundle --file="$PWD/home/Brewfile"
-      echo "TODO: install from Brewfile..."
+      brew bundle --file="$PWD/home/Brewfile"
     fi
     ;;
   Linux )
