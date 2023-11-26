@@ -61,8 +61,8 @@ prompt_dev_setup () {
   # VCS info
   PROMPT+='${vcs_info_msg_0_}'
 
-  # Ruby version (via chruby)
-  PROMPT+='%F{8}${RUBY_VERSION:+ }${RUBY_VERSION}%f'
+  # Developer information
+  PROMPT+='%F{8}${dev_info_msg}%f'
 
   # Input prompt
   PROMPT+=$' %# '
@@ -87,15 +87,42 @@ prompt_dev_setup () {
   zstyle ':vcs_info:git:*' actionformats " %F{11}%b%f%F{10}%m%f%F{2}%c%f|%F{11}%a%f"
   zstyle ':vcs_info:git*+set-message:*' hooks dirty
 
+  dev_info() {
+    local ruby_version=
+    local node_version=
+
+    # Ruby version (via chruby)
+    if [[ -n "${RUBY_VERSION}" ]]; then
+      ruby_version="${RUBY_VERSION:+ ruby:}${RUBY_VERSION}"
+    fi
+
+    # Node.js version (via chnode)
+    if [[ -n "${CHNODE_ROOT}" ]]; then
+        node_version=${CHNODE_ROOT##*/}
+        node_version=${node_version/-/:}
+        node_version="${node_version:+ }${node_version}"
+    fi
+
+    typeset -g dev_info_msg="${ruby_version}${node_version}"
+  }
+
   # Execute chruby_auto before each prompt
   if [[ $(whence -w 'chruby_auto' | cut -d ':' -f 2 | xargs) == function ]] && [[ ! "$precmd_functions" == *chruby_auto* ]]; then
     precmd_functions+=("chruby_auto")
+  fi
+
+  # Execute chnode_auto before each prompt
+  if [[ $(whence -w 'chnode_auto' | cut -d ':' -f 2 | xargs) == function ]] && [[ ! "$precmd_functions" == *chnode_auto* ]]; then
+    precmd_functions+=("chnode_auto")
   fi
 
   # Update vcs_info before each prompt
   if [[ $(whence -w 'vcs_info' | cut -d ':' -f 2 | xargs) == function ]] && [[ ! "$precmd_functions" == *vcs_info* ]]; then
     precmd_functions+=("vcs_info")
   fi
+
+  # Update dev_info
+  precmd_functions+=("dev_info")
 }
 
 prompt_dev_setup "$@"

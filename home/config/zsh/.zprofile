@@ -10,22 +10,33 @@ fi
 # Developer Tools
 # ========================================
 
-# chruby
+# Ruby
 if (( $+commands[brew] )); then
   CHRUBY_PREFIX="$(brew --prefix chruby)"
 else
   CHRUBY_PREFIX=/usr/local
 fi
 
-if [ -d "$CHRUBY_PREFIX/share/chruby" ]; then
+if [ -d "${CHRUBY_PREFIX}/share/chruby" ]; then
   source "${CHRUBY_PREFIX}/share/chruby/chruby.sh"
   source "${CHRUBY_PREFIX}/share/chruby/auto.sh"
 fi
 
-# Rubies support
 # Add Ruby 3.2.2 to MANPATH until I can patch chruby...
 if [ -d "$HOME/.rubies/ruby-3.2.2/share/man" ]; then
     export MANPATH=$HOME/.rubies/ruby-3.2.2/share/man:$MANPATH
+fi
+
+# Node.JS
+if (( $+commands[brew] )); then
+  CHNODE_PREFIX="$(brew --prefix chnode)"
+else
+  CHNODE_PREFIX=/usr/local
+fi
+
+if [ -d "${CHNODE_PREFIX}/share/chnode" ]; then
+  source "${CHNODE_PREFIX}/share/chnode/chnode.sh"
+  source "${CHNODE_PREFIX}/share/chnode/auto.sh"
 fi
 
 # Python
