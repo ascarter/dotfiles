@@ -47,22 +47,24 @@ prompt_dev_setup () {
     TRUNC_CHAR='...'
   fi
 
+  # colors: black, red, green, yellow, blue, magenta, cyan, white and default
+
   # Reset PROMPT
   PROMPT=
 
   # user@host
   if [[ -n ${SSH_TTY} ]]; then
-    PROMPT+="%F{8}%n@%m${SEPARATOR}%f"
+    PROMPT+="%F{cyan}%n@%m${SEPARATOR}%f"
   fi
 
   # ~/working/directory
-  PROMPT+="%F{4}%40<${TRUNC_CHAR}<%3~%<<%f"
+  PROMPT+="%F{blue}%40<${TRUNC_CHAR}<%3~%<<%f"
 
   # VCS info
-  PROMPT+='%F{10}${vcs_info_msg_0_}%f'
+  PROMPT+='%F{green}${vcs_info_msg_0_}%f'
 
   # Developer information
-  PROMPT+='%F{8}${dev_info_msg}%f'
+  PROMPT+='%F{magenta}${dev_info_msg}%f'
 
   # Input prompt
   PROMPT+=$' %# '
