@@ -37,7 +37,7 @@ prompt_dev_setup () {
 
   if [[ "$TERM" = "xterm-256color" ]]; then
     SEPARATOR=' ➜ '
-    GIT_CLEANN='⎇ '
+    GIT_CLEAN='⎇ '
     GIT_DIRTY='⎇ '
     STATUS_OK='⏺ '
     STATUS_ERR='⊗ '
@@ -72,9 +72,9 @@ prompt_dev_setup () {
     +vi-dirty() {
       if [[ ! $(git config --bool devcontainers-theme.hide-status) == "true" && $(git config --bool devcontainers-theme.show-dirty) == "true" ]]  && \
               git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then
-          hook_com[staged]="$GIT_DIRTY"
+        hook_com[staged]="$GIT_DIRTY"
       else
-          hook_com[misc]="$GIT_CLEAN"
+        hook_com[misc]="$GIT_CLEAN"
       fi
     }
 
