@@ -40,6 +40,7 @@ Plug 'lifepillar/pgsql.vim'
 Plug 'lifepillar/vim-colortemplate'
 Plug 'mhinz/vim-signify'
 Plug 'rust-lang/rust.vim'
+Plug 'sunaku/vim-ruby-minitest'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
@@ -72,7 +73,7 @@ endif
 
 set background=dark
 try
-  colorscheme rain
+  colorscheme quiet
 catch
   colorscheme default
 endtry
@@ -317,7 +318,7 @@ if has("gui_running")
     set transparency=2
 
     " set macthinstrokes
-    set guifont=IBM\ Plex\ Mono:h13,SF\ Mono\ Regular:h13,Menlo:h13
+    set guifont=MonaspaceNeonVar-Medium:h13,IBM\ Plex\ Mono:h13,SF\ Mono\ Regular:h13,Menlo:h13
     let macvim_hig_shift_movement = 1
     au FocusLost * set transp=5
     au FocusGained * set transp=0
@@ -355,10 +356,10 @@ if has("gui_running")
     set guifont=Monospace\ 14
   elseif has('gui_gtk2') || has('gui_gtk3')
     " Linux
-    set guifont=IBM\ Plex\ Mono:h13,Monospace\ 11
+    set guifont=MonaspaceNeonVar-Medium:h13,IBM\ Plex\ Mono:h13,Monospace\ 11
   elseif has('gui_win32')
     " Windows
-    set guifont=IBM\ Plex\ Mono:h13,Source\ Code\ Pro:h13,Cascadia\ Code:h13,Consolas:h13
+    set guifont=MonaspaceNeonVar-Medium:h13,IBM\ Plex\ Mono:h13,Source\ Code\ Pro:h13,Cascadia\ Code:h13,Consolas:h13
     set renderoptions=type:directx
   endif
 endif
