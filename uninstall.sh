@@ -2,7 +2,7 @@
 #
 # Uninstall script for my dotfiles
 
-set -ueo pipefail
+set -euo pipefail
 
 usage() {
   echo "Usage: $0 [-nv]"
@@ -51,7 +51,7 @@ remove_zshenv() {
 remove_homebrew() {
   log "Uninstalling Homebrew"
   if [ -z ${DRYRUN} ]; then
-    /bin/bash -c "$(curl -fsSL ${HOMEBREW_UNINSTALL_URL})"
+    /bin/bash -c "$(curl -fsSL ${HOMEBREW_UNINSTALL_URL})" || true
   fi
 }
 

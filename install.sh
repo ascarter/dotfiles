@@ -3,7 +3,7 @@
 # Install script for my dotfiles
 #
 
-set -ueo pipefail
+set -euo pipefail
 
 usage() {
   echo "Usage: $0 [-nv] [HOMEDIR [DOTFILES]]"
@@ -91,7 +91,7 @@ install_homebrew() {
     if command -v brew >/dev/null 2>&1; then
       for f in ${DOTFILES}/homebrew/* ; do
         if prompt "Install Homebrew packages from $(basename ${f})?" ; then
-          brew bundle --no-lock --file="${f}"
+          brew bundle --no-lock --file="${f}" || true
         fi
       done
     fi
