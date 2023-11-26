@@ -21,10 +21,16 @@ usage() {
   echo "  $0 /home/ascarter /home/ascarter/.config/dotfiles"
 }
 
+log() {
+  if [ $VERBOSE -eq 1 ]; then
+    echo $1
+  fi
+}
+
 install_prerequisites() {
   case $(uname) in
   Darwin )
-    echo "Installing on $(sw_vers -productName) $(sw_vers -productVersion)"
+    echo "$(sw_vers -productName) $(sw_vers -productVersion)"
 
     # Verify Xcode installed
     if ! [ -e /usr/bin/xcode-select ]; then
@@ -77,7 +83,7 @@ install_homebrew() {
 remove_broken_symlinks() {
   local files=("$@")
   for f in "${files[@]}"; do
-    [ $VERBOSE -eq 1 ] && echo "Check symlink ${f}"
+    log "Check symlink ${f}"
     if ! [ -e "${f}" ]; then
       echo "Remove broken symlink ${f}"
       rm "${f}"
@@ -102,14 +108,20 @@ shift $((OPTIND -1))
 HOMEDIR="${1:-${HOME}}"
 DOTFILES="${2:-${HOMEDIR}/.config/dotfiles}"
 
-echo "Installing dotfiles to ${DOTFILES}"
-echo "Home is ${HOMEDIR}"
+echo "Installing dotfiles"
+echo "----------------------------------------"
+echo "  DOTFILES: ${DOTFILES}"
+echo "  HOME:     ${HOMEDIR}"
+echo "----------------------------------------"
 
 install_prerequisites
-[ $SKIP_HOMEBREW -eq 0 ] && install_homebrew
+
+if [ $SKIP_HOMEBREW -eq 0 ]; then
+  install_homebrew
+fi
 
 # Clone dotfiles
-echo "Installing dotfiles to ${HOMEDIR} from ${DOTFILES}"
+echo "Installing dotfiles ${DOTFILES} -> ${HOMEDIR}"
 if [ ! -d "${DOTFILES}" ]; then
   mkdir -p $(dirname "${DOTFILES}")
   git clone https://github.com/ascarter/dotfiles ${DOTFILES}
@@ -132,7 +144,7 @@ for f in $(find ${SRCDIR} -type f -print); do
     mkdir -p $(dirname "${t}")
     ln -s ${f} ${t}
   else
-    [ $VERBOSE -eq 1 ] && echo "Skip ${t}"
+    log "Skip ${t}"
   fi
 done
 
@@ -147,5 +159,7 @@ export ZDOTDIR=${XDG_CONFIG_HOME:=$HOME/.config}/zsh
 export DOTFILES=${DOTFILES}
 EOF
 
+echo "----------------------------------------"
 echo "dotfiles installed"
 echo "Reload session to apply configuration"
+echo "----------------------------------------"
