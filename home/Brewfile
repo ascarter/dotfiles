@@ -1,3 +1,4 @@
+tap "homebrew/cask-fonts"
 tap "microsoft/git"
 tap "teamookla/speedtest"
 
