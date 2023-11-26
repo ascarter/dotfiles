@@ -32,7 +32,7 @@ install_prerequisites() {
   Darwin )
     echo "$(sw_vers -productName) $(sw_vers -productVersion)"
 
-    # Verify Xcode installed
+    # Install Xcode
     if ! [ -e /usr/bin/xcode-select ]; then
       echo "Xcode required. Install from macOS app store."
       open https://itunes.apple.com/us/app/xcode/id497799835?mt=12
@@ -50,6 +50,9 @@ install_prerequisites() {
     else
       echo "Xcode command line tools installed"
     fi
+
+    # Install Rosetta 2
+    softwareupdate --install-rosetta
     ;;
   Linux )
     # TODO
