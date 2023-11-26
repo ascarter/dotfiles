@@ -64,6 +64,8 @@ _macos_ttheme() {
         export LSCOLORS=GxFxCxDxBxegedabagaced
         ;;
     df)
+        #               d l s p e b c e e d d
+        #                 n     x s s u g s w
         export LSCOLORS=CxGxcxdxBxegedabagacad
         ;;
     light)
@@ -74,6 +76,8 @@ _macos_ttheme() {
         ;;
     panic)
         # Panic palette
+        #               d l s p e b c e e d d
+        #                 n     x s s u g s w
         export LSCOLORS=GxFxCxDxBxegedabagaced
         ;;
     oceandark)
