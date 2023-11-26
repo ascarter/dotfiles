@@ -83,8 +83,8 @@ prompt_dev_setup () {
 
   zstyle ':vcs_info:*' enable git
   zstyle ':vcs_info:git:*' check-for-changes false
-  zstyle ':vcs_info:git:*' formats " %F{11}%b%f%F{10}%m%f%F{1}%c%f"
-  zstyle ':vcs_info:git:*' actionformats " %F{11}%b%f%F{10}%m%f%F{1}%c%f|%F{11}%a%f"
+  zstyle ':vcs_info:git:*' formats " %F{11}%b%f%F{10}%m%f%F{2}%c%f"
+  zstyle ':vcs_info:git:*' actionformats " %F{11}%b%f%F{10}%m%f%F{2}%c%f|%F{11}%a%f"
   zstyle ':vcs_info:git*+set-message:*' hooks dirty
 
   # Execute chruby_auto before each prompt
