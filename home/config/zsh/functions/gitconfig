@@ -43,10 +43,10 @@ _gc_credentials() {
 
   if [ -n "${op_helper}" ]; then
     # Use 1Password for GitHub
-    git_cred_helper="\!${op_helper} plugin run -- gh auth git-credential"
+    git_cred_helper="!${op_helper} plugin run -- gh auth git-credential"
   elif [ -n "${gh_helper}" ]; then
     # Use GitHub CLI
-    git_cred_helper="\!${gh_helper} auth git-credential"
+    git_cred_helper="!${gh_helper} auth git-credential"
   elif [ -n "${gcm_helper}" ]; then
     # Use Git Credential Manager
     git_cred_helper=${gcm_helper}
