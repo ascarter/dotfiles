@@ -1,7 +1,13 @@
-# zsh non-interactive shell configuration
+# zsh env configuration
 #
 # Config order (system wide then user):
 # zshenv ➜ zprofile ➜ zshrc ➜ zlogin ➜ zlogout
+
+# =====================================
+# DOTFILES
+# =====================================
+
+export DOTFILES=${DOTFILES:=${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
 
 # =====================================
 # Homebrew

@@ -128,7 +128,7 @@ done
 shift $((OPTIND -1))
 
 HOMEDIR="${1:-${HOME}}"
-DOTFILES="${2:-${HOMEDIR}/.config/dotfiles}"
+DOTFILES="${2:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}"
 
 echo "Installing dotfiles"
 echo "----------------------------------------"
@@ -178,7 +178,9 @@ remove_broken_symlinks $(find ${HOMEDIR}/.local -type l -print)
 # Set zsh environment
 cat <<EOF > ${HOMEDIR}/.zshenv
 export ZDOTDIR=${XDG_CONFIG_HOME:=$HOME/.config}/zsh
-export DOTFILES=${DOTFILES}
+if [[ -f ${ZDOTDIR}/.zshenv ]]; then
+  . ${ZDOTDIR}/.zshenv
+fi
 EOF
 
 echo "----------------------------------------"

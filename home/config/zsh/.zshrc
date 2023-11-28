@@ -1,3 +1,4 @@
+echo "zshrc"
 # zsh interactive shell configuration
 #
 # Config order (system wide then user):
