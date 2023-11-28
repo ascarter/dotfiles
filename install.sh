@@ -178,8 +178,8 @@ remove_broken_symlinks $(find ${HOMEDIR}/.local -type l -print)
 # Set zsh environment
 cat <<EOF > ${HOMEDIR}/.zshenv
 export ZDOTDIR=${XDG_CONFIG_HOME:=$HOME/.config}/zsh
-if [[ -f ${ZDOTDIR}/.zshenv ]]; then
-  . ${ZDOTDIR}/.zshenv
+if [[ -f \${ZDOTDIR}/.zshenv ]]; then
+  source \${ZDOTDIR}/.zshenv
 fi
 EOF
 

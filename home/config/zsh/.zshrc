@@ -46,7 +46,6 @@ zstyle ':completion:*:*:-command-:*:*' group-order alias builtins functions comm
 zstyle ':completion:*' file-list all
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
-
 # =====================================
 # Prompt
 # =====================================
@@ -82,7 +81,7 @@ bindkey "^[[3~" delete-char
 
 # fzf key bindings
 if (( $+commands[fzf] )); then
-  if [ -d "$(brew --prefix fzf)" ]; then
+  if [[ -d ${HOMEBREW_PREFIX}/opt/fzf ]]; then
     source "/opt/homebrew/opt/fzf/shell/completion.zsh"
     source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
   fi

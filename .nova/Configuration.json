@@ -1,3 +1,4 @@
 {
+  "editor.default_syntax" : "shell",
   "workspace.name" : "dotfiles"
 }

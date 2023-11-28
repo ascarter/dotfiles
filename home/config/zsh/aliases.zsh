@@ -101,7 +101,7 @@ esac
 alias dotfiles="cd $DOTFILES"
 alias dfedit="$EDITOR $DOTFILES"
 alias dfvedit="$VISUAL $DOTFILES"
-alias dfu="$DOTFILES/install.sh"
+alias dfu="$DOTFILES/install.sh -n"
 
 # zsh
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
