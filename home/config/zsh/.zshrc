@@ -3,10 +3,14 @@
 # Config order (system wide then user):
 # zshenv ➜ zprofile ➜ zshrc ➜ zlogin ➜ zlogout
 
+# =====================================
+# zsh
+# =====================================
+
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add local zsh functions
-if [ -d "${HOME}/.local/share/zsh/functions" ]; then
+if [[ -d "${HOME}/.local/share/zsh/functions" ]]; then
   fpath+=(${HOME}/.local/share/zsh/functions)
 fi
 
@@ -42,17 +46,18 @@ zstyle ':completion:*:*:-command-:*:*' group-order alias builtins functions comm
 zstyle ':completion:*' file-list all
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
-# ===========
+
+# =====================================
 # Prompt
-# ===========
+# =====================================
 
 # Default: PS1="%m%# "
 declare +x PS1
 prompt dev
 
-# ========================================
+# =====================================
 # Shell preferences
-# ========================================
+# =====================================
 
 # Retain history across multiple zsh sessions
 HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
@@ -65,7 +70,9 @@ setopt HIST_REDUCE_BLANKS
 SAVEHIST=5000
 HISTSIZE=2000
 
+# =====================================
 # Key mappings
+# =====================================
 
 # Emacs key mappings
 bindkey -e
@@ -81,7 +88,10 @@ if (( $+commands[fzf] )); then
   fi
 fi
 
+# =====================================
 # Editor
+# =====================================
+
 if (( $+commands[nova] )); then
   export EDITOR="nova --wait"
   export VISUAL="${EDITOR}"
@@ -99,35 +109,23 @@ export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ig
 # terminal theme
 ttheme nova
 
-# ========================================
-# Developer
-# ========================================
-
-# Kubernetes (microk8s)
-if (( $+commands[microk8s.kubectl] )); then
-  compdef microk8s.kubectl=kubectl
-fi
-
-# ========================================
+# =====================================
 # Aliases
-# ========================================
+# =====================================
 
-if [ -f ${ZDOTDIR}/aliases.zsh ]; then
+if [[ -f ${ZDOTDIR}/aliases.zsh ]]; then
   source ${ZDOTDIR}/aliases.zsh
 fi
 
-# ========================================
-# Path settings
-# ========================================
+# =====================================
+# Per-machine extras
+# =====================================
 
 # Add local bin dir
 if [[ -d ${HOME}/.local/bin ]]; then
     path+=${HOME}/.local/bin
 fi
 
-# ========================================
-# Per-machine extras
-# ========================================
-if [ -e ${HOME}/.zsh_local ]; then
+if [[ -e ${HOME}/.zsh_local ]]; then
   source ${HOME}/.zsh_local
 fi
