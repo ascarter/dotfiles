@@ -23,7 +23,11 @@ usage() {
 
 log() {
   if [ $VERBOSE -eq 1 ]; then
-    echo $1
+    if [ "$#" -eq 1 ]; then
+      printf "%s\n" "$1"
+    elif [ "$#" -gt 1 ]; then
+      printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+    fi
   fi
 }
 
@@ -38,18 +42,22 @@ prompt() {
   return 1
 }
 
+osinfo() {
+  case $(uname) in
+  Darwin) echo "$(sw_vers -productName) $(sw_vers -productVersion)" ;;
+  esac
+}
+
 install_prerequisites() {
   case $(uname) in
   Darwin )
-    echo "$(sw_vers -productName) $(sw_vers -productVersion)"
-
     # Install Xcode
     if ! [ -e /usr/bin/xcode-select ]; then
       echo "Xcode required. Install from macOS app store."
       open https://itunes.apple.com/us/app/xcode/id497799835?mt=12
       exit 1
     else
-      echo "Xcode installed"
+      log "Xcode installed"
     fi
 
     # Install Xcode command line tools
@@ -59,14 +67,14 @@ install_prerequisites() {
       echo
       sudo xcodebuild -runFirstLaunch
     else
-      echo "Xcode command line tools installed"
+      log "Xcode command line tools installed"
     fi
 
     # Install Rosetta 2
     if ! pgrep -q oahd ; then
       softwareupdate --install-rosetta
     else
-      echo "Rosetta 2 installed"
+      log "Rosetta 2 installed"
     fi
     ;;
   Linux )
@@ -84,7 +92,7 @@ install_homebrew() {
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       eval "$(/opt/homebrew/bin/brew shellenv)"
     else
-      echo "Homebrew installed"
+      log "Homebrew installed"
     fi
 
     # Install packages
@@ -129,12 +137,14 @@ shift $((OPTIND -1))
 
 HOMEDIR="${1:-${HOME}}"
 DOTFILES="${2:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}"
+STATUS="updated"
+SEPARATOR="--------------------------------------------------"
 
-echo "Installing dotfiles"
-echo "----------------------------------------"
-echo "  DOTFILES: ${DOTFILES}"
-echo "  HOME:     ${HOMEDIR}"
-echo "----------------------------------------"
+log ${SEPARATOR}
+log "DOTFILES" ${DOTFILES}
+log "HOME" ${HOMEDIR}
+log "OS" "$(osinfo)"
+log ${SEPARATOR}
 
 install_prerequisites
 
@@ -143,8 +153,9 @@ if [ $SKIP_HOMEBREW -eq 0 ]; then
 fi
 
 # Clone dotfiles
-echo "Installing dotfiles ${DOTFILES} -> ${HOMEDIR}"
 if [ ! -d "${DOTFILES}" ]; then
+  STATUS="installed"
+  echo "Clone dotfiles -> ${DOTFILES}"
   mkdir -p $(dirname "${DOTFILES}")
   git clone https://github.com/ascarter/dotfiles ${DOTFILES}
 fi
@@ -162,7 +173,7 @@ for f in $(find ${SRCDIR} -type f -print); do
     fi
 
     # Symlink file
-    echo "Symlink ${f} -> ${t}"
+    echo "Link ${f} -> ${t}"
     mkdir -p $(dirname "${t}")
     ln -s ${f} ${t}
   else
@@ -183,7 +194,7 @@ if [[ -f \${ZDOTDIR}/.zshenv ]]; then
 fi
 EOF
 
-echo "----------------------------------------"
-echo "dotfiles installed"
+echo ${SEPARATOR}
+echo "dotfiles" ${STATUS}
 echo "Reload session to apply configuration"
-echo "----------------------------------------"
+echo ${SEPARATOR}
