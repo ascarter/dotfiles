@@ -98,10 +98,10 @@ Linux )
 esac
 
 # dotfiles
-alias dotfiles="cd $DOTFILES"
-alias dfedit="$EDITOR $DOTFILES"
-alias dfvedit="$VISUAL $DOTFILES"
-alias dfu="$DOTFILES/install.sh -n"
+alias dotfiles="cd ${DOTFILES}"
+alias dfedit="$EDITOR ${DOTFILES}"
+alias dfvedit="$VISUAL ${DOTFILES}"
+alias dfu="git -C ${DOTFILES} pull && ${DOTFILES}/install.sh -n"
 
 # zsh
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
@@ -160,14 +160,7 @@ alias udc="docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /w
 # Ruby
 alias createrbc="docker volume create ruby-bundle-cache"
 alias docked="docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli"
-# alias binit="bundle install --path vendor/bundle"
-# alias bstubs="bundle install --binstubs"
-# alias bexec="bundle exec"
-# alias bignore="echo \".bundle\nvendor/bundle/ruby\n\" >> .gitignore"
-# alias gman="gem man -s"
 # alias rails="bin/rails"
-# alias gemu="ruby -r rubygems -e 'puts Gem.user_dir'"
-# alias gemuinstall="gem install --user-install"
 
 # Go
 alias gopresent="present -play=true &; open -g http://127.0.0.1:3999; fg"
