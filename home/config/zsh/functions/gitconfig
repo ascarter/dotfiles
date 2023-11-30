@@ -2,26 +2,30 @@ emulate -L zsh
 
 # gitconfig - generate git config global file
 
+_gc_get() {
+  echo "$(git config --file ${1} --get "${2}")"
+}
+
 _gc_set() {
-  git config --file $1 "${2}" "${3}"
+  git config --file ${1} "${2}" "${3}"
 }
 
 _gc_add() {
-  git config --file $1 --add "${2}" "${3}"
+  git config --file ${1} --add "${2}" "${3}"
 }
 
 _gc_unset() {
-  git config --file $1 --unset "${2}"
+  git config --file ${1} --unset "${2}"
 }
 
 _gc_clear() {
-  git config --file $1 --unset-all "${2}"
+  git config --file ${1} --unset-all "${2}"
 }
 
 _gc_update() {
-  _gc_unset $1 "${2}"
-  if [ -n "${3}" ]; then
-    _gc_set $1 "${2}" "${3}"
+  _gc_unset ${1} "${2}"
+  if [[ -n "${3}" ]]; then
+    _gc_set ${1} "${2}" "${3}"
   fi
 }
 
@@ -31,8 +35,8 @@ _gc_update() {
 #   $2 == key
 #   $3 == default value
 _gc_prompt() {
-  local gc_email=$(git config --file $1 --get "${2}")
-  local input="${gc_email:-$3}"
+  local curr=$(git config --file ${1} --get "${2}")
+  local input="${curr:-${3}}"
   vared -p "${2}: " input
   _gc_update ${1} "${2}" "${input}"
 }
@@ -46,13 +50,13 @@ _gc_credentials() {
   local gcm_helper=$(command -v git-credential-manager)
   local git_cred_helper
 
-  if [ -n "${op_helper}" ]; then
+  if [[ -n "${op_helper}" ]]; then
     # Use 1Password for GitHub
     git_cred_helper="!${op_helper} plugin run -- gh auth git-credential"
-  elif [ -n "${gh_helper}" ]; then
+  elif [[ -n "${gh_helper}" ]]; then
     # Use GitHub CLI
     git_cred_helper="!${gh_helper} auth git-credential"
-  elif [ -n "${gcm_helper}" ]; then
+  elif [[ -n "${gcm_helper}" ]]; then
     # Use Git Credential Manager
     git_cred_helper=${gcm_helper}
   else
@@ -64,34 +68,34 @@ _gc_credentials() {
   fi
 
   # Clear default credential helper
-  _gc_clear $1 credential.helper
+  _gc_clear ${1} credential.helper
 
   # Configure GitHub
   for url in "${gh_urls[@]}"; do
-    _gc_clear $1 credential.${url}.helper
-    _gc_add $1 credential.${url}.helper ''
-    _gc_add $1 credential.${url}.helper $git_cred_helper
+    _gc_clear ${1} credential.${url}.helper
+    _gc_add ${1} credential.${url}.helper ''
+    _gc_add ${1} credential.${url}.helper $git_cred_helper
   done
 
   # Configure Azure DevOps if GCM is installed
-  if [ -n "${gcm_helper}" ]; then
+  if [[ -n "${gcm_helper}" ]]; then
     for url in "${az_urls[@]}"; do
-      _gc_clear $1 credential.${url}.helper
-      _gc_add $1 credential.${url}.helper ''
-      _gc_add $1 credential.${url}.helper ${gcm_helper}
-      _gc_set $1 credential.${url}.useHttpPath true
+      _gc_clear ${1} credential.${url}.helper
+      _gc_add ${1} credential.${url}.helper ''
+      _gc_add ${1} credential.${url}.helper ${gcm_helper}
+      _gc_set ${1} credential.${url}.useHttpPath true
     done
   fi
 
   # Configure gpg signing
-  if [ -n "${op_helper}" ]; then
+  if [[ -n "${op_helper}" ]]; then
     # Use 1Password SSH for signing
     local signing_key=$(op read "op://Developer/SSH Key/public key")
-    if [ -n "${signing_key}" ]; then
-      _gc_set $1 user.signingkey "${signing_key}"
-      _gc_set $1 gpg.format ssh
-      _gc_set $1 gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-      _gc_set $1 commit.gpgsign true
+    if [[ -n "${signing_key}" ]]; then
+      _gc_set ${1} user.signingkey "${signing_key}"
+      _gc_set ${1} gpg.format ssh
+      _gc_set ${1} gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      _gc_set ${1} commit.gpgsign true
     fi
   fi
 }
@@ -99,37 +103,41 @@ _gc_credentials() {
 _gc_tools() {
   case $(uname) in
   Darwin )
-    _gc_set $1 diff.tool "opendiff"
-    _gc_set $1 diff.guitool "opendiff"
-    _gc_set $1 merge.tool "opendiff"
-    _gc_set $1 merge.guitool "opendiff"
+    _gc_set ${1} diff.tool "opendiff"
+    _gc_set ${1} diff.guitool "opendiff"
+    _gc_set ${1} merge.tool "opendiff"
+    _gc_set ${1} merge.guitool "opendiff"
     ;;
   Linux ) ;;
   esac
 }
 
 gitconfig() {
-  zparseopts -D -E -F -color=color -opt=opt -help=help
-  help=${#help}
+  zparseopts -D -E -F f=force -force=force h=help -help=help
 
   # Show help
-  if [ ${help} = "1" ]; then
-    print "$(tput bold)$0$(tput sgr0) -- Generate git config\n  $0 [config file path]\n"
+  if [[ -n ${help} ]]; then
+    print "$(tput bold)${0}$(tput sgr0) -- Generate git config\nUsage: ${0} [-f|--force] [config file path]\n\n  -f, --force          replace existing config file if present\n"
     return 1
   fi
 
   local GIT_CONFIG_FILE=${1:-${HOME}/.gitconfig}
 
-  echo "Generating $GIT_CONFIG_FILE"
-  touch $GIT_CONFIG_FILE
+  # Get user info from current file
+  local username=$(_gc_get ${GIT_CONFIG_FILE} "user.name")
+  local email=$(_gc_get ${GIT_CONFIG_FILE} "user.email")
 
-  # User info
-  _gc_prompt $GIT_CONFIG_FILE user.name "$USERNAME"
-  _gc_prompt $GIT_CONFIG_FILE user.email "$USERNAME@users.noreply.github.com"
+  if [[ -n ${force} ]]; then
+    echo "Removing existing ${GIT_CONFIG_FILE}"
+    rm ${GIT_CONFIG_FILE}
+  fi
+  touch ${GIT_CONFIG_FILE}
 
-  _gc_credentials $GIT_CONFIG_FILE
-  _gc_tools $GIT_CONFIG_FILE
-
+  echo "Generating ${GIT_CONFIG_FILE}"
+  _gc_prompt ${GIT_CONFIG_FILE} user.name "${username:-${USERNAME}}"
+  _gc_prompt ${GIT_CONFIG_FILE} user.email "${email:-${USERNAME}@users.noreply.github.com}"
+  _gc_credentials ${GIT_CONFIG_FILE}
+  _gc_tools ${GIT_CONFIG_FILE}
 }
 
 gitconfig "$@"
