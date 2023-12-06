@@ -1,0 +1,16 @@
+{
+    "Enter Full Screen" = "@~^\U21a9";
+    "Exit Full Screen" = "@~^\U21a9";
+    "Make Window Full Screen" = "@~^\U21a9";
+    "Move to Apple Studio Display" = "@~^\U2191";
+    "Move to Built-in Retina Display" = "@~^\U2193";
+    "Move Window to Desktop" = "~^\U21a9";
+    "Move Window to Left Side of Screen" = "~^\U2190";
+    "Move Window to Right Side of Screen" = "~^\U2192";
+    "Replace Tiled Window" = "@~^\U2191";
+    Revert = "~^\U21a9";
+    "Tile Window to Left of Screen" = "@~^\U2190";
+    "Tile Window to Left Side of Screen" = "@~^\U2190";
+    "Tile Window to Right of Screen" = "@~^\U2192";
+    "Tile Window to Right Side of Screen" = "@~^\U2192";
+}
