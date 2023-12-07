@@ -1,6 +1,14 @@
 #!/bin/sh
 
-# Add key to dictionary
+# Defaults - Clear key
+_clearDefaultKey() {
+  local domain=${1}
+  local prefKey=${2}
+
+  defaults delete ${domain} ${prefKey}
+}
+
+# Defaults - Add key to dictionary
 _writeDefaultDictAdd() {
   local domain=${1}
   local prefKey=${2}
@@ -28,26 +36,9 @@ _setWindowKeys() {
   # Open Paren  (   \U0028
   # Close Paren )   \U0029
 
-  _writeDefaultDictAdd ${domain} ${prefKey} "Enter Full Screen" "@~^\U21a9"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Exit Full Screen" "@~^\U21a9"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Make Window Full Screen" "@~^\U21a9"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Move to Apple Studio Display" "@~^\U2191"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Move to Built-in Retina Display" "@~^\U2193"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Desktop" "~^\U21a9"
+  _clearDefaultKey ${domain} ${prefKey}
   _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Left Side of Screen" "~^\U2190"
   _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Right Side of Screen" "~^\U2192"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Replace Tiled Window" "@~^\U2191"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Revert" "~^\U21a9"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Left of Screen" "@~^\U2190"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Left Side of Screen" "@~^\U2190"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Right of Screen" "@~^\U2192"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Right Side of Screen" "@~^\U2192"
-
-  # Add work displays
-  if [[ "acartermbp" -eq $(hostname -s) ]]; then
-    _writeDefaultDictAdd ${domain} ${prefKey} "Move to DELL P2721Q \U00281\U0029" "@~^\U2191"
-    _writeDefaultDictAdd ${domain} ${prefKey} "Move to DELL P2721Q \U00282\U0029" "@~^\U2191"
-  fi
 }
 
 _setWindowKeys
