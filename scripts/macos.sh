@@ -37,8 +37,8 @@ _setWindowKeys() {
   # Close Paren )   \U0029
 
   _clearDefaultKey ${domain} ${prefKey}
-  _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Left Side of Screen" "~^\U2190"
-  _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Right Side of Screen" "~^\U2192"
+  _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Left Side of Screen" "@~^\U2190"
+  _writeDefaultDictAdd ${domain} ${prefKey} "Move Window to Right Side of Screen" "@~^\U2192"
 }
 
 _setWindowKeys
