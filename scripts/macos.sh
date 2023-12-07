@@ -25,6 +25,8 @@ _setWindowKeys() {
   # Up Arrow    ↑   \U2191
   # Right Arrow →   \U2192
   # Down Arrow  ↓   \U2193
+  # Open Paren  (   \U0028
+  # Close Paren )   \U0029
 
   _writeDefaultDictAdd ${domain} ${prefKey} "Enter Full Screen" "@~^\U21a9"
   _writeDefaultDictAdd ${domain} ${prefKey} "Exit Full Screen" "@~^\U21a9"
@@ -40,6 +42,12 @@ _setWindowKeys() {
   _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Left Side of Screen" "@~^\U2190"
   _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Right of Screen" "@~^\U2192"
   _writeDefaultDictAdd ${domain} ${prefKey} "Tile Window to Right Side of Screen" "@~^\U2192"
+
+  # Add work displays
+  if [[ "acartermbp" -eq $(hostname -s) ]]; then
+    _writeDefaultDictAdd ${domain} ${prefKey} "Move to DELL P2721Q \U00281\U0029" "@~^\U2191"
+    _writeDefaultDictAdd ${domain} ${prefKey} "Move to DELL P2721Q \U00282\U0029" "@~^\U2191"
+  fi
 }
 
 _setWindowKeys
