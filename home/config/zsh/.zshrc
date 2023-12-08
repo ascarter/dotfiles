@@ -93,7 +93,9 @@ fi
 
 if (( $+commands[mg] )); then
   export EDITOR="mg"
-else
+elif (( $+commands[emacs] )); then
+  export EDITOR="emacs -nw"
+elif (( $+commands[nano] )); then
   export EDITOR="nano"
 fi
 
