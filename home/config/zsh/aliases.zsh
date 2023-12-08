@@ -99,8 +99,7 @@ esac
 
 # dotfiles
 alias dotfiles="cd ${DOTFILES}"
-alias dfedit="$EDITOR ${DOTFILES}"
-alias dfvedit="$VISUAL ${DOTFILES}"
+alias dfedit="$VISUAL ${DOTFILES}"
 alias dfu="git -C ${DOTFILES} pull && ${DOTFILES}/install.sh -n"
 
 # zsh
