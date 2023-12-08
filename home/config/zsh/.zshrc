@@ -91,15 +91,18 @@ fi
 # Editor
 # =====================================
 
-if (( $+commands[nova] )); then
-  export EDITOR="nova --wait"
-  export VISUAL="${EDITOR}"
-elif (( $+commands[bbedit] )); then
-  export EDITOR="bbedit --wait --resume --new-window"
-  export VISUAL="${EDITOR}"
+if (( $+commands[mg] )); then
+  export EDITOR="mg"
 else
-  export EDITOR="vim"
-  export VISUAL="vim -g"
+  export EDITOR="nano"
+fi
+
+if (( $+commands[nova] )); then
+  export VISUAL="nova --wait"
+elif (( $+commands[bbedit] )); then
+  export VISUAL="bbedit --wait --resume --new-window"
+elif (( $+commands[code] )); then
+  export VISUAL="code --wait"
 fi
 
 # less
