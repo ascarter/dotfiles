@@ -58,7 +58,7 @@ prompt_dev_setup () {
   fi
 
   # ~/working/directory
-  PROMPT+="%F{blue}%40<${TRUNC_CHAR}<%3~%<<%f"
+  PROMPT+="%F{blue}%B%40<${TRUNC_CHAR}<%3~%<<%b%f"
 
   # VCS info
   PROMPT+='%F{green}${vcs_info_msg_0_}%f'
