@@ -15,15 +15,24 @@
 (eval-when-compile (require 'use-package))
 
 ;; Setup UI
+(use-package modus-themes
+  :ensure t
+  :config
+  (setq modus-themes-italic-constructs t
+	modus-themes-bold-constructs t)
+  (setq modus-themes-common-palette-overrides
+	modus-themes-preset-overrides-intense)
+  (load-theme 'modus-operandi t)
+  )
+;; Automatically adjust for light/dark modes
+(use-package auto-dark
+  :config
+  (setq auto-dark-dark-theme 'modus-vivendi
+	auto-dark-light-theme 'modus-operandi)
+  (when (not window-system) (setq auto-dark-allow-osascript t))
+  (auto-dark-mode t)
+  )
 (when (window-system)
-  ;;(load-theme 'modus-vivendi)
-  ;; Automatically adjust for light/dark modes
-  (use-package auto-dark
-    :config
-    (setq auto-dark-dark-theme 'modus-vivendi)
-    (setq auto-dark-light-theme 'modus-operandi)
-    (auto-dark-mode t)
-    )
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode -1)
@@ -61,8 +70,13 @@
 (bind-key* "C-c /" #'comment-dwim)
 (bind-key "C-." #'completion-at-point)
 
-;; Cmd+w close buffer instead of entire frame
-(bind-key "s-w" #'kill-this-buffer)
+(when (window-system)
+  ;; Cmd+up/down arrow to beginning/end of buffer
+  (bind-key "s-<up>" #'beginning-of-buffer)
+  (bind-key "s-<down>" #'end-of-buffer)
+  ;; Cmd+w close buffer instead of entire frame
+  (bind-key "s-w" #'kill-this-buffer)
+  )
 
 ;; Right-click menu behavior
 (context-menu-mode)
