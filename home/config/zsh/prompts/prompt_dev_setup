@@ -32,8 +32,17 @@ These settings are also valid for VS Code devcontainer and GitHub Codespaces.
 EOH
 }
 
+prompt_color() {
+  if [ -z ${nocolor} ]; then
+    echo -n "%F{$2}$1%f"
+  else
+    echo -n "$1"
+  fi
+}
+
 prompt_dev_setup () {
   autoload -Uz vcs_info
+  zparseopts -D -E -F -nocolor=nocolor
 
   if [[ "$TERM" = "xterm-256color" ]]; then
     GIT_CLEAN=' ≡'
@@ -45,6 +54,7 @@ prompt_dev_setup () {
     GIT_DIRTY=' x'
     SEPARATOR=' | '
     TRUNC_CHAR='...'
+    nocolor=1
   fi
 
   # colors: black, red, green, yellow, blue, magenta, cyan, white and default
@@ -54,17 +64,17 @@ prompt_dev_setup () {
 
   # user@host
   if [[ -n ${SSH_TTY} ]]; then
-    PROMPT+="%F{cyan}%n@%m${SEPARATOR}%f"
+    PROMPT+=$(promot_color "%n@%m${SEPARATOR}" "cyan")
   fi
 
   # ~/working/directory
-  PROMPT+="%F{blue}%B%40<${TRUNC_CHAR}<%3~%<<%b%f"
+  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "blue")
 
   # VCS info
-  PROMPT+='%F{green}${vcs_info_msg_0_}%f'
+  PROMPT+=$(prompt_color '${vcs_info_msg_0_}' "green")
 
   # Developer information
-  PROMPT+='%F{magenta}${dev_info_msg}%f'
+  PROMPT+=$(prompt_color '${dev_info_msg}' "magenta")
 
   # Input prompt
   PROMPT+=$' %# '

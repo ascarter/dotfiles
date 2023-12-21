@@ -111,7 +111,9 @@ fi
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
 # terminal theme
-ttheme nova
+if [[ "$TERM" = "xterm-256color" ]]; then
+  ttheme nova
+fi
 
 # =====================================
 # Aliases
