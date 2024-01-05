@@ -52,6 +52,14 @@ _completions_pip3() {
   fi
 }
 
+# Podman
+_completions_podman() {
+  echo "Checking for podman"
+  if (( $+commands[podman] )); then
+    podman completion -f ${completions_dir}/_podman zsh
+  fi
+}
+
 # Rustup
 _completions_rustup() {
   if (( $+commands[rustup] )); then
@@ -79,6 +87,7 @@ updatecompletions() {
   _completions_nodejs
   _completions_op
   _completions_pip3
+  _completions_podman
   _completions_rustup
   _completions_volta
 
