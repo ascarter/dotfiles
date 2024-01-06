@@ -24,14 +24,17 @@
 	modus-themes-preset-overrides-intense)
   (load-theme 'modus-operandi t)
   )
+
 ;; Automatically adjust for light/dark modes
 (use-package auto-dark
+  :ensure t
   :config
   (setq auto-dark-dark-theme 'modus-vivendi
 	auto-dark-light-theme 'modus-operandi)
   (when (not window-system) (setq auto-dark-allow-osascript t))
   (auto-dark-mode t)
   )
+
 (when (window-system)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
@@ -47,6 +50,7 @@
     ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))
     )
   )
+
 (setq-default cursor-type 'bar)
 (setq
 ;; inhibit-startup-screen t
@@ -110,6 +114,10 @@
   (switch-to-buffer "*scratch*"))
 (bind-key "C-c a s" #'switch-to-scratch-buffer)
 
+;; Use magit for git version control
+(use-package magit
+  :ensure t)
+
 ;; Use project.el for project view
 (use-package project
   :pin gnu
@@ -130,8 +138,10 @@
 ;; Dash
 (when (eq system-type 'darwin)
   (use-package dash-at-point
+    :ensure t
     :bind ("C-c d" . dash-at-point))
   )
 
 ;; chruby
-(use-package chruby)
+(use-package chruby
+  :ensure t)
