@@ -132,3 +132,6 @@
   (use-package dash-at-point
     :bind ("C-c d" . dash-at-point))
   )
+
+;; chruby
+(use-package chruby)
