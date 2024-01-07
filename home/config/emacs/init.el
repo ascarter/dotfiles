@@ -31,20 +31,24 @@
 	auto-dark-light-theme 'modus-operandi)
   (auto-dark-mode t))
 
+;; Turn off toolbar and set default fonts for GUI mode
 (when (window-system)
   (tool-bar-mode -1)
-  (scroll-bar-mode -1)
   (tooltip-mode -1)
-  ;; Set current line highlighting
-  (require 'hl-line)
-  (add-hook 'prog-mode-hook #'hl-line-mode)
-  (add-hook 'text-mode-hook #'hl-line-mode)
-  ;; (global-hl-line-mode)
   ;; Set default font
   (pcase system-type
     ('darwin (set-frame-font "SF Mono 13" nil t))
     ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))))
 
+;; Turn off menu bar in terminal
+(when (not window-system)
+  (menu-bar-mode -1))
+
+ ;; Set current line highlighting
+ (require 'hl-line)
+ (add-hook 'prog-mode-hook #'hl-line-mode)
+ (add-hook 'text-mode-hook #'hl-line-mode)
+ 
 (setq-default cursor-type 'bar)
 (setq sentence-end-double-space nil
       use-short-answers t      
