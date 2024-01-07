@@ -9,8 +9,7 @@
 (unless (package-installed-p 'use-package)
   (message "Refreshing package contents")
   (unless package-archive-contents (package-refresh-contents))
-  (package-install 'use-package)
-  )
+  (package-install 'use-package))
 
 (eval-when-compile (require 'use-package))
 
@@ -21,19 +20,16 @@
   (setq modus-themes-italic-constructs t
 	modus-themes-bold-constructs t)
   (setq modus-themes-common-palette-overrides
-	modus-themes-preset-overrides-intense)
-  (load-theme 'modus-operandi t)
-  )
+	modus-themes-preset-overrides-intense))
 
 ;; Automatically adjust for light/dark modes
 (use-package auto-dark
   :ensure t
   :config
-  (setq auto-dark-dark-theme 'modus-vivendi
+  (setq	auto-dark-allow-osascript t
+	auto-dark-dark-theme 'modus-vivendi
 	auto-dark-light-theme 'modus-operandi)
-  (when (not window-system) (setq auto-dark-allow-osascript t))
-  (auto-dark-mode t)
-  )
+  (auto-dark-mode t))
 
 (when (window-system)
   (tool-bar-mode -1)
@@ -47,28 +43,23 @@
   ;; Set default font
   (pcase system-type
     ('darwin (set-frame-font "SF Mono 13" nil t))
-    ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))
-    )
-  )
+    ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))))
 
 (setq-default cursor-type 'bar)
-(setq
-;; inhibit-startup-screen t
-;; initial-scratch-message nil
- sentence-end-double-space nil
- use-short-answers t
- confirm-kill-processes nil
+(setq sentence-end-double-space nil
+      use-short-answers t      
+      confirm-kill-processes nil
+      ;; inhibit-startup-screen t
+      ;; initial-scratch-message nil
  )
 (global-display-line-numbers-mode t)
 (column-number-mode)
 (delete-selection-mode t)
 
 ;; Disable backups
-(setq
- make-backup-files nil
- auto-save-default nil
- create-lockfiles nil
- )
+(setq make-backup-files nil
+      auto-save-default nil
+      create-lockfiles nil)
 
 ;; Key bindings
 (bind-key* "C-c /" #'comment-dwim)
@@ -79,8 +70,7 @@
   (bind-key "s-<up>" #'beginning-of-buffer)
   (bind-key "s-<down>" #'end-of-buffer)
   ;; Cmd+w close buffer instead of entire frame
-  (bind-key "s-w" #'kill-this-buffer)
-  )
+  (bind-key "s-w" #'kill-this-buffer))
 
 ;; Right-click menu behavior
 (context-menu-mode)
@@ -132,16 +122,15 @@
      (magit-project-status "Magit" ?g)
      (deadgrep "Grep" ?h)))
   (compilation-always-kill t)
-  (project-vc-merge-submodules nil)
-  )
+  (project-vc-merge-submodules nil))
 
 ;; Dash
 (when (eq system-type 'darwin)
   (use-package dash-at-point
     :ensure t
-    :bind ("C-c d" . dash-at-point))
-  )
+    :bind ("C-c d" . dash-at-point)))
 
 ;; chruby
 (use-package chruby
   :ensure t)
+
