@@ -1,3 +1,9 @@
+;; Put customizations in alternate file since these are per-machine
+(setq custom-file "~/.config/emacs/custom.el")
+(unless (file-exists-p custom-file)
+  (make-empty-file custom-file))
+(load-file custom-file)
+
 ;; Enable MELPA repository
 ;; Configure package.el to include MELPA.
 (require 'package)
@@ -13,9 +19,8 @@
 
 (eval-when-compile (require 'use-package))
 
-;; Setup UI
+;; Theme
 (use-package modus-themes
-  :ensure t
   :config
   (setq modus-themes-italic-constructs t
 	modus-themes-bold-constructs t)
@@ -24,15 +29,15 @@
 
 ;; Automatically adjust for light/dark modes
 (use-package auto-dark
-  :ensure t
   :config
   (setq	auto-dark-allow-osascript t
 	auto-dark-dark-theme 'modus-vivendi
 	auto-dark-light-theme 'modus-operandi)
   (auto-dark-mode t))
 
-;; Turn off toolbar and set default fonts 
+;; GUI mode - turn off toolbar, scrollbar, and set default fonts 
 (when (window-system)
+  (scroll-bar-mode -1)
   (tool-bar-mode -1)
   (tooltip-mode -1)
   ;; Set default font
@@ -40,7 +45,7 @@
     ('darwin (set-frame-font "SF Mono 13" nil t))
     ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))))
 
-;; Turn off menu bar in terminal
+;; Terminal mode - turn off menu bar
 (when (not window-system)
   (menu-bar-mode -1))
 
@@ -67,12 +72,14 @@
 (bind-key* "C-c /" #'comment-dwim)
 (bind-key "C-." #'completion-at-point)
 
+;; Enable macOS behaviors
 (when (window-system)
-  ;; Cmd+up/down arrow to beginning/end of buffer
-  (bind-key "s-<up>" #'beginning-of-buffer)
-  (bind-key "s-<down>" #'end-of-buffer)
-  ;; Cmd+w close buffer instead of entire frame
-  (bind-key "s-w" #'kill-this-buffer))
+  (when (eq system-type 'darwin)
+    ;; Cmd+up/down arrow to beginning/end of buffer
+    (bind-key "s-<up>" #'beginning-of-buffer)
+    (bind-key "s-<down>" #'end-of-buffer)
+    ;; Cmd+w close buffer instead of entire frame
+    (bind-key "s-w" #'kill-this-buffer)))
 
 ;; Right-click menu behavior
 (context-menu-mode)
@@ -107,8 +114,7 @@
 (bind-key "C-c a s" #'switch-to-scratch-buffer)
 
 ;; Use magit for git version control
-(use-package magit
-  :ensure t)
+(use-package magit)
 
 ;; Use project.el for project view
 (use-package project
@@ -129,10 +135,8 @@
 ;; Dash
 (when (eq system-type 'darwin)
   (use-package dash-at-point
-    :ensure t
     :bind ("C-c d" . dash-at-point)))
 
-;; chruby
-(use-package chruby
-  :ensure t)
+;; Ruby
+(use-package chruby)
 
