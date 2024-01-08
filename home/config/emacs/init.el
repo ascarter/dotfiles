@@ -35,7 +35,7 @@
 	auto-dark-light-theme 'modus-operandi)
   (auto-dark-mode t))
 
-;; GUI mode - turn off toolbar, scrollbar, and set default fonts 
+;; GUI mode - turn off toolbar, scrollbar, and set default fonts
 (when (window-system)
   (scroll-bar-mode -1)
   (tool-bar-mode -1)
