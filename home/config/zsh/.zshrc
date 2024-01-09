@@ -85,6 +85,23 @@ if (( $+commands[fzf] )); then
     source "/opt/homebrew/opt/fzf/shell/completion.zsh"
     source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
   fi
+
+  # Set CTRL+T defaults
+  # p to toggle preview file content
+  export FZF_CTRL_T_OPTS="
+    --select-1 --exit-0
+    --preview '(bat --color=always {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'
+    --preview-window 'hidden'
+    --bind 'p:toggle-preview'"
+
+  # Set CTRL+R defaults
+  # CTRL-Y to copy the command into clipboard using pbcopy
+  export FZF_CTRL_R_OPTS="
+    --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+    --header 'Press CTRL-Y to copy command into clipboard'"
+
+  # Print tree structure in the preview window
+  export FZF_ALT_C_OPTS="--preview '(tree -C {}) 2> /dev/null | head -200'"
 fi
 
 # =====================================
