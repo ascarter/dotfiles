@@ -43,7 +43,10 @@
   ;; Set default font
   (pcase system-type
     ('darwin (set-frame-font "SF Mono 13" nil t))
-    ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t))))
+    ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t)))
+  ;; Set transparency for selected/unselected frames
+  (set-frame-parameter (selected-frame) 'alpha '(96 . 90))
+  (add-to-list 'default-frame-alist '(alpha . (96 . 90))))
 
 ;; Terminal mode - turn off menu bar
 (when (not window-system)
@@ -54,7 +57,7 @@
 
 (setq-default cursor-type 'bar)
 (setq sentence-end-double-space nil
-      use-short-answers t      
+      use-short-answers t
       confirm-kill-processes nil
       ;; inhibit-startup-screen t
       ;; initial-scratch-message nil
@@ -67,6 +70,9 @@
 (setq make-backup-files nil
       auto-save-default nil
       create-lockfiles nil)
+
+;; Remove trailing whitespace on save
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Key bindings
 (bind-key* "C-c /" #'comment-dwim)
@@ -139,4 +145,3 @@
 
 ;; Ruby
 (use-package chruby)
-
