@@ -11,12 +11,13 @@
 (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (setq package-native-compile t)
+
+;; Auto-install use-package
 (setq use-package-always-ensure t)
 (unless (package-installed-p 'use-package)
   (message "Refreshing package contents")
   (unless package-archive-contents (package-refresh-contents))
   (package-install 'use-package))
-
 (eval-when-compile (require 'use-package))
 
 ;; Theme
@@ -35,9 +36,9 @@
 	auto-dark-light-theme 'modus-operandi)
   (auto-dark-mode t))
 
-;; GUI mode - turn off toolbar, scrollbar, and set default fonts
+;; GUI mode - turn off toolbar and set default fonts
 (when (window-system)
-  (scroll-bar-mode -1)
+  ;;(scroll-bar-mode -1)
   (tool-bar-mode -1)
   (tooltip-mode -1)
   ;; Set default font
@@ -48,11 +49,19 @@
   (set-frame-parameter (selected-frame) 'alpha '(96 . 90))
   (add-to-list 'default-frame-alist '(alpha . (96 . 90))))
 
-;; Terminal mode - turn off menu bar
+;; Terminal mode - turn off menu bar and enable xterm mouse mode
 (when (not window-system)
-  (menu-bar-mode -1))
+  (menu-bar-mode -1)
+  (xterm-mouse-mode 1))
 
- ;; Set current line highlighting
+;; Show buffers in window
+;;(setq tab-line-tabs-function 'tab-line-tabs-mode-buffers)
+(global-tab-line-mode 1)
+
+;; Show tab bar automatically when more than 1 tab
+(setq tab-bar-show t)
+
+;; Set current line highlighting
 (global-hl-line-mode t)
 
 (setq-default cursor-type 'bar)
