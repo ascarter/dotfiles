@@ -20,6 +20,9 @@
   (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
+;; Enable hiding minor modes
+(use-package diminish)
+
 ;; Theme
 (use-package modus-themes
   :config
@@ -30,6 +33,7 @@
 
 ;; Automatically adjust for light/dark modes
 (use-package auto-dark
+  :diminish
   :config
   (setq	auto-dark-allow-osascript t
 	auto-dark-dark-theme 'modus-vivendi
@@ -63,6 +67,11 @@
 
 ;; Set current line highlighting
 (global-hl-line-mode t)
+
+;; Show time but not load
+(setq display-time-24hr-format 1
+      display-time-default-load-average nil)
+(display-time-mode 1)
 
 (setq-default cursor-type 'bar)
 (setq sentence-end-double-space nil
