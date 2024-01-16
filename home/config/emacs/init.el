@@ -38,7 +38,7 @@
 
 ;; GUI mode - turn off toolbar and set default fonts
 (when (window-system)
-  ;;(scroll-bar-mode -1)
+  (scroll-bar-mode -1)
   (tool-bar-mode -1)
   (tooltip-mode -1)
   ;; Set default font
@@ -109,7 +109,9 @@
 
 ;; Copy filename to clipboard
 (defun copy-file-name-to-clipboard (do-not-strip-prefix)
-  "Copy the current buffer file name to the clipboard. The path will be relative to the project's root directory, if set. Invoking with a prefix argument copies the full path."
+  ;; Copy the current buffer file name to the clipboard.
+  ;; The path will be relative to the project's root directory, if set.
+  ;; Invoking with a prefix argument copies the full path."
   (interactive "P")
   (letrec
       ((fullname (if (equal major-mode 'dired-mode) default-directory (buffer-file-name)))
