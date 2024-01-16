@@ -48,7 +48,7 @@
   ;; Set default font
   (pcase system-type
     ('darwin (set-frame-font "SF Mono 13" nil t))
-    ((or 'gnu/linux 'windows-nt) (set-frame-font "IBM Plex Mono 13" nil t)))
+    ((or 'gnu/linux 'windows-nt) (set-frame-font "Noto Sans Mono 13" nil t)))
   ;; Set transparency for selected/unselected frames
   (set-frame-parameter (selected-frame) 'alpha '(96 . 90))
   (add-to-list 'default-frame-alist '(alpha . (96 . 90))))
