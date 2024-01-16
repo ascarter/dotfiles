@@ -163,5 +163,12 @@
   (use-package dash-at-point
     :bind ("C-c d" . dash-at-point)))
 
+;; Markdown (default to GFM)
+(use-package markdown-mode
+  :ensure t
+  :mode ("\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)" . gfm-mode)
+  :init (setq markdown-command "cmark-gfm"
+	      markdown-open-command "~/.local/bin/marked"))
+
 ;; Ruby
 (use-package chruby)
