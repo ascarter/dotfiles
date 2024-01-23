@@ -173,3 +173,6 @@
 
 ;; Ruby
 (use-package chruby)
+
+;; Lua
+(use-package lua-mode)

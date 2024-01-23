@@ -64,6 +64,12 @@ if [[ -d ${HOME}/.cargo ]]; then
   source "$HOME/.cargo/env"
 fi
 
+# Playdate
+if [[ -d ${HOME}/Developer/PlaydateSDK ]]; then
+  export PLAYDATE_SDK_PATH=${HOME}/Developer/PlaydateSDK
+  path+=${PLAYDATE_SDK_PATH}/bin
+fi
+
 # ========================================
 # 1Password
 # ========================================
