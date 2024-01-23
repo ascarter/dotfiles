@@ -168,7 +168,8 @@
   :ensure t
   :mode ("\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)" . gfm-mode)
   :init (setq markdown-command "cmark-gfm"
-	      markdown-open-command "~/.local/bin/marked"))
+	      markdown-open-command "~/.local/bin/marked"
+	      markdown-live-preview-delete-export 'delete-on-export))
 
 ;; Ruby
 (use-package chruby)
