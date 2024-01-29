@@ -46,3 +46,12 @@ Run the uninstall script to remove the symlinks and restore any original files:
 cd ~/.config/dotfiles
 ./uninstall.sh
 ```
+
+## Key bindings
+
+[micro](https://micro-editor.github.io/) is the default terminal editor. On macOS terminal, Shift+Up and Shift+Down are not sent to micro. Add the following to the keyboard configuration:
+
+```
+Shift+Up	\033[1;2A
+Shift+Down	\033[1;2B
+```
