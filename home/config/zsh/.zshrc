@@ -122,7 +122,9 @@ fi
 # Editor
 # =====================================
 
-if (( $+commands[mg] )); then
+if (( $+commands[micro] )); then
+  export EDITOR="micro"
+elif (( $+commands[mg] )); then
   export EDITOR="mg"
 elif (( $+commands[emacs] )); then
   export EDITOR="emacs -nw"
@@ -130,12 +132,8 @@ elif (( $+commands[nano] )); then
   export EDITOR="nano"
 fi
 
-if (( $+commands[nova] )); then
-  export VISUAL="nova --wait"
-elif (( $+commands[bbedit] )); then
+if (( $+commands[bbedit] )); then
   export VISUAL="bbedit --wait --resume --new-window"
-elif (( $+commands[code] )); then
-  export VISUAL="code --wait"
 fi
 
 # less
