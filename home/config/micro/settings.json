@@ -1,0 +1,9 @@
+{
+    "*.md": {
+        "softwrap": true
+    },
+    "colorcolumn": 80,
+    "diffgutter": true,
+    "hlsearch": true,
+    "tabmovement": true
+}
