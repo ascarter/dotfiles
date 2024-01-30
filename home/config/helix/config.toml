@@ -1,0 +1,19 @@
+theme = "github_dark_colorblind"
+
+[editor]
+cursorline = true
+true-color = true
+color-modes = true
+auto-pairs = true
+rulers = [80]
+bufferline = "multiple"
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.statusline]
+left = ["mode", "spinner", "file-name", "read-only-indicator", "file-modification-indicator"]
+center = ["version-control", "spacer", "separator", "file-type"]
+right = ["diagnostics", "position", "total-line-numbers", "position-percentage", "selections", "register", "file-encoding"]

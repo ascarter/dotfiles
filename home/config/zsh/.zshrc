@@ -122,18 +122,18 @@ fi
 # Editor
 # =====================================
 
-if (( $+commands[micro] )); then
-  export EDITOR="micro"
-elif (( $+commands[mg] )); then
-  export EDITOR="mg"
-elif (( $+commands[emacs] )); then
-  export EDITOR="emacs -nw"
+# Use helix editor or nano if not present
+if (( $+commands[hx] )); then
+  export EDITOR="hx"
 elif (( $+commands[nano] )); then
   export EDITOR="nano"
 fi
 
+# macOS - use BBEdit for visual editor
 if (( $+commands[bbedit] )); then
   export VISUAL="bbedit --wait --resume --new-window"
+else
+  export VISUAL=$EDITOR
 fi
 
 # less

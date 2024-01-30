@@ -124,6 +124,9 @@ alias filetree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 
 # Search/grep
 alias devgrep="grep -n -r --exclude='.svn' --exclude='*.swp' --exclude='.git'"
 
+# Emacs
+alias em="emacs -nw"
+
 # Process viewer using bottom
 if (( $+commands[btm] )); then
   alias bhtop="btm --basic"
