@@ -68,6 +68,9 @@ Darwin )
     alias bbw="bbedit --new-window"
   fi
 
+  # Kagi
+  alias webhistory="sqlite3 ~/Library/Application\ Support/Orion/Defaults/history 'SELECT DISTINCT url FROM history_items' | fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs open"
+
   # Tailscale
   alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
