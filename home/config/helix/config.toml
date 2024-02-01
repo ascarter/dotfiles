@@ -25,3 +25,5 @@ right = ["diagnostics", "position", "total-line-numbers", "position-percentage",
 [editor.indent-guides]
 render = true
 
+[keys.insert]
+"C-space" = "completion"
