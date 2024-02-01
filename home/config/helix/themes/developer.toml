@@ -1,0 +1,4 @@
+# Modify github dark colorblind theme to render rulers
+inherits = "github_dark_colorblind"
+
+"ui.virtual.ruler" = { bg = "canvas.subtle" }

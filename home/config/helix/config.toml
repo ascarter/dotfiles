@@ -1,4 +1,5 @@
-theme = "github_dark_colorblind"
+# theme = "github_dark_colorblind"
+theme = "developer"
 
 [editor]
 cursorline = true
@@ -6,6 +7,7 @@ true-color = true
 color-modes = true
 auto-pairs = true
 bufferline = "multiple"
+rulers = [80, 120]
 
 [editor.cursor-shape]
 insert = "bar"
@@ -22,3 +24,4 @@ right = ["diagnostics", "position", "total-line-numbers", "position-percentage",
 
 [editor.indent-guides]
 render = true
+
