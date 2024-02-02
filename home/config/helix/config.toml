@@ -1,5 +1,6 @@
 # theme = "github_dark_colorblind"
-theme = "developer"
+# theme = "github_dark_asc"
+theme = "term16_dark"
 
 [editor]
 cursorline = true
