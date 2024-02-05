@@ -68,7 +68,7 @@ prompt_dev_setup () {
   fi
 
   # ~/working/directory
-  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "blue")
+  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "cyan")
 
   # VCS info
   PROMPT+=$(prompt_color '${vcs_info_msg_0_}' "green")
