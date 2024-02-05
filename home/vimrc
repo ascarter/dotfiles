@@ -52,6 +52,7 @@ Plug 'cocopon/iceberg.vim'
 Plug 'Lokaltog/vim-monotone'
 Plug 'vim/colorschemes'
 Plug '0mp/vim-robpike'
+Plug 'https://bitbucket.org/kisom/eink.vim.git'
 
 call plug#end()
 
