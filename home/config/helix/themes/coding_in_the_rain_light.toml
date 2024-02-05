@@ -1,0 +1,10 @@
+# Coding in the Rain
+# Light version
+# Author: Andrew Carter <@ascarter>
+
+# Minimal theme that reduces usage of color
+# Uses only ANSI terminal 16 color values for portability
+# Optimized for color sensitive users
+# This modifies the default version to work with light backgrounds.
+
+inherits = "coding_in_the_rain_dark"

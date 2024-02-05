@@ -1,6 +1,5 @@
-# theme = "github_dark_colorblind"
-# theme = "github_dark_asc"
-theme = "term16_dark"
+# theme = "term16_dark"
+theme = "coding_in_the_rain_dark"
 
 [editor]
 cursorline = true
@@ -8,12 +7,12 @@ true-color = true
 color-modes = true
 auto-pairs = true
 bufferline = "multiple"
-rulers = [80, 120]
+# rulers = [80, 120]
 
-[editor.cursor-shape]
-insert = "bar"
-normal = "block"
-select = "underline"
+# [editor.cursor-shape]
+# insert = "bar"
+# normal = "block"
+# select = "underline"
 
 [editor.file-picker]
 hidden = false
@@ -23,8 +22,11 @@ left = ["mode", "spinner", "file-name", "read-only-indicator", "file-modificatio
 center = ["version-control", "spacer", "separator", "file-type"]
 right = ["diagnostics", "position", "total-line-numbers", "position-percentage", "selections", "register", "file-encoding"]
 
-[editor.indent-guides]
-render = true
+# [editor.indent-guides]
+# render = true
+
+# [editor.whitespace]
+# render = "all"
 
 [keys.insert]
 "C-space" = "completion"

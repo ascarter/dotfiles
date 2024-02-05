@@ -1,0 +1,163 @@
+# Coding in the Rain
+# Author: Andrew Carter <@ascarter>
+
+# Minimal theme that reduces usage of color
+# Uses only ANSI terminal 16 color values for portability
+# Optimized for color sensitive users
+# Adapts to dark or light terminal
+
+# ANSI Color Names
+# -----------
+#   default
+#   black
+#   red
+#   green
+#   yellow
+#   blue
+#   magenta
+#   cyan
+#   gray
+#   light-red
+#   light-green
+#   light-yellow
+#   light-blue
+#   light-magenta
+#   light-cyan
+#   light-gray
+#   white
+
+# Full description:
+# key = { fg = "#ffffff", bg = "#000000", underline = { color = "#ff0000", style = "curl"}, modifiers = ["bold", "italic"] }
+#
+# Foreground color only:
+# key = "#ffffff"
+
+# UI
+
+"ui.background" = { bg = "default" }
+# "ui.background.separator" = { bg = "light-yellow" }
+# "ui.cursor" = { fg = "black", bg = "light-gray" }
+"ui.cursor" = { modifiers = ["reversed"] }
+# ui.cursor.normal
+# "ui.cursor.insert" = { fg = "cyan", bg = "white", modifiers = ["bold"] }
+# "ui.cursor.insert" = { fg="white" }
+# ui.cursor.select
+"ui.cursor.match" = { fg = "yellow", modifiers = ["bold"] }
+# ui.cursor.primary
+# ui.cursor.primary.normal
+"ui.cursor.primary.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+"ui.cursor.primary.select" = { bg = "blue", modifiers = ["bold"] }
+
+"ui.cursorline.primary" = { bg = "black" }
+"ui.cursorline.secondary" = { bg = "gray" }
+"ui.cursorcolumn.primary" = { bg = "black" }
+"ui.cursorcolumn.secondary" = { bg = "gray" }
+
+"ui.selection" = { fg = "light-gray", bg="gray", modifiers = ["bold"] }
+"ui.selection.primary" = { fg="white", bg="gray", modifiers = ["bold"] }
+
+# ui.debug.breakpoint
+# ui.debug.active
+
+"ui.gutter" = { bg = "default" }
+"ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
+
+# ui.highlight.frameline
+
+"ui.linenr" = { fg = "gray", modifiers = ["dim"] }
+"ui.linenr.selected" = { fg = "white", modifiers = ["bold"] }
+
+"ui.statusline" = { fg = "white", bg = "gray" }
+"ui.statusline.inactive" = { fg = "white", bg = "default", modifiers = ["dim"] }
+"ui.statusline.normal" = { fg = "white", bg = "gray", modifiers = ["bold"] }
+"ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+"ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
+# ui.statusline.separator
+
+"ui.popup" = { fg = "white", bg = "black", modifiers = ["bold"] }
+"ui.popup.info" = { fg = "white", bg = "default", modifiers = ["bold"] }
+
+"ui.window" = { fg = "white", bg = "default" }
+"ui.help" = { fg = "white", bg = "default", modifiers = ["bold"] }
+
+"ui.text" = { fg="default" }
+# ui.text.focus
+# ui.text.inactive
+# ui.text.info
+
+"ui.virtual" = { fg = "gray" }
+"ui.virtual.ruler" = { bg = "gray" }
+"ui.virtual.whitespace" = { fg = "white" }
+"ui.virtual.indent-guide" = { fg = "gray", modifiers = ["dim"] }
+# ui.virtual.inlay-hint
+# ui.virtual.inlay-hint.parameter
+# ui.virtual.inlay-hint.type
+# ui.virtual.wrap
+
+"ui.menu" = { fg = "white", bg = "default", modifiers = ["bold"] }
+"ui.menu.selected" = { fg = "white", bg = "gray", modifiers = ["bold"] }
+# ui.menu.scroll
+
+# ui.highlight
+
+warning = "yellow"
+error = "red"
+info = "light-gray"
+hint = "cyan"
+
+"diagnostic" = { underline = { color = "red", style = "curl" } }
+# diagnostic.hint
+# diagnostic.info
+# diagnostic.warning
+# diagnostic.error
+
+# Syntax Highlighting
+# Match tree-sitter scopes
+#
+#  attribute
+#  type
+#  constructor
+constant = "light-blue"
+string = "light-green"
+comment = { fg = "light-gray", modifiers = ["italic"] }
+variable = { modifiers = ["bold"] }
+#  label
+#  punctuation
+#  keyword
+#  operator
+function = { modifiers = ["bold"] }
+tag = "light-blue"
+namespace = { modifiers = ["bold"] }
+#  special
+
+#  markup
+"markup.heading" = { modifiers = ["bold"] }
+"markup.list" = { modifiers = ["bold"] }
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["dim", "crossed_out"] }
+"markup.link" = "light-blue"
+#      url
+#      label
+#      text
+"markup.quote" = { modifiers = ["dim", "italic"] }
+"markup.raw" = { modifiers = ["dim"] }
+
+#  diff
+"diff.plus" = "light-green"
+"diff.minus" = "red"
+"diff.delta" = "magenta"
+
+# Interface
+#   markup
+#     normal
+#       completion
+#       hover
+#     heading
+#       completion
+#       hover
+#    raw
+#      inline
+#        completion
+#        hover
+
