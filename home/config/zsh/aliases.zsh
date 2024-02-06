@@ -82,7 +82,7 @@ Darwin )
   ;;
 
 Linux )
-  alias ls="ls -hFH"
+  alias ls="ls -hFH --color=never"
   alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
   alias glock="gnome-screensaver-command --lock"
   alias xlock="xscreensaver-command -lock"
