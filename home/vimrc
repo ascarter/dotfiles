@@ -37,7 +37,6 @@ Plug 'github/copilot.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'lifepillar/pgsql.vim'
 Plug 'lifepillar/vim-colortemplate'
-Plug 'mhinz/vim-signify'
 Plug 'rust-lang/rust.vim'
 Plug 'sunaku/vim-ruby-minitest'
 Plug 'tpope/vim-commentary'
@@ -53,6 +52,7 @@ Plug 'Lokaltog/vim-monotone'
 Plug 'vim/colorschemes'
 Plug '0mp/vim-robpike'
 Plug 'https://bitbucket.org/kisom/eink.vim.git'
+Plug 'jeffkreeftmeijer/vim-dim'
 
 call plug#end()
 
@@ -71,28 +71,11 @@ if has("termguicolors")
   endif
 endif
 
-" try
-"  colorscheme default
-" catch
-"  colorscheme default
-" endtry
-
-" Signify configuration - similar to Xcode
-let g:signify_sign_add    = ''
-let g:signify_sign_change = ''
-let g:signify_sign_delete = ''
-let g:signify_sign_show_count = 0
-set updatetime=100
-
-autocmd User SignifyHunk call s:show_current_hunk()
-
-function! s:show_current_hunk() abort
-  let h = sy#util#get_hunk_stats()
-  if !empty(h)
-    echo printf('[Hunk %d/%d]', h.current_hunk, h.total_hunks)
-  endif
-endfunction
-
+try
+ colorscheme dim
+catch
+ colorscheme default
+endtry
 
 " Flash screen only - no beep
 set visualbell
