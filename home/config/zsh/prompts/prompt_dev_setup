@@ -64,7 +64,7 @@ prompt_dev_setup () {
 
   # user@host
   if [[ -n ${SSH_TTY} ]]; then
-    PROMPT+=$(prompt_color "%n@%m${SEPARATOR}" "cyan")
+    PROMPT+="%n@%m${SEPARATOR}"
   fi
 
   # ~/working/directory
