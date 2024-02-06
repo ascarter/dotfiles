@@ -117,8 +117,8 @@ hint = "cyan"
 #  attribute
 #  type
 #  constructor
-constant = "light-blue"
-string = "blue"
+# constant = "light-blue"
+string = { fg = "green",  modifiers = ["bold"] } # "green"
 comment = { fg = "light-gray", modifiers = ["italic"] }
 variable = { modifiers = ["italic"] }
 #  label
