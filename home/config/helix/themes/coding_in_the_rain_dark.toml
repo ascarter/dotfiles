@@ -118,9 +118,9 @@ hint = "cyan"
 #  type
 #  constructor
 constant = "light-blue"
-string = "light-green"
+string = "blue"
 comment = { fg = "light-gray", modifiers = ["italic"] }
-variable = { modifiers = ["bold"] }
+variable = { modifiers = ["italic"] }
 #  label
 #  punctuation
 #  keyword
@@ -141,7 +141,7 @@ namespace = { modifiers = ["bold"] }
 #      label
 #      text
 "markup.quote" = { modifiers = ["dim", "italic"] }
-"markup.raw" = { modifiers = ["dim"] }
+"markup.raw" = { bg = "gray" } #modifiers = ["dim"] }
 
 #  diff
 "diff.plus" = "light-green"
