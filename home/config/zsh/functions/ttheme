@@ -52,7 +52,7 @@ _macos_ttheme() {
     #                          d l s p e b c e e d d
     #                            n     x s s u g s w
     ''|ansi)   export LSCOLORS=exfxcxdxbxegedabagacad ;;
-    dark)      export LSCOLORS=GxFxxxxxxxxxxxxxxxxxxx ;;
+    dark)      export LSCOLORS=GxFxCxDxBxegedabagaced ;;
     light)     export LSCOLORS=exExxxxxxxxxxxxxxxxxxx ;;
     help|*)
       printf "terminal_theme [theme]\n"
