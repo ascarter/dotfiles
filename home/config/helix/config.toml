@@ -1,9 +1,7 @@
-# theme = "term16_dark"
 theme = "coding_in_the_rain_dark"
 
 [editor]
 cursorline = true
-true-color = true
 color-modes = true
 auto-pairs = true
 bufferline = "multiple"
@@ -21,12 +19,9 @@ hidden = false
 left = ["mode", "spinner", "file-name", "read-only-indicator", "file-modification-indicator"]
 center = ["version-control", "spacer", "separator", "file-type"]
 right = ["diagnostics", "position", "total-line-numbers", "position-percentage", "selections", "register", "file-encoding"]
-
-# [editor.indent-guides]
-# render = true
-
-# [editor.whitespace]
-# render = "all"
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
 
 [keys.insert]
 "C-space" = "completion"
