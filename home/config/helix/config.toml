@@ -1,6 +1,7 @@
 theme = "coding_in_the_rain_dark"
 
 [editor]
+true-color = true
 cursorline = true
 color-modes = true
 auto-pairs = true

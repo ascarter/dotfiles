@@ -1,6 +1,5 @@
 [core]
   autocrlf = input
-  editor = $EDITOR
   excludesFile = ~/.gitignore
 
 [init]
@@ -39,6 +38,20 @@
   tool = vimdiff
   guitool = gvimdiff
   prompt = NO
+
+[tig]
+  tab-size = 4
+  main-view-date-local = yes
+  blob-view-line-number = yes
+  blob-view-line-number-interval = 1
+
+[tig "color"]
+  cursor = black cyan bold
+  search-result = black yellow bold
+  header = white blue dim
+  line-number = white default dim
+  date = white default dim
+  status = white blue bold
 
 [alias]
   aliases = !git config -l | grep alias | cut -c 7-

@@ -128,13 +128,7 @@ if (( $+commands[hx] )); then
 elif (( $+commands[nano] )); then
   export EDITOR="nano"
 fi
-
-# macOS - use BBEdit for visual editor
-if (( $+commands[bbedit] )); then
-  export VISUAL="bbedit --wait --resume --new-window"
-else
-  export VISUAL=$EDITOR
-fi
+export VISUAL=$EDITOR
 
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
