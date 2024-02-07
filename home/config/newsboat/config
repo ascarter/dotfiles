@@ -11,6 +11,9 @@ datetime-format "%b %d %R"
 scrolloff 5
 text-width 72
 
+# Key bindings
+ bind-key ESC quit
+
 # Theme - optimized for dark
 # Use `default` to accomodate light
 color background          default default
