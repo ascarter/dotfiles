@@ -1,0 +1,27 @@
+# Startup
+refresh-on-startup yes
+reload-time 15
+reload-threads 5
+
+# Options
+show-read-feeds no
+feed-sort-order lastupdated
+feedlist-format "%4i %n %-15T %t"
+datetime-format "%b %d %R"
+scrolloff 5
+text-width 72
+
+# Theme - optimized for dark
+# Use `default` to accomodate light
+color background          default default
+color listnormal          default default
+color article             default default
+color listfocus           white   blue
+color listnormal_unread   default default bold
+color listfocus_unread    default blue    bold
+color title               default blue
+color info                default blue
+color hint-key            default blue    bold
+color hint-keys-delimiter default blue
+color hint-separator      default blue
+color hint-description    default blue
