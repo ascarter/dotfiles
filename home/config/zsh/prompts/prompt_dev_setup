@@ -68,18 +68,18 @@ prompt_dev_setup () {
   fi
 
   # user@host
-  if [[ -n ${SSH_TTY} ]]; then
-    PROMPT+="%n@%m${SEPARATOR}"
+  if [[ -n ${SSH_TTY} ]] || [[ -n ${twoline} ]]; then
+    PROMPT+=$(prompt_color "%B%n@%m%b${SEPARATOR}" "default")
   fi
 
   # ~/working/directory
-  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "cyan")
+  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "default")
 
   # VCS info
   PROMPT+=$(prompt_color '%B${vcs_info_msg_0_}%b' "green")
 
   # Developer information
-  PROMPT+=$(prompt_color '%B${dev_info_msg}%b' "magenta")
+  PROMPT+=$(prompt_color '%B${dev_info_msg}%b' "cyan")
 
   # Put cursor on next line if using twoline prompt
   if [[ -n ${twoline} ]]; then
