@@ -135,6 +135,31 @@ export VISUAL=$EDITOR
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
 # =====================================
+# Browser
+# =====================================
+
+case $(uname) in
+Darwin )
+  export BROWSER="open -a Safari"
+  ;;
+Linux )
+  # TODO - confirm already set in Linux
+  # Fall back to lynx
+  if [[ -z ${BROWSER} ]]; then
+    export BROWSER=lynx
+  fi
+  ;;
+esac
+
+# Use helix editor or nano if not present
+if (( $+commands[hx] )); then
+  export EDITOR="hx"
+elif (( $+commands[nano] )); then
+  export EDITOR="nano"
+fi
+export VISUAL=$EDITOR
+
+# =====================================
 # Aliases
 # =====================================
 
