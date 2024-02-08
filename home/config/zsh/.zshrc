@@ -134,6 +134,9 @@ export VISUAL=$EDITOR
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
+# ripgrep
+export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
+
 # =====================================
 # Browser
 # =====================================
