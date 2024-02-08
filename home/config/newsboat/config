@@ -9,10 +9,30 @@ feed-sort-order lastupdated
 feedlist-format "%4i %n %-15T %t"
 datetime-format "%b %d %R"
 scrolloff 5
-text-width 72
+text-width 76
 
 # Key bindings
- bind-key ESC quit
+bind-key "ESC" quit article
+bind-key "ESC" quit articlelist
+bind-key "ESC" quit dialogs
+bind-key "ESC" quit dirbrowser
+bind-key "ESC" quit filebrowser
+bind-key "ESC" quit filterselection
+bind-key "ESC" quit help
+bind-key "ESC" quit podboat
+bind-key "ESC" quit searchresultslist
+bind-key "ESC" quit tagselection
+bind-key "ESC" quit urlview
+
+bind-key "LEFT" quit article
+bind-key "LEFT" quit articlelist
+bind-key "LEFT" quit searchresultslist
+bind-key "LEFT" quit urlview
+
+bind-key "RIGHT" open articlelist
+bind-key "RIGHT" open feedlist
+bind-key "RIGHT" open searchresultslist
+bind-key "RIGHT" open urlview
 
 # Theme - optimized for dark
 # Use `default` to accomodate light
