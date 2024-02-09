@@ -59,13 +59,13 @@
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
 
 "ui.statusline" = { fg = "white", bg = "gray" }
-"ui.statusline.inactive" = { fg = "light-gray", bg = "gray", modifiers = ["dim"] }
+"ui.statusline.inactive" = { fg = "light-gray", bg = "gray" }
 "ui.statusline.normal" = { fg = "white", bg = "gray", modifiers = ["bold"] }
 "ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.popup" = { bg = "black" }
-"ui.menu" = { fg= "light-gray", bg = "black" }
+"ui.popup" = { bg = "gray" }
+"ui.menu" = { fg= "light-gray" } # , bg = "black" }
 "ui.menu.scroll" = { fg = "light-gray", bg = "gray" }
 "ui.menu.selected" = { fg = "white", modifiers = ["bold"] }
 "ui.window" = { fg = "gray", bg = "default" }
