@@ -32,73 +32,50 @@
 # Foreground color only:
 # key = "#ffffff"
 
+# -------------------
 # UI
+# -------------------
 
+"ui.text" = { fg="default" }
 "ui.background" = { bg = "default" }
-# "ui.background.separator" = { bg = "light-yellow" }
-# "ui.cursor" = { fg = "black", bg = "light-gray" }
-"ui.cursor" = { modifiers = ["reversed"] }
-# ui.cursor.normal
-# "ui.cursor.insert" = { fg = "cyan", bg = "white", modifiers = ["bold"] }
-# "ui.cursor.insert" = { fg="white" }
-# ui.cursor.select
+"ui.cursor" = { fg = "default", modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "yellow", modifiers = ["bold"] }
-# ui.cursor.primary
-# ui.cursor.primary.normal
 "ui.cursor.primary.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
-"ui.cursor.primary.select" = { bg = "blue", modifiers = ["bold"] }
+"ui.cursor.primary.select" = { fg = "default", bg = "blue", modifiers = ["bold"] }
 
 "ui.cursorline.primary" = { bg = "black" }
-"ui.cursorline.secondary" = { bg = "gray" }
 "ui.cursorcolumn.primary" = { bg = "black" }
-"ui.cursorcolumn.secondary" = { bg = "gray" }
 
-"ui.selection" = { fg = "light-gray", bg="gray", modifiers = ["bold"] }
-"ui.selection.primary" = { fg="white", bg="gray", modifiers = ["bold"] }
-
-# ui.debug.breakpoint
-# ui.debug.active
+"ui.selection" = { fg = "light-gray", bg="gray" }
+"ui.selection.primary" = { fg = "white", bg = "gray" }
 
 "ui.gutter" = { bg = "default" }
 "ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
 
-# ui.highlight.frameline
-
 "ui.linenr" = { fg = "gray", modifiers = ["dim"] }
 "ui.linenr.selected" = { fg = "white", modifiers = ["bold"] }
 
+"ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
+"ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
+
 "ui.statusline" = { fg = "white", bg = "gray" }
-"ui.statusline.inactive" = { fg = "white", bg = "default", modifiers = ["dim"] }
+"ui.statusline.inactive" = { fg = "light-gray", bg = "gray", modifiers = ["dim"] }
 "ui.statusline.normal" = { fg = "white", bg = "gray", modifiers = ["bold"] }
 "ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
-# ui.statusline.separator
 
-"ui.popup" = { fg = "white", bg = "black", modifiers = ["bold"] }
-"ui.popup.info" = { fg = "white", bg = "default", modifiers = ["bold"] }
-
-"ui.window" = { fg = "white", bg = "default" }
-"ui.help" = { fg = "white", bg = "default", modifiers = ["bold"] }
-
-"ui.text" = { fg="default" }
-# ui.text.focus
-# ui.text.inactive
-# ui.text.info
+"ui.popup" = { bg = "black" }
+"ui.menu" = { fg= "light-gray", bg = "black" }
+"ui.menu.scroll" = { fg = "light-gray", bg = "gray" }
+"ui.menu.selected" = { fg = "white", modifiers = ["bold"] }
+"ui.window" = { fg = "gray", bg = "default" }
+"ui.help" = { fg = "default", bg = "default" }
 
 "ui.virtual" = { fg = "gray" }
 "ui.virtual.ruler" = { bg = "gray" }
 "ui.virtual.whitespace" = { fg = "white" }
 "ui.virtual.indent-guide" = { fg = "gray", modifiers = ["dim"] }
-# ui.virtual.inlay-hint
-# ui.virtual.inlay-hint.parameter
-# ui.virtual.inlay-hint.type
-# ui.virtual.wrap
-
-"ui.menu" = { fg = "white", bg = "default", modifiers = ["bold"] }
-"ui.menu.selected" = { fg = "white", bg = "gray", modifiers = ["bold"] }
-# ui.menu.scroll
-
-# ui.highlight
+"ui.virtual.inlay-hint" = { bg = "black" }
 
 warning = "yellow"
 error = "red"
@@ -106,29 +83,22 @@ info = "light-gray"
 hint = "cyan"
 
 "diagnostic" = { underline = { color = "red", style = "curl" } }
-# diagnostic.hint
-# diagnostic.info
-# diagnostic.warning
-# diagnostic.error
+"diagnostic.hint" = { underline = { color = "light-gray", style = "curl" } }
+"diagnostic.info" = { underline = { color = "light-cyan", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "light-yellow", style = "curl" } }
+"diagnostic.error" = { underline = { color = "light-red", style = "curl" } }
 
+# -------------------
 # Syntax Highlighting
+# -------------------
+
 # Match tree-sitter scopes
-#
-#  attribute
-#  type
-#  constructor
-# constant = "light-blue"
-string = { fg = "green",  modifiers = ["bold"] } # "green"
+string = { fg = "green",  modifiers = ["bold"] }
 comment = { fg = "light-gray", modifiers = ["italic"] }
 variable = { modifiers = ["italic"] }
-#  label
-#  punctuation
-#  keyword
-#  operator
 function = { modifiers = ["bold"] }
 tag = "light-blue"
 namespace = { modifiers = ["bold"] }
-#  special
 
 #  markup
 "markup.heading" = { modifiers = ["bold"] }
@@ -137,27 +107,10 @@ namespace = { modifiers = ["bold"] }
 "markup.italic" = { modifiers = ["italic"] }
 "markup.strikethrough" = { modifiers = ["dim", "crossed_out"] }
 "markup.link" = "light-blue"
-#      url
-#      label
-#      text
 "markup.quote" = { modifiers = ["dim", "italic"] }
-"markup.raw" = { bg = "gray" } #modifiers = ["dim"] }
 
 #  diff
-"diff.plus" = "light-green"
+"diff.plus" = "green"
 "diff.minus" = "red"
-"diff.delta" = "magenta"
-
-# Interface
-#   markup
-#     normal
-#       completion
-#       hover
-#     heading
-#       completion
-#       hover
-#    raw
-#      inline
-#        completion
-#        hover
+"diff.delta" = "cyan"
 
