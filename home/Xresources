@@ -30,37 +30,6 @@
 !*.color15:      #E5E5E5
 
 !--------------------------------------
-! Git Hub Dimmed colors
-!--------------------------------------
-!*.foreground:   #ADBAC7
-!*.background:   #22262C
-!*.cursorColor:  #FFFFFF
-! black
-!*.color0:       #22272E
-!*.color8:       #2D333B
-! red
-!*.color1:       #F47067
-!*.color9:       #FF938A
-! green
-!*.color2:       #57AB5A
-!*.color10:      #6BC46D
-! yellow
-!*.color3:       #C69026
-!*.color11:      #DAAA3F
-! blue
-!*.color4:       #539BF5
-!*.color12:      #6CB6FF
-! magenta
-!*.color5:       #B083F0
-!*.color13:      #DCBDFB
-! cyan
-!*.color6:       #76E3EA
-!*.color14:      #B3F0FF
-! white
-!*.color7:       #909DAB
-!*.color15:      #909DAB
-
-!--------------------------------------
 ! Nord colors
 ! Copyright (c) 2016-present Sven Greb <development@svengreb.de>
 ! This source code is licensed under the MIT license found in the license file.
@@ -107,40 +76,42 @@
 !--------------------------------------
 
 !--------------------------------------
-! Apple Developer colors
+! Panic Dark
 !--------------------------------------
 *.foreground:   #FFFFFF
-*.background:   #1D1D1D
-*.cursorColor:  #929292
+*.background:   #2C2C2C
+*.cursorColor:  #FFFFFF
 ! black
 *.color0:       #000000
-*.color8:       #676666
+*.color8:       #505559
 ! red
-*.color1:       #990000
-*.color9:       #E50201
+*.color1:       #FF4545
+*.color9:       #FF7361
 ! green
-*.color2:       #04a600
-*.color10:      #09d805
+*.color2:       #27C21F
+*.color10:      #71CC58
 ! yellow
-*.color3:       #999900
-*.color11:      #E5e500
+*.color3:       #FFC933
+*.color11:      #FFE373
 ! blue
-*.color4:       #0300b2
-*.color12:      #0700FE
+*.color4:       #2990D9
+*.color12:      #56B0F0
 ! magenta
-*.color5:       #B302B2
-*.color13:      #B302B2
+*.color5:       #E077D8
+*.color13:      #EDABE8
 ! cyan
-*.color6:       #00A6B2
-*.color14:      #00A6B2
+*.color6:       #72D4E8
+*.color14:      #A8F6FF
 ! white
-*.color7:       #BFBFBF
-*.color15:      #E6E5E6
+*.color7:       #BDC3C7
+*.color15:      #FFFFFF
 
 Xft.dpi: 130
 Xft.antialias: true
 
-XTerm.*.faceName: IBM Plex Mono
+*.locale: UTF-8
+*.utf8: 2
+XTerm.*.faceName: Noto Mono
 XTerm.*.faceSize: 9
 Xterm.*.geometry: 80x24
 
