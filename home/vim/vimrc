@@ -72,9 +72,10 @@ if has("termguicolors")
 endif
 
 try
- colorscheme dim
+  set background=dark
+  colorscheme rain
 catch
- colorscheme default
+  colorscheme default
 endtry
 
 " Flash screen only - no beep
