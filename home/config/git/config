@@ -1,6 +1,5 @@
 [core]
   autocrlf = input
-  excludesFile = ~/.gitignore
 
 [init]
   defaultBranch = main
