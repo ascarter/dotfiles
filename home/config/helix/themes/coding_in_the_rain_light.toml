@@ -13,28 +13,29 @@ inherits = "coding_in_the_rain_dark"
 # UI
 # -------------------
 
-"ui.cursorline.primary" = { bg = "light-gray" }
-"ui.cursorcolumn.primary" = { bg = "light-gray" }
-"ui.cursor" = { fg = "white", bg = "black" }
+"ui.cursorline.primary" = { fg = "white", bg = "light-gray" }
+"ui.cursorcolumn.primary" = { fg = "white", bg = "light-gray" }
+# "ui.cursor" = { fg = "white", bg = "black" }
+# "ui.cursor" = { fg = "white", bg = "black" }
 "ui.cursor.match" = { bg = "yellow", modifiers = ["bold"] }
-"ui.cursor.primary.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
-"ui.cursor.primary.select" = { fg = "default", bg = "blue", modifiers = ["bold"] }
+# "ui.cursor.primary.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+# "ui.cursor.primary.select" = { fg = "default", bg = "blue", modifiers = ["bold"] }
 
-"ui.selection" = { fg = "black", bg="blue" }
-"ui.selection.primary" = { fg = "black", bg = "light-blue" }
+"ui.selection" = { fg = "black", bg="light-gray" }
+"ui.selection.primary" = { fg = "black", bg = "light-gray" }
 
-"ui.gutter.selected" = { bg = "light-gray", modifiers = ["bold"] }
+# "ui.gutter.selected" = { bg = "light-gray", modifiers = ["bold"] }
 
-"ui.linenr" = { fg = "gray", modifiers = ["dim"] }
-"ui.linenr.selected" = { fg = "black", bg = "light-gray", modifiers = ["bold"] }
+# "ui.linenr" = { fg = "gray", modifiers = ["dim"] }
+# "ui.linenr.selected" = { fg = "black", bg = "light-gray", modifiers = ["bold"] }
 
 "ui.debug.active" = { fg = "blue", modifiers = ["bold"] }
 
-"ui.statusline" = { fg = "white", bg = "gray" }
-"ui.statusline.inactive" = { fg = "gray", bg = "light-gray", modifiers = ["dim"] }
-"ui.statusline.normal" = { fg = "white", bg = "gray", modifiers = ["bold"] }
-"ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
-"ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
+# "ui.statusline" = { fg = "white", bg = "gray" }
+"ui.statusline.inactive" = { fg = "default", bg = "light-gray", modifiers = ["dim"] }
+"ui.statusline.normal" = { fg = "white", bg = "light-gray", modifiers = ["bold"] }
+# "ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+# "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
 "ui.popup" = { bg = "light-gray" }
 "ui.menu" = { fg= "black", bg = "light-gray" }
