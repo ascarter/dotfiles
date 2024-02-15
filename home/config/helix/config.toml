@@ -1,12 +1,12 @@
-theme = "auto"
+theme = "terminal"
 
 [editor]
-# true-color = true
 cursorline = true
 color-modes = true
-auto-pairs = true
 bufferline = "multiple"
-# rulers = [80, 120]
+
+[editor.indent-guides]
+render = true
 
 [editor.cursor-shape]
 insert = "bar"
