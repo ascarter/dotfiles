@@ -11,87 +11,87 @@
 			<key>$class</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>22</integer>
+				<integer>29</integer>
 			</dict>
 			<key>ANSIBlackColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>10</integer>
+				<integer>12</integer>
 			</dict>
 			<key>ANSIBlueColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>14</integer>
+				<integer>16</integer>
 			</dict>
 			<key>ANSIBrightBlackColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>18</integer>
+				<integer>20</integer>
 			</dict>
 			<key>ANSIBrightBlueColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>14</integer>
+				<integer>24</integer>
 			</dict>
 			<key>ANSIBrightCyanColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>20</integer>
+				<integer>25</integer>
 			</dict>
 			<key>ANSIBrightGreenColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>13</integer>
+				<integer>23</integer>
 			</dict>
 			<key>ANSIBrightMagentaColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>16</integer>
+				<integer>26</integer>
 			</dict>
 			<key>ANSIBrightRedColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>12</integer>
+				<integer>22</integer>
 			</dict>
 			<key>ANSIBrightWhiteColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>19</integer>
+				<integer>21</integer>
 			</dict>
 			<key>ANSIBrightYellowColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>17</integer>
+				<integer>27</integer>
 			</dict>
 			<key>ANSICyanColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>15</integer>
+				<integer>17</integer>
 			</dict>
 			<key>ANSIGreenColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>13</integer>
+				<integer>15</integer>
 			</dict>
 			<key>ANSIMagentaColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>16</integer>
+				<integer>18</integer>
 			</dict>
 			<key>ANSIRedColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>12</integer>
+				<integer>14</integer>
 			</dict>
 			<key>ANSIWhiteColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>11</integer>
+				<integer>13</integer>
 			</dict>
 			<key>ANSIYellowColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>17</integer>
+				<integer>19</integer>
 			</dict>
 			<key>backgroundColor</key>
 			<dict>
@@ -101,17 +101,17 @@
 			<key>boldTextColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>8</integer>
+				<integer>9</integer>
 			</dict>
 			<key>cursorColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>8</integer>
+				<integer>11</integer>
 			</dict>
 			<key>identifier</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>21</integer>
+				<integer>28</integer>
 			</dict>
 			<key>locked</key>
 			<false/>
@@ -125,7 +125,7 @@
 			<key>selectionColor</key>
 			<dict>
 				<key>CF$UID</key>
-				<integer>9</integer>
+				<integer>10</integer>
 			</dict>
 			<key>showTextGlow</key>
 			<false/>
@@ -297,6 +297,28 @@
 			<integer>1</integer>
 			<key>NSComponents</key>
 			<data>
+			MC44NDYxODUwMjg2IDAuODY5OTA3MjAwMyAwLjkxNTU5MDE2NyAx
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC44MTEwOTM0NDk2IDAuODM3NjY4NDE4OSAwLjg5NDU0ODU5NQA=
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
 			MC4yNjE0MDU3NjYgMC4yOTY2ODc3ODE4IDAuMzcxNDQxNTEzMyAx
 			</data>
 			<key>NSCustomColorSpace</key>
@@ -307,6 +329,28 @@
 			<key>NSRGB</key>
 			<data>
 			MC4yMDEzNzcxMDg3IDAuMjI5MTIzMDcwOCAwLjI5ODYyNjkyOTUA
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
+			MC44NDYxODUwMjg2IDAuODY5OTA3MjAwMyAwLjkxNTU5MDE2NyAx
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC44MTEwOTM0NDk2IDAuODM3NjY4NDE4OSAwLjg5NDU0ODU5NQA=
 			</data>
 		</dict>
 		<dict>
@@ -546,6 +590,73 @@
 			<integer>1</integer>
 			<key>NSComponents</key>
 			<data>
+			MC43NTU3MjMyMzggMC4zNzcyNTg4MzcyIDAuNDEwNTM0MDI0MiAx
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC42OTYxNDM3NDY0IDAuMjkxMDM0NDAwNSAwLjMzNjc3MDIwNjcA
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
+			MC42MzY2MjcxMzc3IDAuNzQ4NTYzMTEwOCAwLjU0MDU2NjkyMTIg
+			MQ==
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC41NzM0MzU0MjU4IDAuNzA0NjY2Mzc2MSAwLjQ2NzE2ODYyOTIA
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
+			MC41MDEzMzc3MDcgMC42MjkyMTEyNDcgMC43NjIzODczMzUzIDE=
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC40Mjk0MDc0NDc2IDAuNTU4MTIzODI3IDAuNzEwOTgxNjA3NAA=
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
 			MC41NTUwMjQwMjc4IDAuNzM3OTc2MjUzIDAuNzM0ODU3ODU3MiAx
 			</data>
 			<key>NSCustomColorSpace</key>
@@ -558,7 +669,52 @@
 			MC40ODc1OTc1ODQ3IDAuNjg3MDY2MTk3NCAwLjY3OTUzMzgzOTIA
 			</data>
 		</dict>
-		<string>1DCBF27F-E0D1-4A8B-89D6-40C78F00E806</string>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
+			MC43MDg5MTg2OTA3IDAuNTUzNTk5NjU1NiAwLjY4MTE3Njg0MTMg
+			MQ==
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC42NDYxMjkxMzEzIDAuNDcwOTg5MTY3NyAwLjYxODc4NDg0NDkA
+			</data>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>7</integer>
+			</dict>
+			<key>NSColorSpace</key>
+			<integer>1</integer>
+			<key>NSComponents</key>
+			<data>
+			MC45MjUwMTg3Mjc4IDAuNzk5MzA1MTQxIDAuNTI4NTI3OTc1MSAx
+			</data>
+			<key>NSCustomColorSpace</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>4</integer>
+			</dict>
+			<key>NSRGB</key>
+			<data>
+			MC45MDMyODc1Mjk5IDAuNzYwMDgxNzY4IDAuNDU1NjU4MjI3MgA=
+			</data>
+		</dict>
+		<string>47AEDFA7-5753-47E4-BB1A-F4354164732B</string>
 		<dict>
 			<key>$classes</key>
 			<array>
