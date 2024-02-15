@@ -7,24 +7,26 @@
 # Adapts to dark or light terminal
 
 # ANSI Color Names
-# -----------
-#   default
-#   black
-#   red
-#   green
-#   yellow
-#   blue
-#   magenta
-#   cyan
-#   gray
-#   light-red
-#   light-green
-#   light-yellow
-#   light-blue
-#   light-magenta
-#   light-cyan
-#   light-gray
-#   white
+#
+# Idx  Name
+# ---  -----------
+#  -   default
+#  0   black
+#  1   red
+#  2   green
+#  3   yellow
+#  4   blue
+#  5   magenta
+#  6   cyan
+#  7   light-gray
+#  8   gray
+#  9   light-red
+# 10   light-green
+# 11   light-yellow
+# 12   light-blue
+# 13   light-magenta
+# 14   light-cyan
+# 15   white
 
 # Full description:
 # key = { fg = "#ffffff", bg = "#000000", underline = { color = "#ff0000", style = "curl"}, modifiers = ["bold", "italic"] }
