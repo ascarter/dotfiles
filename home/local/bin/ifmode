@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Check system interface mode (light or dark)
+
+# macOS stores the following defaults:
+#   AppleInterfaceStyleSwitchesAutomatically == 1 (auto)
+#   AppleInterfaceStyle == dark | light
+# Neither of these keys are present if manually set to `Light`
+
+_macos_check() {
+	echo $(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
+}
+
+case $(uname) in
+Darwin) _macos_check ;;
+esac
