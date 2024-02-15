@@ -47,12 +47,9 @@ Plug 'xu-cheng/brew.vim'
 " Color schemes
 Plug 'arcticicestudio/nord-vim'
 Plug 'ascarter/vim-rain'
-Plug 'cocopon/iceberg.vim'
-Plug 'Lokaltog/vim-monotone'
-Plug 'vim/colorschemes'
 Plug '0mp/vim-robpike'
 Plug 'https://bitbucket.org/kisom/eink.vim.git'
-Plug 'jeffkreeftmeijer/vim-dim'
+Plug 'noahfrederick/vim-noctu'
 
 call plug#end()
 
@@ -72,8 +69,8 @@ if has("termguicolors")
 endif
 
 try
-  set background=dark
-  colorscheme rain
+  "set background=dark
+  colorscheme noctu
 catch
   colorscheme default
 endtry
