@@ -97,7 +97,7 @@ hint = "cyan"
 
 # Match tree-sitter scopes
 comment = { fg = "light-gray", modifiers = ["italic"] }
-constant = {fg = "white", modifiers = ["bold"] }
+constant = { modifiers = ["bold"] }
 string = { fg = "light-gray", modifiers = ["bold"] }
 variable = { modifiers = ["bold", "italic"] }
 function = { modifiers = ["bold"] }
