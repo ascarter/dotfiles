@@ -13,6 +13,10 @@
   updated = default bold
   changed = default bold italic
   untracked = default italic
+  branch = default bold
+  localBranch = default
+  remoteBranch = default italic
+  unmerged = red bold italic
 
 [color "diff"]
   meta = default
