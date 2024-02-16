@@ -7,6 +7,35 @@
 [color]
   ui = auto
 
+[color "status"]
+  header = default
+  added = default bold
+  updated = default bold
+  changed = default bold italic
+  untracked = default italic
+
+[color "diff"]
+  meta = default
+  frag = default bold ul
+  context = default dim
+  old = default italic
+  new = default bold
+  commit = default bold
+
+[color "branch"]
+  current = default bold
+  local = default
+  remote = default italic
+  upstream = default bold italic
+  plain = default
+
+[color "decorate"] 
+  branch = default bold
+  remoteBranch = default italic
+  tag = default bold
+  stash = default italic
+  HEAD = default italic
+
 [instaweb]
   httpd = webrick
 

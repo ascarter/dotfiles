@@ -67,7 +67,7 @@ fi
 
 # Default: PS1="%m%# "
 declare +x PS1
-prompt dev
+prompt terminal --twoline
 
 # =====================================
 # Shell preferences

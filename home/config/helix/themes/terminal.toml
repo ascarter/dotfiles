@@ -116,7 +116,11 @@ namespace = { modifiers = ["bold"] }
 "markup.raw.inline" = { modifiers = ["bold"] }
 
 # diff
-"diff.plus" = "green"
-"diff.minus" = "red"
-"diff.delta" = "cyan"
+"diff" = "default"
+"diff.plus" = { modifiers = ["bold"] }
+"diff.minus" = { fg = "red", modifiers = ["bold"] }
+"diff.delta" = { modifiers = ["bold", "italic"] }
+"diff.plus.gutter" = "green"
+"diff.minus.gutter" = "red"
+"diff.delta.gutter" = "cyan"
 
