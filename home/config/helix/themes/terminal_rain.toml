@@ -99,7 +99,7 @@ hint = "cyan"
 comment = { fg = "light-gray", modifiers = ["italic"] }
 constant = "blue"
 string = "blue"
-variable = { fg = "magenta", modifiers = ["italic"] }
+variable = { modifiers = ["italic"] }
 tag = "blue"
 namespace = { modifiers = ["bold"] }
 
