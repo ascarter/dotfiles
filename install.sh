@@ -95,6 +95,12 @@ install_homebrew() {
       log "Homebrew installed"
     fi
 
+    # Enable man page contextual menu item in Terminal.app
+    if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+      sudo mkdir -p /usr/local/etc/man.d
+      echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
+    fi
+
     # Install packages
     if command -v brew >/dev/null 2>&1; then
       for f in ${DOTFILES}/homebrew/* ; do
