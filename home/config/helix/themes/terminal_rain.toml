@@ -1,10 +1,12 @@
-# Coding in the Rain
+# Terminal
 # Author: Andrew Carter <@ascarter>
 
-# Minimal theme that reduces usage of color
+# Terminal theme
 # Uses only ANSI terminal 16 color values for portability
 # Optimized for color sensitive users
-# Adapts to dark or light terminal
+# Adapts to dark or light terminal if terminal theme adapts
+# Recommend using Apple terminal theme that uses dynamic colors
+# for text, background and accents
 
 # ANSI Color Names
 #
@@ -40,19 +42,17 @@
 
 "ui.text" = { fg="default" }
 "ui.background" = { bg = "default" }
-"ui.cursor" = { fg = "default", modifiers = ["reversed"] }
-"ui.cursor.match" = { fg = "yellow", modifiers = ["bold"] }
-"ui.cursor.primary.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
-"ui.cursor.primary.select" = { fg = "default", bg = "blue", modifiers = ["bold"] }
+"ui.cursor" = { fg = "black", bg = "light-gray" }
+"ui.cursor.match" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 
-"ui.cursorline.primary" = { bg = "black" }
-"ui.cursorcolumn.primary" = { bg = "black" }
+"ui.cursorline.primary" = { bg = "gray" }
+"ui.cursorcolumn.primary" = { bg = "gray" }
 
-"ui.selection" = { fg = "light-gray", bg="gray" }
-"ui.selection.primary" = { fg = "white", bg = "gray" }
+"ui.selection" = { bg = "light-blue", modifiers = ["dim"] }
+"ui.selection.primary" = { bg = "light-blue" }
 
-"ui.gutter" = { bg = "default" }
-"ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
+"ui.gutter" = { bg = "gray" }
+"ui.gutter.selected" = { bg = "gray", modifiers = ["bold"] }
 
 "ui.linenr" = { modifiers = ["dim"] }
 "ui.linenr.selected" = { modifiers = ["bold"] }
@@ -60,33 +60,33 @@
 "ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
 
-"ui.statusline" = { fg = "white", bg = "gray" }
-"ui.statusline.separator" = { fg = "light-gray", modifiers = ["dim"] }
-"ui.statusline.inactive" = { fg = "light-gray", modifiers = ["dim"] }
-"ui.statusline.normal" = { fg = "white", bg = "gray", modifiers = ["bold"] }
+"ui.statusline" = { bg = "gray", modifiers = ["bold"] }
+"ui.statusline.separator" = { modifiers = ["dim"] }
+"ui.statusline.inactive" = { bg = "gray", modifiers = ["dim"] }
+"ui.statusline.normal" = { modifiers = ["bold"] }
 "ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.popup" = { bg = "gray" }
 "ui.menu" = { bg = "gray" }
+"ui.menu.selected" = { modifiers = ["bold"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
-"ui.menu.selected" = { fg = "white", modifiers = ["bold"] }
-"ui.window" = { fg = "gray", bg = "default" }
+"ui.popup" = { bg = "gray" }
 "ui.help" = { fg = "default", bg = "default" }
+"ui.window" = { fg = "gray", bg = "default" }
 
 "ui.virtual" = { fg = "gray" }
 "ui.virtual.ruler" = { bg = "gray" }
-"ui.virtual.whitespace" = { fg = "white" }
-"ui.virtual.indent-guide" = { fg = "gray", modifiers = ["dim"] }
-"ui.virtual.inlay-hint" = { bg = "black" }
+"ui.virtual.whitespace" = { modifiers = ["dim"] }
+"ui.virtual.indent-guide" = { fg = "light-gray" }
+"ui.virtual.inlay-hint" = { bg = "gray" }
 
 warning = "yellow"
 error = "red"
-info = "light-gray"
+info = "default"
 hint = "cyan"
 
 "diagnostic" = { underline = { color = "red", style = "curl" } }
-"diagnostic.hint" = { underline = { color = "light-gray", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "white", style = "curl" } }
 "diagnostic.info" = { underline = { color = "light-cyan", style = "curl" } }
 "diagnostic.warning" = { underline = { color = "light-yellow", style = "curl" } }
 "diagnostic.error" = { underline = { color = "light-red", style = "curl" } }
@@ -97,11 +97,10 @@ hint = "cyan"
 
 # Match tree-sitter scopes
 comment = { fg = "light-gray", modifiers = ["italic"] }
-constant = { modifiers = ["bold"] }
-string = { fg = "light-gray", modifiers = ["bold"] }
-variable = { modifiers = ["bold", "italic"] }
-function = { modifiers = ["bold"] }
-tag = "light-blue"
+constant = "blue"
+string = "blue"
+variable = { fg = "magenta", modifiers = ["italic"] }
+tag = "blue"
 namespace = { modifiers = ["bold"] }
 
 # markup
@@ -110,11 +109,17 @@ namespace = { modifiers = ["bold"] }
 "markup.bold" = { modifiers = ["bold"] }
 "markup.italic" = { modifiers = ["italic"] }
 "markup.strikethrough" = { modifiers = ["dim", "crossed_out"] }
-"markup.link" = "light-blue"
-"markup.quote" = { modifiers = ["dim", "italic"] }
+"markup.link" = "blue"
+"markup.quote" = { modifiers = ["italic"] }
+"markup.raw.block" = { modifiers = ["italic"] }
+"markup.raw.inline" = { modifiers = ["bold"] }
 
 # diff
-"diff.plus" = "green"
-"diff.minus" = "red"
-"diff.delta" = "cyan"
+"diff" = "default"
+"diff.plus" = { modifiers = ["bold"] }
+"diff.minus" = { fg = "red", modifiers = ["bold"] }
+"diff.delta" = { modifiers = ["bold", "italic"] }
+"diff.plus.gutter" = "green"
+"diff.minus.gutter" = "red"
+"diff.delta.gutter" = "cyan"
 

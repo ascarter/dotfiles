@@ -1,4 +1,4 @@
-theme = "terminal"
+theme = "terminal_rain"
 
 [editor]
 cursorline = true
