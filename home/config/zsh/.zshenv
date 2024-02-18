@@ -16,8 +16,6 @@ export DOTFILES=${DOTFILES:=${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
 # Configure homebrew shell environment
 if [[ -d /opt/homebrew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
-  export HOMEBREW_NO_EMOJI=1
-  export HOMEBREW_NO_ANALYTICS=1
   fpath+=($HOMEBREW_PREFIX/share/zsh/site-functions $HOMEBREW_PREFIX/share/zsh-completions)
 fi
 
@@ -69,6 +67,9 @@ if [[ -d ${HOME}/Developer/PlaydateSDK ]]; then
   export PLAYDATE_SDK_PATH=${HOME}/Developer/PlaydateSDK
   path+=${PLAYDATE_SDK_PATH}/bin
 fi
+
+# Shellcheck
+export SHELLCHECK_OPTS='--color=never'
 
 # ========================================
 # 1Password
