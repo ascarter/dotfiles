@@ -1,0 +1,60 @@
+emulate -L zsh
+
+# Output terminal colors and effects
+
+colors=(black red green yellow blue magenta cyan white)
+
+_printcolorstring() {
+  printf "\e[%sm%s\e[0m" ${1} ${2}
+}
+
+_printcolor() {
+  color_index=${1}
+  color_name=${colors[$(($color_index + 1))]}
+  color_fg=3${1}
+  color_bg=4${1}
+
+  # Foreground
+  _printcolorstring ${color_fg} ${color_name}
+  printf "\t"
+  # Bold
+  _printcolorstring "${color_fg};1" bold
+  printf "\t"
+  # Dim
+  _printcolorstring "${color_fg};2" dim
+  printf "\t"
+  # Underline
+  _printcolorstring "${color_fg};4" underline
+  printf "\t"
+  # Background
+  _printcolorstring ${color_bg} background
+  printf "\n"
+}
+
+_printcolorname() {
+  color_index=${colors[(ie)${1}]}
+  _printcolor $(($color_index - 1))
+}
+
+_printallcolors() {
+  for i in {0..7}; do
+    _printcolor ${i}
+  done
+}
+
+termcolors() {
+  # Print specified color or default to all colors if none provided
+  if [ -z ${1} ]; then
+    _printallcolors
+  else
+    if [[ ${colors[(ie)${1}]} -le ${#colors} ]]; then
+      _printcolorname ${1}
+    elif [[ ${1} -ge 0 && ${1} -le 7 ]]; then
+      _printcolor ${1}
+    else
+      echo "Invalid color or index"
+    fi
+  fi
+}
+
+termcolors "$@"

@@ -9,3 +9,4 @@ upsearch() {
     print "$P"
 }
 
+upsearch "$@"

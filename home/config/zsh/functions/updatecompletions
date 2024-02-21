@@ -94,3 +94,5 @@ updatecompletions() {
   echo "Updated zsh completions"
   echo "Reload session"
 }
+
+updatecompletions "$@"
