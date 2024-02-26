@@ -9,21 +9,21 @@
 
 [color "status"]
   header = default
-  added = default bold
-  updated = default bold
-  changed = default bold italic
-  untracked = default italic
+  added = default
+  updated = default
+  changed = default
+  untracked = default
   branch = default bold
-  localBranch = default
-  remoteBranch = default italic
+  localBranch = default bold
+  remoteBranch = default bold
   unmerged = red bold italic
 
 [color "diff"]
   meta = default
   frag = default bold ul
   context = default dim
-  old = default italic
-  new = default bold
+  old = red bold italic
+  new = blue bold
   commit = default bold
 
 [color "branch"]
@@ -33,7 +33,7 @@
   upstream = default bold italic
   plain = default
 
-[color "decorate"] 
+[color "decorate"]
   branch = default bold
   remoteBranch = default italic
   tag = default bold
