@@ -13,7 +13,7 @@
 # Idx  Name
 # ---  -----------
 #  -   default
-#  0   black
+#  0   0
 #  1   red
 #  2   green
 #  3   yellow
@@ -30,29 +30,23 @@
 # 14   light-cyan
 # 15   white
 
-# Full description:
-# key = { fg = "#ffffff", bg = "#000000", underline = { color = "#ff0000", style = "curl"}, modifiers = ["bold", "italic"] }
-#
-# Foreground color only:
-# key = "#ffffff"
-
 # -------------------
 # UI
 # -------------------
 
-"ui.text" = { fg="default" }
+"ui.text" = { fg = "default" }
 "ui.background" = { bg = "default" }
 "ui.cursor" = { fg = "black", bg = "light-gray" }
-"ui.cursor.match" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
+"ui.cursor.match" = { fg = "0", bg = "yellow", modifiers = ["bold"] }
 
-"ui.cursorline.primary" = { bg = "gray" }
-"ui.cursorcolumn.primary" = { bg = "gray" }
+"ui.cursorline.primary" = { bg = "default" }
+"ui.cursorcolumn.primary" = { bg = "default" }
 
 "ui.selection" = { bg = "light-blue", modifiers = ["dim"] }
 "ui.selection.primary" = { bg = "light-blue" }
 
-"ui.gutter" = { bg = "gray" }
-"ui.gutter.selected" = { bg = "gray", modifiers = ["bold"] }
+"ui.gutter" = { bg = "default" }
+"ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
 
 "ui.linenr" = { modifiers = ["dim"] }
 "ui.linenr.selected" = { modifiers = ["bold"] }
@@ -60,24 +54,28 @@
 "ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
 
-"ui.statusline" = { bg = "gray", modifiers = ["bold"] }
+"ui.statusline" = { bg = "default", modifiers = ["bold"] }
 "ui.statusline.separator" = { modifiers = ["dim"] }
-"ui.statusline.inactive" = { bg = "gray", modifiers = ["dim"] }
+"ui.statusline.inactive" = { bg = "default", modifiers = ["dim"] }
 "ui.statusline.normal" = { modifiers = ["bold"] }
-"ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+"ui.statusline.insert" = { fg = "0", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.menu" = { bg = "gray" }
+"ui.menu" = { fg = "default", bg = "default" }
 "ui.menu.selected" = { modifiers = ["bold"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
-"ui.popup" = { bg = "gray" }
+
+"ui.popup" = { bg = "default" }
+
+"ui.text.focus" = { modifiers = ["bold"] }
+
 "ui.help" = { fg = "default", bg = "default" }
-"ui.window" = { fg = "gray", bg = "default" }
+"ui.window" = { fg = "gray", bg = "default", modifiers = ["dim"] }
 
 "ui.virtual" = { fg = "gray" }
-"ui.virtual.ruler" = { bg = "gray" }
+"ui.virtual.ruler" = { bg = "default" }
 "ui.virtual.whitespace" = { modifiers = ["dim"] }
-"ui.virtual.indent-guide" = { fg = "light-gray" }
+"ui.virtual.indent-guide" = { fg = "gray" }
 "ui.virtual.inlay-hint" = { bg = "gray" }
 
 warning = "yellow"
@@ -96,9 +94,9 @@ hint = "cyan"
 # -------------------
 
 # Match tree-sitter scopes
-comment = { modifiers = ["italic"] }
-constant = { modifiers = ["bold"] }
-string = { modifiers = ["italic"] }
+comment = { fg = "gray", modifiers = ["italic"] }
+constant = { fg = "blue", modifiers = ["bold"] }
+string = { fg = "blue", modifiers = ["italic"] }
 variable = { modifiers = ["italic"] }
 function = { modifiers = ["bold"] }
 tag = "blue"
