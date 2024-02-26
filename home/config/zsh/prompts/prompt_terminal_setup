@@ -41,11 +41,11 @@ prompt_terminal_setup () {
 
   # user@host
   if [[ -n ${SSH_TTY} ]]; then
-    PROMPT+=$(prompt_color "%n@%m${SEPARATOR}" "default")
+    PROMPT+=$(prompt_color "%n@%m${SEPARATOR}" "blue")
   fi
 
   # ~/working/directory
-  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "default")
+  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "blue")
 
   # Put cursor on next line if using twoline prompt
   if [[ -n ${twoline} ]]; then
