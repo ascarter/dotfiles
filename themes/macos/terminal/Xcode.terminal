@@ -1763,7 +1763,7 @@
 	<key>UseBoldFonts</key>
 	<true/>
 	<key>UseBrightBold</key>
-	<true/>
+	<false/>
 	<key>name</key>
 	<string>Xcode</string>
 	<key>shellExitAction</key>

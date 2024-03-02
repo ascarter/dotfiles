@@ -167,7 +167,7 @@ if [ ! -d "${DOTFILES}" ]; then
 fi
 
 # Symlink dotfiles
-SRCDIR="${DOTFILES}/home"
+SRCDIR="${DOTFILES}/conf"
 mkdir -p ${HOMEDIR}
 for f in $(find ${SRCDIR} -type f -print); do
   t=${HOMEDIR}/.${f#${SRCDIR}/}
