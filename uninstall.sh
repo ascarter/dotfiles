@@ -84,7 +84,7 @@ shift $((OPTIND -1))
 
 HOMEDIR="${1:-${HOME}}"
 DOTFILES="${DOTFILES:-${2:-${HOMEDIR}/.config/dotfiles}}"
-SRCDIR="${DOTFILES}/home"
+SRCDIR="${DOTFILES}/conf"
 HOMEBREW_UNINSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh"
 
 echo "Uninstalling dotfiles"
