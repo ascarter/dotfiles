@@ -72,6 +72,9 @@ Darwin )
     alias bbw="bbedit --new-window"
   fi
 
+  # Bear/Panda
+  alias panda="open -a Panda"
+  
   # Kagi
   alias webhistory="sqlite3 ~/Library/Application\ Support/Orion/Defaults/history 'SELECT DISTINCT url FROM history_items' | fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs open"
 
