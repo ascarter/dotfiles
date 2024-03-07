@@ -42,8 +42,8 @@
 "ui.cursorline.primary" = { bg = "default" }
 "ui.cursorcolumn.primary" = { bg = "default" }
 
-"ui.selection" = { bg = "light-blue", modifiers = ["dim"] }
-"ui.selection.primary" = { bg = "light-blue" }
+"ui.selection" = { fg = "default", bg = "light-blue", modifiers = ["dim"] }
+"ui.selection.primary" = { fg = "default", bg = "light-blue" }
 
 "ui.gutter" = { bg = "default" }
 "ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
