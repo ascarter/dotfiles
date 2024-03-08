@@ -7,7 +7,8 @@
 # DOTFILES
 # =====================================
 
-export DOTFILES=${DOTFILES:=${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
+export DOTFILES=${DOTFILES:=$XDG_CONFIG_HOME/dotfiles}
 
 # =====================================
 # Homebrew
