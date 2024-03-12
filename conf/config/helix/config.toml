@@ -1,13 +1,13 @@
 theme = "terminal"
 
 [editor]
-cursorline = true
+# cursorline = true
 color-modes = true
 bufferline = "multiple"
-rulers = [80, 120]
+# rulers = [80, 120]
 
-[editor.indent-guides]
-render = true
+# [editor.indent-guides]
+# render = true
 
 [editor.cursor-shape]
 insert = "bar"

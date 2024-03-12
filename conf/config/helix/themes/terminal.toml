@@ -36,10 +36,10 @@
 
 "ui.text" = { fg = "default" }
 "ui.background" = { bg = "default" }
-"ui.cursor" = { fg = "black", bg = "light-gray" }
-"ui.cursor.match" = { fg = "0", bg = "yellow", modifiers = ["bold"] }
+"ui.cursor" = { fg = "default", bg = "default", modifiers = ["reversed"] }
+"ui.cursor.match" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 
-"ui.cursorline.primary" = { bg = "default" }
+"ui.cursorline.primary" = { bg = "default", underline = { style = "dotted" } }
 "ui.cursorcolumn.primary" = { bg = "default" }
 
 "ui.selection" = { fg = "default", bg = "light-blue", modifiers = ["dim"] }
@@ -73,7 +73,7 @@
 "ui.window" = { fg = "gray", bg = "default", modifiers = ["dim"] }
 
 "ui.virtual" = { fg = "gray" }
-"ui.virtual.ruler" = { bg = "default" }
+"ui.virtual.ruler" = { bg = "default", modifiers = [ "reversed" ] }
 "ui.virtual.whitespace" = { modifiers = ["dim"] }
 "ui.virtual.indent-guide" = { fg = "gray" }
 "ui.virtual.inlay-hint" = { bg = "gray" }
