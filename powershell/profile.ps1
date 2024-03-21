@@ -1,3 +1,14 @@
+# Set readline options
+if ($host.Name -eq 'ConsoleHost') {
+    Import-Module PSReadLine
+    Set-PSReadLineOption -EditMode Emacs
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    Set-PSReadLineOption -PredictionSource History
+    # Set-PSReadLineOption -PredictionViewStyle ListView
+}
+
 #region dotfiles setup
 
 # Set DOTFILES environment varible if not already set
@@ -31,5 +42,12 @@ $Env:PSModulePath += [System.IO.Path]::PathSeparator + (Join-Path -Path $Env:DOT
 
 #region Aliases
 
+# Unix aliases
+Set-Alias -Name ll -Value Get-ChildItem
+Set-Alias -Name which -Value Get-Command
+
+# macOS aliases
+Set-Alias -Name pbcopy -Value Set-Clipboard
+Set-Alias -Name pbpaste -Value Get-Clipboard
 
 #endregion

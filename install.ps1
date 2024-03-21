@@ -53,14 +53,31 @@ function InstallProfile($path) {
     }
 }
 
-function InitDotfiles() {
-    InstallProfile $Path
+function SymlinkConfig($source, $target) {
+    # For each file in the source directory create a symlink in the target directory recursively
+    Get-ChildItem -Path $source -Recurse -File | ForEach-Object {
+        $linkPath = Join-Path -Path $target -ChildPath $_.FullName.Substring($source.Length)
+        if (-not (Test-Path -Path $linkPath)) {
+            New-Item -ItemType SymbolicLink -Path $linkPath -Value $_.FullName -Force
+        }
+    }
+}
+
+function LinkConfigFiles($path) {
+    # Helix
+    $helixConfigSrc = Join-Path -Path $path -ChildPath 'conf/config/helix'
+    $helixConfigTarget = Join-Path -Path $env:APPDATA -ChildPath 'helix'
+    SymlinkConfig $helixConfigSrc $helixConfigTarget
+}
+function InitDotfiles($path) {
+    InstallProfile $path
+    LinkConfigFiles $path
 }
 
 try {
     InstallPrerequisites
-    CloneDotfiles -Path $Path
-    InitDotfiles
+    CloneDotfiles $Path
+    InitDotfiles $Path
 }
 catch {
     Write-Error "An error occurred: $_"
