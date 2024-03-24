@@ -61,11 +61,11 @@
 "ui.statusline.insert" = { fg = "0", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.menu" = { fg = "default", bg = "default" }
+"ui.menu" = { bg = "light-blue" }
 "ui.menu.selected" = { modifiers = ["bold"] }
-"ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
+"ui.menu.scroll" = { fg = "blue", bg = "gray" }
 
-"ui.popup" = { bg = "default" }
+"ui.popup" = { bg = "light-blue" }
 
 "ui.text.focus" = { modifiers = ["bold"] }
 
