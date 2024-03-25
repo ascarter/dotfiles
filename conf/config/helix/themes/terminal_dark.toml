@@ -8,14 +8,12 @@ inherits = "terminal"
 "ui.cursorline.primary" = { bg = "black" }
 "ui.cursorcolumn.primary" = { bg = "black" }
 
-"ui.gutter" = { bg = "black" }
-"ui.gutter.selected" = { bg = "black", modifiers = ["bold"] }
-"ui.statusline" = { bg = "black", modifiers = ["bold"] }
-"ui.statusline.inactive" = { bg = "black", modifiers = ["dim"] }
+# "ui.gutter" = { bg = "black" }
+# "ui.gutter.selected" = { bg = "black", modifiers = ["bold"] }
+# "ui.statusline" = { bg = "black", modifiers = ["bold"] }
+# "ui.statusline.inactive" = { bg = "black", modifiers = ["dim"] }
 
 "ui.menu" = { bg = "black" }
 "ui.popup" = { bg = "black" }
-"ui.window" = { fg = "black", bg = "default" }
 
-"ui.virtual" = { fg = "black" }
 "ui.virtual.ruler" = { bg = "black" }

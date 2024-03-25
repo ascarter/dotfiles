@@ -1,10 +1,11 @@
-theme = "terminal"
+theme = "terminal_dark"
 
 [editor]
-# cursorline = true
+cursorline = true
 color-modes = true
 bufferline = "multiple"
 # rulers = [80, 120]
+# popup-border = "all"
 
 # [editor.indent-guides]
 # render = true
@@ -18,7 +19,6 @@ select = "underline"
 hidden = false
 
 [editor.lsp]
-# display-inlay-hints = true
 display-messages = true
 
 [editor.statusline]

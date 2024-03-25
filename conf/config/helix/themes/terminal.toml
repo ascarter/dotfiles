@@ -72,7 +72,7 @@
 "ui.help" = { fg = "default", bg = "default" }
 "ui.window" = { fg = "gray", bg = "default", modifiers = ["dim"] }
 
-"ui.virtual" = { fg = "gray" }
+"ui.virtual" = { fg = "gray", modifiers = ["dim"] }
 "ui.virtual.ruler" = { bg = "default", modifiers = [ "reversed" ] }
 "ui.virtual.whitespace" = { modifiers = ["dim"] }
 "ui.virtual.indent-guide" = { fg = "gray" }
