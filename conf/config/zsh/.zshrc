@@ -154,14 +154,6 @@ Linux )
   ;;
 esac
 
-# Use helix editor or nano if not present
-if (( $+commands[hx] )); then
-  export EDITOR="hx"
-elif (( $+commands[nano] )); then
-  export EDITOR="nano"
-fi
-export VISUAL=$EDITOR
-
 # =====================================
 # Aliases
 # =====================================
