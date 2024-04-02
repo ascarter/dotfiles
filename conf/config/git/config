@@ -112,7 +112,7 @@
   done = !f() { local branch=${1-$(git blocal)}; git checkout master; git up; git cleanup; git branch -d ${branch}; }; f
   dump = cat-file -p
   fingerprint = !ssh-keygen -l -E md5 -f id_rsa
-    fixauthor = commit --amend --reset-author
+  fixauthor = commit --amend --reset-author
   gdiff = difftool --gui --no-prompt
   gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
   graphviz = "!f() { echo 'digraph git {' ; git log --pretty='format:  %h -> { %p }' \"$@\" | sed 's/[0-9a-f][0-9a-f]*/\"&\"/g' ; echo '}'; }; f"
@@ -140,7 +140,7 @@
   supdate = 'submodule update --remote --merge'
   type = cat-file -t
   undo = reset --soft HEAD^
-  unstage = reset HEAD --
+  unstage = restore --staged
   untrack = rm --cache --
   up = !f() { if [ \"$(git dirty)\" != \"\" ]; then git upd; else git upc; fi; }; f
   upc = pull --rebase --prune
