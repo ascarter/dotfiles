@@ -1,0 +1,17 @@
+plugins {
+    tab-bar { path "tab-bar"; }
+    status-bar { path "status-bar"; }
+    strider { path "strider"; }
+    compact-bar { path "compact-bar"; }
+    session-manager { path "session-manager"; }
+}
+
+simplified_ui true
+theme "default"
+
+ui {
+    pane_frames {
+        hide_session_name true
+        rounded_corners true
+    }
+}
