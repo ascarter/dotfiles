@@ -87,11 +87,12 @@
   status = white blue bold
 
 [alias]
-  aliases = !git config -l | grep alias | cut -c 7-
+  aliases = !git config --get-regexp alias | cut -c 7-
   amend = commit --amend
   begin = checkout -b
   blocal = rev-parse --abbrev-ref HEAD
   br = branch
+  branches = branch --all
   bremote = rev-parse --abbrev-ref --symbolic-full-name @{u}
   changelog = log --oneline --decorate --no-merges
   changes = diff --name-status -r
@@ -101,6 +102,7 @@
   co = checkout
   commitup = !f() { local msg=${1-'WIP'}; git commit -a -m \"${msg}\"; git up; git push origin; }; f
   cont = !f() { git up; echo "Create new branch ${1}"; git begin ${1} origin/${1}; }; f
+  contributors = shortlog --summary --numbered --email
   ctags = !${PWD}/.git/hooks/ctags
   datetag = !git tag `date \"+%Y%m%d%H%M\"`
   dc = diff --cached
@@ -130,6 +132,7 @@
   new = !sh -c 'git log $1@{1}..$1@{0} "$@"'
   prep = rebase -i @{upstream}
   prune-all = !git remote | xargs -n 1 git remote prune
+  remotes = remote --verbose
   root = rev-parse --show-toplevel
   sdiff = '!'"git diff && git submodule foreach 'git diff'"
   setemail = !git config user.email
@@ -138,6 +141,7 @@
   spush = 'push --recurse-submodules=on-demand'
   st = status --branch --short
   supdate = 'submodule update --remote --merge'
+  tags = tag -l
   type = cat-file -t
   undo = reset --soft HEAD^
   unstage = restore --staged
@@ -150,6 +154,7 @@
   vtag = describe --tags --always --dirty
   whatis = show -s --pretty='tformat:%h (%s, %ad)' --date=short
   who = shortlog -s --
+  whoami = config user.email
   whois = !sh -c 'git log -i -1 --pretty=\"format:%an <%ae>\n\" --author=\"$1\"' -
   showdirty = config devcontainers-theme.show-dirty 1
   hidedirty = config --unset devcontainers-theme.show-dirty
