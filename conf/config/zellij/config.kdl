@@ -6,6 +6,8 @@ plugins {
     session-manager { path "session-manager"; }
 }
 
+// default_layout "compact"
+pane_frames false
 simplified_ui true
 theme "default"
 
