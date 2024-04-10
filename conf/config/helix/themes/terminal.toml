@@ -39,7 +39,7 @@
 "ui.cursor" = { fg = "default", bg = "default", modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 
-"ui.cursorline.primary" = { bg = "default", underline = { style = "dotted" } }
+"ui.cursorline.primary" = { bg = "default", underline = { style = "line" } }
 "ui.cursorcolumn.primary" = { bg = "default" }
 
 "ui.selection" = { fg = "default", bg = "light-blue", modifiers = ["dim"] }
@@ -61,11 +61,11 @@
 "ui.statusline.insert" = { fg = "0", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.menu" = { bg = "light-blue" }
+"ui.menu" = { bg = "default" }
 "ui.menu.selected" = { modifiers = ["bold"] }
 "ui.menu.scroll" = { fg = "blue", bg = "gray" }
 
-"ui.popup" = { bg = "light-blue" }
+"ui.popup" = { bg = "default" }
 
 "ui.text.focus" = { modifiers = ["bold"] }
 
