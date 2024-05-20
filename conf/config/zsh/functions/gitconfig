@@ -87,6 +87,12 @@ _gc_credentials() {
     done
   fi
 
+  # Clear gpg signing
+  _gc_clear ${1} user.signingkey
+  _gc_clear ${1} gpg.format
+  _gc_clear ${1} gpg.ssh.program
+  _gc_clear ${1} commit.gpgsign
+
   # Configure gpg signing
   if [[ -n "${op_helper}" ]]; then
     # Use 1Password SSH for signing
