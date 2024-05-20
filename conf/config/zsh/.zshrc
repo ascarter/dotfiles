@@ -128,8 +128,16 @@ if (( $+commands[hx] )); then
   export EDITOR="hx"
 elif (( $+commands[nano] )); then
   export EDITOR="nano"
+else
+  export EDITOR="vi"
 fi
-export VISUAL=$EDITOR
+
+# Use zed for visual editor or fallback to $EDITOR
+if (( $+commands[zed] )); then
+  export VISUAL="zed"
+else
+  export VISUAL=$EDITOR
+fi
 
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
