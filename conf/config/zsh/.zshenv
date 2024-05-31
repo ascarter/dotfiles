@@ -71,20 +71,3 @@ fi
 
 # Shellcheck
 export SHELLCHECK_OPTS='--color=never'
-
-# ========================================
-# 1Password
-# ========================================
-
-if [[ -f ${HOME}/.config/op/plugins.sh ]]; then
-  source ${HOME}/.config/op/plugins.sh
-fi
-
-# =====================================
-# SSH
-# =====================================
-
-# Use 1Password SSH Agent if installed
-if [[ -S ${HOME}/.1password/agent.sock ]]; then
-  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
-fi
