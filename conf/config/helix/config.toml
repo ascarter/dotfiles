@@ -1,14 +1,10 @@
-theme = "terminal"
+theme = "github_dark"
 
 [editor]
-# cursorline = true
+cursorline = true
 color-modes = true
 bufferline = "multiple"
-# rulers = [80, 120]
 popup-border = "all"
-
-# [editor.indent-guides]
-# render = true
 
 [editor.cursor-shape]
 insert = "bar"
