@@ -193,6 +193,13 @@ alias editvenv="bbedit --new-window $VIRTUAL_ENV"
 alias pipbrew="CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip"
 alias pdb="python -m pdb"
 alias pyunittest="python -m unittest discover --buffer"
+alias pyactivate="source .venv/bin/activate"
+
+if (( $+commands[brew] )); then
+  # Add homebrew python aliases
+  alias bpython=$(brew --prefix python)/libexec/bin/python
+  alias bvenv="$(brew --prefix python)/libexec/bin/python -m venv --clear .venv"
+fi
 
 # View HTTP traffic
 alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
