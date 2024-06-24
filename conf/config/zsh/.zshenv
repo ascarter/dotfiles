@@ -71,3 +71,7 @@ fi
 
 # Shellcheck
 export SHELLCHECK_OPTS='--color=never'
+
+# =====================================
+# SSH
+# =====================================
