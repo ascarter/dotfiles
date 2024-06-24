@@ -1,4 +1,7 @@
-theme = "github_dark"
+# theme = "terminal"
+# theme = "terminal_light"
+# theme = "terminal_dark"
+theme = "nord-night"
 
 [editor]
 cursorline = true
