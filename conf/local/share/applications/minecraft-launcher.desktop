@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Minecraft
+Comment=Sandbox Survival, Adventure
+Exec=/opt/minecraft/minecraft-launcher/minecraft-launcher
+Icon=minecraft256.png
+Type=Application
+Categories=Games;

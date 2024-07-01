@@ -188,9 +188,9 @@ for f in $(find ${SRCDIR} -type f -print); do
 done
 
 # Check for broken symlinks and clean them up
-remove_broken_symlinks $(find ${HOMEDIR} -maxdepth 1 -type l -name '.*' -print)
-remove_broken_symlinks $(find ${HOMEDIR}/.config -type l -print)
-remove_broken_symlinks $(find ${HOMEDIR}/.local -type l -print)
+#remove_broken_symlinks $(find ${HOMEDIR} -maxdepth 1 -type l -name '.*' -print)
+#remove_broken_symlinks $(find ${HOMEDIR}/.config -type l -print)
+#remove_broken_symlinks $(find ${HOMEDIR}/.local -type l -print | grep -v "${HOMEDIR}/.local/share/Steam")
 
 # Set zsh environment
 cat <<EOF > ${HOMEDIR}/.zshenv
