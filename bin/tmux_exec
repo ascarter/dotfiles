@@ -1,0 +1,12 @@
+#!/bin/sh
+
+PANES=$(tmux list-panes | wc -l)
+if [ "$PANES" -gt 1 ]; then
+  tmux send-keys -t 1 $1 Enter
+else
+  tmux split-window -h
+  tmux send $1 Enter
+fi
+
+# echo "$1" > /tmp/prev-tmux-command
+

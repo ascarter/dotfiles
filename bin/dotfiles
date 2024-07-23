@@ -1,0 +1,108 @@
+#!/bin/sh
+
+DOTFILES=${DOTFILES:-$(realpath $(dirname "${0}")/..)}
+DOTFILES_LIB=${DOTFILES_LIB:-${DOTFILES}/lib}
+DOTFILES_THEME=${DOTFILES_THEME:-default}
+
+source ${DOTFILES_LIB}/dotfiles.sh
+
+log "DOTFILES: ${DOTFILES}"
+log "DOTFILES_LIB: ${DOTFILES_LIB}"
+
+usage() {
+    echo "Usage: dotfiles [options] <subcommand> [package]"
+    echo ""
+        echo "Options:"
+    echo "  -f    Force"
+    echo "  -v    Verbose"
+    echo ""
+    echo "Subcommands:"
+    echo "  install   Install [package]"
+    echo "  list      List [package]"
+    echo "  show      Show [package]"
+    echo "  theme     Theme [theme]"
+    echo "  uninstall Uninstall [package]"
+    echo "  update    Update [package]"
+}
+
+dotfiles_install() {
+    local package=${1:-}
+
+    # Prerequisites
+    case "${ID}" in
+    "macos")  macos_prereqs  ;;
+    "fedora") fedora_prereqs ;;
+    "ubuntu") ubuntu_prereqs ;;
+    esac
+
+    # If package is not specified, install all packages in ${DOTFILES_LIB}/packages
+    # Otherwise, install the specified package
+    if [ -z "${package}" ]; then
+        for package in $(ls ${DOTFILES_LIB}/packages/*); do
+            source ${package}
+            log "Installed $(basename $(dirname ${package}))"
+        done
+    else
+        if [ -f ${DOTFILES_LIB}/packages/${package}/install.sh ]; then
+            source ${DOTFILES_LIB}/packages/${package}/install.sh
+            log "Installed ${package}"
+        else
+            log "Package ${package} not found"
+            return 1
+        fi
+    fi
+}
+
+dotfiles_uninstall() {
+    echo "Uninstall [package]"
+}
+
+dotfiles_update() {
+    echo "Updating [package]"
+}
+
+dotfiles_list() {
+    echo "List [package]"
+}
+
+dotfiles_show() {
+    echo "Show [package]"
+}
+
+dotfiles_theme() {
+    echo "Theme [theme]"
+}
+
+# Parse command line arguments
+while getopts "ft:v" opt; do
+  case $opt in
+    f ) FORCE=1 ;;
+    v ) VERBOSE=1 ;;
+    \?) usage && exit 1 ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+# Handle subcommands and pass remaining paramters
+if [ $# -eq 0 ]; then
+    echo "No subcommand specified"
+    echo ""
+    usage
+    exit 1
+fi
+
+subcommand=$1
+shift
+
+case ${subcommand} in
+"install")   dotfiles_install $* ;;
+"list")      dotfiles_list $* ;;
+"show")      dotfiles_show $* ;;
+"theme")     dotfiles_theme $* ;;
+"uninstall") dotfiles_uninstall $* ;;
+"update")    dotfiles_update $* ;;
+*)
+    usage
+    exit 1
+    ;;
+esac
