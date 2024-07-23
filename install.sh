@@ -22,7 +22,7 @@ usage() {
 # -h: Show usage
 # -b: Branch
 # -f: Force
-BRANCH=main
+BRANCH=${DOTFILES_BRANCH:-main}
 FORCE=0
 while getopts "vhb:f" opt; do
   case ${opt} in
