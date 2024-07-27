@@ -31,32 +31,6 @@ prompt() {
     return 1
 }
 
-install_package() {
-    if [ $# -eq 0 ]; then
-        echo "Usage: install_package <package>"
-        return 1
-    fi
-
-    local package=${1}
-    shift
-
-    local package_path=${DOTFILES_LIB}/${package}
-
-    if [ -d ${package_path} ]; then
-        # Run install script if present
-        if [ -f ${package_path}/install.sh ]; then
-            source ${package_path}/install.sh
-            log "Installed ${package} from ${package_path}"
-        else
-            log "${package} install script not found"
-            return 1
-        fi
-    else
-        echo "Error: ${package} not found"
-        return 1
-    fi
-}
-
 # macOS installer functions
 
 macos_prereqs() {
@@ -117,8 +91,7 @@ brew_install() {
 
 # Fedora installer functions
 
-dnf_install()
-{
+dnf_install() {
     if rpm -q ${1}; then
         sudo dnf upgrade ${1}
     else
@@ -126,15 +99,22 @@ dnf_install()
     fi
 }
 
+fedora_prereqs() {
+    echo "Fedora pre-reqs"
+}
+
 # Ubuntu installer functions
 
-apt_install()
-{
+apt_install() {
     if dpkg -l | grep -q -w ${1}; then
         sudo apt-get install --only-upgrade ${1}
     else
         sudo apt-get install ${1}
     fi
+}
+
+ubuntu_prereqs() {
+    echo "Ubuntu pre-reqs"    
 }
 
 case $(uname -s) in

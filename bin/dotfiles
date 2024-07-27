@@ -1,18 +1,17 @@
 #!/bin/sh
-
-DOTFILES=${DOTFILES:-$(realpath $(dirname "${0}")/..)}
+# set -x
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
+DOTFILES="${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}"
 DOTFILES_LIB=${DOTFILES_LIB:-${DOTFILES}/lib}
+DOTFILES_PKGS=${DOTFILES_LIB}/packages
 DOTFILES_THEME=${DOTFILES_THEME:-default}
 
 source ${DOTFILES_LIB}/dotfiles.sh
 
-log "DOTFILES: ${DOTFILES}"
-log "DOTFILES_LIB: ${DOTFILES_LIB}"
-
 usage() {
     echo "Usage: dotfiles [options] <subcommand> [package]"
     echo ""
-        echo "Options:"
+    echo "Options:"
     echo "  -f    Force"
     echo "  -v    Verbose"
     echo ""
@@ -26,7 +25,7 @@ usage() {
 }
 
 dotfiles_install() {
-    local package=${1:-}
+    local packages=${1:-$(ls ${DOTFILES_PKGS})}
 
     # Prerequisites
     case "${ID}" in
@@ -35,22 +34,21 @@ dotfiles_install() {
     "ubuntu") ubuntu_prereqs ;;
     esac
 
-    # If package is not specified, install all packages in ${DOTFILES_LIB}/packages
-    # Otherwise, install the specified package
-    if [ -z "${package}" ]; then
-        for package in $(ls ${DOTFILES_LIB}/packages/*); do
-            source ${package}
-            log "Installed $(basename $(dirname ${package}))"
-        done
-    else
-        if [ -f ${DOTFILES_LIB}/packages/${package}/install.sh ]; then
-            source ${DOTFILES_LIB}/packages/${package}/install.sh
-            log "Installed ${package}"
+    # Install each package
+    for package in ${packages}; do
+        local package_path=${DOTFILES_PKGS}/${package}
+        if [ -d ${package_path} ]; then
+            # Run install script if present
+            log "Installing ${package} from ${package_path}"
+            if [ -f ${package_path}/install.sh ]; then
+                source ${package_path}/install.sh
+            else
+                log "${package} install script not found"
+            fi
         else
-            log "Package ${package} not found"
-            return 1
+            echo "==> Error: ${package} not found"
         fi
-    fi
+    done
 }
 
 dotfiles_uninstall() {
@@ -82,6 +80,9 @@ while getopts "ft:v" opt; do
   esac
 done
 shift $(($OPTIND - 1))
+
+log "DOTFILES: ${DOTFILES}"
+log "DOTFILES_LIB: ${DOTFILES_LIB}"
 
 # Handle subcommands and pass remaining paramters
 if [ $# -eq 0 ]; then
