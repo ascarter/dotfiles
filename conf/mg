@@ -1,3 +1,0 @@
-column-number-mode 1
-make-backup-files -1
-global-set-key "\e/" undo

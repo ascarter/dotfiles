@@ -1,0 +1,18 @@
+import = ["{{DOTFILES_LIB}}/alacritty/themes/{{DOTFILES_THEME}}.toml"]
+
+[font]
+size = 13
+normal = { family = "{{DOTFILES_FONT}}" }
+
+[window]
+padding = { x = 16, y = 16 }
+dynamic_padding = true
+# decorations = "Transparent"
+opacity = 0.98
+option_as_alt = "OnlyLeft"
+
+[keyboard]
+bindings = [{ key = "F11", action = "ToggleFullscreen" }]
+
+[env]
+TERM = "xterm-256color"

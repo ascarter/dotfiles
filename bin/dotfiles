@@ -1,17 +1,18 @@
 #!/bin/sh
-# set -x
+
+set -x
+
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
 DOTFILES="${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}"
 DOTFILES_LIB=${DOTFILES_LIB:-${DOTFILES}/lib}
-DOTFILES_PKGS=${DOTFILES_LIB}/packages
-DOTFILES_THEME=${DOTFILES_THEME:-default}
-
-source ${DOTFILES_LIB}/dotfiles.sh
+DOTFILES_RC=${DOTFILES_RC:-${DOTFILES}/dotfilesrc}
 
 usage() {
     echo "Usage: dotfiles [options] <subcommand> [package]"
     echo ""
     echo "Options:"
+    echo "  -c    Config [file] (default: $DOTFILES_RC)"
+    echo "  -t    Theme [theme] (default: default)"
     echo "  -f    Force"
     echo "  -v    Verbose"
     echo ""
@@ -24,8 +25,146 @@ usage() {
     echo "  update    Update [package]"
 }
 
+# Set default values
+DOTFILES_THEME=${DOTFILES_THEME:-default}
+DOTFILES_FONT=${DOTFILES_FONT:-Monospace}
+VERBOSE=0
+FORCE=0
+
+# Utility installer functions
+
+log() {
+    if [ $VERBOSE -eq 1 ]; then
+        if [ "$#" -eq 1 ]; then
+            printf "%s\n" "$1"
+        elif [ "$#" -gt 1 ]; then
+            printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+        fi
+    fi
+}
+
+prompt() {
+    choice=y
+    read -p "$1 (y/N)" -n1 choice
+    echo
+    case $choice in
+    [yY]*) return 0 ;;
+    esac
+    return 1
+}
+
+# render_template takes a template file and renders it to output file with the given variables
+# Usage: render_template template_file output_file
+render_template() {
+    local template_file=$1
+    local output_file=$2
+    shift 2
+
+    if [ -f $template_file ]; then
+        local content=$(cat $template_file)
+        while [[ "$#" -gt 0 ]]; do
+            local key="${1%%=*}"
+            local value="${1#*=}"
+            log "$key=$value"
+            content=${content//\{\{${key}\}\}/${value}}
+            shift
+        done
+        echo "$content" > $output_file
+    else
+        echo "==> Error: $template_file not found"
+    fi
+}
+
+# macOS installer functions
+
+macos_prereqs() {
+    # Install Xcode Command Line Tools
+    if ! [ -e /Library/Developer/CommandLineTools ]; then
+        echo "Installing Xcode Command Line Tools"
+        xcode-select --install
+        read -p "Press [Enter] to continue..." -n1 -s
+        echo
+        sudo xcodebuild -runFirstLaunch
+    else
+        log "Xcode Command Line Tools installed"
+    fi
+
+    # Install Rosetta 2
+    # if [ "$(uname -m)" = "arm64" ]; then
+    #     if ! arch -x86_64 /usr/bin/true 2> /dev/null; then
+    #         echo "Installing Rosetta 2"
+    #         softwareupdate --install-rosetta --agree-to-license
+    #     else
+    #         log "Rosetta 2 installed"
+    #     fi
+    # fi
+
+    if ! [ -x "$(command -v brew)" ]; then
+        # Install Homebrew
+        echo "Installing Homebrew"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        log "Homebrew installed"
+    fi
+
+    # Enable man page contextual menu item in Terminal.app
+    if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+        sudo mkdir -p /usr/local/etc/man.d
+        echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
+    fi
+}
+
+brew_bundle_install() {
+    local brewfile=$1
+    if brew bundle check --file=$brewfile; then
+        log "Brewfile already installed"
+    else
+        brew bundle install --file=$brewfile
+    fi
+}
+
+brew_install() {
+    log "Installing $1 with Homebrew"
+    if brew list -1 | grep -q -w ${1}; then
+        brew upgrade ${1}
+    else
+        brew install ${1}
+    fi
+}
+
+# Fedora installer functions
+
+dnf_install() {
+    if rpm -q ${1}; then
+        sudo dnf upgrade ${1}
+    else
+        sudo dnf install ${1}
+    fi
+}
+
+fedora_prereqs() {
+    echo "Fedora pre-reqs"
+}
+
+# Ubuntu installer functions
+
+apt_install() {
+    if dpkg -l | grep -q -w ${1}; then
+        sudo apt-get install --only-upgrade ${1}
+    else
+        sudo apt-get install ${1}
+    fi
+}
+
+ubuntu_prereqs() {
+    echo "Ubuntu pre-reqs"
+}
+
+# dotfiles commands
+
 dotfiles_install() {
-    local packages=${1:-$(ls ${DOTFILES_PKGS})}
+    local packages=${1:-$(ls ${DOTFILES_LIB})}
 
     # Prerequisites
     case "${ID}" in
@@ -36,14 +175,14 @@ dotfiles_install() {
 
     # Install each package
     for package in ${packages}; do
-        local package_path=${DOTFILES_PKGS}/${package}
+        local package_path=${DOTFILES_LIB}/${package}
         if [ -d ${package_path} ]; then
             # Run install script if present
             log "Installing ${package} from ${package_path}"
             if [ -f ${package_path}/install.sh ]; then
                 source ${package_path}/install.sh
             else
-                log "${package} install script not found"
+                log "==> Warning: ${package} install script not found"
             fi
         else
             echo "==> Error: ${package} not found"
@@ -51,16 +190,15 @@ dotfiles_install() {
     done
 }
 
-dotfiles_uninstall() {
-    echo "Uninstall [package]"
-}
-
-dotfiles_update() {
-    echo "Updating [package]"
-}
-
 dotfiles_list() {
-    echo "List [package]"
+    local packages=${*:-$(ls ${DOTFILES_LIB})}
+    for package in ${packages}; do
+        if [ -d ${DOTFILES_LIB}/${package} ]; then
+            echo ${package}
+        else
+            echo "==> Error: ${package} not found"
+        fi
+    done
 }
 
 dotfiles_show() {
@@ -71,10 +209,48 @@ dotfiles_theme() {
     echo "Theme [theme]"
 }
 
+dotfiles_uninstall() {
+    echo "Uninstall [package]"
+}
+
+dotfiles_update() {
+    echo "Updating [package]"
+}
+
+# Deterine OS and version
+case $(uname -s) in
+Darwin )
+    # Configure homebrew shell environment
+    if [[ -d /opt/homebrew ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
+    # Emulate /etc/os-release for macOS
+    NAME="macOS"
+    VERSION=$(sw_vers -productVersion)
+    VERSION_ID="$VERSION"
+    ID="macos"
+    ID_LIKE="darwin"
+    BUILD_ID=$(sw_vers -buildVersion)
+    PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
+    ;;
+Linux )
+    if [[ -f /etc/os-release ]]; then
+        # Source os-release file to get distribution information
+        . /etc/os-release
+    else
+        echo "Error: /etc/os-release not found"
+        exit 1
+    fi
+    ;;
+esac
+
 # Parse command line arguments
-while getopts "ft:v" opt; do
+while getopts "fc:t:v" opt; do
   case $opt in
+    c ) DOTFILES_RC=$OPTARG ;;
     f ) FORCE=1 ;;
+    t ) DOTFILES_THEME=$OPTARG ;;
     v ) VERBOSE=1 ;;
     \?) usage && exit 1 ;;
   esac
@@ -83,6 +259,14 @@ shift $(($OPTIND - 1))
 
 log "DOTFILES: ${DOTFILES}"
 log "DOTFILES_LIB: ${DOTFILES_LIB}"
+log "DOTFILES_RC: ${DOTFILES_RC}"
+
+# Read dotfiles configuration
+if [ -f ${DOTFILES_RC} ]; then
+    source ${DOTFILES_RC}
+else
+    log "==> ${DOTFILES_RC} not found"
+fi
 
 # Handle subcommands and pass remaining paramters
 if [ $# -eq 0 ]; then
