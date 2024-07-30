@@ -1,7 +1,7 @@
 import = ["{{DOTFILES_LIB}}/alacritty/themes/{{DOTFILES_THEME}}.toml"]
 
 [font]
-size = 13
+size = {{DOTFILES_FONT_SIZE}}
 normal = { family = "{{DOTFILES_FONT}}" }
 
 [window]

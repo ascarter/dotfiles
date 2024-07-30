@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+# set -x
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
 DOTFILES="${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}"
@@ -28,6 +28,8 @@ usage() {
 # Set default values
 DOTFILES_THEME=${DOTFILES_THEME:-default}
 DOTFILES_FONT=${DOTFILES_FONT:-Monospace}
+DOTFILES_FONT_SIZE=${DOTFILES_FONT_SIZE:-13}
+
 VERBOSE=0
 FORCE=0
 
