@@ -1,5 +1,0 @@
-IRB.conf[:COMPLETOR] = :type
-
-# Aliases
-# alias q exit
-# alias e edit
