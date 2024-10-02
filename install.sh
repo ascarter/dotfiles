@@ -3,8 +3,9 @@
 # Install dotfiles
 
 set -euo pipefail
+set -x
 
-BRANCH=${DOTFILES_BRANCH:-main}
+DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
 DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
@@ -12,7 +13,7 @@ usage() {
     echo "Usage: $0 [options]"
     echo
     echo "Options:"
-    echo "  -b  Branch (default: ${BRANCH})"
+    echo "  -b  Branch (default: ${DOTFILES_BRANCH})"
     echo "  -d  Directory to install dotfiles (default: ${DOTFILES})"
     echo "  -t  Target directory to stow dotfiles (default: ${TARGET})"
     echo "  -h  Show usage"
@@ -20,7 +21,7 @@ usage() {
 
 while getopts ":hb:d:t:" opt; do
   case ${opt} in
-    b)  BRANCH=${OPTARG} ;;
+    b)  DOTFILES_BRANCH=${OPTARG} ;;
     d)  DOTFILES=${OPTARG} ;;
     t)  TARGET=${OPTARG} ;;
     h)  usage && exit 0 ;;
@@ -31,9 +32,9 @@ shift $((OPTIND -1))
 
 # Clone dotfiles
 if [ ! -d "${DOTFILES}" ]; then
-    echo "Clone dotfiles ($BRANCH) -> ${DOTFILES}"
+    echo "Clone dotfiles ($DOTFILES_BRANCH) -> ${DOTFILES}"
     mkdir -p $(dirname "${DOTFILES}")
-    git clone -b ${BRANCH} https://github.com/ascarter/dotfiles.git ${DOTFILES}
+    git clone -b ${DOTFILES_BRANCH} https://github.com/ascarter/dotfiles.git ${DOTFILES}
 else
     echo "dotfiles exists"
 fi
