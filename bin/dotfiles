@@ -64,22 +64,22 @@ prompt() {
 macos_prereqs() {
     # Install Xcode Command Line Tools
     if ! [ -e /Library/Developer/CommandLineTools ]; then
-        echo "Installing Xcode Command Line Tools"
+        echo "installing" "Xcode Command Line Tools"
         xcode-select --install
         read -p "Press [Enter] to continue..." -n1 -s
         echo
         sudo xcodebuild -runFirstLaunch
     else
-        log "Xcode Command Line Tools installed"
+        log "exists" "Xcode Command Line Tools"
     fi
 
     # Install homebrew
     if ! [ -d /opt/homebrew ]; then
         # Install Homebrew
-        echo "Installing Homebrew"
+        echo "installing" "Homebrew"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
-        log "Homebrew installed"
+        log "exists" "Homebrew"
     fi
 
     if ! [ -x "$(command -v brew)" ]; then
@@ -88,6 +88,7 @@ macos_prereqs() {
 
     # Enable man page contextual menu item in Terminal.app
     if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+        log "installing" "homrebrew.man.conf"
         sudo mkdir -p /usr/local/etc/man.d
         echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
     fi
@@ -96,8 +97,9 @@ macos_prereqs() {
 brew_bundle_install() {
     brewfile=$1
     if brew bundle check --file=$brewfile; then
-        log "Brewfile already installed"
+        log "exists" "Brewfile"
     else
+        log "installing" "Brewfile"
         brew bundle install --file=$brewfile
     fi
 }
