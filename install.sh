@@ -1,32 +1,33 @@
 #!/bin/sh
 
-# Install dotfiles tool
+# Install dotfiles
 
 set -euo pipefail
 
+BRANCH=${DOTFILES_BRANCH:-main}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
+TARGET=${TARGET:-$HOME}
+
 usage() {
-    echo "Usage: $0 [-v] [-h] [-b branch] [DOTFILES]"
+    echo "Usage: $0 [options]"
     echo
     echo "Options:"
-    echo "  -b: Branch"
-    echo "  -h: Show usage"
-    echo
-    echo "DOTFILES: Directory to install dotfiles"
-    echo
+    echo "  -b  Branch (default: ${BRANCH})"
+    echo "  -d  Directory to install dotfiles (default: ${DOTFILES})"
+    echo "  -t  Target directory to stow dotfiles (default: ${TARGET})"
+    echo "  -h  Show usage"
 }
 
-BRANCH=${DOTFILES_BRANCH:-main}
-
-while getopts "hb:" opt; do
+while getopts ":hb:d:t:" opt; do
   case ${opt} in
     b)  BRANCH=${OPTARG} ;;
+    d)  DOTFILES=${OPTARG} ;;
+    t)  TARGET=${OPTARG} ;;
     h)  usage && exit 0 ;;
     \?) usage && exit 1 ;;
   esac
 done
 shift $((OPTIND -1))
-
-DOTFILES="${1:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}"
 
 # Clone dotfiles
 if [ ! -d "${DOTFILES}" ]; then
@@ -37,25 +38,13 @@ else
     echo "dotfiles exists"
 fi
 
-# Install link to dotfiles if not exists
-if [ ! -x "${HOME}/.local/bin/dotfiles" ]; then
-    mkdir -p ${HOME}/.local/bin
-    ln -sf ${DOTFILES}/bin/dotfiles ${HOME}/.local/bin/dotfiles
-    echo "dotfiles tool installed"
-else
-    echo "dotfiles tool exists"
-fi
+echo "Init dotfiles"
+${DOTFILES}/bin/dotfiles -t ${TARGET} init
 
-echo
-echo "To install dotfiles, run:"
-echo "  dotfiles install"
-echo
-echo "To update dotfiles, run:"
-echo "  dotfiles update"
-echo
-echo "To uninstall dotfiles, run:"
-echo "  dotfiles uninstall"
-echo
-echo "To see all available commands, run:"
-echo "  dotfiles help"
-echo
+echo "Install dotfiles"
+${DOTFILES}/bin/dotfiles -t ${TARGET} install
+
+echo "----------------------------------------"
+echo "dotfiles installed"
+echo "Reload session to apply configuration"
+echo "----------------------------------------"
