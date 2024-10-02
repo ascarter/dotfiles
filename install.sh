@@ -3,7 +3,6 @@
 # Install dotfiles
 
 set -euo pipefail
-set -x
 
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
 DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
