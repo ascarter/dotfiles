@@ -189,17 +189,6 @@ stow() {
                 fi
             fi
         done
-
-        # Remove empty package directories
-        if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
-            for d in $(find ${package} -type d -depth 1 -print); do
-                p=$(readlink -f ${d})
-                t=${TARGET}/${d#${package}/}
-                for r in $(find ${t} -type d -empty -delete -print); do
-                    log "prune" "${r}"
-                done
-            done
-        fi
     done
 
 }
