@@ -37,7 +37,5 @@ echo "To remove dotfiles, run the following commands:"
 echo "rm -rf ${DOTFILES}"
 echo ""
 
-echo "----------------------------------------"
 echo "dotfiles uninstalled"
 echo "Reload session to apply configuration"
-echo "----------------------------------------"

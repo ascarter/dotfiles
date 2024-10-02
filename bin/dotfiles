@@ -39,7 +39,7 @@ vlog() {
 }
 
 title() {
-    printf "$(tput bold)%s$(tput sgr0)\n\n" "$1"
+    printf "\n$(tput bold)%s$(tput sgr0)\n\n" "$1"
 }
 
 err() {
@@ -181,7 +181,7 @@ stow() {
                     fi
 
                     # Symlink file
-                    log "link" "${p} -> ${t}"
+                    log "link" "${p#${package}} -> ${t}"
                     mkdir -p $(dirname "${t}")
                     ln -s ${p} ${t}
                 else
@@ -207,7 +207,7 @@ stow() {
 # dotfiles commands
 
 dotfiles_init() {
-    # Prerequisites
+    log "prereqs" "${ID}"
     case "${ID}" in
         "macos")  macos_prereqs  ;;
         "fedora") fedora_prereqs ;;

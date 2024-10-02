@@ -45,7 +45,6 @@ fi
 ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} init
 ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} install
 
-echo "----------------------------------------"
+echo ""
 echo "dotfiles installed"
 echo "Reload session to apply configuration"
-echo "----------------------------------------"
