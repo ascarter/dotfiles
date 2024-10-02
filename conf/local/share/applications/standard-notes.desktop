@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=Standard Notes
-Comment=A Simple and Private Notes App
-Exec=/home/andrew/Applications/standard-notes-3.194.11-linux-x86_64.AppImage
-Icon=standard-notes-512.png
-StartupWMClass=Standard Notes
-Type=Application
-Categories=Office;

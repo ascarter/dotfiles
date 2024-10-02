@@ -1,0 +1,310 @@
+#!/bin/sh
+
+# set -x
+
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
+DOTFILES_PACKAGES=${DOTFILES_PACKAGES:-${DOTFILES}/packages}
+TARGET=${HOME}
+
+usage() {
+    log "Usage" "dotfiles [options] <subcommand> [package]"
+    log ""
+    log "Subcommands:"
+    log "init" "Initialize dotfiles"
+    log "install" "Install [package]"
+    log "list" "List [package]"
+    log "sync" "Sync [package]"
+    log "uninstall" "Uninstall [package]"
+    log "update" "Update [package]"
+    log ""
+    log "Options:"
+    log "-t" "Target directory"
+    log "-v" "Verbose"
+}
+
+# Set default options
+ADOPT=0
+DELETE=0
+LIST=0
+VERBOSE=0
+
+# Utility installer functions
+
+log() {
+    if [ "$#" -eq 1 ]; then
+        printf "%s\n" "$1"
+    elif [ "$#" -gt 1 ]; then
+        printf "    $(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+    fi
+}
+
+vlog() {
+    if [ $VERBOSE -eq 1 ]; then
+        log "$@"
+    fi
+}
+
+err() {
+    echo "$*" >&2
+}
+
+prompt() {
+    choice=y
+    read -p "$1 (y/N)" -n1 choice
+    echo
+    case $choice in
+    [yY]*) return 0 ;;
+    esac
+    return 1
+}
+
+# macOS installer functions
+
+macos_prereqs() {
+    # Install Xcode Command Line Tools
+    if ! [ -e /Library/Developer/CommandLineTools ]; then
+        echo "installing" "Xcode Command Line Tools"
+        xcode-select --install
+        read -p "Press [Enter] to continue..." -n1 -s
+        echo
+        sudo xcodebuild -runFirstLaunch
+    else
+        log "exists" "Xcode Command Line Tools"
+    fi
+
+    # Install homebrew
+    if ! [ -d /opt/homebrew ]; then
+        # Install Homebrew
+        echo "installing" "Homebrew"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        log "exists" "Homebrew"
+    fi
+
+    if ! [ -x "$(command -v brew)" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
+    # Enable man page contextual menu item in Terminal.app
+    if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+        log "installing" "homrebrew.man.conf"
+        sudo mkdir -p /usr/local/etc/man.d
+        echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
+    fi
+}
+
+brew_bundle_install() {
+    brewfile=$1
+    if brew bundle check --file=$brewfile; then
+        log "exists" "Brewfile"
+    else
+        log "installing" "Brewfile"
+        brew bundle install --file=$brewfile
+    fi
+}
+
+brew_install() {
+    log "Installing $1 with Homebrew"
+    if brew list -1 | grep -q -w ${1}; then
+        brew upgrade ${1}
+    else
+        brew install ${1}
+    fi
+}
+
+# Fedora installer functions
+
+fedora_prereqs() {
+    echo "Fedora pre-reqs"
+}
+
+dnf_install() {
+    if rpm -q ${1}; then
+        sudo dnf upgrade ${1}
+    else
+        sudo dnf install ${1}
+    fi
+}
+
+# Ubuntu installer functions
+
+ubuntu_prereqs() {
+    echo "Ubuntu pre-reqs"
+}
+
+apt_install() {
+    if dpkg -l | grep -q -w ${1}; then
+        sudo apt-get install --only-upgrade ${1}
+    else
+        sudo apt-get install ${1}
+    fi
+}
+
+# stow implementation
+
+stow() {
+    mkdir -p "$TARGET"
+
+    # Convert to absolute paths
+    DOTFILES_PACKAGES=$(readlink -f $DOTFILES_PACKAGES)
+    TARGET=$(readlink -f $TARGET)
+
+    vlog "DOTFILES_PACKAGES" "$DOTFILES_PACKAGES"
+    vlog "TARGET" "$TARGET"
+
+    for package in "$@"; do
+        log "stow $package"
+
+        for f in $(find ${package} -type f -print); do
+            p=$(readlink -f ${f})
+            t=${TARGET}/${f#${package}/}
+
+            # Convert all `dot-` to `.` in the path
+            t=$(echo $t | sed 's/dot-/\./g')
+
+            # Check if symlink exists
+            if [ -h "${t}" ]; then
+                if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
+                    # Delete symlink
+                    log "unlink" "${t}"
+                    rm "${t}"
+                else
+                    log "exists" "${t}"
+                fi
+            else
+                if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
+                    # Check if a file already exists
+                    if [ -e "${t}" ]; then
+                        if [ $ADOPT -eq 1 ]; then
+                            # Adopt existing file
+                            log "adopt" "${t}"
+                            mv ${t} ${p}
+                        else
+                            # Conflict
+                            log "conflict" "${t}"
+                            continue
+                        fi
+                    fi
+
+                    # Symlink file
+                    log "link" "${p} -> ${t}"
+                    mkdir -p $(dirname "${t}")
+                    ln -s ${p} ${t}
+                else
+                    log "missing" "${t}"
+                fi
+            fi
+        done
+    done
+
+  # Remove empty directories
+    if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
+        find ${TARGET} -type d -empty -delete
+    fi
+}
+
+# dotfiles commands
+
+dotfiles_init() {
+    # Prerequisites
+    case "${ID}" in
+        "macos")  macos_prereqs  ;;
+        "fedora") fedora_prereqs ;;
+        "ubuntu") ubuntu_prereqs ;;
+    esac
+}
+
+dotfiles_install() {
+    stow $@
+}
+
+dotfiles_list() {
+    LIST=1
+    stow $@
+}
+
+dotfiles_sync() {
+    ADOPT=1
+    stow $@
+}
+
+dotfiles_uninstall() {
+    DELETE=1
+    stow $@
+}
+
+dotfiles_update() {
+    git -C ${DOTFILES} pull
+    stow $@
+}
+
+# Deterine OS and version
+case $(uname -s) in
+Darwin )
+    # Configure homebrew shell environment
+    if [[ -d /opt/homebrew ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
+    # Emulate /etc/os-release for macOS
+    NAME="macOS"
+    VERSION=$(sw_vers -productVersion)
+    VERSION_ID="$VERSION"
+    ID="macos"
+    ID_LIKE="darwin"
+    BUILD_ID=$(sw_vers -buildVersion)
+    PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
+    ;;
+Linux )
+    if [[ -f /etc/os-release ]]; then
+        # Source os-release file to get distribution information
+        . /etc/os-release
+    else
+        echo "Error: /etc/os-release not found"
+        exit 1
+    fi
+    ;;
+esac
+
+# Parse command line arguments
+while getopts ":t:v" opt; do
+  case $opt in
+    t ) TARGET=$OPTARG ;;
+    v ) VERBOSE=1 ;;
+    \?) usage && exit 1 ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+vlog "DOTFILES: ${DOTFILES}"
+vlog "DOTFILES_PACKAGES: ${DOTFILES_PACKAGES}"
+vlog "TARGET: ${TARGET}"
+
+# Handle subcommands and pass remaining paramters
+if [ $# -eq 0 ]; then
+    echo "No subcommand specified"
+    echo ""
+    usage
+    exit 1
+fi
+
+subcommand=$1
+shift
+
+# Get list of packages. Default to all packages if none specified.
+if [ "$#" -lt 1 ]; then
+    packages=$(find packages -type d -depth 1 | sort)
+else
+    packages="$@"
+fi
+
+case ${subcommand} in
+    "init")      dotfiles_init ;;
+    "install")   dotfiles_install $packages ;;
+    "list")      dotfiles_list $packages ;;
+    "sync")      dotfiles_sync $packages ;;
+    "uninstall") dotfiles_uninstall $packages ;;
+    "update")    dotfiles_update $packages ;;
+    *)           usage && exit 1 ;;
+esac
