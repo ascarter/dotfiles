@@ -37,6 +37,12 @@ cd ~/.config/dotfiles
 ./install.sh
 ```
 
+### Install from branch
+
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)" -s -- -b <branch>
+```
+
 ### Uninstall
 
 Run the uninstall script to remove the symlinks and restore any original files:
@@ -45,4 +51,3 @@ Run the uninstall script to remove the symlinks and restore any original files:
 cd ~/.config/dotfiles
 ./uninstall.sh
 ```
-

@@ -31,7 +31,7 @@ shift $((OPTIND -1))
 
 # Clone dotfiles
 if [ ! -d "${DOTFILES}" ]; then
-    echo "Clone dotfiles -> ${DOTFILES}"
+    echo "Clone dotfiles ($BRANCH) -> ${DOTFILES}"
     mkdir -p $(dirname "${DOTFILES}")
     git clone -b ${BRANCH} https://github.com/ascarter/dotfiles.git ${DOTFILES}
 else
