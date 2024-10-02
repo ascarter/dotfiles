@@ -28,7 +28,7 @@ log() {
     if [ "$#" -eq 1 ]; then
         printf "%s\n" "$1"
     elif [ "$#" -gt 1 ]; then
-        printf "    $(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+        printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
     fi
 }
 
@@ -38,8 +38,12 @@ vlog() {
     fi
 }
 
-title() {
-    printf "\n$(tput bold)%s$(tput sgr0)\n\n" "$1"
+h2log() {
+    log "  $1" "$2"
+}
+
+h3log() {
+    log "    $1" "$2"
 }
 
 err() {
@@ -67,7 +71,7 @@ macos_prereqs() {
         echo
         sudo xcodebuild -runFirstLaunch
     else
-        log "exists" "Xcode Command Line Tools"
+        h3log "exists" "Xcode Command Line Tools"
     fi
 
     # Install homebrew
@@ -76,7 +80,7 @@ macos_prereqs() {
         echo "installing" "Homebrew"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
-        log "exists" "Homebrew"
+        h3log "exists" "Homebrew"
     fi
 
     if ! [ -x "$(command -v brew)" ]; then
@@ -85,7 +89,7 @@ macos_prereqs() {
 
     # Enable man page contextual menu item in Terminal.app
     if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
-        log "installing" "homrebrew.man.conf"
+        h3log "installing" "homrebrew.man.conf"
         sudo mkdir -p /usr/local/etc/man.d
         echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
     fi
@@ -150,7 +154,7 @@ stow() {
     vlog "packages" "$PACKAGES"
 
     for package in "$@"; do
-        log $(basename $package)
+        h2log "package" $(basename ${package})
 
         for f in $(find ${package} -type f -print); do
             p=$(readlink -f ${f})
@@ -160,10 +164,10 @@ stow() {
             if [ -h "${t}" ]; then
                 if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
                     # Delete symlink
-                    log "unlink" "${t}"
+                    h3log "unlink" "${t}"
                     rm "${t}"
                 else
-                    log "exists" "${t}"
+                    h3log "exists" "${t}"
                 fi
             else
                 if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
@@ -171,21 +175,21 @@ stow() {
                     if [ -e "${t}" ]; then
                         if [ $ADOPT -eq 1 ]; then
                             # Adopt existing file
-                            log "adopt" "${t}"
+                            h3log "adopt" "${t}"
                             mv ${t} ${p}
                         else
                             # Conflict
-                            log "conflict" "${t}"
+                            h3log "conflict" "${t}"
                             continue
                         fi
                     fi
 
                     # Symlink file
-                    log "link" "${p#${package}} -> ${t}"
+                    h3log "link" "${p#${package}/} -> ${t}"
                     mkdir -p $(dirname "${t}")
                     ln -s ${p} ${t}
                 else
-                    log "missing" "${t}"
+                    h3log "missing" "${t}"
                 fi
             fi
         done
@@ -196,7 +200,7 @@ stow() {
 # dotfiles commands
 
 dotfiles_init() {
-    log "prereqs" "${ID}"
+    h2log "prereqs" "${ID}"
     case "${ID}" in
         "macos")  macos_prereqs  ;;
         "fedora") fedora_prereqs ;;
@@ -295,7 +299,7 @@ else
     packages="$@"
 fi
 
-title $subcommand
+log $subcommand
 vlog "dotfiles" ${DOTFILES}
 vlog "target" ${TARGET}
 
