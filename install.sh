@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -15,14 +15,18 @@ usage() {
     echo "  -b  Branch (default: ${DOTFILES_BRANCH})"
     echo "  -d  Directory to install dotfiles (default: ${DOTFILES})"
     echo "  -t  Target directory to stow dotfiles (default: ${TARGET})"
+    echo "  -v  Verbose output"
     echo "  -h  Show usage"
 }
 
-while getopts ":hb:d:t:" opt; do
+FLAGS=
+
+while getopts ":vhb:d:t:" opt; do
   case ${opt} in
     b)  DOTFILES_BRANCH=${OPTARG} ;;
     d)  DOTFILES=${OPTARG} ;;
     t)  TARGET=${OPTARG} ;;
+    v)  FLAGS="-v" ;;
     h)  usage && exit 0 ;;
     \?) usage && exit 1 ;;
   esac
@@ -38,11 +42,8 @@ else
     echo "dotfiles exists"
 fi
 
-echo "Init dotfiles"
-${DOTFILES}/bin/dotfiles -t ${TARGET} init
-
-echo "Install dotfiles"
-${DOTFILES}/bin/dotfiles -t ${TARGET} install
+${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} init
+${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} install
 
 echo "----------------------------------------"
 echo "dotfiles installed"

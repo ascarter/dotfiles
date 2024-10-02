@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:=$HOME/.config}/dotfiles}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -13,22 +13,26 @@ usage() {
     echo "Options:"
     echo "  -d  Directory to install dotfiles (default: ${DOTFILES})"
     echo "  -t  Target directory to stow dotfiles (default: ${TARGET})"
+    echo "  -v  Verbose output"
     echo "  -h  Show usage"
 }
 
-while getopts ":hd:t:" opt; do
+FLAGS=
+
+while getopts ":vhd:t:" opt; do
   case ${opt} in
     d)  DOTFILES=${OPTARG} ;;
     t)  TARGET=${OPTARG} ;;
+    v)  FLAGS="-v" ;;
     h)  usage && exit 0 ;;
     \?) usage && exit 1 ;;
   esac
 done
 shift $((OPTIND -1))
 
-echo "Uninstall dotfiles"
-${DOTFILES}/bin/dotfiles -t ${TARGET} uninstall
+${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} uninstall
 
+echo ""
 echo "To remove dotfiles, run the following commands:"
 echo "rm -rf ${DOTFILES}"
 echo ""

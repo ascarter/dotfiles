@@ -2,10 +2,8 @@
 
 # set -x
 
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
-DOTFILES_PACKAGES=${DOTFILES_PACKAGES:-${DOTFILES}/packages}
-TARGET=${HOME}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
+TARGET=${TARGET:-$HOME}
 
 usage() {
     log "Usage" "dotfiles [options] <subcommand> [package]"
@@ -19,15 +17,10 @@ usage() {
     log "update" "Update [package]"
     log ""
     log "Options:"
+    log "-d" "dotfiles directory"
     log "-t" "Target directory"
     log "-v" "Verbose"
 }
-
-# Set default options
-ADOPT=0
-DELETE=0
-LIST=0
-VERBOSE=0
 
 # Utility installer functions
 
@@ -43,6 +36,10 @@ vlog() {
     if [ $VERBOSE -eq 1 ]; then
         log "$@"
     fi
+}
+
+title() {
+    printf "$(tput bold)%s$(tput sgr0)\n\n" "$1"
 }
 
 err() {
@@ -147,21 +144,17 @@ stow() {
     mkdir -p "$TARGET"
 
     # Convert to absolute paths
-    DOTFILES_PACKAGES=$(readlink -f $DOTFILES_PACKAGES)
+    PACKAGES=$(readlink -f ${DOTFILES}/packages)
     TARGET=$(readlink -f $TARGET)
 
-    vlog "DOTFILES_PACKAGES" "$DOTFILES_PACKAGES"
-    vlog "TARGET" "$TARGET"
+    vlog "packages" "$PACKAGES"
 
     for package in "$@"; do
-        log "stow $package"
+        log $(basename $package)
 
         for f in $(find ${package} -type f -print); do
             p=$(readlink -f ${f})
             t=${TARGET}/${f#${package}/}
-
-            # Convert all `dot-` to `.` in the path
-            t=$(echo $t | sed 's/dot-/\./g')
 
             # Check if symlink exists
             if [ -h "${t}" ]; then
@@ -196,12 +189,19 @@ stow() {
                 fi
             fi
         done
+
+        # Remove empty package directories
+        if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
+            for d in $(find ${package} -type d -depth 1 -print); do
+                p=$(readlink -f ${d})
+                t=${TARGET}/${d#${package}/}
+                for r in $(find ${t} -type d -empty -delete -print); do
+                    log "prune" "${r}"
+                done
+            done
+        fi
     done
 
-  # Remove empty directories
-    if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
-        find ${TARGET} -type d -empty -delete
-    fi
 }
 
 # dotfiles commands
@@ -267,9 +267,16 @@ Linux )
     ;;
 esac
 
+# Set default options
+ADOPT=0
+DELETE=0
+LIST=0
+VERBOSE=0
+
 # Parse command line arguments
-while getopts ":t:v" opt; do
+while getopts ":d:t:v" opt; do
   case $opt in
+    d ) DOTFILES=$OPTARG ;;
     t ) TARGET=$OPTARG ;;
     v ) VERBOSE=1 ;;
     \?) usage && exit 1 ;;
@@ -277,8 +284,8 @@ while getopts ":t:v" opt; do
 done
 shift $(($OPTIND - 1))
 
+
 vlog "DOTFILES: ${DOTFILES}"
-vlog "DOTFILES_PACKAGES: ${DOTFILES_PACKAGES}"
 vlog "TARGET: ${TARGET}"
 
 # Handle subcommands and pass remaining paramters
@@ -294,10 +301,14 @@ shift
 
 # Get list of packages. Default to all packages if none specified.
 if [ "$#" -lt 1 ]; then
-    packages=$(find packages -type d -depth 1 | sort)
+    packages=$(find ${DOTFILES}/packages -type d -depth 1 | sort)
 else
     packages="$@"
 fi
+
+title $subcommand
+vlog "dotfiles" ${DOTFILES}
+vlog "target" ${TARGET}
 
 case ${subcommand} in
     "init")      dotfiles_init ;;
