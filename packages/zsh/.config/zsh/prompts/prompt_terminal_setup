@@ -1,0 +1,64 @@
+# terminal zsh prompt theme
+#
+# Simple terminal zsh prompt
+#
+
+prompt_terminal_help () {
+  cat <<'EOH'
+Simple prompt with shows host when connecting remotely.
+Optionally supports two-line prompt.
+EOH
+}
+
+prompt_color() {
+  if [ -z ${nocolor} ]; then
+    echo -n "%F{$2}$1%f"
+  else
+    echo -n "$1"
+  fi
+}
+
+prompt_terminal_setup () {
+  zparseopts -D -E -F -nocolor=nocolor -twoline=twoline
+
+  if [[ "$TERM" = "xterm-256color" ]] || [[ "$TERM" = "screen-256color" ]]; then
+    SEPARATOR=' ➜ '
+    TRUNC_CHAR='…'
+  else
+    SEPARATOR=' | '
+    TRUNC_CHAR='...'
+    nocolor=1
+  fi
+
+  # Reset PROMPT
+  PROMPT=
+
+  # Pad if using twoline prompt
+  if [[ -n ${twoline} ]]; then
+    PROMPT+=$'\n'
+  fi
+
+  # user@host
+  if [[ -n ${SSH_TTY} ]]; then
+    PROMPT+=$(prompt_color "%n@%m${SEPARATOR}" "blue")
+  fi
+
+  # ~/working/directory
+  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "blue")
+
+  # Put cursor on next line if using twoline prompt
+  if [[ -n ${twoline} ]]; then
+    PROMPT+=$'\n'
+  else
+    PROMPT+=" "
+  fi
+
+  # Input prompt
+  PROMPT+=$'%# '
+
+  PROMPT4='+%N:%i:%_>'
+
+  prompt_opts=( cr percent subst sp )
+}
+
+prompt_terminal_setup "$@"

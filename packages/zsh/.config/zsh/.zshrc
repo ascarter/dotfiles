@@ -68,8 +68,9 @@ fi
 # =====================================
 
 # Default: PS1="%m%# "
-# declare +x PS1
-# prompt terminal
+# Default macOS: PS1="%n@%m %1~ %#"
+declare +x PS1
+prompt terminal
 
 # =====================================
 # Shell preferences
@@ -125,7 +126,7 @@ fi
 # Editor
 # =====================================
 
-# Use helix editor or nano if not present
+# Use helix ➜ nano ➜ vi for editor
 if (( $+commands[hx] )); then
   export EDITOR="hx"
 elif (( $+commands[nano] )); then

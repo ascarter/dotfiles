@@ -126,7 +126,8 @@ alias filetree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 
 alias devgrep="grep -n -r --exclude='.svn' --exclude='*.swp' --exclude='.git'"
 
 # Find
-alias fedir="find . -type d -empty -print"
+alias rmempty="find . -type d -empty -print"
+alias prune="find -L . -type l -exec rm -- {} +"
 
 # Emacs
 alias em="emacs -nw"
