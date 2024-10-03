@@ -156,20 +156,29 @@ stow() {
     vlog "packages" "$PACKAGES"
 
     for package in "$@"; do
-        tlog "package" $(basename ${package})
+        tlog "package" ${package}
 
-        for f in $(find ${package} -type f -print); do
-            p=$(readlink -f ${f})
-            t=${TARGET}/${f#${package}/}
+        p=$(readlink -f ${PACKAGES}/${package})
+        for f in $(find ${p} -type f -print); do
+            t=${TARGET}/${f#${p}/}
+            label="${f#${PACKAGES}/}"
+
+            # Skip ignored file names
+            if [ -f "${PACKAGES}/.dfignore" ]; then
+                if grep -q -x -f "${PACKAGES}/.dfignore" <<< "$(basename ${f})"; then
+                    dlog "ignore" "${label}"
+                    continue
+                fi
+            fi
 
             # Check if symlink exists
             if [ -h "${t}" ]; then
                 if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
                     # Delete symlink
-                    dlog "unlink" "${t}"
+                    dlog "unlink" "${t} -> ${label}"
                     rm "${t}"
                 else
-                    dlog "exists" "${t}"
+                    dlog "exists" "${label} -> ${t}"
                 fi
             else
                 if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
@@ -177,21 +186,21 @@ stow() {
                     if [ -e "${t}" ]; then
                         if [ $ADOPT -eq 1 ]; then
                             # Adopt existing file
-                            dlog "adopt" "${t}"
-                            mv ${t} ${p}
+                            dlog "adopt" "${t} -> ${label}"
+                            mv ${t} ${f}
                         else
                             # Conflict
-                            dlog "conflict" "${t}"
+                            dlog "conflict" "${label} -> ${t}"
                             continue
                         fi
                     fi
 
                     # Symlink file
-                    dlog "link" "${p#${package}/} -> ${t}"
+                    dlog "link" "${label} -> ${t}"
                     mkdir -p $(dirname "${t}")
-                    ln -s ${p} ${t}
+                    ln -s ${f} ${t}
                 else
-                    dlog "missing" "${t}"
+                    dlog "missing" "${label} -> ${t}"
                 fi
             fi
         done
@@ -296,7 +305,7 @@ shift
 
 # Get list of packages. Default to all packages if none specified.
 if [ "$#" -lt 1 ]; then
-    packages=$(find ${DOTFILES}/packages -type d -depth 1 | sort)
+    packages=$(find ${DOTFILES}/packages -type d -depth 1 -exec basename -- {} + | sort)
 else
     packages="$@"
 fi
