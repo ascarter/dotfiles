@@ -174,6 +174,17 @@ if [[ -f ${ZDOTDIR}/aliases.zsh ]]; then
 fi
 
 # =====================================
+# SSH
+# =====================================
+
+# Use 1Password SSH agent if installed
+if [[ -S ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]]; then
+    export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+elif [[ -S ~/.1password/agent.sock ]]; then
+    export SSH_AUTH_SOCK=~/.1password/agent.sock
+fi
+
+# =====================================
 # Dotfiles
 # =====================================
 
