@@ -96,11 +96,13 @@ _gc_credentials() {
   # Configure gpg signing
   if [[ -n "${op_helper}" ]]; then
     # Use 1Password SSH for signing
-    local signing_key=$(op read "op://Developer/SSH Key/public key")
+    local signing_key=$(op read "op://Private/GitHub SSH Key/public key")
     if [[ -n "${signing_key}" ]]; then
       _gc_set ${1} user.signingkey "${signing_key}"
       _gc_set ${1} gpg.format ssh
-      _gc_set ${1} gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      if [[ -n "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
+        _gc_set ${1} gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      fi
       _gc_set ${1} commit.gpgsign true
     fi
   fi

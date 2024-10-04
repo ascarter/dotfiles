@@ -137,7 +137,7 @@ fi
 
 # Use zed for visual editor or fallback to $EDITOR
 if (( $+commands[zed] )); then
-  export VISUAL="zed"
+  export VISUAL="zed --wait"
 else
   export VISUAL=$EDITOR
 fi
