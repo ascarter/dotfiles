@@ -95,6 +95,28 @@ macos_prereqs() {
         sudo mkdir -p /usr/local/etc/man.d
         echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
     fi
+
+    # Configure 1Password CLI
+    if ! [ -f /opt/homebrew/bin/op ]; then
+        dlog "installing" "1Password CLI"
+        brew install 1password-cli
+    fi
+
+    if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
+        dlgo "link" "~/.1password/agent.sock"
+        mkdir -p ~/.1password
+        ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
+    fi
+
+    if [ -L ~/.1password/agent.sock ]; then
+        if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
+            dlog "enable" "SSH IdentityAgent"
+            mkdir -p ~/.ssh
+            echo "Include ~/.config/ssh/config" >> ~/.ssh/config
+        else
+            dlog "exists" "SSH IdentityAgent"
+        fi
+    fi
 }
 
 brew_bundle_install() {

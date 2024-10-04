@@ -173,25 +173,21 @@ if [[ -f ${ZDOTDIR}/aliases.zsh ]]; then
   source ${ZDOTDIR}/aliases.zsh
 fi
 
-# =====================================
-# SSH
-# =====================================
-
-# Use 1Password SSH agent if installed when running locally
-if [[ -z $SSH_TTY ]]; then
-    if [[ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]]; then
-        export SSH_AUTH_SOCK=${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-    elif [[ -S ${HOME}/.1password/agent.sock ]]; then
-        export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
-    fi
-fi
-
 # ========================================
 # 1Password
 # ========================================
 
 if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
   source ${XDG_CONFIG_HOME}/op/plugins.sh
+fi
+
+# =====================================
+# SSH
+# =====================================
+
+# Enable 1Password SSH agent if installed when running locally
+if [[ -z $SSH_TTY ]] && [[ -S ${HOME}/.1password/agent.sock ]]; then
+    export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
 fi
 
 # =====================================
