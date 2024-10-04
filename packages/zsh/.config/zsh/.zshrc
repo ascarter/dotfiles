@@ -178,10 +178,18 @@ fi
 # =====================================
 
 # Use 1Password SSH agent if installed
-if [[ -S ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]]; then
-    export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-elif [[ -S ~/.1password/agent.sock ]]; then
-    export SSH_AUTH_SOCK=~/.1password/agent.sock
+if [[ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ]]; then
+    export SSH_AUTH_SOCK=${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+elif [[ -S ${HOME}/.1password/agent.sock ]]; then
+    export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
+fi
+
+# ========================================
+# 1Password
+# ========================================
+
+if [ -f ${HOME}/.op/plugins.sh ]; then
+  source ${HOME}/.config/op/plugins.sh
 fi
 
 # =====================================
