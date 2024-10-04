@@ -188,8 +188,8 @@ fi
 # 1Password
 # ========================================
 
-if [ -f ${HOME}/.op/plugins.sh ]; then
-  source ${HOME}/.config/op/plugins.sh
+if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
+  source ${XDG_CONFIG_HOME}/op/plugins.sh
 fi
 
 # =====================================
