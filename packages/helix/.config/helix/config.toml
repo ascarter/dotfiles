@@ -1,10 +1,7 @@
-# theme = "terminal"
-# theme = "terminal_light"
-# theme = "terminal_dark"
-theme = "nord-night"
+theme = "ansi"
 
 [editor]
-cursorline = true
+cursorline = false
 color-modes = true
 bufferline = "multiple"
 popup-border = "all"
