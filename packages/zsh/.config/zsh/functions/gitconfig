@@ -109,15 +109,17 @@ _gc_credentials() {
 }
 
 _gc_tools() {
-  case $(uname) in
-  Darwin )
-    _gc_set ${1} diff.tool "opendiff"
-    _gc_set ${1} diff.guitool "opendiff"
-    _gc_set ${1} merge.tool "opendiff"
-    _gc_set ${1} merge.guitool "opendiff"
-    ;;
-  Linux ) ;;
-  esac
+  if (( $+commands[code] )); then
+    _gc_set ${1} diff.guitool "vscode"
+    _gc_set ${1} merge.guitool "vscode"
+  else
+    case $(uname) in
+    Darwin )
+      _gc_set ${1} diff.guitool "opendiff"
+      _gc_set ${1} merge.guitool "opendiff"
+      ;;
+    esac
+  fi
 }
 
 gitconfig() {

@@ -54,10 +54,10 @@
   prompt = false
 
 [difftool "vscode"]
-  cmd = code --wait --new-window --diff $LOCAL $REMOTE
+  cmd = code --wait --diff $LOCAL $REMOTE
 
 [mergetool "vscode"]
-  cmd = code --wait --new-window --merge $REMOTE $LOCAL $BASE $MERGED
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 
 [difftool "bbdiff"]
   cmd = bbdiff --wait --resume $LOCAL $REMOTE
