@@ -63,13 +63,9 @@
   cmd = bbdiff --wait --resume $LOCAL $REMOTE
 
 [diff]
-  tool = vimdiff
-  guitool = gvimdiff
   prompt = NO
 
 [merge]
-  tool = vimdiff
-  guitool = gvimdiff
   prompt = NO
 
 [tig]
