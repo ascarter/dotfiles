@@ -332,7 +332,7 @@ else
     packages="$@"
 fi
 
-log $subcommand
+vlog "command" $subcommand
 vlog "dotfiles" ${DOTFILES}
 vlog "target" ${TARGET}
 
