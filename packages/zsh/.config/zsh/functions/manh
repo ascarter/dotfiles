@@ -3,5 +3,5 @@
 emulate -L zsh
 
 HTML_FILE=$(mktemp -t manpage).html
-mandoc -T html $(man -w $@) > ${HTML_FILE}
+mandoc -T html $(man -w $@) >${HTML_FILE}
 open ${HTML_FILE}

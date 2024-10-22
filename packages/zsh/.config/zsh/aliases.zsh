@@ -1,7 +1,7 @@
 case $(uname) in
-Darwin )
+Darwin)
   # ls
-  if (( $+commands[uls] )); then
+  if (($ + commands[uls])); then
     alias ls="uls -hFH --group-directories-first --color=never"
   else
     alias ls="ls -hFH"
@@ -60,7 +60,7 @@ Darwin )
   alias sketchtool="$(mdfind kMDItemCFBundleIdentifier = 'com.bohemiancoding.sketch3' | head -n 1)/Contents/Resources/sketchtool/bin/sketchtool"
 
   # BBEdit aliases
-  if (( $+commands[bbedit] )); then
+  if (($ + commands[bbedit])); then
     alias bb="bbedit"
     alias bbcl="bbedit --clean"
     alias bbclw="bbedit --clean --new-window"
@@ -85,14 +85,14 @@ Darwin )
   alias podcastlib="/Users/acarter/Library/Group Containers/243LU875E5.groups.com.apple.podcasts/Library"
   ;;
 
-Linux )
+Linux)
   alias ls="ls -hFH --group-directories-first --color=never"
   alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
   alias glock="gnome-screensaver-command --lock"
   alias xlock="xscreensaver-command -lock"
 
   # Linux version of macOS pbcopy/pbpaste.
-  if (( $+commands[xsel] )); then
+  if (($ + commands[xsel])); then
     alias pbcopy="xsel --clipboard --input"
     alias pbpaste="xsel --clipboard --output"
   fi
@@ -107,7 +107,7 @@ alias dfedit="$VISUAL ${DOTFILES}"
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
 
 # 1Password
-if (( $+commands[op] )); then
+if (($ + commands[op])); then
   alias 1pid="op user get --me --format json | jq .id -r"
 fi
 
@@ -145,7 +145,7 @@ alias timer="echo "Timer started. Stop with Ctrl-D." && date && time cat && date
 alias map="xargs -n1"
 
 # Canonical hex dump; some systems have this symlinked
-command -v hd > /dev/null || alias hd="hexdump -C"
+command -v hd >/dev/null || alias hd="hexdump -C"
 
 # Resize terminal
 alias rs="resize -s 40 120"
@@ -179,7 +179,7 @@ alias pdb="python -m pdb"
 alias pyunittest="python -m unittest discover --buffer"
 alias pyactivate="source .venv/bin/activate"
 
-if (( $+commands[brew] )); then
+if (($ + commands[brew])); then
   # Add homebrew python aliases
   alias bpython=$(brew --prefix python)/libexec/bin/python
   alias bvenv="$(brew --prefix python)/libexec/bin/python -m venv --clear .venv"

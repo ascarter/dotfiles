@@ -3,7 +3,7 @@
 # Simple terminal zsh prompt
 #
 
-prompt_terminal_help () {
+prompt_terminal_help() {
   cat <<'EOH'
 Simple prompt with shows host when connecting remotely.
 Optionally supports two-line prompt.
@@ -18,7 +18,7 @@ prompt_color() {
   fi
 }
 
-prompt_terminal_setup () {
+prompt_terminal_setup() {
   zparseopts -D -E -F -nocolor=nocolor -twoline=twoline
 
   if [[ "$TERM" = "xterm-256color" ]] || [[ "$TERM" = "screen-256color" ]]; then
@@ -58,7 +58,7 @@ prompt_terminal_setup () {
 
   PROMPT4='+%N:%i:%_>'
 
-  prompt_opts=( cr percent subst sp )
+  prompt_opts=(cr percent subst sp)
 }
 
 prompt_terminal_setup "$@"

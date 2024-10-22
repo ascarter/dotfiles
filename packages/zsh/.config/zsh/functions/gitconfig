@@ -62,8 +62,8 @@ _gc_credentials() {
   else
     # Use keychain caching
     case $(uname) in
-    Darwin ) git_cred_helper="osxkeychain" ;;
-    Linux  ) git_cred_helper="cache" ;;
+    Darwin) git_cred_helper="osxkeychain" ;;
+    Linux) git_cred_helper="cache" ;;
     esac
   fi
 
@@ -110,7 +110,7 @@ _gc_credentials() {
 
 _gc_tools() {
   # Use VS Code as git difftool and mergetool if available
-  if (( $+commands[code] )); then
+  if (($ + commands[code])); then
     _gc_set ${1} diff.guitool "vscode"
     _gc_set ${1} merge.guitool "vscode"
   fi

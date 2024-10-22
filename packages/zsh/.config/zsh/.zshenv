@@ -21,7 +21,7 @@ fi
 # =====================================
 
 # Ruby
-if (( $+commands[brew] )); then
+if (($ + commands[brew])); then
   CHRUBY_PREFIX="${HOMEBREW_PREFIX}/opt/chruby"
 else
   CHRUBY_PREFIX=/usr/local
@@ -38,7 +38,7 @@ if [[ -d ${HOME}/.rubies/ruby-3.2.2/share/man ]]; then
 fi
 
 # Node.JS
-if (( $+commands[brew] )); then
+if (($ + commands[brew])); then
   CHNODE_PREFIX="${HOMEBREW_PREFIX}/opt/chnode"
 else
   CHNODE_PREFIX=/usr/local
@@ -50,7 +50,7 @@ if [[ -d ${CHNODE_PREFIX}/share/chnode ]]; then
 fi
 
 # Go
-if (( $+commands[go] )); then
+if (($ + commands[go])); then
   path+=$(go env GOPATH)/bin
 fi
 

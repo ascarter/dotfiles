@@ -6,291 +6,291 @@ DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
-    log "Usage" "dotfiles [options] <subcommand> [package]"
-    log ""
-    log "Subcommands:"
-    log "  init" "Initialize dotfiles"
-    log "  install" "Install [package]"
-    log "  list" "List [package]"
-    log "  sync" "Sync [package]"
-    log "  uninstall" "Uninstall [package]"
-    log "  update" "Update [package]"
-    log ""
-    log "Options:"
-    log "  -d" "dotfiles directory"
-    log "  -t" "Target directory"
-    log "  -v" "Verbose"
+  log "Usage" "dotfiles [options] <subcommand> [package]"
+  log ""
+  log "Subcommands:"
+  log "  init" "Initialize dotfiles"
+  log "  install" "Install [package]"
+  log "  list" "List [package]"
+  log "  sync" "Sync [package]"
+  log "  uninstall" "Uninstall [package]"
+  log "  update" "Update [package]"
+  log ""
+  log "Options:"
+  log "  -d" "dotfiles directory"
+  log "  -t" "Target directory"
+  log "  -v" "Verbose"
 }
 
 # Utility installer functions
 
 log() {
-    if [ "$#" -eq 1 ]; then
-        printf "%s\n" "$1"
-    elif [ "$#" -gt 1 ]; then
-        printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
-    fi
+  if [ "$#" -eq 1 ]; then
+    printf "%s\n" "$1"
+  elif [ "$#" -gt 1 ]; then
+    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+  fi
 }
 
 # title log
 tlog() {
-    log "  $1" "$2"
+  log "  $1" "$2"
 }
 
 # detail log
 dlog() {
-    tlog "  $1" "$2"
+  tlog "  $1" "$2"
 }
 
 vlog() {
-    if [ $VERBOSE -eq 1 ]; then
-        log "$@"
-    fi
+  if [ $VERBOSE -eq 1 ]; then
+    log "$@"
+  fi
 }
 
 err() {
-    echo "$*" >&2
+  echo "$*" >&2
 }
 
 prompt() {
-    choice=y
-    read -p "$1 (y/N)" -n1 choice
-    echo
-    case $choice in
-    [yY]*) return 0 ;;
-    esac
-    return 1
+  choice=y
+  read -p "$1 (y/N)" -n1 choice
+  echo
+  case $choice in
+  [yY]*) return 0 ;;
+  esac
+  return 1
 }
 
 # macOS installer functions
 
 macos_prereqs() {
-    # Install Xcode Command Line Tools
-    if ! [ -e /Library/Developer/CommandLineTools ]; then
-        echo "installing" "Xcode Command Line Tools"
-        xcode-select --install
-        read -p "Press [Enter] to continue..." -n1 -s
-        echo
-        sudo xcodebuild -runFirstLaunch
+  # Install Xcode Command Line Tools
+  if ! [ -e /Library/Developer/CommandLineTools ]; then
+    echo "installing" "Xcode Command Line Tools"
+    xcode-select --install
+    read -p "Press [Enter] to continue..." -n1 -s
+    echo
+    sudo xcodebuild -runFirstLaunch
+  else
+    dlog "exists" "Xcode Command Line Tools"
+  fi
+
+  # Install homebrew
+  if ! [ -d /opt/homebrew ]; then
+    # Install Homebrew
+    echo "installing" "Homebrew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    dlog "exists" "Homebrew"
+  fi
+
+  if ! [ -x "$(command -v brew)" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+
+  # Enable man page contextual menu item in Terminal.app
+  if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+    dlog "installing" "homrebrew.man.conf"
+    sudo mkdir -p /usr/local/etc/man.d
+    echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
+  fi
+
+  # Configure 1Password CLI
+  if ! [ -f /opt/homebrew/bin/op ]; then
+    dlog "installing" "1Password CLI"
+    brew install 1password-cli
+  fi
+
+  if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
+    dlgo "link" "~/.1password/agent.sock"
+    mkdir -p ~/.1password
+    ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
+  fi
+
+  if [ -L ~/.1password/agent.sock ]; then
+    if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
+      dlog "enable" "SSH IdentityAgent"
+      mkdir -p ~/.ssh
+      echo "Include ~/.config/ssh/config" >>~/.ssh/config
     else
-        dlog "exists" "Xcode Command Line Tools"
+      dlog "exists" "SSH IdentityAgent"
     fi
-
-    # Install homebrew
-    if ! [ -d /opt/homebrew ]; then
-        # Install Homebrew
-        echo "installing" "Homebrew"
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    else
-        dlog "exists" "Homebrew"
-    fi
-
-    if ! [ -x "$(command -v brew)" ]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
-
-    # Enable man page contextual menu item in Terminal.app
-    if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
-        dlog "installing" "homrebrew.man.conf"
-        sudo mkdir -p /usr/local/etc/man.d
-        echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
-    fi
-
-    # Configure 1Password CLI
-    if ! [ -f /opt/homebrew/bin/op ]; then
-        dlog "installing" "1Password CLI"
-        brew install 1password-cli
-    fi
-
-    if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
-        dlgo "link" "~/.1password/agent.sock"
-        mkdir -p ~/.1password
-        ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
-    fi
-
-    if [ -L ~/.1password/agent.sock ]; then
-        if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
-            dlog "enable" "SSH IdentityAgent"
-            mkdir -p ~/.ssh
-            echo "Include ~/.config/ssh/config" >> ~/.ssh/config
-        else
-            dlog "exists" "SSH IdentityAgent"
-        fi
-    fi
+  fi
 }
 
 brew_bundle_install() {
-    brewfile=$1
-    if brew bundle check --file=$brewfile; then
-        dlog "exists" "Brewfile"
-    else
-        dlog "installing" "Brewfile"
-        brew bundle install --file=$brewfile
-    fi
+  brewfile=$1
+  if brew bundle check --file=$brewfile; then
+    dlog "exists" "Brewfile"
+  else
+    dlog "installing" "Brewfile"
+    brew bundle install --file=$brewfile
+  fi
 }
 
 brew_install() {
-    dlog "install" $1
-    if brew list -1 | grep -q -w ${1}; then
-        brew upgrade ${1}
-    else
-        brew install ${1}
-    fi
+  dlog "install" $1
+  if brew list -1 | grep -q -w ${1}; then
+    brew upgrade ${1}
+  else
+    brew install ${1}
+  fi
 }
 
 # Fedora installer functions
 
 fedora_prereqs() {
-    echo "Fedora pre-reqs"
+  echo "Fedora pre-reqs"
 }
 
 dnf_install() {
-    if rpm -q ${1}; then
-        sudo dnf upgrade ${1}
-    else
-        sudo dnf install ${1}
-    fi
+  if rpm -q ${1}; then
+    sudo dnf upgrade ${1}
+  else
+    sudo dnf install ${1}
+  fi
 }
 
 # Ubuntu installer functions
 
 ubuntu_prereqs() {
-    echo "Ubuntu pre-reqs"
+  echo "Ubuntu pre-reqs"
 }
 
 apt_install() {
-    if dpkg -l | grep -q -w ${1}; then
-        sudo apt-get install --only-upgrade ${1}
-    else
-        sudo apt-get install ${1}
-    fi
+  if dpkg -l | grep -q -w ${1}; then
+    sudo apt-get install --only-upgrade ${1}
+  else
+    sudo apt-get install ${1}
+  fi
 }
 
 # stow implementation
 
 stow() {
-    mkdir -p "$TARGET"
+  mkdir -p "$TARGET"
 
-    # Convert to absolute paths
-    PACKAGES=$(readlink -f ${DOTFILES}/packages)
-    TARGET=$(readlink -f $TARGET)
+  # Convert to absolute paths
+  PACKAGES=$(readlink -f ${DOTFILES}/packages)
+  TARGET=$(readlink -f $TARGET)
 
-    vlog "packages" "$PACKAGES"
+  vlog "packages" "$PACKAGES"
 
-    for package in "$@"; do
-        tlog "package" ${package}
+  for package in "$@"; do
+    tlog "package" ${package}
 
-        p=$(readlink -f ${PACKAGES}/${package})
-        for f in $(find ${p} -type f -print); do
-            t=${TARGET}/${f#${p}/}
-            label="${f#${PACKAGES}/}"
+    p=$(readlink -f ${PACKAGES}/${package})
+    for f in $(find ${p} -type f -print); do
+      t=${TARGET}/${f#${p}/}
+      label="${f#${PACKAGES}/}"
 
-            # Skip ignored file names
-            if [ -f "${PACKAGES}/.dfignore" ]; then
-                if grep -q -x -f "${PACKAGES}/.dfignore" <<< "$(basename ${f})"; then
-                    dlog "ignore" "${label}"
-                    continue
-                fi
-            fi
+      # Skip ignored file names
+      if [ -f "${PACKAGES}/.dfignore" ]; then
+        if echo "$(basename ${f})" | grep -q -x -f "${PACKAGES}/.dfignore"; then
+          dlog "ignore" "${label}"
+          continue
+        fi
+      fi
 
-            # Check if symlink exists
-            if [ -h "${t}" ]; then
-                if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
-                    # Delete symlink
-                    dlog "unlink" "${t} -> ${label}"
-                    rm "${t}"
-                else
-                    dlog "exists" "${label} -> ${t}"
-                fi
+      # Check if symlink exists
+      if [ -h "${t}" ]; then
+        if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
+          # Delete symlink
+          dlog "unlink" "${t} -> ${label}"
+          rm "${t}"
+        else
+          dlog "exists" "${label} -> ${t}"
+        fi
+      else
+        if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
+          # Check if a file already exists
+          if [ -e "${t}" ]; then
+            if [ $ADOPT -eq 1 ]; then
+              # Adopt existing file
+              dlog "adopt" "${t} -> ${label}"
+              mv ${t} ${f}
             else
-                if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
-                    # Check if a file already exists
-                    if [ -e "${t}" ]; then
-                        if [ $ADOPT -eq 1 ]; then
-                            # Adopt existing file
-                            dlog "adopt" "${t} -> ${label}"
-                            mv ${t} ${f}
-                        else
-                            # Conflict
-                            dlog "conflict" "${label} -> ${t}"
-                            continue
-                        fi
-                    fi
-
-                    # Symlink file
-                    dlog "link" "${label} -> ${t}"
-                    mkdir -p $(dirname "${t}")
-                    ln -s ${f} ${t}
-                else
-                    dlog "missing" "${label} -> ${t}"
-                fi
+              # Conflict
+              dlog "conflict" "${label} -> ${t}"
+              continue
             fi
-        done
+          fi
+
+          # Symlink file
+          dlog "link" "${label} -> ${t}"
+          mkdir -p $(dirname "${t}")
+          ln -s ${f} ${t}
+        else
+          dlog "missing" "${label} -> ${t}"
+        fi
+      fi
     done
+  done
 
 }
 
 # dotfiles commands
 
 dotfiles_init() {
-    tlog "prereqs" "${ID}"
-    case "${ID}" in
-        "macos")  macos_prereqs  ;;
-        "fedora") fedora_prereqs ;;
-        "ubuntu") ubuntu_prereqs ;;
-    esac
+  tlog "prereqs" "${ID}"
+  case "${ID}" in
+  "macos") macos_prereqs ;;
+  "fedora") fedora_prereqs ;;
+  "ubuntu") ubuntu_prereqs ;;
+  esac
 }
 
 dotfiles_install() {
-    stow $@
+  stow $@
 }
 
 dotfiles_list() {
-    LIST=1
-    stow $@
+  LIST=1
+  stow $@
 }
 
 dotfiles_sync() {
-    ADOPT=1
-    stow $@
+  ADOPT=1
+  stow $@
 }
 
 dotfiles_uninstall() {
-    DELETE=1
-    stow $@
+  DELETE=1
+  stow $@
 }
 
 dotfiles_update() {
-    git -C ${DOTFILES} pull
-    stow $@
+  git -C ${DOTFILES} pull
+  stow $@
 }
 
 # Deterine OS and version
 case $(uname -s) in
-Darwin )
-    # Configure homebrew shell environment
-    if [[ -d /opt/homebrew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
+Darwin)
+  # Configure homebrew shell environment
+  if [[ -d /opt/homebrew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
 
-    # Emulate /etc/os-release for macOS
-    NAME="macOS"
-    VERSION=$(sw_vers -productVersion)
-    VERSION_ID="$VERSION"
-    ID="macos"
-    ID_LIKE="darwin"
-    BUILD_ID=$(sw_vers -buildVersion)
-    PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
-    ;;
-Linux )
-    if [[ -f /etc/os-release ]]; then
-        # Source os-release file to get distribution information
-        . /etc/os-release
-    else
-        echo "Error: /etc/os-release not found"
-        exit 1
-    fi
-    ;;
+  # Emulate /etc/os-release for macOS
+  NAME="macOS"
+  VERSION=$(sw_vers -productVersion)
+  VERSION_ID="$VERSION"
+  ID="macos"
+  ID_LIKE="darwin"
+  BUILD_ID=$(sw_vers -buildVersion)
+  PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
+  ;;
+Linux)
+  if [[ -f /etc/os-release ]]; then
+    # Source os-release file to get distribution information
+    . /etc/os-release
+  else
+    echo "Error: /etc/os-release not found"
+    exit 1
+  fi
+  ;;
 esac
 
 # Set default options
@@ -302,24 +302,23 @@ VERBOSE=0
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
   case $opt in
-    d ) DOTFILES=$OPTARG ;;
-    t ) TARGET=$OPTARG ;;
-    v ) VERBOSE=1 ;;
-    \?) usage && exit 1 ;;
+  d) DOTFILES=$OPTARG ;;
+  t) TARGET=$OPTARG ;;
+  v) VERBOSE=1 ;;
+  \?) usage && exit 1 ;;
   esac
 done
 shift $(($OPTIND - 1))
-
 
 vlog "DOTFILES: ${DOTFILES}"
 vlog "TARGET: ${TARGET}"
 
 # Handle subcommands and pass remaining paramters
 if [ $# -eq 0 ]; then
-    echo "No subcommand specified"
-    echo ""
-    usage
-    exit 1
+  echo "No subcommand specified"
+  echo ""
+  usage
+  exit 1
 fi
 
 subcommand=$1
@@ -327,9 +326,9 @@ shift
 
 # Get list of packages. Default to all packages if none specified.
 if [ "$#" -lt 1 ]; then
-    packages=$(find ${DOTFILES}/packages -type d -depth 1 -exec basename -- {} + | sort)
+  packages=$(find ${DOTFILES}/packages -type d -depth 1 -exec basename -- {} + | sort)
 else
-    packages="$@"
+  packages="$@"
 fi
 
 vlog "command" $subcommand
@@ -337,11 +336,11 @@ vlog "dotfiles" ${DOTFILES}
 vlog "target" ${TARGET}
 
 case ${subcommand} in
-    "init")      dotfiles_init ;;
-    "install")   dotfiles_install $packages ;;
-    "list")      dotfiles_list $packages ;;
-    "sync")      dotfiles_sync $packages ;;
-    "uninstall") dotfiles_uninstall $packages ;;
-    "update")    dotfiles_update $packages ;;
-    *)           usage && exit 1 ;;
+"init") dotfiles_init ;;
+"install") dotfiles_install $packages ;;
+"list") dotfiles_list $packages ;;
+"sync") dotfiles_sync $packages ;;
+"uninstall") dotfiles_uninstall $packages ;;
+"update") dotfiles_update $packages ;;
+*) usage && exit 1 ;;
 esac
