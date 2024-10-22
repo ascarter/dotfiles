@@ -10,6 +10,4 @@ command = "/opt/homebrew/opt/llvm/bin/lldb-vscode"
 name = "binary"
 request = "launch"
 completion = [{ name = "binary", completion = "filename" }]
-args = { program = "{0}", initCommands = [
-    "command script import ~/.config/helix/dap/lldb_vscode_rustc_primer.py",
-] }
+args = { program = "{0}", initCommands = [ "command script import ~/.config/helix/dap/lldb_vscode_rustc_primer.py" ] }

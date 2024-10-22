@@ -19,21 +19,21 @@ display-messages = true
 
 [editor.statusline]
 left = [
-    "mode",
-    "spinner",
-    "file-name",
-    "read-only-indicator",
-    "file-modification-indicator",
+  "mode",
+  "spinner",
+  "file-name",
+  "read-only-indicator",
+  "file-modification-indicator",
 ]
 center = ["version-control", "spacer", "separator", "file-type"]
 right = [
-    "diagnostics",
-    "position",
-    "total-line-numbers",
-    "position-percentage",
-    "selections",
-    "register",
-    "file-encoding",
+  "diagnostics",
+  "position",
+  "total-line-numbers",
+  "position-percentage",
+  "selections",
+  "register",
+  "file-encoding",
 ]
 mode.normal = "NORMAL"
 mode.insert = "INSERT"
