@@ -137,7 +137,7 @@ fi
 
 # Use VS Code for visual editor or fallback to $EDITOR
 if (( $+commands[code] )); then
-  export VISUAL="code --wait"
+  export VISUAL="code"
 else
   export VISUAL=$EDITOR
 fi
