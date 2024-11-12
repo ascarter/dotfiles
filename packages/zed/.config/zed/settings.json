@@ -15,8 +15,8 @@
   },
   "assistant": {
     "default_model": {
-      "provider": "ollama",
-      "model": "mistral-nemo:latest"
+      "provider": "zed.dev",
+      "model": "claude-3-5-sonnet-latest"
     },
     "version": "2"
   },
