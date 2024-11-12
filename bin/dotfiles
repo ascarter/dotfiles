@@ -49,7 +49,7 @@ vlog() {
 }
 
 err() {
-  echo "$*" >&2
+  echo "  $(tput bold)error     $(tput sgr0)\t$*" >&2
 }
 
 prompt() {
@@ -172,62 +172,113 @@ stow() {
   mkdir -p "$TARGET"
 
   # Convert to absolute paths
-  PACKAGES=$(readlink -f ${DOTFILES}/packages)
+  local packages=$(readlink -f ${DOTFILES}/packages)
   TARGET=$(readlink -f $TARGET)
 
-  vlog "packages" "$PACKAGES"
+  vlog "packages" "$packages"
 
   for package in "$@"; do
     tlog "package" ${package}
 
-    p=$(readlink -f ${PACKAGES}/${package})
-    for f in $(find ${p} -type f -print); do
-      t=${TARGET}/${f#${p}/}
-      label="${f#${PACKAGES}/}"
+    # Resolve absolute path to package
+    local p=$(readlink -f ${packages}/${package})
 
-      # Skip ignored file names
-      if [ -f "${PACKAGES}/.dfignore" ]; then
-        if echo "$(basename ${f})" | grep -q -x -f "${PACKAGES}/.dfignore"; then
-          dlog "ignore" "${label}"
-          continue
-        fi
-      fi
+    if [ ! -d "$p" ]; then
+      err  "Package not found"
+      continue
+    fi
 
-      # Check if symlink exists
-      if [ -h "${t}" ]; then
-        if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
-          # Delete symlink
-          dlog "unlink" "${t} -> ${label}"
-          rm "${t}"
-        else
-          dlog "exists" "${label} -> ${t}"
-        fi
-      else
-        if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
-          # Check if a file already exists
-          if [ -e "${t}" ]; then
-            if [ $ADOPT -eq 1 ]; then
-              # Adopt existing file
-              dlog "adopt" "${t} -> ${label}"
-              mv ${t} ${f}
-            else
-              # Conflict
-              dlog "conflict" "${label} -> ${t}"
-              continue
-            fi
-          fi
+    # Process each file in the package
+    stow_package "$p"
 
-          # Symlink file
-          dlog "link" "${label} -> ${t}"
-          mkdir -p $(dirname "${t}")
-          ln -s ${f} ${t}
-        else
-          dlog "missing" "${label} -> ${t}"
-        fi
-      fi
-    done
+    # Run action scripts if present
+    stow_action "$p"
   done
+}
 
+stow_package() {
+  local p=$1
+  local packages=$(dirname "$p")
+
+  # Find all files in package directory
+  # Exclude .dotfiles directory if present
+  for f in $(find "${p}" -path "${p}/.dotfiles" -prune -o -type f -print); do
+    # Resolve target path to relative path from package directory
+    label="${f#${packages}/}"
+    t=${TARGET}/${f#${p}/}
+
+    # Skip ignored file names
+    if [ -f "${packages}/.dfignore" ]; then
+      if echo "$(basename ${f})" | grep -q -F -f "${packages}/.dfignore"; then
+        dlog "ignore" "${label}"
+        continue
+      fi
+    fi
+
+    # Handle file based on its existence and the operation mode
+    stow_file "$f" "$t" "$label"
+  done
+}
+
+stow_file() {
+  local source_file=$1
+  local target_file=$2
+  local label=$3
+
+  # Check if symlink exists
+  if [ -h "${target_file}" ]; then
+    if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
+      # Delete symlink
+      dlog "unlink" "${target_file} -> ${label}"
+      rm "${target_file}"
+    else
+      dlog "exists" "${label} -> ${target_file}"
+    fi
+  else
+    if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
+      # Check if a file already exists
+      if [ -e "${target_file}" ]; then
+        if [ $ADOPT -eq 1 ]; then
+          # Adopt existing file
+          dlog "adopt" "${target_file} -> ${label}"
+          mv "${target_file}" "${source_file}"
+        else
+          # Conflict
+          dlog "conflict" "${label} -> ${target_file}"
+          return
+        fi
+      fi
+
+      # Symlink file
+      dlog "link" "${label} -> ${target_file}"
+      mkdir -p $(dirname "${target_file}")
+      ln -s "${source_file}" "${target_file}"
+    else
+      dlog "missing" "${label} -> ${target_file}"
+    fi
+  fi
+}
+
+stow_action() {
+  local p=$1
+
+  # Set action script to run depending on mode
+  local action_script=install.sh
+  if [ $DELETE -eq 1 ]; then
+    action_script=uninstall.sh
+  elif [ $LIST -eq 1 ]; then
+    action_script=list.sh
+  elif [ $ADOPT -eq 1 ]; then
+    action_script=adopt.sh
+  fi
+
+  local script_path="${p}/.dotfiles/${action_script}"
+
+  # Run action scripts if present
+  if [ -f "${script_path}" ]; then
+    dlog "script" "${script_path}"
+    source "${script_path}"
+  fi
 }
 
 # dotfiles commands
@@ -281,6 +332,8 @@ Darwin)
   ID_LIKE="darwin"
   BUILD_ID=$(sw_vers -buildVersion)
   PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
+  ARCH=$(uname -m)
+  OS=$(uname -s)
   ;;
 Linux)
   if [[ -f /etc/os-release ]]; then
