@@ -190,15 +190,6 @@ if [[ -z $SSH_TTY ]] && [[ -S ${HOME}/.1password/agent.sock ]]; then
   export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
 fi
 
-# Set 1Password SSH signing program if installed
-# if [[ -n "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
-#   git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-# elif [[ -n "/usr/local/bin/op-ssh-sign" ]]; then
-#   # TODO: Confirm path for Linux 1Password CLI
-#   git config --global gpg.ssh.program "/usr/local/bin/op-ssh-sign"
-# fi
-
-
 # =====================================
 # Dotfiles
 # =====================================

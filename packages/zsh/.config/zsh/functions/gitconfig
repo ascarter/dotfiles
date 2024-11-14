@@ -100,8 +100,7 @@ _gc_credentials() {
     if [[ -n "${signing_key}" ]]; then
       _gc_set ${1} user.signingkey "${signing_key}"
       _gc_set ${1} gpg.format ssh
-      # Set 1Password SSH signing program at runtime if available
-      # See .zshrc
+      # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
       _gc_set ${1} commit.gpgsign true
     fi
   fi
