@@ -24,7 +24,7 @@ autoload -U colors
 colors
 
 if [[ -d ${ZDOTDIR}/functions ]]; then
-    autoload -U ${ZDOTDIR}/functions/[^_]*(:t)
+  autoload -U ${ZDOTDIR}/functions/[^_]*(:t)
 fi
 autoload add-zsh-hook
 
@@ -187,15 +187,24 @@ fi
 
 # Enable 1Password SSH agent if installed when running locally
 if [[ -z $SSH_TTY ]] && [[ -S ${HOME}/.1password/agent.sock ]]; then
-    export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
+  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
 fi
+
+# Set 1Password SSH signing program if installed
+# if [[ -n "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
+#   git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+# elif [[ -n "/usr/local/bin/op-ssh-sign" ]]; then
+#   # TODO: Confirm path for Linux 1Password CLI
+#   git config --global gpg.ssh.program "/usr/local/bin/op-ssh-sign"
+# fi
+
 
 # =====================================
 # Dotfiles
 # =====================================
 
 if [[ -d ${DOTFILES}/bin ]]; then
-    path+=${DOTFILES}/bin
+  path+=${DOTFILES}/bin
 fi
 
 # =====================================
@@ -204,7 +213,7 @@ fi
 
 # Add local bin dir
 if [[ -d ${HOME}/.local/bin ]]; then
-    path+=${HOME}/.local/bin
+  path+=${HOME}/.local/bin
 fi
 
 if [[ -e ${HOME}/.zsh_local ]]; then

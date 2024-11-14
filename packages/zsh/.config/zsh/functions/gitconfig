@@ -100,9 +100,8 @@ _gc_credentials() {
     if [[ -n "${signing_key}" ]]; then
       _gc_set ${1} user.signingkey "${signing_key}"
       _gc_set ${1} gpg.format ssh
-      if [[ -n "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
-        _gc_set ${1} gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-      fi
+      # Set 1Password SSH signing program at runtime if available
+      # See .zshrc
       _gc_set ${1} commit.gpgsign true
     fi
   fi
