@@ -43,6 +43,7 @@ _gc_prompt() {
 
 # Configure git credential managers
 _gc_credentials() {
+  local gitconfig_file=$1
   local gh_urls=("https://github.com" "https://gist.github.com")
   local az_urls=("https://dev.azure.com" "https://*.visualstudio.com/")
   local op_helper=$(command -v op)
@@ -68,41 +69,66 @@ _gc_credentials() {
   fi
 
   # Clear default credential helper
-  _gc_clear ${1} credential.helper
+  _gc_clear ${gitconfig_file} credential.helper
 
   # Configure GitHub
   for url in "${gh_urls[@]}"; do
-    _gc_clear ${1} credential.${url}.helper
-    _gc_add ${1} credential.${url}.helper ''
-    _gc_add ${1} credential.${url}.helper $git_cred_helper
+    _gc_clear ${gitconfig_file} credential.${url}.helper
+    _gc_add ${gitconfig_file} credential.${url}.helper ''
+    _gc_add ${gitconfig_file} credential.${url}.helper $git_cred_helper
   done
 
   # Configure Azure DevOps if GCM is installed
   if [[ -n "${gcm_helper}" ]]; then
     for url in "${az_urls[@]}"; do
-      _gc_clear ${1} credential.${url}.helper
-      _gc_add ${1} credential.${url}.helper ''
-      _gc_add ${1} credential.${url}.helper ${gcm_helper}
-      _gc_set ${1} credential.${url}.useHttpPath true
+      _gc_clear ${gitconfig_file} credential.${url}.helper
+      _gc_add ${gitconfig_file} credential.${url}.helper ''
+      _gc_add ${gitconfig_file} credential.${url}.helper ${gcm_helper}
+      _gc_set ${gitconfig_file} credential.${url}.useHttpPath true
     done
   fi
 
   # Clear gpg signing
-  _gc_clear ${1} user.signingkey
-  _gc_clear ${1} gpg.format
-  _gc_clear ${1} gpg.ssh.program
-  _gc_clear ${1} commit.gpgsign
+  _gc_clear ${gitconfig_file} user.signingkey
+  _gc_clear ${gitconfig_file} gpg.format
+  _gc_clear ${gitconfig_file} gpg.ssh.program
+  _gc_clear ${gitconfig_file} commit.gpgsign
 
   # Configure gpg signing
   if [[ -n "${op_helper}" ]]; then
     # Use 1Password SSH for signing
     local signing_key=$(op read "op://Private/GitHub SSH Key/public key")
     if [[ -n "${signing_key}" ]]; then
-      _gc_set ${1} user.signingkey "${signing_key}"
-      _gc_set ${1} gpg.format ssh
+      _gc_set ${gitconfig_file} user.signingkey "${signing_key}"
+      _gc_set ${gitconfig_file} gpg.format ssh
       # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
-      _gc_set ${1} commit.gpgsign true
+      _gc_set ${gitconfig_file} commit.gpgsign true
     fi
+  fi
+}
+
+_gc_signers() {
+  local gitconfig_file=$1
+  local ghuser=$2
+
+  # Download signing keys from GitHub
+  local signers="$HOME/.ssh/allowed_signers"
+  local signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
+
+  while read -r pubkey; do
+    if ! grep -q -F "$pubkey" "$signers" 2> /dev/null; then
+      # Add the key, narrowly scoped for Git
+      echo "Adding key ${pubkey} for user ${ghuser}"
+      echo "${ghuser} namespaces=\"git\" ${pubkey}" >> ${signers}
+    else
+      echo "Key ${pubkey} already exists for user ${ghuser}"
+    fi
+  done <<< ${signing_keys}
+
+  _gc_clear ${gitconfig_file} gpg.ssh.allowedSignersFile
+
+  if [[ -s ${signers} ]]; then
+    _gc_set ${gitconfig_file} gpg.ssh.allowedSignersFile "${signers}"
   fi
 }
 
@@ -125,6 +151,9 @@ gitconfig() {
 
   local GIT_CONFIG_FILE=${1:-${HOME}/.gitconfig}
 
+  # Get the GitHub username
+  local ghuser=$(gh api user --jq '.login')
+
   # Get user info from current file
   local username=$(_gc_get ${GIT_CONFIG_FILE} "user.name")
   local email=$(_gc_get ${GIT_CONFIG_FILE} "user.email")
@@ -140,6 +169,9 @@ gitconfig() {
   _gc_prompt ${GIT_CONFIG_FILE} user.email "${email:-${USERNAME}@users.noreply.github.com}"
   _gc_credentials ${GIT_CONFIG_FILE}
   _gc_tools ${GIT_CONFIG_FILE}
+
+  echo "Download SSH signing keys from GitHub for user ${ghuser}"
+  _gc_signers ${GIT_CONFIG_FILE} "${ghuser}"
 }
 
 gitconfig "$@"
