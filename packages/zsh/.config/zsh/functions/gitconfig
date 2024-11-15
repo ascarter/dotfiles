@@ -166,7 +166,7 @@ gitconfig() {
 
   echo "Generating ${GIT_CONFIG_FILE}"
   _gc_prompt ${GIT_CONFIG_FILE} user.name "${username:-${USERNAME}}"
-  _gc_prompt ${GIT_CONFIG_FILE} user.email "${email:-${USERNAME}@users.noreply.github.com}"
+  _gc_prompt ${GIT_CONFIG_FILE} user.email "${email:-${ghuser:-${USERNAME}}@users.noreply.github.com}"
   _gc_credentials ${GIT_CONFIG_FILE}
   _gc_tools ${GIT_CONFIG_FILE}
 
