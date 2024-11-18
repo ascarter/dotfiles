@@ -25,6 +25,7 @@ install() {
   local source_url="https://github.com/rails/rails-new/releases/download/v${version}/rails-new-${platform_arch}-${platform_id}.tar.gz"
 
   # Download and extract to ~/.local/bin
+  mkdir -p ${TARGET}/.local/bin
   curl -L $source_url | tar -xz -C ${TARGET}/.local/bin
 }
 
