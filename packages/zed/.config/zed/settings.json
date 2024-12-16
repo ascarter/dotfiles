@@ -35,6 +35,7 @@
   },
   "wrap_guides": [80],
   "tabs": {
+    "close_position": "left",
     "git_status": true
   },
   "git": {
