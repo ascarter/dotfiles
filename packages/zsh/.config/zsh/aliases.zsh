@@ -1,11 +1,7 @@
 case $(uname) in
 Darwin)
   # ls
-  if (( $+commands[uls] )); then
-    alias ls="uls -hFH --group-directories-first --color=never"
-  else
-    alias ls="ls -hFH"
-  fi
+  alias ls="ls -hFH"
 
   # macOS appearance
   alias darkmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to true"'
