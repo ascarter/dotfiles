@@ -149,23 +149,6 @@ export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ig
 export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
 
 # =====================================
-# Browser
-# =====================================
-
-case $(uname) in
-Darwin )
-  export BROWSER="open -a Safari"
-  ;;
-Linux )
-  # TODO - confirm already set in Linux
-  # Fall back to lynx
-  if [[ -z ${BROWSER} ]]; then
-    export BROWSER=lynx
-  fi
-  ;;
-esac
-
-# =====================================
 # Aliases
 # =====================================
 
