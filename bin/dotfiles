@@ -5,6 +5,8 @@
 DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
+source ${DOTFILES}/share/dotfiles/libdf.sh
+
 usage() {
   log "Usage" "dotfiles [options] <subcommand> [package]"
   log ""
@@ -20,46 +22,6 @@ usage() {
   log "  -d" "dotfiles directory"
   log "  -t" "Target directory"
   log "  -v" "Verbose"
-}
-
-# Utility installer functions
-
-log() {
-  if [ "$#" -eq 1 ]; then
-    printf "%s\n" "$1"
-  elif [ "$#" -gt 1 ]; then
-    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
-  fi
-}
-
-# title log
-tlog() {
-  log "  $1" "$2"
-}
-
-# detail log
-dlog() {
-  tlog "  $1" "$2"
-}
-
-vlog() {
-  if [ $VERBOSE -eq 1 ]; then
-    log "$@"
-  fi
-}
-
-err() {
-  echo "  $(tput bold)error     $(tput sgr0)\t$*" >&2
-}
-
-prompt() {
-  choice=y
-  read -p "$1 (y/N)" -n1 choice
-  echo
-  case $choice in
-  [yY]*) return 0 ;;
-  esac
-  return 1
 }
 
 # macOS installer functions
@@ -99,7 +61,7 @@ macos_prereqs() {
   # Configure 1Password CLI
   if ! [ -f /opt/homebrew/bin/op ]; then
     dlog "installing" "1Password CLI"
-    brew install 1password-cli
+    brew_install 1password-cli
   fi
 
   if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
@@ -121,26 +83,7 @@ macos_prereqs() {
   # GitHub CLI
   if ! [ -x "$(command -v gh)" ]; then
     dlog "installing" "GitHub CLI"
-    brew install gh
-  fi
-}
-
-brew_bundle_install() {
-  brewfile=$1
-  if brew bundle check --file=$brewfile; then
-    dlog "exists" "Brewfile"
-  else
-    dlog "installing" "Brewfile"
-    brew bundle install --file=$brewfile
-  fi
-}
-
-brew_install() {
-  dlog "install" $1
-  if brew list -1 | grep -q -w ${1}; then
-    brew upgrade ${1}
-  else
-    brew install ${1}
+    brew_install gh
   fi
 }
 
@@ -150,26 +93,10 @@ fedora_prereqs() {
   echo "Fedora pre-reqs"
 }
 
-dnf_install() {
-  if rpm -q ${1}; then
-    sudo dnf upgrade ${1}
-  else
-    sudo dnf install ${1}
-  fi
-}
-
 # Ubuntu installer functions
 
 ubuntu_prereqs() {
   echo "Ubuntu pre-reqs"
-}
-
-apt_install() {
-  if dpkg -l | grep -q -w ${1}; then
-    sudo apt-get install --only-upgrade ${1}
-  else
-    sudo apt-get install ${1}
-  fi
 }
 
 # GitHub CLI extensions installer
@@ -357,41 +284,10 @@ dotfiles_update() {
   stow $@
 }
 
-# Deterine OS and version
-case $(uname -s) in
-Darwin)
-  # Configure homebrew shell environment
-  if [[ -d /opt/homebrew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
-
-  # Emulate /etc/os-release for macOS
-  NAME="macOS"
-  VERSION=$(sw_vers -productVersion)
-  VERSION_ID="$VERSION"
-  ID="macos"
-  ID_LIKE="darwin"
-  BUILD_ID=$(sw_vers -buildVersion)
-  PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
-  ARCH=$(uname -m)
-  OS=$(uname -s)
-  ;;
-Linux)
-  if [[ -f /etc/os-release ]]; then
-    # Source os-release file to get distribution information
-    . /etc/os-release
-  else
-    echo "Error: /etc/os-release not found"
-    exit 1
-  fi
-  ;;
-esac
-
 # Set default options
 ADOPT=0
 DELETE=0
 LIST=0
-VERBOSE=0
 
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
@@ -404,8 +300,9 @@ while getopts ":d:t:v" opt; do
 done
 shift $(($OPTIND - 1))
 
-vlog "DOTFILES: ${DOTFILES}"
-vlog "TARGET: ${TARGET}"
+vlog "ID" ${ID}
+vlog "DOTFILES" ${DOTFILES}
+vlog "TARGET" ${TARGET}
 
 # Handle subcommands and pass remaining paramters
 if [ $# -eq 0 ]; then
