@@ -1,0 +1,4 @@
+font-family = "TX-02"
+background-opacity = 0.98
+background-blur-radius = 20
+keybind = global:alt+grave_accent=toggle_quick_terminal
