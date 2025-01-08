@@ -2,7 +2,7 @@
 name = "rust"
 
 [language.debugger]
-name = "lldb-vscode"
+name = "lldb-dap"
 transport = "stdio"
 command = "/opt/homebrew/opt/llvm/bin/lldb-dap"
 
