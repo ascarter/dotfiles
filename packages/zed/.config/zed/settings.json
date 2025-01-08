@@ -16,7 +16,7 @@
   "assistant": {
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-3-5-sonnet"
+      "model": "gpt-4o"
     },
     "version": "2"
   },
@@ -25,9 +25,9 @@
     "light": "macOS Classic Light",
     "dark": "macOS Classic Dark"
   },
-  "ui_font_family": "SF Pro Display",
+  "ui_font_family": "SF Compact Display",
   "ui_font_size": 14,
-  "buffer_font_family": "SF Mono",
+  "buffer_font_family": "TX-02",
   "buffer_font_size": 13,
   "buffer_line_height": "standard",
   "indent_guides": {
