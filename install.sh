@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
 TARGET=${TARGET:-$HOME}
 
@@ -43,7 +44,6 @@ else
 fi
 
 ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} init
-${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} install
 
 echo ""
 echo "dotfiles installed"
