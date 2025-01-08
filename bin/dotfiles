@@ -3,20 +3,20 @@
 # set -x
 
 DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
+DOTFILES_CONFIG_DIR=${DOTFILES}/config
 TARGET=${TARGET:-$HOME}
 
 source ${DOTFILES}/share/dotfiles/libdf.sh
 
 usage() {
-  log "Usage" "dotfiles [options] <subcommand> [package]"
+  log "Usage" "dotfiles [options] <subcommand>"
   log ""
   log "Subcommands:"
   log "  init" "Initialize dotfiles"
-  log "  install" "Install [package]"
-  log "  list" "List [package]"
+  log "  status" "Show configuration status"
   log "  sync" "Sync [package]"
-  log "  uninstall" "Uninstall [package]"
-  log "  update" "Update [package]"
+  log "  uninstall" "Uninstall configuration"
+  log "  update" "Update configuration"
   log ""
   log "Options:"
   log "  -d" "dotfiles directory"
@@ -24,270 +24,57 @@ usage() {
   log "  -v" "Verbose"
 }
 
-# macOS installer functions
+# Sync configuration files from source to target directory
+# $1: source directory
+# $2: target directory
+# $3: action
+#  status: check status
+#  link: link source to target
+#  unlink: unlink target
+#  adopt: adopt target
+sync() {
+  source_dir="${1}"
+  target_dir="${2}"
+  action="${3}"
 
-macos_prereqs() {
-  # Install Xcode Command Line Tools
-  if ! [ -e /Library/Developer/CommandLineTools ]; then
-    echo "installing" "Xcode Command Line Tools"
-    xcode-select --install
-    read -p "Press [Enter] to continue..." -n1 -s
-    echo
-    sudo xcodebuild -runFirstLaunch
-  else
-    dlog "exists" "Xcode Command Line Tools"
-  fi
+  vlog "source_dir" "${source_dir}"
+  vlog "target_dir" "${target_dir}"
+  vlog "action" "${action}"
 
-  # Install homebrew
-  if ! [ -d /opt/homebrew ]; then
-    # Install Homebrew
-    echo "installing" "Homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    dlog "exists" "Homebrew"
-  fi
-
-  if ! [ -x "$(command -v brew)" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
-
-  # Enable man page contextual menu item in Terminal.app
-  if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
-    dlog "installing" "homrebrew.man.conf"
-    sudo mkdir -p /usr/local/etc/man.d
-    echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
-  fi
-
-  # Configure 1Password CLI
-  if ! [ -f /opt/homebrew/bin/op ]; then
-    dlog "installing" "1Password CLI"
-    brew_install 1password-cli
-  fi
-
-  if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
-    dlgo "link" "~/.1password/agent.sock"
-    mkdir -p ~/.1password
-    ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
-  fi
-
-  if [ -L ~/.1password/agent.sock ]; then
-    if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
-      dlog "enable" "SSH IdentityAgent"
-      mkdir -p ~/.ssh
-      echo "Include ~/.config/ssh/config" >>~/.ssh/config
-    else
-      dlog "exists" "SSH IdentityAgent"
-    fi
-  fi
-
-  # GitHub CLI
-  if ! [ -x "$(command -v gh)" ]; then
-    dlog "installing" "GitHub CLI"
-    brew_install gh
-  fi
-}
-
-# Fedora installer functions
-
-fedora_prereqs() {
-  echo "Fedora pre-reqs"
-}
-
-# Ubuntu installer functions
-
-ubuntu_prereqs() {
-  echo "Ubuntu pre-reqs"
-}
-
-# GitHub CLI extensions installer
-
-gh_extensions_install() {
-  local extensions="github/gh-copilot "
-
-  # Install GitHub CLI extensions
-  if [ -x "$(command -v gh)" ]; then
-    for extension in $extensions; do
-      dlog "installing" "GitHub CLI extension ${extension}"
-      gh extension install ${extension}
-    done
-  fi
-}
-
-# 1Password CLI plugins
-
-op_plugins_install() {
-  local plugins="gh"
-
-  # Init 1Password CLI plugins
-  if [ -x "$(command -v op)" ]; then
-    for plugin in $plugins; do
-      if [ -x "$(command -v op)" ]; then
-        dlog "init" "1Password CLI plugin ${plugin}"
-        op plugin init ${plugin}
+  find "${source_dir}" -type f | sort | while read -r source_file; do
+    target_file="${target_dir}/${source_file#${source_dir}/}"
+    if [ "${action}" = "status" ]; then
+      if [ -L "${target_file}" ]; then
+        dlog "exists" "${target_file} -> ${source_file}"
+      elif [ -e "${target_file}" ]; then
+        dlog "conflict" "${target_file} -> ${source_file}"
+      else
+        dlog "missing" "${target_file} -> ${source_file}"
       fi
-    done
-  fi
-}
-
-# stow implementation
-
-stow() {
-  mkdir -p "$TARGET"
-
-  # Convert to absolute paths
-  local packages=$(readlink -f ${DOTFILES}/packages)
-  TARGET=$(readlink -f $TARGET)
-
-  vlog "packages" "$packages"
-
-  for package in "$@"; do
-    tlog "package" ${package}
-
-    # Resolve absolute path to package
-    local p=$(readlink -f ${packages}/${package})
-
-    if [ ! -d "$p" ]; then
-      err  "Package not found"
-      continue
-    fi
-
-    # Process each file in the package
-    stow_package "$p"
-
-    # Run action scripts if present
-    stow_action "$p"
-  done
-}
-
-stow_package() {
-  local p=$1
-  local packages=$(dirname "$p")
-
-  # Find all files in package directory
-  # Exclude .dotfiles directory if present
-  for f in $(find "${p}" -path "${p}/.dotfiles" -prune -o -type f -print); do
-    # Resolve target path to relative path from package directory
-    label="${f#${packages}/}"
-    t=${TARGET}/${f#${p}/}
-
-    # Skip ignored file names
-    if [ -f "${packages}/.dfignore" ]; then
-      if echo "${label}" | grep -q -F -f "${packages}/.dfignore"; then
-        dlog "ignore" "${label}"
+    elif [ "${action}" = "link" ]; then
+      if [ -e "${target_file}" ]; then
+        dlog "conflict" "${target_file} -> ${source_file}"
         continue
       fi
-    fi
-
-    # Handle file based on its existence and the operation mode
-    stow_file "$f" "$t" "$label"
-  done
-}
-
-stow_file() {
-  local source_file=$1
-  local target_file=$2
-  local label=$3
-
-  # Check if symlink exists
-  if [ -h "${target_file}" ]; then
-    if [ $DELETE -eq 1 ] && [ $LIST -eq 0 ]; then
-      # Delete symlink
-      dlog "unlink" "${target_file} -> ${label}"
-      rm "${target_file}"
-    else
-      dlog "exists" "${label} -> ${target_file}"
-    fi
-  else
-    if [ $DELETE -eq 0 ] && [ $LIST -eq 0 ]; then
-      # Check if a file already exists
-      if [ -e "${target_file}" ]; then
-        if [ $ADOPT -eq 1 ]; then
-          # Adopt existing file
-          dlog "adopt" "${target_file} -> ${label}"
-          mv "${target_file}" "${source_file}"
-        else
-          # Conflict
-          dlog "conflict" "${label} -> ${target_file}"
-          return
-        fi
+      mkdir -p "$(dirname "${target_file}")"
+      ln -sf "${source_file}" "${target_file}"
+      dlog "link" "${target_file} -> ${source_file}"
+    elif [ "${action}" = "unlink" ]; then
+      if [ -L "${target_file}" ]; then
+        rm "${target_file}"
+        dlog "unlink" "${target_file} -> ${source_file}"
       fi
-
-      # Symlink file
-      dlog "link" "${label} -> ${target_file}"
-      mkdir -p $(dirname "${target_file}")
-      ln -s "${source_file}" "${target_file}"
-    else
-      dlog "missing" "${label} -> ${target_file}"
+    elif [ "${action}" = "adopt" ]; then
+      if [ -e "${target_file}" ]; then
+        mv "${target_file}" "${source_file}"
+        ln -sf "${source_file}" "${target_file}"
+        dlog "adopt" "${target_file} -> ${source_file}"
+      fi
     fi
-  fi
-}
-
-stow_action() {
-  local p=$1
-
-  # Set action script to run depending on mode
-  local action_script=install.sh
-  if [ $DELETE -eq 1 ]; then
-    action_script=uninstall.sh
-  elif [ $LIST -eq 1 ]; then
-    action_script=list.sh
-  elif [ $ADOPT -eq 1 ]; then
-    action_script=adopt.sh
-  fi
-
-  local script_path="${p}/.dotfiles/${action_script}"
-
-  # Run action scripts if present
-  if [ -f "${script_path}" ]; then
-    dlog "script" "${script_path}"
-    source "${script_path}"
-  fi
+  done
 }
 
 # dotfiles commands
-
-dotfiles_init() {
-  tlog "prereqs" "${ID}"
-  case "${ID}" in
-  "macos") macos_prereqs ;;
-  "fedora") fedora_prereqs ;;
-  "ubuntu") ubuntu_prereqs ;;
-  esac
-
-  op_plugins_install
-  gh_extensions_install
-
-  echo "dotfiles initialized"
-}
-
-dotfiles_install() {
-  stow $@
-}
-
-dotfiles_list() {
-  LIST=1
-  stow $@
-}
-
-dotfiles_sync() {
-  ADOPT=1
-  stow $@
-}
-
-dotfiles_uninstall() {
-  DELETE=1
-  stow $@
-}
-
-dotfiles_update() {
-  git -C ${DOTFILES} pull
-  stow $@
-}
-
-# Set default options
-ADOPT=0
-DELETE=0
-LIST=0
 
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
@@ -315,23 +102,30 @@ fi
 subcommand=$1
 shift
 
-# Get list of packages. Default to all packages if none specified.
-if [ "$#" -lt 1 ]; then
-  packages=$(find ${DOTFILES}/packages -type d -depth 1 -exec basename -- {} + | sort)
-else
-  packages="$@"
-fi
-
 vlog "command" $subcommand
 vlog "dotfiles" ${DOTFILES}
 vlog "target" ${TARGET}
 
 case ${subcommand} in
-"init") dotfiles_init ;;
-"install") dotfiles_install $packages ;;
-"list") dotfiles_list $packages ;;
-"sync") dotfiles_sync $packages ;;
-"uninstall") dotfiles_uninstall $packages ;;
-"update") dotfiles_update $packages ;;
+"init")
+  tlog "prereqs" "${ID}"
+  prereqs
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
+
+  log "dotfiles initialized"
+  ;;
+"status")
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "status"
+  ;;
+"sync")
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"
+  ;;
+"uninstall")
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
+  ;;
+"update")
+  git -C ${DOTFILES} pull
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
+  ;;
 *) usage && exit 1 ;;
 esac

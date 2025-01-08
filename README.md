@@ -1,87 +1,78 @@
 # dotfiles
 Unix dotfiles
 
-The dotfiles configuration works for macOS, Fedora, and Ubuntu/Pop Linux including WSL.
-It is untested with other Linux distributions but should work with any reasonable POSIX OS or devcontainer.
+The dotfiles configuration tool works for macOS and Linux. It should work with any reasonable POSIX OS or devcontainer.
 
-The dotfiles are managed using symlinked packages. The approach is similar to [GNU Stow](https://www.gnu.org/software/stow/). `dotfiles` implements a simpliefied version of this concept.
+The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
 ## Command line
 
-The `dotfiles` command can be used to manage packages. The following are the available commands:
+The `dotfiles` command can be used to manage the configuration. The following are the available commands:
 
 ```sh
-    Usage     	dotfiles [options] <subcommand> [package]
+    Usage     	dotfiles [options] <subcommand>
 
 Subcommands:
     init      	Initialize dotfiles
-    install   	Install [package]
-    list      	List [package]
-    sync      	Sync [package]
-    uninstall 	Uninstall [package]
-    update    	Update [package]
+    status    	Show configuration status
+    sync      	Sync configuration
+    uninstall 	Uninstall configuration
+    update    	Update configuration
 
 Options:
+    -d        	Dotfiles directory
     -t        	Target directory
-    -v        	Verbose```
+    -v        	Verbose
 ```
 
 ### init
 
-Initialize dotfiles. This command will ensure prerequisites are installed. The command should be run after the dotfiles are cloned.
+Initialize dotfiles. This command will ensure prerequisites are installed and link the configuration files. The command should be run after the dotfiles are cloned.
 
 ```sh
 dotfiles init
 ```
 
-### install
+### status
 
-Install package. By default, all packages are installed. To install a specific package, use the package name.
-
-```sh
-dotfiles install <package>
-```
-
-### list
-
-List package. By default, all packages are listed. To list a specific package, use the package name. It will show the package name and the status of the package.
+Show the status of the configuration files. This command will list the files that are linked, missing, or in conflict.
 
 ```sh
-dotfiles list <package>
+dotfiles status
 ```
 
 ### sync
 
-Sync package. By default, all packages are synced. To sync a specific package, use the package name. Sync will stow the files in the package and adopt any changes. Useful if dotfiles is already installed and a package has been updated or edited locally.
+Sync the configuration files. This command will adopt any changes and link the files from the dotfiles directory to the target directory.
 
 ```sh
-dotfiles sync <package>
+dotfiles sync
 ```
 
 ### uninstall
 
-Uninstall package. By default, all packages are uninstalled. To uninstall a specific package, use the package name.
+Uninstall the configuration files. This command will remove the symlinks created by the dotfiles tool.
 
 ```sh
-dotfiles uninstall <package>
+dotfiles uninstall
 ```
 
 ### update
 
-Update package. By default, all packages are updated. To update a specific package, use the package name. Update will stow the files in the package. Useful if dotfiles is already installed and a package has been updated.
+Update the configuration files. This command will pull the latest changes from the dotfiles repository and link the files.
 
 ```sh
-dotfiles update <package>
+dotfiles update
 ```
 
 ## Layout
 
-| Path     | Description                                      |
-|----------|--------------------------------------------------|
-| bin      | Dotfiles tools                                   |
-| packages | Configuration packages (following stow approach) |
-| scripts  | Scripts for setting up different environments    |
-| themes   | Useful themes                                    |
+| Path     | Description                  |
+|----------|------------------------------|
+| bin      | Dotfiles tools               |
+| config   | Configuration source files   |
+| packages | Install scripts for packages |
+| themes   | Useful themes                |
 
 ## Requirements
 
