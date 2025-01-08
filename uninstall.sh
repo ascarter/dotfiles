@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
