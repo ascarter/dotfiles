@@ -24,6 +24,21 @@ usage() {
   log "  -v" "Verbose"
 }
 
+check_symlink() {
+  # Try `realpath` (works on both macOS and Linux if installed)
+  if command -v realpath >/dev/null 2>&1; then
+    link_target=$(realpath "$1")
+  else
+    # Fallback to `readlink` for macOS and Linux
+    link_target=$(cd "$(dirname "$1")" && cd "$(readlink "$1")" && pwd)
+  fi
+  if [ "$2" = "$link_target" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 # Sync configuration files from source to target directory
 # $1: source directory
 # $2: target directory
@@ -43,16 +58,28 @@ sync() {
 
   find "${source_dir}" -type f | sort | while read -r source_file; do
     target_file="${target_dir}/${source_file#${source_dir}/}"
+    vlog "target_file" "${target_file}"
     if [ "${action}" = "status" ]; then
       if [ -L "${target_file}" ]; then
-        dlog "exists" "${target_file} -> ${source_file}"
+        if check_symlink "${target_file}" "${source_file}"; then
+          dlog "ok" "${target_file} -> ${source_file}"
+        else
+          err "invalid link ${target_file}"
+        fi
       elif [ -e "${target_file}" ]; then
         dlog "conflict" "${target_file} -> ${source_file}"
       else
         dlog "missing" "${target_file} -> ${source_file}"
       fi
     elif [ "${action}" = "link" ]; then
-      if [ -e "${target_file}" ]; then
+      if [ -L "${target_file}" ]; then
+        if check_symlink "${target_file}" "${source_file}"; then
+          dlog "ok" "${target_file} -> ${source_file}"
+        else
+          err "invalid link ${target_file}"
+        fi
+        continue
+      elif [ -e "${target_file}" ]; then
         dlog "conflict" "${target_file} -> ${source_file}"
         continue
       fi
