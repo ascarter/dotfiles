@@ -1,4 +1,3 @@
-echo .config/zsh/.zshrc
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add local zsh functions

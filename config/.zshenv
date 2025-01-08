@@ -1,5 +1,3 @@
-echo .zshenv
-
 # Non-interactive shell configuration:
 # zshenv ➜ zprofile
 #
