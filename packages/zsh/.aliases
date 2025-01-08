@@ -9,7 +9,7 @@ Darwin)
   alias switchmode='osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
 
   # System shortcuts
-  alias lockscreen="/System/Library/CoreServices/"Menu Extras"/User.menu/Contents/Resources/CGSession -suspend"
+  alias lockscreen='pmset displaysleepnow'
   alias ejectall='osascript -e "tell application \"Finder\" to eject (every disk whose ejectable is true)"'
 
   # System information
@@ -56,7 +56,7 @@ Darwin)
   alias sketchtool="$(mdfind kMDItemCFBundleIdentifier = 'com.bohemiancoding.sketch3' | head -n 1)/Contents/Resources/sketchtool/bin/sketchtool"
 
   # BBEdit aliases
-  if (( $+commands[bbedit] )); then
+  if command -v bbedit > /dev/null 2>&1 ; then
     alias bb="bbedit"
     alias bbcl="bbedit --clean"
     alias bbclw="bbedit --clean --new-window"
@@ -85,7 +85,7 @@ Linux)
   alias xlock="xscreensaver-command -lock"
 
   # Linux version of macOS pbcopy/pbpaste.
-  if (( $+commands[xsel] )); then
+  if command -v xsel > /dev/null 2>&1 ; then
     alias pbcopy="xsel --clipboard --input"
     alias pbpaste="xsel --clipboard --output"
   fi
@@ -100,7 +100,7 @@ alias dfedit="$VISUAL ${DOTFILES}"
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
 
 # 1Password
-if (( $+commands[op] )); then
+if command -v op > /dev/null 2>&1 ; then
   alias 1pid="op user get --me --format json | jq .id -r"
 fi
 
@@ -108,6 +108,7 @@ fi
 alias dev="cd $HOME/Developer"
 
 # ls
+alias l="ls -CF"
 alias ll="ls -l"
 alias la="ls -a"
 alias lla="ls -la"
@@ -130,15 +131,12 @@ alias sshpw="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no
 alias sshagentstart="eval $(ssh-agent -s) && ssh-add -A"
 
 # Stopwatch
-alias timer="echo "Timer started. Stop with Ctrl-D." && date && time cat && date"
+alias timer="echo 'Timer started. Stop with Ctrl-D.' && date && time cat && date"
 
 # Intuitive map function
 # For example, to list all directories that contain a certain file:
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
-
-# Canonical hex dump; some systems have this symlinked
-command -v hd >/dev/null || alias hd="hexdump -C"
 
 # Resize terminal
 alias rs="resize -s 40 120"
@@ -154,7 +152,6 @@ alias udc="docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /w
 # Ruby
 alias createrbc="docker volume create ruby-bundle-cache"
 alias docked="docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli"
-# alias rails="bin/rails"
 
 # Go
 alias gopresent="present -play=true &; open -g http://127.0.0.1:3999; fg"
@@ -167,12 +164,12 @@ alias npmlist="npm list --depth=0"
 alias rmpyc="find . -type f -name \*.pyc -print | xargs rm"
 alias pydocv="python -m pydoc"
 alias editvenv="bbedit --new-window $VIRTUAL_ENV"
-alias pipbrew="CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip"
+alias pipbrew='CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip'
 alias pdb="python -m pdb"
 alias pyunittest="python -m unittest discover --buffer"
 alias pyactivate="source .venv/bin/activate"
 
-if (( $+commands[brew] )); then
+if command -v brew > /dev/null 2>&1 ; then
   # Add homebrew python aliases
   alias bpython=$(brew --prefix python)/libexec/bin/python
   alias bvenv="$(brew --prefix python)/libexec/bin/python -m venv --clear .venv"

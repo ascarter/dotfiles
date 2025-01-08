@@ -1,12 +1,4 @@
-# zsh interactive shell configuration
-#
-# Config order (system wide then user):
-# zshenv ➜ zprofile ➜ zshrc ➜ zlogin ➜ zlogout
-
-# =====================================
-# zsh
-# =====================================
-
+echo .config/zsh/.zshrc
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add local zsh functions
@@ -50,20 +42,6 @@ zstyle ':completion:*' file-list all
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # =====================================
-# Locale
-# =====================================
-if [[ -z "${LANG}" ]]; then
-  export LANG="en_US.UTF-8"
-  export LC_COLLATE="en_US.UTF-8"
-  export LC_CTYPE="en_US.UTF-8"
-  export LC_MESSAGES="en_US.UTF-8"
-  export LC_MONETARY="en_US.UTF-8"
-  export LC_NUMERIC="en_US.UTF-8"
-  export LC_TIME="en_US.UTF-8"
-  export LC_ALL=
-fi
-
-# =====================================
 # Prompt
 # =====================================
 
@@ -77,50 +55,12 @@ prompt terminal
 # =====================================
 
 # Retain history across multiple zsh sessions
-HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
 setopt SHARE_HISTORY
 setopt APPEND_HISTORY
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_IGNORE_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_REDUCE_BLANKS
-SAVEHIST=5000
-HISTSIZE=2000
-
-# =====================================
-# Key mappings
-# =====================================
-
-# Emacs key mappings
-bindkey -e
-
-# Forward delete
-bindkey "^[[3~" delete-char
-
-# fzf key bindings
-if (( $+commands[fzf] )); then
-  if [[ -d ${HOMEBREW_PREFIX}/opt/fzf ]]; then
-    source "/opt/homebrew/opt/fzf/shell/completion.zsh"
-    source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
-  fi
-
-  # Set CTRL+T defaults
-  # p to toggle preview file content
-  export FZF_CTRL_T_OPTS="
-    --select-1 --exit-0
-    --preview '(bat --color=always {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'
-    --preview-window 'hidden'
-    --bind 'p:toggle-preview'"
-
-  # Set CTRL+R defaults
-  # CTRL-Y to copy the command into clipboard using pbcopy
-  export FZF_CTRL_R_OPTS="
-    --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
-    --header 'Press CTRL-Y to copy command into clipboard'"
-
-  # Print tree structure in the preview window
-  export FZF_ALT_C_OPTS="--preview '(tree -C {}) 2> /dev/null | head -200'"
-fi
 
 # =====================================
 # Editor
@@ -152,33 +92,8 @@ export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
 # Aliases
 # =====================================
 
-if [[ -f ${ZDOTDIR}/aliases.zsh ]]; then
-  source ${ZDOTDIR}/aliases.zsh
-fi
-
-# ========================================
-# 1Password
-# ========================================
-
-if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
-  source ${XDG_CONFIG_HOME}/op/plugins.sh
-fi
-
-# =====================================
-# SSH
-# =====================================
-
-# Enable 1Password SSH agent if installed when running locally
-if [[ -z $SSH_TTY ]] && [[ -S ${HOME}/.1password/agent.sock ]]; then
-  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
-fi
-
-# =====================================
-# Dotfiles
-# =====================================
-
-if [[ -d ${DOTFILES}/bin ]]; then
-  path+=${DOTFILES}/bin
+if [[ -f ${HOME}/.aliases ]]; then
+  source ${HOME}/.aliases
 fi
 
 # =====================================

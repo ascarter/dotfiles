@@ -21,7 +21,7 @@ prompt_color() {
 prompt_terminal_setup() {
   zparseopts -D -E -F -nocolor=nocolor -twoline=twoline
 
-  if [[ "$TERM" = "xterm-256color" ]] || [[ "$TERM" = "screen-256color" ]]; then
+  if [[ "$TERM" = "xterm-256color" ]] || [[ "$TERM" = "screen-256color" ]] || [[ "$TERM" = "xterm-ghostty" ]] ; then
     SEPARATOR=' ➜ '
     TRUNC_CHAR='…'
   else
