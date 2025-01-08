@@ -172,7 +172,7 @@ stow_package() {
 
     # Skip ignored file names
     if [ -f "${packages}/.dfignore" ]; then
-      if echo "$(basename ${f})" | grep -q -F -f "${packages}/.dfignore"; then
+      if echo "${label}" | grep -q -F -f "${packages}/.dfignore"; then
         dlog "ignore" "${label}"
         continue
       fi
