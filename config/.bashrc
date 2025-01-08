@@ -127,3 +127,6 @@ __bash_prompt() {
 # Initialize the prompt
 __bash_prompt
 export PROMPT_DIRTRIM=4
+
+# Added by `rbenv init` on Tue Jan  7 17:13:06 PST 2025
+eval "$(rbenv init - --no-rehash bash)"

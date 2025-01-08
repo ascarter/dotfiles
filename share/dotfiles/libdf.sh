@@ -139,3 +139,118 @@ apt_uninstall() {
     err "${1} not installed"
   fi
 }
+
+# macOS installer functions
+
+macos_prereqs() {
+  # Install Xcode Command Line Tools
+  if ! [ -e /Library/Developer/CommandLineTools ]; then
+    echo "installing" "Xcode Command Line Tools"
+    xcode-select --install
+    read -p "Press [Enter] to continue..." -n1 -s
+    echo
+    sudo xcodebuild -runFirstLaunch
+  else
+    dlog "exists" "Xcode Command Line Tools"
+  fi
+
+  # Install homebrew
+  if ! [ -d /opt/homebrew ]; then
+    # Install Homebrew
+    echo "installing" "Homebrew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    dlog "exists" "Homebrew"
+  fi
+
+  if ! [ -x "$(command -v brew)" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+
+  # Enable man page contextual menu item in Terminal.app
+  if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
+    dlog "installing" "homrebrew.man.conf"
+    sudo mkdir -p /usr/local/etc/man.d
+    echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
+  fi
+
+  # Configure 1Password CLI
+  if ! [ -f /opt/homebrew/bin/op ]; then
+    dlog "installing" "1Password CLI"
+    brew_install 1password-cli
+  fi
+
+  if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
+    dlgo "link" "~/.1password/agent.sock"
+    mkdir -p ~/.1password
+    ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
+  fi
+
+  if [ -L ~/.1password/agent.sock ]; then
+    if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
+      dlog "enable" "SSH IdentityAgent"
+      mkdir -p ~/.ssh
+      echo "Include ~/.config/ssh/config" >>~/.ssh/config
+    else
+      dlog "exists" "SSH IdentityAgent"
+    fi
+  fi
+
+  # GitHub CLI
+  if ! [ -x "$(command -v gh)" ]; then
+    dlog "installing" "GitHub CLI"
+    brew_install gh
+  fi
+}
+
+# Fedora installer functions
+
+fedora_prereqs() {
+  echo "Fedora pre-reqs"
+}
+
+# Ubuntu installer functions
+
+ubuntu_prereqs() {
+  echo "Ubuntu pre-reqs"
+}
+
+# GitHub CLI extensions installer
+
+gh_extensions_install() {
+  local extensions="github/gh-copilot "
+
+  # Install GitHub CLI extensions
+  if [ -x "$(command -v gh)" ]; then
+    for extension in $extensions; do
+      dlog "installing" "GitHub CLI extension ${extension}"
+      gh extension install ${extension}
+    done
+  fi
+}
+
+# 1Password CLI plugins
+
+op_plugins_install() {
+  local plugins="gh"
+
+  # Init 1Password CLI plugins
+  if [ -x "$(command -v op)" ]; then
+    for plugin in $plugins; do
+      if [ -x "$(command -v op)" ]; then
+        dlog "init" "1Password CLI plugin ${plugin}"
+        op plugin init ${plugin}
+      fi
+    done
+  fi
+}
+
+prereqs() {
+  case "${ID}" in
+  "macos") macos_prereqs ;;
+  "fedora") fedora_prereqs ;;
+  "ubuntu") ubuntu_prereqs ;;
+  esac
+  op_plugins_install
+  gh_extensions_install
+}
