@@ -1,3 +1,28 @@
+[language-server.ruby-lsp]
+command = "ruby-lsp"
+config = { provideFormatter = true }
+
+[language-server.standardrb]
+command = "standardrb"
+args = [ "--lsp" ]
+config = { provideFormatter = true }
+
+[[language]]
+name = "ruby"
+auto-format = true
+language-servers = [ { name = "ruby-lsp", except-features = [ "format" ]}, "standardrb" ]
+
+[language.debugger]
+name = "rdbg"
+transport = "stdio"
+command = "rdbg"
+
+[[language.debugger.templates]]
+name = "script"
+request = "launch"
+completion = [{ name = "script", completion = "filename" }]
+args = { script = "{0}" }
+
 [[language]]
 name = "rust"
 
@@ -11,3 +36,4 @@ name = "binary"
 request = "launch"
 completion = [{ name = "binary", completion = "filename" }]
 args = { program = "{0}", initCommands = [ "command script import ~/.config/helix/dap/lldb_vscode_rustc_primer.py" ] }
+
