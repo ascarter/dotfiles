@@ -74,13 +74,6 @@ else
   export EDITOR="vi"
 fi
 
-# Use VS Code for visual editor or fallback to $EDITOR
-if (( $+commands[code] )); then
-  export VISUAL="code"
-else
-  export VISUAL=$EDITOR
-fi
-
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
