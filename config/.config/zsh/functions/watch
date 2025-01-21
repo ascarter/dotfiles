@@ -1,0 +1,5 @@
+# Watch process with htop
+
+emulate -L zsh
+
+htop -p $(pgrep -d',' -f ${1})
