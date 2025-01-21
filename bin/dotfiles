@@ -5,6 +5,7 @@
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
 DOTFILES_CONFIG_DIR=${DOTFILES}/config
+DOTFILES_PACKAGE_DIR=${DOTFILES}/packages
 TARGET=${TARGET:-$HOME}
 
 source ${DOTFILES}/share/dotfiles/libdf.sh
@@ -14,10 +15,18 @@ usage() {
   log ""
   log "Subcommands:"
   log "  init" "Initialize dotfiles"
+  log "  package" "Package management"
   log "  status" "Show configuration status"
   log "  sync" "Sync [package]"
-  log "  uninstall" "Uninstall configuration"
+  log "  unlink" "Unlink configuration"
   log "  update" "Update configuration"
+  log ""
+  log "Package usage:"
+  log "  dotfiles package [options] <subcommand> <package>"
+  log "Package subcommands:"
+  log "  install" "Install package"
+  log "  uninstall" "Uninstall package"
+  log "  status" "Show package status"
   log ""
   log "Options:"
   log "  -d" "dotfiles directory"
@@ -102,7 +111,43 @@ sync() {
   done
 }
 
-# dotfiles commands
+package() {
+  if [ $# -eq 0 ]; then
+    echo "No action specified"
+    echo ""
+    usage
+    exit 1
+  fi
+
+  action=$1
+  shift
+  vlog "package" ${action}
+
+  # Verify action is install | uninstall | status
+  if [ "${action}" != "install" ] && [ "${action}" != "uninstall" ] && [ "${action}" != "status" ]; then
+    err "invalid action"
+    exit 1
+  fi
+
+  packages="${@}"
+
+  # If no package specified, use all packages
+  if [ -z "${packages}" ]; then
+    packages=$(find "${DOTFILES_PACKAGE_DIR}" -mindepth 1 -maxdepth 1 -type f -name '*.sh' -exec basename {} .sh \; | sort)
+  fi
+
+  for package in ${packages}; do
+    vlog "package" ${package}
+    package_script="${DOTFILES_PACKAGE_DIR}/${package}.sh"
+    if [ -f "${package_script}" ]; then
+      vlog ${package} ${action}
+      sh -c "source ${DOTFILES}/share/dotfiles/libdf.sh && source ${package_script} && ${action}"
+    else
+      err "${package} ${action} script not found"
+      continue
+    fi
+  done
+}
 
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
@@ -142,13 +187,17 @@ case ${subcommand} in
 
   log "dotfiles initialized"
   ;;
+"package")
+  package "$@"
+  ;;
 "status")
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "status"
+  package status "$@"
   ;;
 "sync")
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"
   ;;
-"uninstall")
+"unlink")
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
   ;;
 "update")
