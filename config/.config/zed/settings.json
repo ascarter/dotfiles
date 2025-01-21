@@ -7,6 +7,10 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "telemetry": {
+    "metrics": false,
+    "diagnostics": false
+  },
   "language_models": {
     "ollama": {
       "low_speed_timeout_in_seconds": 30
@@ -22,11 +26,11 @@
   },
   "theme": {
     "mode": "system",
-    "light": "macOS Classic Light",
-    "dark": "macOS Classic Dark"
+    "light": "Xcode Default",
+    "dark": "Xcode Default Dark"
   },
-  "ui_font_family": "SF Compact Display",
-  "ui_font_size": 14,
+  "ui_font_family": "SF Pro Display",
+  "ui_font_size": 15,
   "buffer_font_family": "TX-02",
   "buffer_font_size": 13,
   "buffer_line_height": "standard",
