@@ -2,4 +2,4 @@
 
 emulate -L zsh
 
-htop -p $(pgrep -d',' -f ${1})
+htop -F "${1}"
