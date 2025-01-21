@@ -37,11 +37,11 @@ name = "rust"
 [language.debugger]
 name = "lldb-dap"
 transport = "stdio"
-command = "/opt/homebrew/opt/llvm/bin/lldb-dap"
+# command = "/opt/homebrew/opt/llvm/bin/lldb-dap"
+command = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-dap"
 
 [[language.debugger.templates]]
 name = "binary"
 request = "launch"
 completion = [{ name = "binary", completion = "filename" }]
-args = { program = "{0}", initCommands = [ "command script import ~/.config/helix/dap/lldb_vscode_rustc_primer.py" ] }
-
+args = { program = "{0}", initCommands = [ "command script import ~/.config/helix/dap/lldb_dap_rustc_primer.py" ] }
