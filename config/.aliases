@@ -94,7 +94,7 @@ esac
 
 # dotfiles
 alias dfcd="cd ${DOTFILES}"
-alias dfedit="$VISUAL ${DOTFILES}"
+alias dfedit="${EDITOR} ${DOTFILES}"
 
 # zsh
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
