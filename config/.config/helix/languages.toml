@@ -14,14 +14,22 @@ language-servers = [ { name = "ruby-lsp", except-features = [ "format" ]}, "stan
 
 [language.debugger]
 name = "rdbg"
-transport = "stdio"
+transport = "tcp"
 command = "rdbg"
+args = ["--open"]
+port-arg = "--port {}"
 
 [[language.debugger.templates]]
 name = "script"
 request = "launch"
-completion = [{ name = "script", completion = "filename" }]
-args = { script = "{0}" }
+completion = [ { name = "script", completion = "filename" } ]
+args = { program = "{0}" }
+
+[[language.debugger.templates]]
+name = "attach"
+request = "attach"
+completion = [ { name = "port", default = "1234" } ]
+args = { mode = "tcp", port-arg = "-A {0}" }
 
 [[language]]
 name = "rust"
