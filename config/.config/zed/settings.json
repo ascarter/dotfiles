@@ -30,9 +30,9 @@
     "dark": "Xcode Default Dark"
   },
   "ui_font_family": "SF Pro Display",
-  "ui_font_size": 15,
-  "buffer_font_family": "TX-02",
-  "buffer_font_size": 13,
+  "ui_font_size": 13,
+  "buffer_font_family": "Berkeley Mono",
+  "buffer_font_size": 12,
   "buffer_line_height": "standard",
   "indent_guides": {
     "enabled": false
@@ -76,8 +76,8 @@
       "standardrb": {
         "initialization_options": {
           "enabledFeatures": {
-            "diagnostics": false,
-            "formatting": false
+            "diagnostics": true,
+            "formatting": true
           }
         }
       }
