@@ -2,4 +2,8 @@
 
 emulate -L zsh
 
-htop -F "${1}"
+_watch() {
+  htop -F "${1}"
+}
+
+_watch "$@"
