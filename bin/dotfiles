@@ -203,6 +203,7 @@ case ${subcommand} in
 "update")
   git -C ${DOTFILES} pull
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
+  update_completions
   ;;
 *) usage && exit 1 ;;
 esac

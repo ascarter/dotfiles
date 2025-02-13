@@ -257,3 +257,38 @@ prereqs() {
   op_plugins_install
   gh_extensions_install
 }
+
+# Generate zsh completions
+update_completions() {
+  local completion_dir="${1:-$HOME/.local/share/zsh/functions}"
+  local tools
+  local tools_cmds
+
+  tools=(
+    rustup
+    cargo
+  )
+  tool_cmds=(
+    "rustup completions zsh"
+    "rustup completions zsh cargo"
+  )
+
+  local tool
+  local tool_cmd
+  local tool_completion
+
+  mkdir -p ${completion_dir}
+
+  for i in "${!tools[@]}"; do
+    tool="${tools[$i]}"
+    tool_cmd="${tool_cmds[$i]}"
+    tool_completion="_${tool}"
+
+    if command -v ${tool} >/dev/null 2>&1; then
+      echo "Generating completion for ${tool}..."
+      eval "${tool_cmd}" > "${completion_dir}/${tool_completion}"
+    else
+      echo "Not found ${tool}..."
+    fi
+  done
+}
