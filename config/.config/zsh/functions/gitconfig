@@ -85,6 +85,7 @@ _gc_credentials() {
       _gc_add ${gitconfig_file} credential.${url}.helper ''
       _gc_add ${gitconfig_file} credential.${url}.helper ${gcm_helper}
       _gc_set ${gitconfig_file} credential.${url}.useHttpPath true
+      _gc_set ${gitconfig_file} credential.azreposCredentialType oauth
     done
   fi
 
