@@ -200,6 +200,9 @@ macos_prereqs() {
   if ! [ -x "$(command -v gh)" ]; then
     dlog "installing" "GitHub CLI"
     brew_install gh
+
+    # Install GitHub CLI extensions
+    gh extension install github/gh-copilot
   fi
 }
 
