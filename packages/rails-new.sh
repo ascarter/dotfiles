@@ -47,7 +47,7 @@ uninstall() {
   fi
 }
 
-status() {
+list() {
   if command -v rails-new 1>/dev/null 2>&1; then
     rails-new --version
   else

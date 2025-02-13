@@ -16,7 +16,7 @@ usage() {
   log "Subcommands:"
   log "  init" "Initialize dotfiles"
   log "  package" "Package management"
-  log "  status" "Show configuration status"
+  log "  list" "Show configuration status"
   log "  sync" "Sync [package]"
   log "  unlink" "Unlink configuration"
   log "  update" "Update configuration"
@@ -26,7 +26,7 @@ usage() {
   log "Package subcommands:"
   log "  install" "Install package"
   log "  uninstall" "Uninstall package"
-  log "  status" "Show package status"
+  log "  list" "Show package status"
   log ""
   log "Options:"
   log "  -d" "dotfiles directory"
@@ -53,7 +53,7 @@ check_symlink() {
 # $1: source directory
 # $2: target directory
 # $3: action
-#  status: check status
+#  list: check status
 #  link: link source to target
 #  unlink: unlink target
 #  adopt: adopt target
@@ -69,7 +69,7 @@ sync() {
   find "${source_dir}" -type f | sort | while read -r source_file; do
     target_file="${target_dir}/${source_file#${source_dir}/}"
     vlog "target_file" "${target_file}"
-    if [ "${action}" = "status" ]; then
+  if [ "${action}" = "list" ]; then
       if [ -L "${target_file}" ]; then
         if check_symlink "${target_file}" "${source_file}"; then
           dlog "ok" "${target_file} -> ${source_file}"
@@ -123,8 +123,8 @@ package() {
   shift
   vlog "package" ${action}
 
-  # Verify action is install | uninstall | status
-  if [ "${action}" != "install" ] && [ "${action}" != "uninstall" ] && [ "${action}" != "status" ]; then
+  # Verify action is install | uninstall | list
+  if [ "${action}" != "install" ] && [ "${action}" != "uninstall" ] && [ "${action}" != "list" ]; then
     err "invalid action"
     exit 1
   fi
@@ -180,27 +180,27 @@ vlog "dotfiles" ${DOTFILES}
 vlog "target" ${TARGET}
 
 case ${subcommand} in
-"init")
+init)
   tlog "prereqs" "${ID}"
   prereqs
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
 
   log "dotfiles initialized"
   ;;
-"package")
+package)
   package "$@"
   ;;
-"status")
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "status"
-  package status "$@"
+list)
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "list"
+  package list "$@"
   ;;
-"sync")
+sync)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"
   ;;
-"unlink")
+unlink)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
   ;;
-"update")
+update)
   git -C ${DOTFILES} pull
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   update_completions
