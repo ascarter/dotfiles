@@ -26,15 +26,6 @@ shopt -s checkwinsize
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# Use helix ➜ nano ➜ vi for editor
-if command -v hx > /dev/null 2>&1 ; then
-  export EDITOR="hx"
-elif command -v nano > /dev/null 2>&1 ; then
-  export EDITOR="nano"
-else
-  export EDITOR="vi"
-fi
-
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 

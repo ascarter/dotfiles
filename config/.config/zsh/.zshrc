@@ -65,15 +65,6 @@ setopt HIST_REDUCE_BLANKS
 # Editor
 # =====================================
 
-# Use helix ➜ nano ➜ vi for editor
-if (( $+commands[hx] )); then
-  export EDITOR="hx"
-elif (( $+commands[nano] )); then
-  export EDITOR="nano"
-else
-  export EDITOR="vi"
-fi
-
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 

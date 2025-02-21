@@ -60,3 +60,12 @@ for bindir in "${bindirs[@]}" ; do
     PATH="${bindir}":$PATH
   fi
 done
+
+# Use helix ➜ nano ➜ vi for editor
+if command -v hx > /dev/null 2>&1 ; then
+  export EDITOR="hx"
+elif command -v nano > /dev/null 2>&1 ; then
+  export EDITOR="nano"
+else
+  export EDITOR="vi"
+fi
