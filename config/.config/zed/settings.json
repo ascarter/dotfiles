@@ -7,37 +7,37 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
   "telemetry": {
     "metrics": false,
     "diagnostics": false
   },
-  "language_models": {
-    "ollama": {
-      "low_speed_timeout_in_seconds": 30
-      // "api_url": "http://whistler:11434"
-    }
-  },
   "assistant": {
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "gpt-4o"
+      "provider": "zed.dev",
+      "model": "claude-3-5-sonnet-latest"
     },
     "version": "2"
   },
   "theme": {
     "mode": "system",
-    "light": "Xcode Default",
-    "dark": "Xcode Default Dark"
+    "light": "Xcode Default Light",
+    "dark": "Github Dark Dimmed"
   },
   "ui_font_family": "SF Pro Display",
-  "ui_font_size": 13,
+  "ui_font_fallbacks": ["SF Pro Display", "SST", "Open Sans"],
+  "ui_font_size": 15,
   "buffer_font_family": "Berkeley Mono",
-  "buffer_font_size": 12,
+  "buffer_font_fallbacks": ["SF Mono", "Noto Mono", "Roboto Mono", "Cascadia"],
+  "buffer_font_size": 13,
   "buffer_line_height": "standard",
   "indent_guides": {
     "enabled": false
   },
   "wrap_guides": [80],
+  // "vim_mode": true,
   "tabs": {
     "close_position": "left",
     "git_status": true
@@ -61,6 +61,9 @@
       "language_servers": ["ruby-lsp", "standardrb", "!solargraph", "!rubocop"],
       "formatter": "language_server",
       "format_on_save": "on"
+    },
+    "Rust": {
+      "wrap_guides": [100]
     }
   },
   "lsp": {
@@ -82,5 +85,9 @@
         }
       }
     }
+  },
+  "debugger": {
+    "log_dap_communications": true,
+    "format_dap_log_messages": true
   }
 }
