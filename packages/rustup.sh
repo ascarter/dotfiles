@@ -23,7 +23,7 @@ uninstall() {
 
 list() {
   if command -v rustup 1>/dev/null 2>&1; then
-    rustup --version
+    rustup show
   else
     echo "rustup not installed"
     exit 1

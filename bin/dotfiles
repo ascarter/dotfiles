@@ -137,7 +137,7 @@ package() {
   fi
 
   for package in ${packages}; do
-    vlog "package" ${package}
+    dlog "package" ${package}
     package_script="${DOTFILES_PACKAGE_DIR}/${package}.sh"
     if [ -f "${package_script}" ]; then
       vlog ${package} ${action}
