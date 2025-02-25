@@ -1,5 +1,9 @@
 VERBOSE=0
 
+if [ -x "$(command -v mise)" ]; then
+  eval "$(mise activate --shims)"
+fi
+
 # Emulate os-release
 os_release() {
   # Deterine OS and version
@@ -178,12 +182,13 @@ macos_prereqs() {
   if ! [ -x "$(command -v mise)" ]; then
     dlog "installing" "mise"
     brew_install mise
+    eval "$(mise activate --shims)"
   fi
 
   # Configure 1Password CLI
-  if ! [ -f /opt/homebrew/bin/op ]; then
+  if ! [ -x "$(command -v op)" ]; then
     dlog "installing" "1Password CLI"
-    brew_install 1password-cli
+    mise use -g 1password
   fi
 
   if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
@@ -205,7 +210,7 @@ macos_prereqs() {
   # GitHub CLI
   if ! [ -x "$(command -v gh)" ]; then
     dlog "installing" "GitHub CLI"
-    brew_install gh
+    mise use -g gh
 
     # Install GitHub CLI extensions
     gh extension install github/gh-copilot
