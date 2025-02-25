@@ -1,1 +1,1 @@
-source "${HOME}"/.profile
+export DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}

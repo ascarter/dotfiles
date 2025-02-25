@@ -65,11 +65,34 @@ setopt HIST_REDUCE_BLANKS
 # Editor
 # =====================================
 
+# Use helix ➜ nano ➜ vi for editor
+if (( $+commands[hx] )); then
+  export EDITOR="hx"
+elif (( $+commands[nano] )); then
+  export EDITOR="nano"
+else
+  export EDITOR="vi"
+fi
+
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
 # ripgrep
 export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
+
+# =====================================
+# SSH
+# =====================================
+
+# Enable 1Password SSH agent if installed when running locally
+if [ -z $SSH_TTY ] && [ -S ${HOME}/.1password/agent.sock ]; then
+  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
+fi
+
+# 1Password plugins
+if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
+  source ${XDG_CONFIG_HOME}/op/plugins.sh
+fi
 
 # =====================================
 # Aliases
@@ -82,11 +105,6 @@ fi
 # =====================================
 # Per-machine extras
 # =====================================
-
-# Add local bin dir
-if [[ -d ${HOME}/.local/bin ]]; then
-  path+=${HOME}/.local/bin
-fi
 
 if [[ -e ${HOME}/.zsh_local ]]; then
   source ${HOME}/.zsh_local

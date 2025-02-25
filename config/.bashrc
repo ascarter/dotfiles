@@ -1,8 +1,19 @@
 # If not running interactively, don't do anything
 case $- in
-    *i*) ;;
-      *) return;;
+    *i*)
+        ;;
+      *)
+        # if command -v mise &> /dev/null; then
+        #   eval "$(mise activate bash --shims)"
+        # fi
+        return
+        ;;
 esac
+
+# Enable mise
+if command -v mise > /dev/null 2>&1 ; then
+  eval "$(mise activate bash)"
+fi
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -26,8 +37,30 @@ shopt -s checkwinsize
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
+# Use helix ➜ nano ➜ vi for editor
+if command -v hx > /dev/null 2>&1 ; then
+  export EDITOR="hx"
+elif command -v nano > /dev/null 2>&1 ; then
+  export EDITOR="nano"
+else
+  export EDITOR="vi"
+fi
+
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
+
+# ripgrep
+export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
+
+# Enable 1Password SSH agent if installed when running locally
+if [ -z $SSH_TTY ] && [ -S ${HOME}/.1password/agent.sock ]; then
+  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
+fi
+
+# 1Password plugins
+if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
+  source ${XDG_CONFIG_HOME}/op/plugins.sh
+fi
 
 # Alias definitions.
 if [ -f ~/.aliases ]; then
@@ -109,6 +142,3 @@ __bash_prompt() {
 # Initialize the prompt
 __bash_prompt
 export PROMPT_DIRTRIM=4
-
-# Added by `rbenv init` on Tue Jan  7 17:13:06 PST 2025
-eval "$(rbenv init - --no-rehash bash)"
