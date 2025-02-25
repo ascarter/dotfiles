@@ -174,6 +174,12 @@ macos_prereqs() {
     echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
   fi
 
+  # Install mise
+  if ! [ -x "$(command -v mise)" ]; then
+    dlog "installing" "mise"
+    brew_install mise
+  fi
+
   # Configure 1Password CLI
   if ! [ -f /opt/homebrew/bin/op ]; then
     dlog "installing" "1Password CLI"
