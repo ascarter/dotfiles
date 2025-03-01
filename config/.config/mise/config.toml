@@ -19,3 +19,6 @@ experimental = true
 
 [settings.python]
 uv_venv_auto = true
+
+[env]
+MISE_DEFAULT_CONFIG_FILENAME = ".mise/config.toml"

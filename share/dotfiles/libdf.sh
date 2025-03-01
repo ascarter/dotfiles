@@ -184,13 +184,6 @@ macos_prereqs() {
     echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
   fi
 
-  # Install mise
-  if ! [ -x "$(command -v mise)" ]; then
-    dlog "installing" "mise"
-    brew_install mise
-    eval "$(mise activate --shims)"
-  fi
-
   # Install required packages for software verification
   if ! [ -x "$(command -v gpg)" ]; then
     dlog "installing" "gpg"
@@ -203,8 +196,6 @@ macos_prereqs() {
 fedora_prereqs() {
   echo "Fedora pre-reqs"
   dnf_install dnf-plugins-core
-  dnf_config_manager https://mise.jdx.dev/rpm/mise.repo
-  dnf_install mise
 }
 
 # Ubuntu installer functions
@@ -217,10 +208,16 @@ ubuntu_prereqs() {
 # Most tools are installed via mise
 
 dev_tools_install() {
+  # Install mise
+  dlog "installing" "mise"
+  curl https://mise.run | sh
+  eval "$(mise activate --shims)"
+
+  dlog "installing" "dev tools"
   mise -C ${HOME} up
 
   if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
-    dlgo "link" "~/.1password/agent.sock"
+    dlog "link" "~/.1password/agent.sock"
     mkdir -p ~/.1password
     ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
   fi

@@ -152,6 +152,7 @@ unlink)
 update)
   git -C ${DOTFILES} pull
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
+  mise self-update
   mise -C ${HOME} up --bump
   update_completions
   ;;
