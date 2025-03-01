@@ -1,0 +1,21 @@
+[tools]
+"ubi:rails/rails-new" = "latest"
+1password-cli = "latest"
+cargo-binstall = "latest"
+cosign = "latest"
+gh = "latest"
+helix = "latest"
+jq = "latest"
+marksman = "latest"
+ripgrep = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+slsa-verifier = "latest"
+sqlite = "latest"
+uv = "latest"
+
+[settings]
+experimental = true
+
+[settings.python]
+uv_venv_auto = true

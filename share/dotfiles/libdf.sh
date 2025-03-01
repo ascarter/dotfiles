@@ -112,18 +112,24 @@ brew_uninstall() {
 
 dnf_install() {
   if rpm -q ${1}; then
-    sudo dnf upgrade ${1}
+    action=upgrade
   else
-    sudo dnf install ${1}
+    action=install
   fi
+
+  sudo dnf ${action} -y ${1}
 }
 
 dnf_uninstall() {
   if rpm -q ${1}; then
-    sudo dnf remove ${1}
+    sudo dnf remove -y ${1}
   else
     err "${1} not installed"
   fi
+}
+
+dnf_config_manager() {
+  sudo dnf config-manager --add-repo ${1}
 }
 
 # Debian/Ubuntu apt
@@ -185,11 +191,33 @@ macos_prereqs() {
     eval "$(mise activate --shims)"
   fi
 
-  # Configure 1Password CLI
-  if ! [ -x "$(command -v op)" ]; then
-    dlog "installing" "1Password CLI"
-    mise use -g 1password
+  # Install required packages for software verification
+  if ! [ -x "$(command -v gpg)" ]; then
+    dlog "installing" "gpg"
+    brew_install gpg
   fi
+}
+
+# Fedora installer functions
+
+fedora_prereqs() {
+  echo "Fedora pre-reqs"
+  dnf_install dnf-plugins-core
+  dnf_config_manager https://mise.jdx.dev/rpm/mise.repo
+  dnf_install mise
+}
+
+# Ubuntu installer functions
+
+ubuntu_prereqs() {
+  echo "Ubuntu pre-reqs"
+}
+
+# Dev tools installer
+# Most tools are installed via mise
+
+dev_tools_install() {
+  mise -C ${HOME} up
 
   if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
     dlgo "link" "~/.1password/agent.sock"
@@ -206,27 +234,6 @@ macos_prereqs() {
       dlog "exists" "SSH IdentityAgent"
     fi
   fi
-
-  # GitHub CLI
-  if ! [ -x "$(command -v gh)" ]; then
-    dlog "installing" "GitHub CLI"
-    mise use -g gh
-
-    # Install GitHub CLI extensions
-    gh extension install github/gh-copilot
-  fi
-}
-
-# Fedora installer functions
-
-fedora_prereqs() {
-  echo "Fedora pre-reqs"
-}
-
-# Ubuntu installer functions
-
-ubuntu_prereqs() {
-  echo "Ubuntu pre-reqs"
 }
 
 # GitHub CLI extensions installer
@@ -265,6 +272,8 @@ prereqs() {
   "fedora") fedora_prereqs ;;
   "ubuntu") ubuntu_prereqs ;;
   esac
+
+  dev_tools_install
   op_plugins_install
   gh_extensions_install
 }
@@ -278,10 +287,13 @@ update_completions() {
   tools=(
     rustup
     cargo
+    docker
   )
   tool_cmds=(
-    "rustup completions zsh"
-    "rustup completions zsh cargo"
+    "mise exec rust -- rustup completions zsh"
+    "mise exec rust -- rustup completions zsh cargo"
+    "docker completion zsh"
+    "mise completion zsh"
   )
 
   local tool
