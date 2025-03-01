@@ -13,6 +13,7 @@ shfmt = "latest"
 slsa-verifier = "latest"
 sqlite = "latest"
 uv = "latest"
+usage = "latest"
 
 [settings]
 experimental = true

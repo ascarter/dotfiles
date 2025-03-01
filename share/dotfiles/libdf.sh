@@ -285,6 +285,7 @@ update_completions() {
     rustup
     cargo
     docker
+    mise
   )
   tool_cmds=(
     "mise exec rust -- rustup completions zsh"
