@@ -1,5 +1,3 @@
-VERBOSE=0
-
 if [ -x "$(command -v mise)" ]; then
   eval "$(mise activate --shims)"
 fi
@@ -66,6 +64,10 @@ vlog() {
 
 err() {
   echo "  $(tput bold)error     $(tput sgr0)\t$*" >&2
+}
+
+warn() {
+  echo "$(tput bold)$*$(tput sgr0)" >&2
 }
 
 prompt() {
@@ -282,16 +284,18 @@ update_completions() {
   local tools_cmds
 
   tools=(
+    usage
+    mise
+    docker
     rustup
     cargo
-    docker
-    mise
   )
   tool_cmds=(
+    "usage --completions zsh"
+    "mise completion zsh"
+    "docker completion zsh"
     "mise exec rust -- rustup completions zsh"
     "mise exec rust -- rustup completions zsh cargo"
-    "docker completion zsh"
-    "mise completion zsh"
   )
 
   local tool
