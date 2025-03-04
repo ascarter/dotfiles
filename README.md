@@ -5,24 +5,30 @@ The dotfiles configuration tool works for macOS and Linux. It should work with a
 
 The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
+[mise](https://github.com/jdx/mise) is used to manage development tools.
+Using mise allows tools to be installed cross-platform instead of using different package managers for each OS.
+
 ## Command line
 
 The `dotfiles` command can be used to manage the configuration. The following are the available commands:
 
 ```sh
-    Usage     	dotfiles [options] <subcommand>
+~/.config/dotfiles % dotfiles
+dotfiles  	Configuration management tool using symlinks
 
-Subcommands:
-    init      	Initialize dotfiles
-    status    	Show configuration status
-    sync      	Sync configuration
-    uninstall 	Uninstall configuration
-    update    	Update configuration
+Usage:    	dotfiles [options] <command>
+
+Commands:
+  init    	Initialize dotfiles
+  list    	Show configuration status
+  adopt   	Add changed configuration files
+  unlink  	Unlink configuration
+  update  	Update configuration
 
 Options:
-    -d        	Dotfiles directory
-    -t        	Target directory
-    -v        	Verbose
+  -d      	dotfiles directory
+  -t      	Target directory
+  -v      	Verbose
 ```
 
 ### init
@@ -41,20 +47,20 @@ Show the status of the configuration files. This command will list the files tha
 dotfiles status
 ```
 
-### sync
+### adopt
 
-Sync the configuration files. This command will adopt any changes and link the files from the dotfiles directory to the target directory.
+Adopt configuration files. This command will adopt any changes and link the files from the dotfiles directory to the target directory.
 
 ```sh
-dotfiles sync
+dotfiles adopt
 ```
 
-### uninstall
+### unlink
 
-Uninstall the configuration files. This command will remove the symlinks created by the dotfiles tool.
+Unlink the configuration files. This command will remove the symlinks created by the dotfiles tool.
 
 ```sh
-dotfiles uninstall
+dotfiles unlink
 ```
 
 ### update
@@ -71,7 +77,6 @@ dotfiles update
 |----------|------------------------------|
 | bin      | Dotfiles tools               |
 | config   | Configuration source files   |
-| packages | Install scripts for packages |
 | themes   | Useful themes                |
 
 ## Requirements
