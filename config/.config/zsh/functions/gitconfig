@@ -46,22 +46,19 @@ _gc_credentials() {
   local gitconfig_file=$1
   local gh_urls=("https://github.com" "https://gist.github.com")
   local az_urls=("https://dev.azure.com" "https://*.visualstudio.com/")
-  local op_helper=$(command -v op)
-  local gh_helper=$(command -v gh)
-  local gcm_helper=$(command -v git-credential-manager)
   local git_cred_helper
 
-  if [[ -n "${op_helper}" ]]; then
-    # Use 1Password for GitHub
-    git_cred_helper="!${op_helper} plugin run -- gh auth git-credential"
-  elif [[ -n "${gh_helper}" ]]; then
-    # Use GitHub CLI
-    git_cred_helper="!${gh_helper} auth git-credential"
-  elif [[ -n "${gcm_helper}" ]]; then
-    # Use Git Credential Manager
-    git_cred_helper=${gcm_helper}
+  if (( $+commands[op] )); then
+    echo "Use 1Password for GitHub"
+    git_cred_helper="!op plugin run -- gh auth git-credential"
+  elif (( $+commands[gh] )); then
+    echo "Use GitHub CLI"
+    git_cred_helper="!gh auth git-credential"
+  elif (( $+commands[git-credential-manager] )); then
+    echo "Use Git Credential Manager"
+    git_cred_helper="git-credential-manager"
   else
-    # Use keychain caching
+    echo "Use keychain caching"
     case $(uname) in
     Darwin) git_cred_helper="osxkeychain" ;;
     Linux) git_cred_helper="cache" ;;
@@ -79,11 +76,11 @@ _gc_credentials() {
   done
 
   # Configure Azure DevOps if GCM is installed
-  if [[ -n "${gcm_helper}" ]]; then
+  if (( $+commands[git-credential-manager] )); then
     for url in "${az_urls[@]}"; do
       _gc_clear ${gitconfig_file} credential.${url}.helper
       _gc_add ${gitconfig_file} credential.${url}.helper ''
-      _gc_add ${gitconfig_file} credential.${url}.helper ${gcm_helper}
+      _gc_add ${gitconfig_file} credential.${url}.helper git-credential-manager
       _gc_set ${gitconfig_file} credential.${url}.useHttpPath true
       _gc_set ${gitconfig_file} credential.azreposCredentialType oauth
     done
@@ -96,7 +93,7 @@ _gc_credentials() {
   _gc_clear ${gitconfig_file} commit.gpgsign
 
   # Configure gpg signing
-  if [[ -n "${op_helper}" ]]; then
+  if (( $+commands[op] )); then
     # Use 1Password SSH for signing
     local signing_key=$(op read "op://Private/GitHub SSH Key/public key")
     if [[ -n "${signing_key}" ]]; then
