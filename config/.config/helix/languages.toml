@@ -22,14 +22,8 @@ port-arg = "--port {}"
 [[language.debugger.templates]]
 name = "script"
 request = "launch"
-completion = [ { name = "script", completion = "filename" } ]
+completion = [ { name = "script", completion = "filename", default = "." } ]
 args = { program = "{0}" }
-
-[[language.debugger.templates]]
-name = "attach"
-request = "attach"
-completion = [ { name = "port", default = "1234" } ]
-args = { mode = "tcp", port-arg = "-A {0}" }
 
 [[language]]
 name = "rust"
