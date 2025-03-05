@@ -17,6 +17,8 @@ shfmt = "latest"
 slsa-verifier = "latest"
 sqlite = "latest"
 usage = "latest"
+rust = "latest"
+ruby = "latest"
 
 [settings]
 experimental = true
