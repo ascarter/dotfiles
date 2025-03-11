@@ -3,11 +3,30 @@
 # set -x
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
-DOTFILES_CONFIG_DIR=${DOTFILES}/config
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+
+DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+DOTFILES_CONFIG_DIR=${DOTFILES}/cfg
+DOTFILES_LIB_DIR=${DOTFILES}/lib
+
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
 
+echo $DOTFILES
+echo $DOTFILES_CONFIG_DIR
+echo $DOTFILES_LIB_DIR
+
+# Source all lib fils
+if [ -d "${DOTFILES_LIB_DIR}" ]; then
+  for lib in ${DOTFILES_LIB_DIR}/*.sh; do
+    if [ -f "${lib}" ]; then
+      source "${lib}"
+    fi
+  done
+else
+  err "lib directory not found"
+fi
+exit 1
 usage() {
   log "dotfiles" "Configuration management tool using symlinks"
   log ""
@@ -24,253 +43,6 @@ usage() {
   log "  -d" "dotfiles directory"
   log "  -t" "Target directory"
   log "  -v" "Verbose"
-}
-
-# Logging
-log() {
-  if [ "$#" -eq 1 ]; then
-    printf "%s\n" "$1"
-  elif [ "$#" -gt 1 ]; then
-    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
-  fi
-}
-
-# title log
-tlog() {
-  log "  $1" "$2"
-}
-
-# detail log
-dlog() {
-  tlog "  $1" "$2"
-}
-
-# verbose log
-vlog() {
-  if [ $VERBOSE -eq 1 ]; then
-    log "$@"
-  fi
-}
-
-# error log
-err() {
-  echo "  $(tput bold)error     $(tput sgr0)\t$*" >&2
-}
-
-# warning log
-warn() {
-  echo "$(tput bold)$*$(tput sgr0)" >&2
-}
-
-# prompt user for confirmation
-prompt() {
-  choice=y
-  read -p "$1 (y/N)" -n1 choice
-  echo
-  case $choice in
-  [yY]*) return 0 ;;
-  esac
-  return 1
-}
-
-# Emulate os-release
-os_release() {
-  # Deterine OS and version
-  case $(uname -s) in
-  Darwin)
-    # Configure homebrew shell environment
-    if [[ -d /opt/homebrew ]]; then
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
-
-    # Emulate /etc/os-release for macOS
-    NAME="macOS"
-    VERSION=$(sw_vers -productVersion)
-    VERSION_ID="$VERSION"
-    ID="macos"
-    ID_LIKE="darwin"
-    BUILD_ID=$(sw_vers -buildVersion)
-    PRETTY_NAME="macOS $VERSION ($BUILD_ID)"
-    ARCH=$(uname -m)
-    OS=$(uname -s)
-    ;;
-  Linux)
-    if [[ -f /etc/os-release ]]; then
-      # Source os-release file to get distribution information
-      . /etc/os-release
-    else
-      echo "Error: /etc/os-release not found"
-      exit 1
-    fi
-    ;;
-  esac
-}
-
-# macOS
-brew_install() {
-  if ! [ -d /opt/homebrew ]; then
-    # Install Homebrew
-    echo "installing" "Homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    dlog "exists" "brew"
-  fi
-
-  if ! [ -x "$(command -v brew)" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
-
-  # Enable man page contextual menu item in Terminal.app
-  if ! [ -f /usr/local/etc/man.d/homebrew.man.conf ]; then
-    dlog "installing" "homrebrew.man.conf"
-    sudo mkdir -p /usr/local/etc/man.d
-    echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
-  fi
-}
-
-brew_update() {
-  if [ -x "$(command -v brew)" ]; then
-    dlog "update" "brew"
-
-    if ! brew bundle check --global; then
-      dlog "installing" "brewfile"
-      brew bundle install --global
-    fi
-
-    dlog "upgrading" "brew"
-    brew upgrade
-  fi
-}
-
-xcode_install() {
-  if ! [ -e /Library/Developer/CommandLineTools ]; then
-    dlog "install" "xcode"
-    xcode-select --install
-    read -p "Press [Enter] to continue..." -n1 -s
-    echo
-    sudo xcodebuild -runFirstLaunch
-  else
-    dlog "exists" "xcode"
-  fi
-}
-
-macos_reqs() {
-  xcode_install
-  brew_install
-  brew_update
-}
-
-# Fedora/RHEL dnf
-dnf_install() {
-  if rpm -q ${1}; then
-    action=upgrade
-  else
-    action=install
-  fi
-
-  sudo dnf ${action} -y ${1}
-}
-
-dnf_uninstall() {
-  if rpm -q ${1}; then
-    sudo dnf remove -y ${1}
-  else
-    err "${1} not installed"
-  fi
-}
-
-dnf_config_manager() {
-  sudo dnf config-manager --add-repo ${1}
-}
-
-fedora_reqs() {
-  echo "Fedora pre-reqs"
-  dnf_install dnf-plugins-core
-}
-
-# Debian/Ubuntu apt
-#
-apt_install() {
-  if dpkg -l | grep -q -w ${1}; then
-    sudo apt-get install --only-upgrade ${1}
-  else
-    sudo apt-get install ${1}
-  fi
-}
-
-apt_uninstall() {
-  if dpkg -l | grep -q -w ${1}; then
-    sudo apt-get purge ${1}
-  else
-    err "${1} not installed"
-  fi
-}
-
-ubuntu_reqs() {
-  echo "Ubuntu pre-reqs"
-}
-
-# mise
-mise_install() {
-  dlog "installing" "mise"
-  curl https://mise.run | sh
-  eval "$(mise activate --shims)"
-
-  dlog "installing" "dev tools"
-  mise -C ${HOME} up
-}
-
-mise_update() {
-  if [ -x "$(command -v mise)" ]; then
-    dlog "upgrading" "mise"
-    mise self-update
-    mise -C ${HOME} up
-  fi
-}
-
-# GitHub CLI extensions installer
-gh_extensions_install() {
-  local extensions="github/gh-copilot "
-
-  # Install GitHub CLI extensions
-  if [ -x "$(command -v gh)" ]; then
-    for extension in $extensions; do
-      dlog "installing" "GitHub CLI extension ${extension}"
-      gh extension install ${extension}
-    done
-  fi
-}
-
-# 1Password CLI plugins
-op_plugins_install() {
-  local plugins="gh"
-
-  # Init 1Password CLI plugins
-  if [ -x "$(command -v op)" ]; then
-    for plugin in $plugins; do
-      if [ -x "$(command -v op)" ]; then
-        dlog "init" "1Password CLI plugin ${plugin}"
-        op plugin init ${plugin}
-      fi
-    done
-  fi
-
-  # Configure 1P SSH
-  if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
-    dlog "link" "~/.1password/agent.sock"
-    mkdir -p ~/.1password
-    ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
-  fi
-
-  if [ -L ~/.1password/agent.sock ]; then
-    if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
-      dlog "enable" "SSH IdentityAgent"
-      mkdir -p ~/.ssh
-      echo "Include ~/.config/ssh/config" >>~/.ssh/config
-    else
-      dlog "exists" "SSH IdentityAgent"
-    fi
-  fi
 }
 
 reqs() {
@@ -431,7 +203,7 @@ vlog "TARGET" ${TARGET}
 case ${1} in
 init)
   tlog "reqs" "${ID}"
-  reqs
+  # reqs
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   log "dotfiles initialized"
   ;;

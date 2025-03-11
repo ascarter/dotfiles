@@ -5,7 +5,8 @@
 set -euo pipefail
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -31,12 +32,37 @@ while getopts ":vhd:t:" opt; do
 done
 shift $((OPTIND - 1))
 
-${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} uninstall
+# mise uninstall
+if [ -x "$(command -v mise)" ]; then
+  read -p "Uninstall mise? (y/N) " confirm
+  if [ "${confirm:-N}" = "y" ]; then
+    mise implode
+  fi
+fi
 
-echo ""
-echo "To remove dotfiles, run the following commands:"
-echo "rm -rf ${DOTFILES}"
-echo ""
+# brew uninstall
+if [ -x "$(command -v brew)" ]; then
+  read -p "Uninstall Homebrew? (y/N) " confirm
+  if [ "${confirm:-N}" = "y" ]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+  fi
+fi
 
-echo "dotfiles uninstalled"
-echo "Reload session to apply configuration"
+# Remove dotfiles
+if [ -d "${DOTFILES}" ]; then
+  read -p "Uninstall dotfiles -> ${DOTFILES}? (y/N) " confirm
+  if [ "${confirm:-N}" = "y" ]; then
+    ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} unlink
+  fi
+
+  read -p "Remove dotfiles directory -> ${DOTFILES}? (y/N) " confirm
+  if [ "${confirm:-N}" = "y" ]; then
+    rm -rf ${DOTFILES}
+  fi
+
+  echo "dotfiles uninstalled"
+  echo "Reload session to apply configuration"
+else
+  echo "dotfiles not found"
+  exit 1
+fi

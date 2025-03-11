@@ -1,5 +1,4 @@
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
-export DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
+export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 
 # Configure homebrew
 if [ -d /opt/homebrew ]; then
@@ -18,7 +17,10 @@ for bindir in "${bindirs[@]}" ; do
   fi
 done
 
-# Source .bashrc if it exists
-if [ -f ${HOME}/.bashrc ] ; then
-  source ${HOME}/.bashrc
+if (( $+commands[mise] )); then
+  if [[ -o interactive ]]; then
+    eval "$(mise activate zsh)"
+  else
+    eval "$(mise activate zsh --shims)"
+  fi
 fi
