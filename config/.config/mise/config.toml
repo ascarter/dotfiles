@@ -1,23 +1,6 @@
 [tools]
 "ubi:rails/rails-new" = "latest"
-1password-cli = "latest"
-cargo-binstall = "latest"
-cosign = "latest"
-eza = "latest"
-fzf = "latest"
-gh = "latest"
-gitu = "latest"
-gitui = "latest"
-helix = "latest"
-jq = "latest"
-marksman = "latest"
-ripgrep = "latest"
-shellcheck = "latest"
-shfmt = "latest"
-slsa-verifier = "latest"
-sqlite = "latest"
 usage = "latest"
-rust = "latest"
 ruby = "latest"
 
 [settings]

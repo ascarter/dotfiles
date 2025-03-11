@@ -106,54 +106,14 @@ os_release() {
   esac
 }
 
-# macOS Homebrew
-brew_bundle_install() {
-  brewfile=$1
-  if brew bundle check --file=$brewfile; then
-    dlog "exists" "Brewfile"
-  else
-    dlog "installing" "Brewfile"
-    brew bundle install --file=$brewfile
-  fi
-}
-
+# macOS
 brew_install() {
-  dlog "install" $1
-  if brew list -1 | grep -q -w ${1}; then
-    brew upgrade ${1}
-  else
-    brew install ${1}
-  fi
-}
-
-brew_uninstall() {
-  dlog "uninstall" $1
-  if brew list -1 | grep -q -w ${1}; then
-    brew uninstall ${1}
-  else
-    err "${1} not installed"
-  fi
-}
-
-macos_prereqs() {
-  # Install Xcode Command Line Tools
-  if ! [ -e /Library/Developer/CommandLineTools ]; then
-    echo "installing" "Xcode Command Line Tools"
-    xcode-select --install
-    read -p "Press [Enter] to continue..." -n1 -s
-    echo
-    sudo xcodebuild -runFirstLaunch
-  else
-    dlog "exists" "Xcode Command Line Tools"
-  fi
-
-  # Install homebrew
   if ! [ -d /opt/homebrew ]; then
     # Install Homebrew
     echo "installing" "Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   else
-    dlog "exists" "Homebrew"
+    dlog "exists" "brew"
   fi
 
   if ! [ -x "$(command -v brew)" ]; then
@@ -166,12 +126,38 @@ macos_prereqs() {
     sudo mkdir -p /usr/local/etc/man.d
     echo "MANPATH /opt/homebrew/share/man" | sudo tee -a /usr/local/etc/man.d/homebrew.man.conf
   fi
+}
 
-  # Install required packages for software verification
-  if ! [ -x "$(command -v gpg)" ]; then
-    dlog "installing" "gpg"
-    brew_install gpg
+brew_update() {
+  if [ -x "$(command -v brew)" ]; then
+    dlog "update" "brew"
+
+    if ! brew bundle check --global; then
+      dlog "installing" "brewfile"
+      brew bundle install --global
+    fi
+
+    dlog "upgrading" "brew"
+    brew upgrade
   fi
+}
+
+xcode_install() {
+  if ! [ -e /Library/Developer/CommandLineTools ]; then
+    dlog "install" "xcode"
+    xcode-select --install
+    read -p "Press [Enter] to continue..." -n1 -s
+    echo
+    sudo xcodebuild -runFirstLaunch
+  else
+    dlog "exists" "xcode"
+  fi
+}
+
+macos_reqs() {
+  xcode_install
+  brew_install
+  brew_update
 }
 
 # Fedora/RHEL dnf
@@ -197,7 +183,7 @@ dnf_config_manager() {
   sudo dnf config-manager --add-repo ${1}
 }
 
-fedora_prereqs() {
+fedora_reqs() {
   echo "Fedora pre-reqs"
   dnf_install dnf-plugins-core
 }
@@ -220,7 +206,7 @@ apt_uninstall() {
   fi
 }
 
-ubuntu_prereqs() {
+ubuntu_reqs() {
   echo "Ubuntu pre-reqs"
 }
 
@@ -232,6 +218,14 @@ mise_install() {
 
   dlog "installing" "dev tools"
   mise -C ${HOME} up
+}
+
+mise_update() {
+  if [ -x "$(command -v mise)" ]; then
+    dlog "upgrading" "mise"
+    mise self-update
+    mise -C ${HOME} up
+  fi
 }
 
 # GitHub CLI extensions installer
@@ -279,11 +273,11 @@ op_plugins_install() {
   fi
 }
 
-prereqs() {
+reqs() {
   case "${ID}" in
-  "macos") macos_prereqs ;;
-  "fedora") fedora_prereqs ;;
-  "ubuntu") ubuntu_prereqs ;;
+  "macos") macos_reqs ;;
+  "fedora") fedora_reqs ;;
+  "ubuntu") ubuntu_reqs ;;
   esac
 
   mise_install
@@ -308,8 +302,8 @@ update_completions() {
     "usage --completions zsh"
     "mise completion zsh"
     "docker completion zsh"
-    "mise exec rust -- rustup completions zsh"
-    "mise exec rust -- rustup completions zsh cargo"
+    "rustup completions zsh"
+    "rustup completions zsh cargo"
   )
 
   local tool
@@ -317,17 +311,17 @@ update_completions() {
   local tool_completion
 
   mkdir -p ${completion_dir}
-
+  tlog "update" "completions"
   for i in "${!tools[@]}"; do
     tool="${tools[$i]}"
     tool_cmd="${tool_cmds[$i]}"
     tool_completion="_${tool}"
 
     if command -v ${tool} >/dev/null 2>&1; then
-      echo "Generating completion for ${tool}..."
+      dlog "completion" "${tool}"
       eval "${tool_cmd}" > "${completion_dir}/${tool_completion}"
     else
-      echo "Not found ${tool}..."
+      dlog "missing" "${tool}"
     fi
   done
 }
@@ -436,8 +430,8 @@ vlog "TARGET" ${TARGET}
 
 case ${1} in
 init)
-  tlog "prereqs" "${ID}"
-  prereqs
+  tlog "reqs" "${ID}"
+  reqs
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   log "dotfiles initialized"
   ;;
@@ -451,10 +445,14 @@ unlink)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
   ;;
 update)
+  tlog "pull" "dotfiles"
   git -C ${DOTFILES} pull
+
+  tlog "sync" "dotfiles"
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
-  mise self-update
-  mise -C ${HOME} up
+
+  brew_update
+  mise_update
   update_completions
   ;;
 *)
