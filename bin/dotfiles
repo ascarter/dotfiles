@@ -434,12 +434,6 @@ vlog "ID" ${ID}
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
 
-# Handle dotfiles command
-# if [ $# -eq 0 ]; then
-#   usage
-#   exit 1
-# fi
-
 case ${1} in
 init)
   tlog "prereqs" "${ID}"
@@ -460,7 +454,7 @@ update)
   git -C ${DOTFILES} pull
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   mise self-update
-  mise -C ${HOME} up --bump
+  mise -C ${HOME} up
   update_completions
   ;;
 *)

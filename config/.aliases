@@ -95,6 +95,7 @@ esac
 # dotfiles
 alias dfcd="cd ${DOTFILES}"
 alias dfedit="${EDITOR} ${DOTFILES}"
+alias dfz="zed ${DOTFILES}"
 
 # zsh
 alias resetcomp="rm -f $HOME/.zcompdump && compinit"
@@ -102,6 +103,11 @@ alias resetcomp="rm -f $HOME/.zcompdump && compinit"
 # 1Password
 if command -v op > /dev/null 2>&1 ; then
   alias 1pid="op user get --me --format json | jq .id -r"
+fi
+
+# Mise
+if command -v mise > /dev/null 2>&1 ; then
+  alias mx="mise exec --"
 fi
 
 # Developer projects
@@ -150,8 +156,7 @@ alias wnow="wttr Snoqualmie format=3"
 alias udc="docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /workspace mcr.microsoft.com/devcontainers/universal:latest"
 
 # Ruby
-alias createrbc="docker volume create ruby-bundle-cache"
-alias docked="docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli"
+alias dkrails="docker run --rm -it -v ${PWD}:/rails -v ruby-bundle-cache:/bundle -p 3000:3000 ghcr.io/rails/cli"
 
 # Go
 alias gopresent="present -play=true &; open -g http://127.0.0.1:3999; fg"
@@ -168,12 +173,6 @@ alias pipbrew='CFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip'
 alias pdb="python -m pdb"
 alias pyunittest="python -m unittest discover --buffer"
 alias pyactivate="source .venv/bin/activate"
-
-if command -v brew > /dev/null 2>&1 ; then
-  # Add homebrew python aliases
-  alias bpython=$(brew --prefix python)/libexec/bin/python
-  alias bvenv="$(brew --prefix python)/libexec/bin/python -m venv --clear .venv"
-fi
 
 # View HTTP traffic
 alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
