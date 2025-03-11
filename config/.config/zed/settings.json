@@ -16,23 +16,22 @@
   },
   "assistant": {
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-5-sonnet-latest"
+      "provider": "copilot_chat",
+      "model": "claude-3-5-sonnet"
     },
     "version": "2"
   },
   "theme": {
     "mode": "system",
-    "light": "Xcode Default Light",
+    "light": "macOS Classic Light",
     "dark": "Github Dark Dimmed"
   },
-  "ui_font_family": "SF Pro Display",
-  "ui_font_fallbacks": ["SF Pro Display", "SST", "Open Sans"],
-  "ui_font_size": 15,
+  "ui_font_family": ".SystemUIFont",
   "buffer_font_family": "Berkeley Mono",
-  "buffer_font_fallbacks": ["SF Mono", "Noto Mono", "Roboto Mono", "Cascadia"],
-  "buffer_font_size": 13,
-  "buffer_line_height": "standard",
+  "active_pane_modifiers": {
+    "border_size": 1.5,
+    "inactive_opacity": 0.7
+  },
   "indent_guides": {
     "enabled": false
   },
@@ -54,7 +53,24 @@
     "auto_fold_dirs": false
   },
   "terminal": {
-    "line_height": "standard"
+    "line_height": "standard",
+    "font_size": 13
+  },
+  "auto_install_extensions": {
+    "docker-compose": true,
+    "dockerfile": true,
+    "lua": true,
+    "macos-classic": true,
+    "make": true,
+    "marksman": true,
+    "postgres-context-server": true,
+    "roc": true,
+    "ruby": true,
+    "sql": true,
+    "swift": true,
+    "toml": true,
+    "xcode-themes": true,
+    "zig": true
   },
   "languages": {
     "Ruby": {
