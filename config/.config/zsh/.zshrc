@@ -80,6 +80,9 @@ export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ig
 # ripgrep
 export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
 
+# tlrc
+export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
+
 # =====================================
 # SSH
 # =====================================

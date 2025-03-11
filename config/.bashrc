@@ -15,6 +15,9 @@ if command -v mise > /dev/null 2>&1 ; then
   eval "$(mise activate bash)"
 fi
 
+# Set tlrc config
+export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
