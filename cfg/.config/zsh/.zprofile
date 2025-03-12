@@ -1,4 +1,4 @@
-export DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
+export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 
 # Configure homebrew
 if [ -d /opt/homebrew ]; then

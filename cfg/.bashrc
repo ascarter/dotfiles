@@ -15,6 +15,11 @@ if command -v mise > /dev/null 2>&1 ; then
   eval "$(mise activate bash)"
 fi
 
+# Rust
+if [[ -d ${HOME}/.cargo ]]; then
+  source "$HOME/.cargo/env"
+fi
+
 # Set tlrc config
 export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
 

@@ -5,7 +5,8 @@
 set -euo pipefail
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-DOTFILES=${DOTFILES:-${XDG_CONFIG_HOME}/dotfiles}
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -32,11 +33,3 @@ done
 shift $((OPTIND - 1))
 
 ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} uninstall
-
-echo ""
-echo "To remove dotfiles, run the following commands:"
-echo "rm -rf ${DOTFILES}"
-echo ""
-
-echo "dotfiles uninstalled"
-echo "Reload session to apply configuration"

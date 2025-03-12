@@ -1,12 +1,66 @@
 # dotfiles
 Unix dotfiles
 
-The dotfiles configuration tool works for macOS and Linux. It should work with any reasonable POSIX OS or devcontainer.
+The dotfiles configuration tool works for macOS and Linux.
+It should work with any reasonable POSIX OS or devcontainer.
+
+## Motivation
+
+I wrote this tool to manage my dotfiles across multiple machines and operating systems.
+It allows me to easily update and manage my configuration files.
+I included the tools and development stacks that I want to use.
+I prefer running locally when I can instead of in a container.
+This tool is an attempt to make it easier to manage the local environments consistently.
+
+## Implementation
 
 The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
-[mise](https://github.com/jdx/mise) is used to manage development tools.
+[mise](https://github.com/jdx/mise) is used to manage some development tools.
 Using mise allows tools to be installed cross-platform instead of using different package managers for each OS.
+
+Some developer tools like Rust are managed using the native tooling.
+
+It is well tested on macOS. I also use Fedora and Ubuntu regularly but I don't always use this tool.
+
+## Requirements
+
+The following are the minimum requirements for dotfiles to work:
+
+* [git](https://git-scm.com/download/linux)
+
+On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is expected to be installed and configured.
+
+## Install
+
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
+```
+
+### Alternate Install
+
+If directly executing script is not desired, clone into a location (recommend `~/.local/share/dotfiles`)
+
+```sh
+git clone git@github.com:ascarter/dotfiles.git ~/.local/share/dotfiles
+cd ~/.config/dotfiles
+./install.sh
+```
+
+### Install from branch
+
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)" -s -- -b <branch>
+```
+
+### Uninstall
+
+Run the uninstall script to remove the symlinks and restore any original files:
+
+```sh
+cd ~/.config/dotfiles
+./uninstall.sh
+```
 
 ## Command line
 
@@ -24,6 +78,7 @@ Commands:
   adopt   	Add changed configuration files
   unlink  	Unlink configuration
   update  	Update configuration
+  uninstall Uninstall dotfiles
 
 Options:
   -d      	dotfiles directory
@@ -39,12 +94,12 @@ Initialize dotfiles. This command will ensure prerequisites are installed and li
 dotfiles init
 ```
 
-### status
+### list
 
 Show the status of the configuration files. This command will list the files that are linked, missing, or in conflict.
 
 ```sh
-dotfiles status
+dotfiles list
 ```
 
 ### adopt
@@ -71,49 +126,18 @@ Update the configuration files. This command will pull the latest changes from t
 dotfiles update
 ```
 
+### uninstall
+
+Uninstall dotfiles. This command will remove the dotfiles directory and all linked files.
+
+```sh
+dotfiles uninstall
+```
+
 ## Layout
 
 | Path     | Description                  |
 |----------|------------------------------|
 | bin      | Dotfiles tools               |
-| config   | Configuration source files   |
-| themes   | Useful themes                |
-
-## Requirements
-
-The following are the minimum requirements for dotfiles to work:
-
-* [git](https://git-scm.com/download/linux)
-
-On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is expected to be installed and configured.
-
-## Install
-
-```sh
-sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
-```
-
-### Alternate Install
-
-If directly executing script is not desired, clone into a location (recommend `~/.config/dotfiles`)
-
-```sh
-git clone git@github.com:ascarter/dotfiles.git ~/.config/dotfiles
-cd ~/.config/dotfiles
-./install.sh
-```
-
-### Install from branch
-
-```sh
-sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)" -s -- -b <branch>
-```
-
-### Uninstall
-
-Run the uninstall script to remove the symlinks and restore any original files:
-
-```sh
-cd ~/.config/dotfiles
-./uninstall.sh
-```
+| cfg     | Configuration source files   |
+| lib      | Dotfiles libraries           |
