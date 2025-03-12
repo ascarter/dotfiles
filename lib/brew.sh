@@ -51,7 +51,7 @@ brew_uninstall() {
   if [ -x "$(command -v brew)" ]; then
     if prompt "Uninstall Homebrew?" ; then
       dlog "uninstalling" "brew"
-      brew uninstall --force brew
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
     fi
   fi
 }
