@@ -55,6 +55,10 @@ rust_install() {
   else
     dlog "exist" "rust"
   fi
+
+  if [[ -d ${HOME}/.cargo ]]; then
+    source "$HOME/.cargo/env"
+  fi
 }
 
 rust_update() {
