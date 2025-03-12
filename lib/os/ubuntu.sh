@@ -18,3 +18,16 @@ apt_uninstall() {
 ubuntu_reqs() {
   echo "Ubuntu pre-reqs"
 }
+
+os_install() {
+  # TODO: os install
+}
+
+os_update() {
+  sudo apt update
+  sudo apt upgrade -y
+}
+
+os_uninstall() {
+  # TODO: os uninstall
+}

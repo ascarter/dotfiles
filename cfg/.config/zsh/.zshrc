@@ -74,6 +74,10 @@ else
   export EDITOR="vi"
 fi
 
+# =====================================
+# Tools
+# =====================================
+
 # less
 export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
 
@@ -82,6 +86,15 @@ export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
 
 # tlrc
 export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
+
+# =====================================
+# Developer
+# =====================================
+
+# Rust
+if [[ -d ${HOME}/.cargo ]]; then
+  source "$HOME/.cargo/env"
+fi
 
 # =====================================
 # SSH

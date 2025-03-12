@@ -21,7 +21,14 @@ dnf_config_manager() {
   sudo dnf config-manager --add-repo ${1}
 }
 
-fedora_reqs() {
-  echo "Fedora pre-reqs"
+os_install() {
   dnf_install dnf-plugins-core
+}
+
+os_update() {
+  sudo dnf update -y
+}
+
+os_uninstall() {
+  # TODO: os uninstall
 }

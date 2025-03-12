@@ -5,8 +5,10 @@ The dotfiles configuration tool works for macOS and Linux. It should work with a
 
 The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
-[mise](https://github.com/jdx/mise) is used to manage development tools.
+[mise](https://github.com/jdx/mise) is used to manage some development tools.
 Using mise allows tools to be installed cross-platform instead of using different package managers for each OS.
+
+Some developer tools like Rust are managed using the native tooling.
 
 ## Command line
 
@@ -24,6 +26,7 @@ Commands:
   adopt   	Add changed configuration files
   unlink  	Unlink configuration
   update  	Update configuration
+  uninstall Uninstall dotfiles
 
 Options:
   -d      	dotfiles directory
@@ -39,12 +42,12 @@ Initialize dotfiles. This command will ensure prerequisites are installed and li
 dotfiles init
 ```
 
-### status
+### list
 
 Show the status of the configuration files. This command will list the files that are linked, missing, or in conflict.
 
 ```sh
-dotfiles status
+dotfiles list
 ```
 
 ### adopt
@@ -71,13 +74,21 @@ Update the configuration files. This command will pull the latest changes from t
 dotfiles update
 ```
 
+### uninstall
+
+Uninstall dotfiles. This command will remove the dotfiles directory and all linked files.
+
+```sh
+dotfiles uninstall
+```
+
 ## Layout
 
 | Path     | Description                  |
 |----------|------------------------------|
 | bin      | Dotfiles tools               |
-| config   | Configuration source files   |
-| themes   | Useful themes                |
+| cfg     | Configuration source files   |
+| lib      | Dotfiles libraries           |
 
 ## Requirements
 

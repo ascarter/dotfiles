@@ -34,6 +34,15 @@ brew_update() {
   fi
 }
 
+brew_uninstall() {
+  if [ -x "$(command -v brew)" ]; then
+    if prompt "Uninstall Homebrew?" ; then
+      dlog "uninstalling" "brew"
+      brew uninstall --force brew
+    fi
+  fi
+}
+
 xcode_install() {
   if ! [ -e /Library/Developer/CommandLineTools ]; then
     dlog "install" "xcode"
@@ -46,8 +55,15 @@ xcode_install() {
   fi
 }
 
-macos_reqs() {
+os_install() {
   xcode_install
   brew_install
   brew_update
+}
+
+os_update() {
+  brew_update
+}
+os_uninstall() {
+  brew_uninstall
 }

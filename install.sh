@@ -6,8 +6,10 @@ set -euo pipefail
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
+
 TARGET=${TARGET:-$HOME}
 
 usage() {

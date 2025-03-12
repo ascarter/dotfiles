@@ -12,10 +12,6 @@ DOTFILES_LIB_DIR=${DOTFILES}/lib
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
 
-echo $DOTFILES
-echo $DOTFILES_CONFIG_DIR
-echo $DOTFILES_LIB_DIR
-
 # Source all lib fils
 if [ -d "${DOTFILES_LIB_DIR}" ]; then
   for lib in ${DOTFILES_LIB_DIR}/*.sh; do
@@ -26,7 +22,7 @@ if [ -d "${DOTFILES_LIB_DIR}" ]; then
 else
   err "lib directory not found"
 fi
-exit 1
+
 usage() {
   log "dotfiles" "Configuration management tool using symlinks"
   log ""
@@ -38,64 +34,12 @@ usage() {
   log "  adopt" "Add changed configuration files"
   log "  unlink" "Unlink configuration"
   log "  update" "Update configuration"
+  log "  uninstall" "Uninstall dotfiles"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
   log "  -t" "Target directory"
   log "  -v" "Verbose"
-}
-
-reqs() {
-  case "${ID}" in
-  "macos") macos_reqs ;;
-  "fedora") fedora_reqs ;;
-  "ubuntu") ubuntu_reqs ;;
-  esac
-
-  mise_install
-  op_plugins_install
-  gh_extensions_install
-}
-
-# Generate completions
-update_completions() {
-  local completion_dir="${1:-$HOME/.local/share/zsh/functions}"
-  local tools
-  local tools_cmds
-
-  tools=(
-    usage
-    mise
-    docker
-    rustup
-    cargo
-  )
-  tool_cmds=(
-    "usage --completions zsh"
-    "mise completion zsh"
-    "docker completion zsh"
-    "rustup completions zsh"
-    "rustup completions zsh cargo"
-  )
-
-  local tool
-  local tool_cmd
-  local tool_completion
-
-  mkdir -p ${completion_dir}
-  tlog "update" "completions"
-  for i in "${!tools[@]}"; do
-    tool="${tools[$i]}"
-    tool_cmd="${tool_cmds[$i]}"
-    tool_completion="_${tool}"
-
-    if command -v ${tool} >/dev/null 2>&1; then
-      dlog "completion" "${tool}"
-      eval "${tool_cmd}" > "${completion_dir}/${tool_completion}"
-    else
-      dlog "missing" "${tool}"
-    fi
-  done
 }
 
 check_symlink() {
@@ -175,6 +119,21 @@ sync() {
   done
 }
 
+uninstall() {
+  # Remove dotfiles
+  if [ -d "${DOTFILES}" ]; then
+    if prompt "Remove dotfiles directory -> ${DOTFILES}?" ; then
+      rm -rf ${DOTFILES}
+    fi
+
+    echo "dotfiles uninstalled"
+    echo "Reload session to apply configuration"
+  else
+    echo "dotfiles not found"
+    exit 1
+  fi
+}
+
 # ------------------------------
 # main
 # ------------------------------
@@ -182,8 +141,6 @@ sync() {
 if [ -x "$(command -v mise)" ]; then
   eval "$(mise activate --shims)"
 fi
-
-os_release
 
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
@@ -202,8 +159,9 @@ vlog "TARGET" ${TARGET}
 
 case ${1} in
 init)
-  tlog "reqs" "${ID}"
-  # reqs
+  tlog "init" "${ID}"
+  tools_install
+  developer_install
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   log "dotfiles initialized"
   ;;
@@ -223,9 +181,17 @@ update)
   tlog "sync" "dotfiles"
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
 
-  brew_update
-  mise_update
+  os_update
+  tools_update
+  developer_update
   update_completions
+  ;;
+uninstall)
+  tlog "uninstall" "dotfiles"
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
+  developer_uninstall
+  tools_uninstall
+  uninstall
   ;;
 *)
   # No command - show help
