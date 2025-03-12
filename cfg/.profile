@@ -5,7 +5,10 @@ export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 # Configure homebrew
 if [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -d /home/linuxbrew/.linuxbrew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+
 
 # Extra bin directories
 bindirs=(

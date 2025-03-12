@@ -1,7 +1,31 @@
 # mise
+mise_use() {
+  if [ -x "$(command -v mise)" ]; then
+    dlog "mise use" "$1"
+    mise use -g $1
+  fi
+}
+
+mise_unuse() {
+  if [ -x "$(command -v mise)" ]; then
+    dlog "mise unuse" "$1"
+    mise unuse -g $1
+  fi
+}
+
+mise_upgrade() {
+  if [ -x "$(command -v mise)" ]; then
+    dlog "mise update" "$1"
+    mise upgrade $1
+  fi
+}
+
 mise_install() {
-  dlog "installing" "mise"
-  curl https://mise.run | sh
+  if [ ! -x "$(command -v mise)" ]; then
+    dlog "installing" "mise"
+    curl https://mise.run | sh
+  fi
+
   eval "$(mise activate --shims)"
 
   dlog "configure" "mise"

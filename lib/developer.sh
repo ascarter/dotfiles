@@ -3,49 +3,49 @@
 # Go
 go_install() {
   dlog "install" "go"
-  mise use -g go@latest
+  mise_use go@latest
 }
 
 go_update() {
   dlog "update" "go"
-  mise upgrade go
+  mise_upgrade go
 }
 
 go_uninstall() {
   dlog "uninstall" "go"
-  mise unuse -g go@latest
+  mise_unuse go
 }
 
 # Java
 java_install() {
   dlog "install" "java"
-  mise use -g java@latest
+  mise_use java@latest
 }
 
 java_update() {
   dlog "update" "java"
-  mise upgrade java
+  mise_upgrade java
 }
 
 java_uninstall() {
   dlog "uninstall" "java"
-  mise unuse -g java@latest
+  mise_unuse java
 }
 
 # Ruby
 ruby_install() {
   dlog "install" "ruby"
-  mise use -g ruby@latest
+  mise_use ruby@latest
 }
 
 ruby_update() {
   dlog "update" "ruby"
-  mise upgrade ruby
+  mise_upgrade ruby
 }
 
 ruby_uninstall() {
   dlog "uninstall" "ruby"
-  mise unuse -g ruby@latest
+  mise_unuse ruby
 }
 
 # Rust

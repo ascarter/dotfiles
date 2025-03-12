@@ -160,11 +160,11 @@ vlog "TARGET" ${TARGET}
 case ${1} in
 init)
   tlog "init" "${ID}"
+  dlog "sync" "dotfiles"
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   os_install
   tools_install
   developer_install
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
-  log "dotfiles initialized"
   ;;
 list)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "list"

@@ -2,11 +2,6 @@
 # Deterine OS and version
 case $(uname -s) in
 Darwin)
-  # Configure homebrew shell environment
-  if [[ -d /opt/homebrew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
-
   # Emulate /etc/os-release for macOS
   NAME="macOS"
   VERSION=$(sw_vers -productVersion)
