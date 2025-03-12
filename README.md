@@ -23,6 +23,45 @@ Some developer tools like Rust are managed using the native tooling.
 
 It is well tested on macOS. I also use Fedora and Ubuntu regularly but I don't always use this tool.
 
+## Requirements
+
+The following are the minimum requirements for dotfiles to work:
+
+* [git](https://git-scm.com/download/linux)
+
+On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is expected to be installed and configured.
+
+## Install
+
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
+```
+
+### Alternate Install
+
+If directly executing script is not desired, clone into a location (recommend `~/.local/share/dotfiles`)
+
+```sh
+git clone git@github.com:ascarter/dotfiles.git ~/.local/share/dotfiles
+cd ~/.config/dotfiles
+./install.sh
+```
+
+### Install from branch
+
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)" -s -- -b <branch>
+```
+
+### Uninstall
+
+Run the uninstall script to remove the symlinks and restore any original files:
+
+```sh
+cd ~/.config/dotfiles
+./uninstall.sh
+```
+
 ## Command line
 
 The `dotfiles` command can be used to manage the configuration. The following are the available commands:
@@ -102,42 +141,3 @@ dotfiles uninstall
 | bin      | Dotfiles tools               |
 | cfg     | Configuration source files   |
 | lib      | Dotfiles libraries           |
-
-## Requirements
-
-The following are the minimum requirements for dotfiles to work:
-
-* [git](https://git-scm.com/download/linux)
-
-On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is expected to be installed and configured.
-
-## Install
-
-```sh
-sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
-```
-
-### Alternate Install
-
-If directly executing script is not desired, clone into a location (recommend `~/.config/dotfiles`)
-
-```sh
-git clone git@github.com:ascarter/dotfiles.git ~/.config/dotfiles
-cd ~/.config/dotfiles
-./install.sh
-```
-
-### Install from branch
-
-```sh
-sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)" -s -- -b <branch>
-```
-
-### Uninstall
-
-Run the uninstall script to remove the symlinks and restore any original files:
-
-```sh
-cd ~/.config/dotfiles
-./uninstall.sh
-```
