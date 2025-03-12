@@ -1,7 +1,18 @@
 # dotfiles
 Unix dotfiles
 
-The dotfiles configuration tool works for macOS and Linux. It should work with any reasonable POSIX OS or devcontainer.
+The dotfiles configuration tool works for macOS and Linux.
+It should work with any reasonable POSIX OS or devcontainer.
+
+## Motivation
+
+I wrote this tool to manage my dotfiles across multiple machines and operating systems.
+It allows me to easily update and manage my configuration files.
+I included the tools and development stacks that I want to use.
+I prefer running locally when I can instead of in a container.
+This tool is an attempt to make it easier to manage the local environments consistently.
+
+## Implementation
 
 The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
@@ -9,6 +20,8 @@ The dotfiles are managed using symlinks. The source file is under the `config` d
 Using mise allows tools to be installed cross-platform instead of using different package managers for each OS.
 
 Some developer tools like Rust are managed using the native tooling.
+
+It is well tested on macOS. I also use Fedora and Ubuntu regularly but I don't always use this tool.
 
 ## Command line
 
