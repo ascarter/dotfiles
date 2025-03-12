@@ -160,6 +160,7 @@ vlog "TARGET" ${TARGET}
 case ${1} in
 init)
   tlog "init" "${ID}"
+  os_install
   tools_install
   developer_install
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
@@ -191,6 +192,7 @@ uninstall)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
   developer_uninstall
   tools_uninstall
+  os_uninstall
   uninstall
   ;;
 *)
