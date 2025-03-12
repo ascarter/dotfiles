@@ -1,3 +1,5 @@
+export PATH=$HOME/.local/bin:$PATH
+
 # Emulate os-release
 # Deterine OS and version
 case $(uname -s) in

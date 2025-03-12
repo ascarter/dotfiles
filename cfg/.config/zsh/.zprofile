@@ -1,6 +1,7 @@
 export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 
 # Configure homebrew
+export HOMEBREW_NO_EMOJI=1
 if [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -d /home/linuxbrew/.linuxbrew ]; then
