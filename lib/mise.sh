@@ -9,7 +9,7 @@ mise_use() {
 mise_unuse() {
   if [ -x "$(command -v mise)" ]; then
     dlog "mise unuse" "$1"
-    mise unuse -g $1
+    mise unuse -g -y $1
   fi
 }
 
@@ -48,7 +48,7 @@ mise_uninstall() {
   if [ -x "$(command -v mise)" ]; then
     if prompt "Uninstall mise?" ; then
       mise deactivate
-      mise implode
+      mise implode -y
     fi
   fi
 }
