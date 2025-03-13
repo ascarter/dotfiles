@@ -1,7 +1,5 @@
 # Homebrew
 
-export HOMEBREW_BUNDLE_FILE_GLOBAL=${HOMEBREW_BUNDLE_FILE_GLOBAL:-${XDG_CONFIG_HOME}/homebrew/Brewfile}
-
 brew_env() {
   if [ -d /opt/homebrew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -35,10 +33,21 @@ brew_update() {
   if [ -x "$(command -v brew)" ]; then
     dlog "update" "brew"
 
-    if ! brew bundle check --global ; then
-      dlog "installing" "brewfile"
-      brew bundle install --global
-    fi
+    brewfiles=(
+      ${XDG_CONFIG_HOME}/homebrew/Brewfile
+      ${XDG_CONFIG_HOME}/homebrew/Brewfile.${ID}
+    )
+
+    for file in "${brewfiles[@]}"; do
+      vlog "checking" "${file}"
+      if [ -f "$file" ]; then
+        dlog "check" "${file}"
+        if ! brew bundle check --file="${file}" ; then
+          dlog "installing" "${file}"
+          brew bundle install --file="$file"
+        fi
+      fi
+    done
 
     dlog "upgrading" "brew"
     brew upgrade

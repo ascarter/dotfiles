@@ -80,7 +80,7 @@ sync() {
   if [ "${action}" = "list" ]; then
       if [ -L "${target_file}" ]; then
         if check_symlink "${target_file}" "${source_file}"; then
-          dlog "ok" "${target_file} -> ${source_file}"
+          vlog "ok" "${target_file} -> ${source_file}"
         else
           err "invalid link ${target_file}"
         fi
@@ -92,7 +92,7 @@ sync() {
     elif [ "${action}" = "link" ]; then
       if [ -L "${target_file}" ]; then
         if check_symlink "${target_file}" "${source_file}"; then
-          dlog "ok" "${target_file} -> ${source_file}"
+          vlog "ok" "${target_file} -> ${source_file}"
         else
           err "invalid link ${target_file}"
         fi
@@ -180,10 +180,11 @@ unlink)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
   ;;
 update)
-  tlog "pull" "dotfiles"
+  tlog "update" "dotfiles"
+  dlog "pull" "dotfiles"
   git -C ${DOTFILES} pull
 
-  tlog "sync" "dotfiles"
+  dlog "sync" "dotfiles"
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
 
   os_update
