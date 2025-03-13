@@ -9,6 +9,9 @@ xcode_install() {
   else
     dlog "exists" "xcode"
   fi
+
+  # Enable developer mode
+  spctl developer-mode enable-terminal
 }
 
 os_install() {
