@@ -55,3 +55,9 @@ brew_uninstall() {
     fi
   fi
 }
+
+brew_list() {
+  if [ -x "$(command -v brew)" ]; then
+    dlog "brew" "$(brew -v)"
+  fi
+}

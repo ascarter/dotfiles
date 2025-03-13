@@ -16,6 +16,12 @@ go_uninstall() {
   mise_unuse go
 }
 
+go_list() {
+  if [ -x "$(command -v go)" ]; then
+    dlog "go" "$(go version)"
+  fi
+}
+
 # Java
 java_install() {
   dlog "install" "java"
@@ -32,6 +38,12 @@ java_uninstall() {
   mise_unuse java
 }
 
+java_list() {
+  if [ -x "$(command -v java)" ]; then
+    dlog "java" "$(java -version)"
+  fi
+}
+
 # Ruby
 ruby_install() {
   dlog "install" "ruby"
@@ -46,6 +58,13 @@ ruby_update() {
 ruby_uninstall() {
   dlog "uninstall" "ruby"
   mise_unuse ruby
+}
+
+ruby_list() {
+  if [ -x "$(command -v ruby)" ]; then
+    dlog "ruby" "$(ruby --version)"
+    dlog "gem" "$(gem --version)"
+  fi
 }
 
 # Rust
@@ -75,6 +94,13 @@ rust_uninstall() {
   fi
 }
 
+rust_list() {
+  if [ -x "$(command -v rustc)" ]; then
+    dlog "rust" "$(rustc --version)"
+    dlog "rustup" "$(RUSTUP_LOG=ERROR rustup --version)"
+  fi
+}
+
 developer_install() {
   tlog "install" "developer"
   rust_install
@@ -94,4 +120,11 @@ developer_uninstall() {
   rust_uninstall
   ruby_uninstall
   go_uninstall
+}
+
+developer_list() {
+  tlog "status" "developer"
+  rust_list
+  ruby_list
+  go_list
 }

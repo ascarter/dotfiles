@@ -165,9 +165,13 @@ init)
   os_install
   tools_install
   developer_install
+  update_completions
   ;;
 list)
+  tlog "status" "dotfiles"
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "list"
+  os_list
+  developer_list
   ;;
 adopt)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"

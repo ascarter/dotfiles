@@ -26,5 +26,13 @@ Linux)
   ;;
 esac
 
+os_list() {
+  tlog "status" "os"
+  dlog "OS" "${PRETTY_NAME}"
+  dlog " " "$(uname -m -n -r -s)"
+
+  brew_list
+}
+
 # OS helper functions
 source ${DOTFILES_LIB_DIR}/os/${ID}.sh
