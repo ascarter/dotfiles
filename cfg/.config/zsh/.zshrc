@@ -1,7 +1,7 @@
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
 # Add Docker Desktop
-if [[ -d ${HOME}/.docker ]; then
+if [[ -d ${HOME}/.docker ]]; then
   fpath+=(${HOME}/.docker/completions)
 fi
 
