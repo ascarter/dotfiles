@@ -53,12 +53,14 @@ update_completions() {
   tools=(
     usage
     mise
+    docker
     rustup
     cargo
   )
   tool_cmds=(
     "usage --completions zsh"
     "mise completion zsh"
+    "docker completion zsh"
     "rustup completions zsh"
     "rustup completions zsh cargo"
   )

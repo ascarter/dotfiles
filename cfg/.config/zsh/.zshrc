@@ -1,10 +1,5 @@
 fpath+=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions)
 
-# Add Docker Desktop
-if [[ -d ${HOME}/.docker ]]; then
-  fpath+=(${HOME}/.docker/completions)
-fi
-
 # Add local zsh functions
 if [[ -d "${HOME}/.local/share/zsh/functions" ]]; then
   fpath+=(${HOME}/.local/share/zsh/functions)
