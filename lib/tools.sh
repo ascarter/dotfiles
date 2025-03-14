@@ -51,15 +51,11 @@ gh_install() {
 update_completions() {
   completion_dir="${1:-$HOME/.local/share/zsh/functions}"
   tools=(
-    usage
-    mise
     docker
     rustup
     cargo
   )
   tool_cmds=(
-    "usage --completions zsh"
-    "mise completion zsh"
     "docker completion zsh"
     "rustup completions zsh"
     "rustup completions zsh cargo"
@@ -83,15 +79,12 @@ update_completions() {
 }
 
 tools_install() {
-  mise_install
   op_install
   gh_install
 }
 
 tools_update() {
-  mise_update
 }
 
 tools_uninstall() {
-  mise_uninstall
 }

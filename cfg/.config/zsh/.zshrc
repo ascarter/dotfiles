@@ -96,6 +96,11 @@ if [[ -d ${HOME}/.cargo ]]; then
   source "$HOME/.cargo/env"
 fi
 
+# rbenv
+if (( $+commands[rbenv] )); then
+  eval "$(rbenv init - zsh)"
+fi
+
 # =====================================
 # SSH
 # =====================================

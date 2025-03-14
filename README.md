@@ -16,11 +16,6 @@ This tool is an attempt to make it easier to manage the local environments consi
 
 The dotfiles are managed using symlinks. The source file is under the `config` directory in the location where it should appear in `$HOME`.
 
-[mise](https://github.com/jdx/mise) is used to manage some development tools.
-Using mise allows tools to be installed cross-platform instead of using different package managers for each OS.
-
-Some developer tools like Rust are managed using the native tooling.
-
 It is well tested on macOS. I also use Fedora and Ubuntu regularly but I don't always use this tool.
 
 ## Requirements

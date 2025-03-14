@@ -19,11 +19,3 @@ for bindir in "${bindirs[@]}" ; do
     PATH="${bindir}":$PATH
   fi
 done
-
-if (( $+commands[mise] )); then
-  if [[ -o interactive ]]; then
-    eval "$(mise activate zsh)"
-  else
-    eval "$(mise activate zsh --shims)"
-  fi
-fi

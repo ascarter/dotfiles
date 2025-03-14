@@ -138,10 +138,6 @@ uninstall() {
 # main
 # ------------------------------
 
-if [ -x "$(command -v mise)" ]; then
-  eval "$(mise activate --shims)"
-fi
-
 # Parse command line arguments
 while getopts ":d:t:v" opt; do
   case $opt in

@@ -1,78 +1,12 @@
 # Developer tools
 
-# Go
-go_install() {
-  dlog "install" "go"
-  mise_use go@latest
-}
-
-go_update() {
-  dlog "update" "go"
-  mise_upgrade go
-}
-
-go_uninstall() {
-  dlog "uninstall" "go"
-  mise_unuse go
-}
-
-go_list() {
-  if [ -x "$(command -v go)" ]; then
-    dlog "go" "$(go version)"
-  fi
-}
-
-# Java
-java_install() {
-  dlog "install" "java"
-  mise_use java@latest
-}
-
-java_update() {
-  dlog "update" "java"
-  mise_upgrade java
-}
-
-java_uninstall() {
-  dlog "uninstall" "java"
-  mise_unuse java
-}
-
-java_list() {
-  if [ -x "$(command -v java)" ]; then
-    dlog "java" "$(java -version)"
-  fi
-}
-
-# Ruby
-ruby_install() {
-  dlog "install" "ruby"
-  mise_use ruby@latest
-}
-
-ruby_update() {
-  dlog "update" "ruby"
-  mise_upgrade ruby
-}
-
-ruby_uninstall() {
-  dlog "uninstall" "ruby"
-  mise_unuse ruby
-}
-
-ruby_list() {
-  if [ -x "$(command -v ruby)" ]; then
-    dlog "ruby" "$(ruby --version)"
-    dlog "gem" "$(gem --version)"
-  fi
-}
-
 # Rust
-rust_install() {
+rustup_install() {
   if [ ! -x "$(command -v rustup)" ]; then
+    dlog "install" "rustup"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --component rust-analyzer
   else
-    dlog "exist" "rust"
+    dlog "exist" "rustup"
   fi
 
   if [[ -d ${HOME}/.cargo ]]; then
@@ -80,51 +14,42 @@ rust_install() {
   fi
 }
 
-rust_update() {
+rustup_update() {
   if [ -x "$(command -v rustup)" ]; then
-    dlog "update" "rust"
+    dlog "update" "rustup"
     rustup update
   fi
 }
 
-rust_uninstall() {
+rustup_uninstall() {
   if [ -x "$(command -v rustup)" ]; then
-    dlog "uninstall" "rust"
+    dlog "uninstall" "rustup"
     rustup self uninstall
   fi
 }
 
-rust_list() {
+rustup_list() {
   if [ -x "$(command -v rustc)" ]; then
-    dlog "rust" "$(rustc --version)"
     dlog "rustup" "$(RUSTUP_LOG=ERROR rustup --version)"
   fi
 }
 
 developer_install() {
   tlog "install" "developer"
-  rust_install
-  ruby_install
-  go_install
+  rustup_install
 }
 
 developer_update() {
   tlog "update" "developer"
-  rust_update
-  ruby_update
-  go_update
+  rustup_update
 }
 
 developer_uninstall() {
   tlog "uninstall" "developer"
-  rust_uninstall
-  ruby_uninstall
-  go_uninstall
+  rustup_uninstall
 }
 
 developer_list() {
   tlog "status" "developer"
-  rust_list
-  ruby_list
-  go_list
+  rustup_list
 }

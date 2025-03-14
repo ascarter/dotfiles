@@ -3,21 +3,18 @@ case $- in
     *i*)
         ;;
       *)
-        # if command -v mise &> /dev/null; then
-        #   eval "$(mise activate bash --shims)"
-        # fi
         return
         ;;
 esac
 
-# Enable mise
-if command -v mise > /dev/null 2>&1 ; then
-  eval "$(mise activate bash)"
-fi
-
 # Rust
 if [[ -d ${HOME}/.cargo ]]; then
   source "$HOME/.cargo/env"
+fi
+
+# rbenv
+if command -v rbenv > /dev/null 2>&1 ; then
+  eval "$(rbenv init - --no-rehash bash)"
 fi
 
 # Set tlrc config

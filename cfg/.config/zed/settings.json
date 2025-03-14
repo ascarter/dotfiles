@@ -74,7 +74,13 @@
   },
   "languages": {
     "Ruby": {
-      "language_servers": ["ruby-lsp", "standardrb", "!solargraph", "!rubocop"],
+      "language_servers": [
+        "tailwindcss-language-server",
+        "ruby-lsp",
+        "standardrb",
+        "!solargraph",
+        "!rubocop"
+      ],
       "formatter": "language_server",
       "format_on_save": "on"
     },
@@ -97,6 +103,17 @@
           "enabledFeatures": {
             "diagnostics": true,
             "formatting": true
+          }
+        }
+      },
+      "tailwindcss-language-server": {
+        "settings": {
+          "includedLanguages": {
+            "erb": "html",
+            "ruby": "html"
+          },
+          "experimental": {
+            "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
           }
         }
       }
