@@ -75,9 +75,9 @@
   "languages": {
     "Ruby": {
       "language_servers": [
-        "tailwindcss-language-server",
         "ruby-lsp",
         "standardrb",
+        "tailwindcss-language-server",
         "!solargraph",
         "!rubocop"
       ],
@@ -91,30 +91,37 @@
   "lsp": {
     "ruby-lsp": {
       "initialization_options": {
+        "experimentalFeaturesEnabled": true,
+        "formatter": "standard",
+        "linters": ["standard"],
         "enabledFeatures": {
           "diagnostics": false,
           "formatting": true
         },
-        "formatter": "standard",
-        "linters": ["standard"]
-      },
-      "standardrb": {
-        "initialization_options": {
-          "enabledFeatures": {
-            "diagnostics": true,
-            "formatting": true
+        "featuresConfiguration": {
+          "inlayHint": {
+            "implicitHashValue": true,
+            "implicitRescue": true
           }
         }
-      },
-      "tailwindcss-language-server": {
-        "settings": {
-          "includedLanguages": {
-            "erb": "html",
-            "ruby": "html"
-          },
-          "experimental": {
-            "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
-          }
+      }
+    },
+    "standardrb": {
+      "initialization_options": {
+        "enabledFeatures": {
+          "diagnostics": true,
+          "formatting": false
+        }
+      }
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "includedLanguages": {
+          "erb": "html",
+          "ruby": "html"
+        },
+        "experimental": {
+          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
         }
       }
     }
