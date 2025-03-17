@@ -17,9 +17,6 @@
 "ui.cursorline.primary" = { fg = "default", bg = "gray" }
 "ui.cursorcolumn.primary" = { fg = "default", bg = "gray" }
 
-"ui.selection" = { fg = "default", bg = "light-blue" }
-"ui.selection.primary" = { fg = "default", bg = "light-blue" }
-
 "ui.gutter" = { bg = "default" }
 "ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
 
@@ -36,20 +33,23 @@
 "ui.statusline.insert" = { fg = "0", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
+"ui.selection" = { modifiers = ["reversed", "bold"] }
+"ui.selection.primary" = { modifiers = ["reversed"] }
+
 # "ui.menu" = { fg = "default", bg = "light-blue" }
 "ui.menu.selected" = { bg = "light-blue", modifiers = ["bold"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
 
-# "ui.popup" = { fg = "default", bg = "light-blue" }
-"ui.highlight" = { bg = "light-blue", modifiers = ["bold"] }
-"ui.text.focus" = { bg = "light-blue", modifiers = ["bold"] }
+# "ui.popup" = { bg = "gray" }
+"ui.highlight" = { bg = "gray" }
+"ui.text.focus" = { modifiers = ["bold"] }
 "ui.text.inactive" = { modifiers = ["dim"] }
 
 "ui.help" = { fg = "default", bg = "default" }
 "ui.window" = { fg = "light-gray", bg = "default", modifiers = ["dim"] }
 
 "ui.virtual" = { fg = "light-gray", modifiers = ["dim"] }
-"ui.virtual.ruler" = { bg = "default", modifiers = [ "reversed" ] }
+"ui.virtual.ruler" = { bg = "default", modifiers = ["reversed"] }
 "ui.virtual.whitespace" = { modifiers = ["dim"] }
 "ui.virtual.indent-guide" = { fg = "light-gray" }
 "ui.virtual.inlay-hint" = { bg = "light-gray" }
