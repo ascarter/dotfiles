@@ -1,4 +1,4 @@
-theme = "ghostty"
+theme = "ansi"
 
 [editor]
 cursorline = false
