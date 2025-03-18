@@ -23,8 +23,8 @@
   },
   "theme": {
     "mode": "system",
-    "light": "macOS Classic Light",
-    "dark": "Xcode Default Dark"
+    "light": "Github Light",
+    "dark": "Github Dark Dimmed"
   },
   "ui_font_family": ".SystemUIFont",
   "buffer_font_family": "Berkeley Mono",
