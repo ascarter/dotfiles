@@ -23,7 +23,7 @@
   },
   "theme": {
     "mode": "system",
-    "light": "Github Light",
+    "light": "Xcode Default Light",
     "dark": "Github Dark Dimmed"
   },
   "ui_font_family": ".SystemUIFont",
