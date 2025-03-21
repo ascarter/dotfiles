@@ -120,7 +120,7 @@
               "optional": ["any"]
             }
           },
-          "to": [{ "key_code": "delete_or_backspace" }],
+          "to": [{ "key_code": "delete_forward" }],
           "type": "basic"
         },
         {
@@ -130,7 +130,7 @@
               "optional": ["any"]
             }
           },
-          "to": [{ "key_code": "delete_forward" }],
+          "to": [{ "key_code": "delete_or_backspace" }],
           "type": "basic"
         },
         {
@@ -145,7 +145,7 @@
         },
         {
           "from": {
-            "key_code": "delete_forward",
+            "key_code": "escape",
             "modifiers": {
               "optional": ["any"]
             }
@@ -585,6 +585,16 @@
         {
           "from": {
             "key_code": "f15",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [{ "key_code": "vk_none" }],
+          "type": "basic"
+        },
+        {
+          "from": {
+            "key_code": "left_control",
             "modifiers": {
               "optional": ["any"]
             }
