@@ -36,9 +36,6 @@
     "close_position": "left",
     "file_icons": true
   },
-  "tab_bar": {
-    "show": false
-  },
   "vim_mode": true,
   "vim": {
     "toggle_relative_line_numbers": true
