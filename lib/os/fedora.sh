@@ -23,12 +23,18 @@ dnf_config_manager() {
 
 os_install() {
   dnf_install dnf-plugins-core
+  dnf_install @development-tools
+  dnf_install curl
+  dnf_install git
+  brew_install
+  brew_update
 }
 
 os_update() {
   sudo dnf update -y
+  brew_update
 }
 
 os_uninstall() {
-  # TODO: os uninstall
+  brew_uninstall
 }

@@ -84,6 +84,13 @@ Linux)
   alias glock="gnome-screensaver-command --lock"
   alias xlock="xscreensaver-command -lock"
 
+  # WSL - Use ssh.exe from Windows for 1P SSH Agent
+  if [ -n "$WSL_DISTRO_NAME" ]; then
+    alias op='op.exe'
+    alias ssh='ssh.exe'
+    alias ssh-add='ssh-add.exe'
+  fi
+
   # Linux version of macOS pbcopy/pbpaste.
   if command -v xsel > /dev/null 2>&1 ; then
     alias pbcopy="xsel --clipboard --input"
