@@ -32,6 +32,7 @@ usage() {
   log "  init" "Initialize dotfiles"
   log "  list" "Show configuration status"
   log "  adopt" "Add changed configuration files"
+  log "  link" "Link configuration"
   log "  unlink" "Unlink configuration"
   log "  update" "Update configuration"
   log "  uninstall" "Uninstall dotfiles"
@@ -171,6 +172,9 @@ list)
   ;;
 adopt)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"
+  ;;
+link)
+  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   ;;
 unlink)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"

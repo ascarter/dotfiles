@@ -23,6 +23,7 @@ os_install() {
 os_update() {
   brew_update
 }
+
 os_uninstall() {
   brew_uninstall
 }

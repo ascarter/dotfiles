@@ -84,7 +84,9 @@ tools_install() {
 }
 
 tools_update() {
+  echo "Updating tools..."
 }
 
 tools_uninstall() {
+  echo "Uninstalling tools..."
 }

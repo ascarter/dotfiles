@@ -1,3 +1,6 @@
+# Common profile configuration for both bash and zsh
+# This file should be sourced from both .profile and .zprofile
+
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
@@ -11,18 +14,23 @@ elif [ -d /home/linuxbrew/.linuxbrew ]; then
 fi
 
 # Extra bin directories
-bindirs=(
-  ${DOTFILES}/bin
-  ${HOME}/bin
-  ${HOME}/.local/bin
-)
-for bindir in "${bindirs[@]}" ; do
-  if [ -d "${bindir}" ] ; then
-    PATH="${bindir}":$PATH
-  fi
-done
+if [ -n "$ZSH_VERSION" ]; then
+  # ZSH-specific implementation
+  typeset -U path
+  path=($DOTFILES/bin $HOME/bin $HOME/.local/bin $path)
+else
+  # POSIX sh/bash implementation
+  for bindir in "${DOTFILES}/bin" "${HOME}/bin" "${HOME}/.local/bin"; do
+    if [ -d "${bindir}" ]; then
+      case ":${PATH}:" in
+        *:"${bindir}":*) ;;
+        *) PATH="${bindir}:${PATH}" ;;
+      esac
+    fi
+  done
+fi
 
-# Source .bashrc if it exists
-if [ -f ${HOME}/.bashrc ] ; then
-  source ${HOME}/.bashrc
+# Source .bashrc for interactive bash shells
+if [ -n "$BASH_VERSION" ] && [ -f "${HOME}/.bashrc" ]; then
+  source "${HOME}/.bashrc"
 fi

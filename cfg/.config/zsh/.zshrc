@@ -91,65 +91,11 @@ fi
 bindkey -v
 
 # =====================================
-# Editor
+# Common shell configuration
 # =====================================
 
-# Use nvim ➜ vim ➜ vi  for editor
-if (( $+commands[nvim] )); then
-  export EDITOR="nvim"
-elif (( $+commands[vim] )); then
-  export EDITOR="vim"
-else
-  export EDITOR="vi"
-fi
-
-# =====================================
-# Tools
-# =====================================
-
-# less
-export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
-
-# ripgrep
-export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
-
-# tlrc
-export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
-
-# =====================================
-# Developer
-# =====================================
-
-# Rust
-if [[ -d ${HOME}/.cargo ]]; then
-  source "$HOME/.cargo/env"
-fi
-
-# rbenv
-if (( $+commands[rbenv] )); then
-  eval "$(rbenv init - zsh)"
-fi
-
-# =====================================
-# SSH
-# =====================================
-
-# Enable 1Password SSH agent if installed when running locally
-if [ -z $SSH_TTY ] && [ -S ${HOME}/.1password/agent.sock ]; then
-  export SSH_AUTH_SOCK=${HOME}/.1password/agent.sock
-fi
-
-# 1Password plugins
-if [ -f ${XDG_CONFIG_HOME}/op/plugins.sh ]; then
-  source ${XDG_CONFIG_HOME}/op/plugins.sh
-fi
-
-# =====================================
-# Aliases
-# =====================================
-
-if [[ -f ${HOME}/.aliases ]]; then
-  source ${HOME}/.aliases
+if [[ -f ${HOME}/.shellrc ]]; then
+  source ${HOME}/.shellrc
 fi
 
 # =====================================
