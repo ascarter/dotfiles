@@ -61,6 +61,9 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_REDUCE_BLANKS
 
+# Enable vim mode
+bindkey -v
+
 # =====================================
 # Editor
 # =====================================
