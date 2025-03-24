@@ -46,6 +46,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # Default: PS1="%m%# "
 # Default macOS: PS1="%n@%m %1~ %#"
+# Default Fedora: PS1="[%n@%m]%~%#"
 declare +x PS1
 prompt terminal
 
@@ -61,6 +62,31 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_REDUCE_BLANKS
 
+setopt autocd extendedglob nomatch
+
+# Change cursor shape according to vi mode
+# Don't run when in Ghostty since it already supports this.
+if [[ "$TERM" != *ghostty* && "$GHOSTTY_SHELL_INTEGRATION_NO_CURSOR" != 1 ]]; then
+  # Change the cursor shape according to the current vi mode.
+  _vi_zle_line_init _vi_zle_line_finish _vi_zle_keymap_select() {
+    case ${KEYMAP-} in
+      vicmd|visual)  print -Pn "\e[1 q" ;;
+      *)             print -Pn "\e[5 q" ;;
+    esac
+  }
+
+  # Bind the function to the ZLE hooks.
+  zle -N zle-line-init     _vi_zle_line_init
+  zle -N zle-line-finish   _vi_zle_line_finish
+  zle -N zle-keymap-select _vi_zle_keymap_select
+
+  # Before executing an external command, reset the cursor to its default shape.
+  _vi_preexec_reset_cursor() {
+    print -Pn "\e[0 q"
+  }
+  preexec_functions+=( _vi_preexec_reset_cursor )
+fi
+
 # Enable vim mode
 bindkey -v
 
@@ -68,11 +94,11 @@ bindkey -v
 # Editor
 # =====================================
 
-# Use helix ➜ nano ➜ vi for editor
-if (( $+commands[hx] )); then
-  export EDITOR="hx"
-elif (( $+commands[nano] )); then
-  export EDITOR="nano"
+# Use nvim ➜ vim ➜ vi  for editor
+if (( $+commands[nvim] )); then
+  export EDITOR="nvim"
+elif (( $+commands[vim] )); then
+  export EDITOR="vim"
 else
   export EDITOR="vi"
 fi
