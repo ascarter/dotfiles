@@ -26,6 +26,11 @@ os_install() {
   dnf_install @development-tools
   dnf_install curl
   dnf_install git
+  dnf_install zsh
+
+  # Change default shell to zsh
+  sudo usermod -s /usr/bin/zsh ${USER}
+
   brew_install
   brew_update
 }
