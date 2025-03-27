@@ -50,21 +50,19 @@
 	process = git-lfs filter-process
 	required = true
 
-[difftool]
+[diff]
 	gui = auto
-	prompt = false
+	tool = nvimdiff
+
+[merge]
+	gui = auto
+	tool = nvimdiff
 
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
 
 [mergetool "vscode"]
 	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
-
-[diff]
-	prompt = NO
-
-[merge]
-	prompt = NO
 
 [alias]
 	aliases = !git config --get-regexp alias | cut -c 7-

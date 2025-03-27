@@ -131,10 +131,10 @@ _gc_signers() {
 }
 
 _gc_tools() {
-  # Use VS Code as git difftool and mergetool if available
-  if (( $+commands[code] )); then
-    _gc_set ${1} diff.guitool "vscode"
-    _gc_set ${1} merge.guitool "vscode"
+  # Use opendiff on macOS for gui diff/merge tools
+  if (( $+commands[opendiff] )); then
+    _gc_set ${1} diff.guitool "opendiff"
+    _gc_set ${1} merge.guitool "opendiff"
   fi
 }
 
