@@ -87,6 +87,7 @@ Commands:
   status  	Show configuration status
   link    	Link configuration
   unlink  	Unlink configuration
+  update    Update dotfiles
 
 Options:
   -d      	dotfiles directory
@@ -116,6 +117,13 @@ Unlink the configuration files. This command will remove the symlinks created by
 
 ```sh
 dotfiles unlink
+```
+### update
+
+Pull latest dotfiles and verify configuration files are linked.
+
+```sh
+dotfiles update
 ```
 
 ## Scripts

@@ -36,6 +36,7 @@ usage() {
   log "  status" "Show configuration status"
   log "  link" "Link configuration"
   log "  unlink" "Unlink configuration"
+  log "  update" "Update dotfiles"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -59,17 +60,14 @@ check_symlink() {
 }
 
 # Sync configuration files from source to target directory
-# $1: source directory
-# $2: target directory
-# $3: action
+# $1: action
 #  list: check status
 #  link: link source to target
 #  unlink: unlink target
-#  adopt: adopt target
 sync() {
-  source_dir="${1}"
-  target_dir="${2}"
-  action="${3}"
+  source_dir="${DOTFILES_CONFIG_DIR}"
+  target_dir="${TARGET}"
+  action="${1}"
 
   find "${source_dir}" -type f | sort | while read -r source_file; do
     target_file="${target_dir}/${source_file#${source_dir}/}"
@@ -128,15 +126,12 @@ vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
 
 case ${1} in
-status)
-  log "status" "dotfiles"
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "list"
-  ;;
-link)
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
-  ;;
-unlink)
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
+status) sync "list" ;;
+link)   sync "link" ;;
+unlink) sync "unlink" ;;
+update)
+  git -C ${DOTFILES} pull
+  sync "link"
   ;;
 *)
   # No command - show help
