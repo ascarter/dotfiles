@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+
 # Verify macOS
 if [ "$(uname -s)" != "Darwin" ]; then
   echo "macOS only" >&2
