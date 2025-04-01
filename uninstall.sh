@@ -32,4 +32,19 @@ while getopts ":vhd:t:" opt; do
 done
 shift $((OPTIND - 1))
 
-${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} uninstall
+${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} unlink
+
+# Remove dotfiles
+if [ -d "${DOTFILES}" ]; then
+  choice=y
+  read -p "Remove dotfiles directory -> ${DOTFILES}? (y/N)" -n1 choice
+  echo
+  case $choice in
+  [yY]*) rm -rf ${DOTFILES} ;;
+  esac
+  echo "dotfiles uninstalled"
+  echo "Reload session to apply configuration"
+else
+  echo "dotfiles not found"
+  exit 1
+fi

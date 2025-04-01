@@ -1,4 +1,5 @@
 # dotfiles
+
 Unix dotfiles
 
 The dotfiles configuration tool works for macOS and Linux.
@@ -8,7 +9,8 @@ It should work with any reasonable POSIX OS or devcontainer.
 
 I wrote this tool to manage my dotfiles across multiple machines and operating systems.
 It allows me to easily update and manage my configuration files.
-I included the tools and development stacks that I want to use.
+
+I also included scripts to provsion the operating systems I use along with tools and development environments.
 I prefer running locally when I can instead of in a container.
 This tool is an attempt to make it easier to manage the local environments consistently.
 
@@ -22,7 +24,7 @@ It is well tested on macOS. I also use Fedora and Ubuntu regularly but I don't a
 
 The following are the minimum requirements for dotfiles to work:
 
-* [git](https://git-scm.com/download/linux)
+- [git](https://git-scm.com/download/linux)
 
 On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is expected to be installed and configured.
 
@@ -57,6 +59,14 @@ cd ~/.config/dotfiles
 ./uninstall.sh
 ```
 
+## Layout
+
+| Path    | Description                |
+| ------- | -------------------------- |
+| bin     | Dotfiles tools             |
+| cfg     | Configuration source files |
+| scripts | Install scripts            |
+
 ## Command line
 
 The `dotfiles` command can be used to manage the configuration. The following are the available commands:
@@ -68,12 +78,9 @@ dotfiles  	Configuration management tool using symlinks
 Usage:    	dotfiles [options] <command>
 
 Commands:
-  init    	Initialize dotfiles
-  list    	Show configuration status
-  adopt   	Add changed configuration files
+  status  	Show configuration status
+  link    	Link configuration
   unlink  	Unlink configuration
-  update  	Update configuration
-  uninstall Uninstall dotfiles
 
 Options:
   -d      	dotfiles directory
@@ -81,28 +88,20 @@ Options:
   -v      	Verbose
 ```
 
-### init
-
-Initialize dotfiles. This command will ensure prerequisites are installed and link the configuration files. The command should be run after the dotfiles are cloned.
-
-```sh
-dotfiles init
-```
-
-### list
+### status
 
 Show the status of the configuration files. This command will list the files that are linked, missing, or in conflict.
 
 ```sh
-dotfiles list
+dotfiles status
 ```
 
-### adopt
+### link
 
-Adopt configuration files. This command will adopt any changes and link the files from the dotfiles directory to the target directory.
+Link the configuration files. This command will create symlinks for all the configuration files tracked in `cfg` relative to the target directory (`$HOME` by default).
 
 ```sh
-dotfiles adopt
+dotfiles link
 ```
 
 ### unlink
@@ -113,26 +112,21 @@ Unlink the configuration files. This command will remove the symlinks created by
 dotfiles unlink
 ```
 
-### update
+## Scripts
 
-Update the configuration files. This command will pull the latest changes from the dotfiles repository and link the files.
+These are convenience installer scripts for setting up the platforms I use.
+The scripts are all independent and customized to how I use each platform.
+I'm not interested in building a general purpose package manager tool.
 
-```sh
-dotfiles update
-```
+These are meant to be able to run independent of the dotfiles.
+The scripts should all work idempotently so they are safe to run repeatedly. This could be useful to pick up new additions or to fix broken installs.
 
-### uninstall
-
-Uninstall dotfiles. This command will remove the dotfiles directory and all linked files.
-
-```sh
-dotfiles uninstall
-```
-
-## Layout
-
-| Path     | Description                  |
-|----------|------------------------------|
-| bin      | Dotfiles tools               |
-| cfg     | Configuration source files   |
-| lib      | Dotfiles libraries           |
+| Script                | Description                           |
+| --------------------- | ------------------------------------- |
+| developer.sh          | Install script for developer tools    |
+| fedora-server.sh      | Install script for Fedora Server      |
+| fedora-silverblue.sh  | Install script for Fedora Silverblue  |
+| fedora-workstation.sh | Install script for Fedora Workstation |
+| macos.sh              | Install script for macOS              |
+| tools.sh              | Install script for tools              |
+| ubuntu.sh             | Install script for Ubuntu             |

@@ -9,6 +9,7 @@ XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
+DOTFILES_SCRIPTS=${DOTFILES}/scripts
 
 TARGET=${TARGET:-$HOME}
 
@@ -46,7 +47,26 @@ else
   echo "dotfiles exists"
 fi
 
-${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} init
+${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} link
+
+# Prompt to run platform install script
+case $(uname -s) in
+Darwin)
+  ${DOTFILES_SCRIPTS}/macos.sh
+  ;;
+Linux)
+  if [[ -f /etc/os-release ]]; then
+    # Source os-release file to get distribution information
+    . /etc/os-release
+    case ${ID} in
+    fedora) ${DOTFILES_SCRIPTS}/fedora-${VARIANT_ID} ;;
+    *) ${DOTFILES_SCRIPTS}/${ID}.sh ;;
+    esac
+  else
+    echo "/etc/os-release not found"
+  fi
+  ;;
+esac
 
 echo ""
 echo "dotfiles installed"

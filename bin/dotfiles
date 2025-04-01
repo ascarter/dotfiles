@@ -12,16 +12,20 @@ DOTFILES_LIB_DIR=${DOTFILES}/lib
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
 
-# Source all lib fils
-if [ -d "${DOTFILES_LIB_DIR}" ]; then
-  for lib in ${DOTFILES_LIB_DIR}/*.sh; do
-    if [ -f "${lib}" ]; then
-      source "${lib}"
-    fi
-  done
-else
-  err "lib directory not found"
-fi
+log() {
+  if [ "$#" -eq 1 ]; then
+    printf "%s\n" "$1"
+  elif [ "$#" -gt 1 ]; then
+    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+  fi
+}
+
+# verbose log
+vlog() {
+  if [ $VERBOSE -eq 1 ]; then
+    log "$@"
+  fi
+}
 
 usage() {
   log "dotfiles" "Configuration management tool using symlinks"
@@ -29,13 +33,9 @@ usage() {
   log "Usage:" "dotfiles [options] <command>"
   log ""
   log "Commands:" ""
-  log "  init" "Initialize dotfiles"
-  log "  list" "Show configuration status"
-  log "  adopt" "Add changed configuration files"
+  log "  status" "Show configuration status"
   log "  link" "Link configuration"
   log "  unlink" "Unlink configuration"
-  log "  update" "Update configuration"
-  log "  uninstall" "Uninstall dotfiles"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -71,14 +71,9 @@ sync() {
   target_dir="${2}"
   action="${3}"
 
-  vlog "source_dir" "${source_dir}"
-  vlog "target_dir" "${target_dir}"
-  vlog "action" "${action}"
-
   find "${source_dir}" -type f | sort | while read -r source_file; do
     target_file="${target_dir}/${source_file#${source_dir}/}"
-    vlog "target_file" "${target_file}"
-  if [ "${action}" = "list" ]; then
+    if [ "${action}" = "list" ]; then
       if [ -L "${target_file}" ]; then
         if check_symlink "${target_file}" "${source_file}"; then
           vlog "ok" "${target_file} -> ${source_file}"
@@ -86,9 +81,9 @@ sync() {
           err "invalid link ${target_file}"
         fi
       elif [ -e "${target_file}" ]; then
-        dlog "conflict" "${target_file} -> ${source_file}"
+        log "conflict" "${target_file} -> ${source_file}"
       else
-        dlog "missing" "${target_file} -> ${source_file}"
+        log "missing" "${target_file} -> ${source_file}"
       fi
     elif [ "${action}" = "link" ]; then
       if [ -L "${target_file}" ]; then
@@ -99,40 +94,19 @@ sync() {
         fi
         continue
       elif [ -e "${target_file}" ]; then
-        dlog "conflict" "${target_file} -> ${source_file}"
+        log "conflict" "${target_file} -> ${source_file}"
         continue
       fi
       mkdir -p "$(dirname "${target_file}")"
       ln -sf "${source_file}" "${target_file}"
-      dlog "link" "${target_file} -> ${source_file}"
+      log "link" "${target_file} -> ${source_file}"
     elif [ "${action}" = "unlink" ]; then
       if [ -L "${target_file}" ]; then
         rm "${target_file}"
-        dlog "unlink" "${target_file} -> ${source_file}"
-      fi
-    elif [ "${action}" = "adopt" ]; then
-      if [ -e "${target_file}" ]; then
-        mv "${target_file}" "${source_file}"
-        ln -sf "${source_file}" "${target_file}"
-        dlog "adopt" "${target_file} -> ${source_file}"
+        log "unlink" "${target_file} -> ${source_file}"
       fi
     fi
   done
-}
-
-uninstall() {
-  # Remove dotfiles
-  if [ -d "${DOTFILES}" ]; then
-    if prompt "Remove dotfiles directory -> ${DOTFILES}?" ; then
-      rm -rf ${DOTFILES}
-    fi
-
-    echo "dotfiles uninstalled"
-    echo "Reload session to apply configuration"
-  else
-    echo "dotfiles not found"
-    exit 1
-  fi
 }
 
 # ------------------------------
@@ -150,55 +124,19 @@ while getopts ":d:t:v" opt; do
 done
 shift $(($OPTIND - 1))
 
-vlog "ID" ${ID}
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
 
 case ${1} in
-init)
-  tlog "init" "${ID}"
-  dlog "sync" "dotfiles"
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
-  os_install
-  tools_install
-  developer_install
-  update_completions
-  ;;
-list)
-  tlog "status" "dotfiles"
+status)
+  log "status" "dotfiles"
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "list"
-  os_list
-  developer_list
-  ;;
-adopt)
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "adopt"
   ;;
 link)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
   ;;
 unlink)
   sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
-  ;;
-update)
-  tlog "update" "dotfiles"
-  dlog "pull" "dotfiles"
-  git -C ${DOTFILES} pull
-
-  dlog "sync" "dotfiles"
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "link"
-
-  os_update
-  tools_update
-  developer_update
-  update_completions
-  ;;
-uninstall)
-  tlog "uninstall" "dotfiles"
-  sync "${DOTFILES_CONFIG_DIR}" "${TARGET}" "unlink"
-  developer_uninstall
-  tools_uninstall
-  os_uninstall
-  uninstall
   ;;
 *)
   # No command - show help
