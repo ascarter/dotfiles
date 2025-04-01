@@ -74,6 +74,11 @@ if [ -f ${HOME}/.shellrc ]; then
   source ${HOME}/.shellrc
 fi
 
+# Ruby
+if command -v rbenv > /dev/null 2>&1; then
+  eval "$(rbenv init - --no-rehash bash)"
+fi
+
 # =====================================
 # Local configuration
 # =====================================

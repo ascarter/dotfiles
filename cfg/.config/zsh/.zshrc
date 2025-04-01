@@ -98,6 +98,11 @@ if [[ -f ${HOME}/.shellrc ]]; then
   source ${HOME}/.shellrc
 fi
 
+# Ruby
+if command -v rbenv > /dev/null 2>&1; then
+  eval "$(rbenv init - zsh)"
+fi
+
 # =====================================
 # Per-machine extras
 # =====================================

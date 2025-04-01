@@ -32,20 +32,6 @@ if [[ -d ${HOME}/.cargo ]]; then
   source "$HOME/.cargo/env"
 fi
 
-# rbenv - shell-specific configuration
-case "$SHELL" in
-  */zsh)
-    if command -v rbenv > /dev/null 2>&1; then
-      eval "$(rbenv init - zsh)"
-    fi
-    ;;
-  */bash)
-    if command -v rbenv > /dev/null 2>&1; then
-      eval "$(rbenv init - --no-rehash bash)"
-    fi
-    ;;
-esac
-
 # =====================================
 # SSH Configuration
 # =====================================
