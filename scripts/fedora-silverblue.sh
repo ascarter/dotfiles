@@ -17,19 +17,30 @@ if [ "$ID" != "fedora" ] || [ "$VARIANT_ID" != "silverblue" ]; then
   exit 1
 fi
 
-# TODO: Update rpm-ostree
+# Update rpm-ostree
+rpm-ostree upgrade --check
+rpm-ostree upgrade
 
 # Install Flatpaks
+flatpak update -y
 flatpak install -y com.vivaldi.Vivaldi
+flatpak install -y com.valvesoftware.Steam
 
 # Install rpm overlays
-rpm-ostree install gnome-tweaks zsh
+rpm-ostree install gnome-tweaks terminus-fonts-console zsh
 
-# Install 1Password
+# Configure TTY for hidpi
+sudo cp /etc/vconsole.conf /etc/vconsole.conf.orig
+sudo sh -c 'echo -e "KEYMAP=\"us\"\nFONT=\"ter-132n\"" > /etc/vconsole.conf'
+
+# Configure Grub for hidpi
+# sudo sh -c 'echo -e "set gfxmode=1024x768\ninsmod gfxterm\nset gfxpayload=keep\nterminal_input gfxterm\nterminal_output gfxterm" > /boot/grub2/user.cfg'
+
+# Install 1Password into overlay
 sudo sh -c 'echo -e "[1password]\nname=1Password Stable Channel\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://downloads.1password.com/linux/keys/1password.asc" > /etc/yum.repos.d/1password.repo'
 rpm-ostree install 1password 1password-cli
 
-# Install Tailscale
+# Install Tailscale into overlay
 sudo curl -L -o /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 rpm-ostree install tailscale
 
@@ -37,7 +48,7 @@ rpm-ostree install tailscale
 systemctl enable --now tailscaled
 sudo tailscale up --ssh --accept-routes
 
-# Ghostty
+# Install Ghostty into overlay
 sudo sh -c 'echo -e "[copr:copr.fedorainfracloud.org:pgdev:ghostty]\nname=Copr repo for Ghostty owned by pgdev\nbaseurl=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/fedora-\$releasever-\$basearch/\ntype=rpm-md\nskip_if_unavailable=True\ngpgcheck=1\ngpgkey=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/pubkey.gpg\nrepo_gpgcheck=0\nenabled=1\nenabled_metadata=1" > /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:pgdev:ghostty.repo'
 rpm-ostree install ghostty
 
@@ -54,3 +65,4 @@ sudo update-desktop-database /usr/local/share/applications/
 
 echo 'Fedora Silverblue provisioning complete'
 echo 'Run "systemctl reboot" to start a reboot'
+echo 'Run "sudo tailscale up --sh --accept-routes" to start Tailscale'
