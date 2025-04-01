@@ -21,13 +21,16 @@ fi
 rpm-ostree upgrade --check
 rpm-ostree upgrade
 
+# Update firmware
+sudo fwupdmgr update
+
 # Install Flatpaks
 flatpak update -y
 flatpak install -y com.vivaldi.Vivaldi
 flatpak install -y com.valvesoftware.Steam
 
 # Install rpm overlays
-rpm-ostree install gnome-tweaks terminus-fonts-console zsh
+rpm-ostree install --idempotent gnome-tweaks terminus-fonts-console zsh
 
 # Configure TTY for hidpi
 sudo cp /etc/vconsole.conf /etc/vconsole.conf.orig
