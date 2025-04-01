@@ -73,7 +73,7 @@ Linux)
     case ${ID} in
     fedora)
       if prompt "Run ${ID} ${VARIANT_ID} provisioning script?"; then
-        ${DOTFILES_SCRIPTS}/fedora-${VARIANT_ID}
+        ${DOTFILES_SCRIPTS}/fedora-${VARIANT_ID}.sh
       fi
       ;;
     *)
