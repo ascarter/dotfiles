@@ -24,6 +24,16 @@ usage() {
   echo "  -h  Show usage"
 }
 
+prompt() {
+  choice=y
+  read -p "$1 (y/N)" -n1 choice
+  echo
+  case $choice in
+  [yY]*) return 0 ;;
+  esac
+  return 1
+}
+
 FLAGS=
 
 while getopts ":vhb:d:t:" opt; do
@@ -52,21 +62,36 @@ ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} link
 # Prompt to run platform install script
 case $(uname -s) in
 Darwin)
-  ${DOTFILES_SCRIPTS}/macos.sh
+  if prompt "Run macOS provisioning script?"; then
+    ${DOTFILES_SCRIPTS}/macos.sh
+  fi
   ;;
 Linux)
   if [[ -f /etc/os-release ]]; then
     # Source os-release file to get distribution information
     . /etc/os-release
     case ${ID} in
-    fedora) ${DOTFILES_SCRIPTS}/fedora-${VARIANT_ID} ;;
-    *) ${DOTFILES_SCRIPTS}/${ID}.sh ;;
+    fedora)
+      if prompt "Run ${ID} ${VARIANT_ID} provisioning script?"; then
+        ${DOTFILES_SCRIPTS}/fedora-${VARIANT_ID}
+      fi
+      ;;
+    *)
+      if prompt "Run ${ID} provisioning script?"; then
+        ${DOTFILES_SCRIPTS}/${ID}.sh
+      fi
+      ;;
     esac
   else
     echo "/etc/os-release not found"
   fi
   ;;
 esac
+
+# Prompt to run developer tools script
+if prompt "Run developer tools provisioning script?"; then
+  ${DOTFILES_SCRIPTS}/developer.sh
+fi
 
 echo ""
 echo "dotfiles installed"

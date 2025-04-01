@@ -30,6 +30,12 @@ On macOS, [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) is ex
 
 ## Install
 
+The `install.sh` script will do the following:
+* Clone the `dotfiles` repo to `${XDG_DATA_HOME}` if not present
+* Run `dotfiles link` to symlink the config files
+* Prompt to run the platform install script
+* Prompt to run the developer tools install script
+
 ```sh
 sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
 ```
