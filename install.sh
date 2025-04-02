@@ -88,11 +88,6 @@ Linux)
   ;;
 esac
 
-# Prompt to run developer tools script
-if prompt "Run developer tools provisioning script?"; then
-  ${DOTFILES_SCRIPTS}/developer.sh
-fi
-
 echo ""
 echo "dotfiles installed"
 echo "Reload session to apply configuration"
