@@ -33,7 +33,6 @@ if ! [ -f "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:pgdev:ghostty.repo" 
 fi
 
 # Update rpm-ostree
-rpm-ostree upgrade --check
 rpm-ostree upgrade
 
 # Install rpm overlays
@@ -51,8 +50,10 @@ flatpak install -y com.valvesoftware.Steam
 usermod --shell /usr/bin/zsh $USER
 
 # Configure TTY for hidpi
-sudo cp /etc/vconsole.conf /etc/vconsole.conf.orig
-sudo sh -c 'echo -e "KEYMAP=\"us\"\nFONT=\"ter-132n\"" > /etc/vconsole.conf'
+if ! [ -f /etc/vconsole.config.orig ]; then
+  sudo cp /etc/vconsole.conf /etc/vconsole.conf.orig
+  sudo sh -c 'echo -e "KEYMAP=\"us\"\nFONT=\"ter-132n\"" > /etc/vconsole.conf'
+fi
 
 # Configure Grub for hidpi
 # sudo sh -c 'echo -e "set gfxmode=1024x768\ninsmod gfxterm\nset gfxpayload=keep\nterminal_input gfxterm\nterminal_output gfxterm" > /boot/grub2/user.cfg'
@@ -61,7 +62,7 @@ sudo sh -c 'echo -e "KEYMAP=\"us\"\nFONT=\"ter-132n\"" > /etc/vconsole.conf'
 gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
 
 # Enable tailscale
-if systemctl enable --dry-run tailscaled; then
+if command -v tailscaled > /dev/null 2>&1; then
   systemctl enable --now tailscaled
   sudo tailscale up --ssh --accept-routes
 fi
