@@ -60,11 +60,6 @@ sudo sh -c 'echo -e "KEYMAP=\"us\"\nFONT=\"ter-132n\"" > /etc/vconsole.conf'
 # Adjust gnome settings
 gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
 
-# Hide Firefox
-sudo cp /usr/share/applications/org.mozilla.firefox.desktop /usr/local/share/applications/
-sudo sed -i "2a\\NotShowIn=GNOME;KDE" /usr/local/share/applications/org.mozilla.firefox.desktop
-sudo update-desktop-database /usr/local/share/applications/
-
 # Enable tailscale
 if systemctl enable --dry-run tailscaled; then
   systemctl enable --now tailscaled
