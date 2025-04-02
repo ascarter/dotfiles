@@ -48,8 +48,10 @@ sudo curl -L -o /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stabl
 rpm-ostree install tailscale
 
 # Check to see if /usr/lib/systemd/system/tailscaled.service exists
-systemctl enable --now tailscaled
-sudo tailscale up --ssh --accept-routes
+if systemctl enable --dry-run tailscaled; then
+  systemctl enable --now tailscaled
+  sudo tailscale up --ssh --accept-routes
+fi
 
 # Install Ghostty into overlay
 sudo sh -c 'echo -e "[copr:copr.fedorainfracloud.org:pgdev:ghostty]\nname=Copr repo for Ghostty owned by pgdev\nbaseurl=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/fedora-\$releasever-\$basearch/\ntype=rpm-md\nskip_if_unavailable=True\ngpgcheck=1\ngpgkey=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/pubkey.gpg\nrepo_gpgcheck=0\nenabled=1\nenabled_metadata=1" > /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:pgdev:ghostty.repo'
