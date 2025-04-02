@@ -48,7 +48,7 @@ flatpak install -y com.vivaldi.Vivaldi
 flatpak install -y com.valvesoftware.Steam
 
 # Set default shell
-chsh -s /usr/bin/zsh
+usermod --shell /usr/bin/zsh $USER
 
 # Configure TTY for hidpi
 sudo cp /etc/vconsole.conf /etc/vconsole.conf.orig
