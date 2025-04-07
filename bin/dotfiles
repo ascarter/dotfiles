@@ -120,7 +120,7 @@ while getopts ":d:t:v" opt; do
   \?) usage && exit 1 ;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}

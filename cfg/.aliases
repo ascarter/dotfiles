@@ -155,6 +155,11 @@ alias rst="resize -s 0 120"
 alias wfc="wttr Snoqualmie"
 alias wnow="wttr Snoqualmie format=3"
 
+# Docker/Podman
+if command -v podman > /dev/null 2>&1) && ! command -v docker > /dev/null 2>&1; then
+  alias docker=podman
+fi
+
 # Universal Development Container
 alias udc="docker run --rm -it --platform=linux/amd64 -v ${PWD}:/workspace -w /workspace mcr.microsoft.com/devcontainers/universal:latest"
 

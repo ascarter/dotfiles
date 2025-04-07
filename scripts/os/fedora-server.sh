@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -eu
 
 # Verify Linux
 if [ "$(uname -s)" != "Linux" ]; then

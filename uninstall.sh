@@ -2,7 +2,7 @@
 
 # Uninstall dotfiles
 
-set -euo pipefail
+set -eu
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
@@ -13,8 +13,8 @@ usage() {
   echo "Usage: $0 [options]"
   echo
   echo "Options:"
-  echo "  -d  Directory to install dotfiles (default: ${DOTFILES})"
-  echo "  -t  Target directory to stow dotfiles (default: ${TARGET})"
+  echo "  -d  Dotfiles directory (default: ${DOTFILES})"
+  echo "  -t  Target directory to remove symlinks to dotfiles (default: ${TARGET})"
   echo "  -v  Verbose output"
   echo "  -h  Show usage"
 }
