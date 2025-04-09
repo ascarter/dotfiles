@@ -23,10 +23,8 @@ prompt_terminal_setup() {
 
   if [[ "$TERM" = "xterm-256color" ]] || [[ "$TERM" = "screen-256color" ]] || [[ "$TERM" = "xterm-ghostty" ]] ; then
     SEPARATOR=' ➜ '
-    TRUNC_CHAR='…'
   else
     SEPARATOR=' | '
-    TRUNC_CHAR='...'
     nocolor=1
   fi
 
@@ -44,7 +42,7 @@ prompt_terminal_setup() {
   fi
 
   # ~/working/directory
-  PROMPT+=$(prompt_color "%B%40<${TRUNC_CHAR}<%3~%<<%b" "blue")
+  PROMPT+=$(prompt_color "%B%1~%b" "blue")
 
   # Put cursor on next line if using twoline prompt
   if [[ -n ${twoline} ]]; then
@@ -55,9 +53,6 @@ prompt_terminal_setup() {
 
   # Input prompt
   PROMPT+=$'%# '
-
-  PROMPT4='+%N:%i:%_>'
-
   prompt_opts=(cr percent subst sp)
 }
 
