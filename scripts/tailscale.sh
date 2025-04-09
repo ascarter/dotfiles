@@ -7,7 +7,7 @@ set -eu
 case $(uname -s) in
 Darwin)
   # Check if homebrew is installed. If it is, use homebrew to install Tailscale
-  if command -v brew > /dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
     brew install tailscale
   else
     echo "Homebrew is not installed. Please install Homebrew first."
@@ -25,10 +25,10 @@ Linux)
       if ! [ -f /etc/yum.repos.d/tailscale.repo ]; then
         sudo curl -L -o /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       fi
-      
+
       if ! rpm -q tailscale; then
         rpm-ostree install -y tailscale
-      if
+      fi
       ;;
     *)
       sudo dnf config-manager addrepo --overwrite --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -37,7 +37,7 @@ Linux)
     esac
 
     # Enable tailscale
-    if command -v tailscaled > /dev/null 2>&1; then
+    if command -v tailscaled >/dev/null 2>&1; then
       systemctl enable --now tailscaled
     fi
     ;;
@@ -47,9 +47,9 @@ Linux)
     sudo apt-get upgrade && sudo apt-get update -y
     sudo apt-get install -y tailscale
     ;;
-esac
+  esac
 
-  if command -v tailscaled > /dev/null 2>&1; then
+  if command -v tailscaled >/dev/null 2>&1; then
     sudo tailscale up --ssh --accept-routes --operator=$USER --reset
     tailscale ip -4
   fi

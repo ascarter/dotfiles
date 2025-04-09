@@ -34,16 +34,8 @@ rpm-ostree install --idempotent gnome-tweaks
 # Update firmware
 sudo fwupdmgr update
 
-# Set default shell
-# usermod --shell /usr/bin/zsh $USER
-
 # Add minimize button to window controls
 gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
-
-# Install gnome extensions
-# if ! gnome-extensions info -q nightthemeswitcher@romainvigier.fr ; then
-#   xdg-open https://extensions.gnome.org/extension/2236/night-theme-switcher/
-# fi
 
 echo 'Fedora Silverblue provisioning complete'
 echo 'Run "systemctl reboot" to start a reboot'

@@ -15,7 +15,7 @@ if ! [ -d /opt/homebrew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-if command -v brew > /dev/null 2>&1; then
+if command -v brew >/dev/null 2>&1; then
   if ! brew bundle check --global; then
     brew bundle install --global
   fi

@@ -7,7 +7,7 @@ set -eu
 case $(uname -s) in
 Darwin)
   # Check if homebrew is installed. If it is, use homebrew to install Steam
-  if command -v brew > /dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
     brew install steam
   else
     echo "Homebrew is not installed. Please install Homebrew first."

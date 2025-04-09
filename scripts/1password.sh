@@ -34,7 +34,7 @@ Linux)
     # On Fedora Silverblue, use rpm-ostree to overlay 1Password
     if [ "$VARIANT_ID" = "silverblue" ]; then
       if ! rpm -q 1password; then
-        rpm-ostree install -y 1password 
+        rpm-ostree install -y 1password
       fi
       if ! rpm -q 1password-cli; then
         rpm-ostree install -y 1password-cli

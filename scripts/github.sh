@@ -18,9 +18,11 @@ Linux)
       case "${VARIANT_ID}" in
       silverblue)
         if ! [ -f /etc/yum.repos.d/gh-cli.repo ]; then
-	  sudo curl -L -o /etc/yum.repos.d/gh-cli.repo https://cli.github.com/packages/rpm/gh-cli.repo
-	fi
-	rpm-ostree install --idempotent -y gh
+          sudo curl -L -o /etc/yum.repos.d/gh-cli.repo https://cli.github.com/packages/rpm/gh-cli.repo
+        fi
+        if ! rpm -q gh; then
+          rpm-ostree install -y gh
+        fi
         ;;
       *)
         # DNF5 installation commands
@@ -53,7 +55,7 @@ if command -v gh >/dev/null 2>&1; then
   done
 
   # 1Password CLI
-  if command -v op > /dev/null 2>&1; then
+  if command -v op >/dev/null 2>&1; then
     op plugin init gh
     op plugin inspect gh
   fi
