@@ -151,56 +151,10 @@ bindkey '^w' backward-kill-word
 # Shell configuration
 # =====================================
 
-# Set up dotfiles path
-export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
-path=($DOTFILES/bin $HOME/.local/bin $path)
-
-# Homebrew configuration
-export HOMEBREW_NO_EMOJI=1
-if [[ -d /opt/homebrew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# Ruby configuration
-if (( $+commands[rbenv] )); then
-  eval "$(rbenv init - zsh)"
-fi
-
-# Rust configuration
-if [[ -d ${HOME}/.cargo ]]; then
-  source "$HOME/.cargo/env"
-fi
-
-# Editor preference
-if (( $+commands[nvim] )); then
-  export EDITOR="nvim"
-elif (( $+commands[vim] )); then
-  export EDITOR="vim"
-else
-  export EDITOR="vi"
-fi
-
-# less
-export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
-
-# ripgrep
-export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
-
-# tlrc
-export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
-
-# =====================================
-# SSH Configuration
-# =====================================
-
-# Enable 1Password SSH agent if installed when running locally
-if [ -z "$SSH_TTY" ] && [ -S "${HOME}/.1password/agent.sock" ]; then
-  export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
-fi
-
-# 1Password plugins
-if [ -f "${XDG_CONFIG_HOME}/op/plugins.sh" ]; then
-  source "${XDG_CONFIG_HOME}/op/plugins.sh"
+if [[ -d ${HOME}/.bashrc.d ]]; then
+  for rc in ${HOME}/.bashrc.d/* ; do
+    if [ -f "$rc" ]; then
+      . "$rc"
+    fi
+  done
 fi

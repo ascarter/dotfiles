@@ -1,0 +1,56 @@
+# Common interactive shell configuration
+# These settings should work for both zsh and bash
+# For zsh, this file is sourced in zshrc
+# For bash on Fedora, this happens automatically with the default bashrc
+
+# Set up dotfiles path
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+export PATH=${DOTFILES}/bin:$PATH
+
+# Homebrew configuration
+export HOMEBREW_NO_EMOJI=1
+if [ -d /opt/homebrew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -d /home/linuxbrew/.linuxbrew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Enable 1Password SSH agent if installed when running locally
+if [ -z "$SSH_TTY" ] && [ -S "${HOME}/.1password/agent.sock" ]; then
+  export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
+fi
+
+# 1Password plugins
+if [ -f "${XDG_CONFIG_HOME}/op/plugins.sh" ]; then
+  source "${XDG_CONFIG_HOME}/op/plugins.sh"
+fi
+
+# Ruby configuration
+if command -v rbenv >/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi
+
+# Rust configuration
+if [ -d ${HOME}/.cargo ]; then
+  . "$HOME/.cargo/env"
+fi
+
+# Editor preference
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="nvim"
+elif command -v vim >/dev/null 2>&1; then
+  export EDITOR="vim"
+else
+  export EDITOR="vi"
+fi
+
+# less
+export LESS="--status-column --long-prompt --chop-long-lines --line-numbers --ignore-case --quit-if-one-screen -R"
+
+# ripgrep
+export RIPGREP_CONFIG_PATH=${XDG_CONFIG_HOME}/ripgrep/config
+
+# tlrc
+export TLRC_CONFIG=${XDG_CONFIG_HOME}/tlrc/config.toml
