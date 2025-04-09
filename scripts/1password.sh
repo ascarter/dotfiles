@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# 1Password install script for macOS, Ubuntu, and Fedora (including Silverblue)
-# Supports both amd64 and arm64 architectures
+# 1Password install script
 
 set -eu
 

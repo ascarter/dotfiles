@@ -26,7 +26,7 @@ usage() {
 }
 
 prompt() {
-  choice="n"
+  choice="N"
   read -p "$1 (y/N) " -n 1 choice
   echo
   case $choice in

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 # Verify macOS
 if [ "$(uname -s)" != "Darwin" ]; then
   echo "macOS only" >&2

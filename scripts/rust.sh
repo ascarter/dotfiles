@@ -17,14 +17,15 @@ if [ -d "${HOME}/.cargo" ]; then
   rustup show
 fi
 
-# Generate completions
-echo "Update completions"
-completion_dir="${HOME}/.local/share/zsh/functions"
-mkdir -p "${completion_dir}"
-
 # Rustup
 if command -v rustup >/dev/null 2>&1; then
+  echo "Update completions"
+  completion_dir="${HOME}/.local/share/zsh/functions"
+  mkdir -p "${completion_dir}"
+
   echo "Generating completion for rust"
   rustup completions zsh > "${completion_dir}/_rustup"
   rustup completions zsh cargo > "${completion_dir}/_cargo"
 fi
+
+print "Rust setup complete"

@@ -2,6 +2,8 @@
 
 # Setup Tailscale for host
 
+set -eu
+
 case $(uname -s) in
 Darwin)
   # Check if homebrew is installed. If it is, use homebrew to install Tailscale
@@ -42,9 +44,8 @@ Linux)
     sudo apt-get upgrade && sudo apt-get update -y
     sudo apt-get install -y tailscale
     ;;
-  esac
+esac
 
-  # Enable tailscale
   if command -v tailscaled > /dev/null 2>&1; then
     sudo tailscale up --ssh --accept-routes
     tailscale ip -4

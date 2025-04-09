@@ -36,7 +36,7 @@ ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} unlink
 
 # Remove dotfiles
 if [ -d "${DOTFILES}" ]; then
-  choice=y
+  choice=N
   read -p "Remove dotfiles directory -> ${DOTFILES}? (y/N)" -n1 choice
   echo
   case $choice in

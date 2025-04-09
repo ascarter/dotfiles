@@ -25,3 +25,6 @@ fi
 
 # Enable developer mode
 spctl developer-mode enable-terminal
+
+# Focus follow mouse
+defaults write com.apple.terminal FocusFollowsMouse -string true
