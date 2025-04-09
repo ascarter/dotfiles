@@ -11,10 +11,9 @@ Darwin)
   # Check if homebrew is installed. If it is, use homebrew to install 1Password
   if command -v brew >/dev/null 2>&1; then
     brew install --cask 1password 1password-cli
-    if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ~/.1password/agent.sock ]; then
-      echo "symlink ~/.1password/agent.sock"
-      mkdir -p ~/.1password
-      ln -s ~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ~/.1password/agent.sock
+    if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ${HOME}/.1password/agent.sock ]; then
+      mkdir -p /.1password
+      ln -s ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ${HOME}/.1password/agent.sock
     fi
   else
     echo "Homebrew is not installed. Please install Homebrew first."
@@ -65,9 +64,9 @@ esac
 
 # Configure 1P SSH
 if [ -S ${HOME}/.1password/agent.sock ]; then
-  if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
+  if ! [ -f /.ssh/config ] || ! grep -q -x "Include /.config/ssh/config" /.ssh/config; then
     echo "Enable SSH IdentityAgent"
-    mkdir -p ~/.ssh
-    echo "Include ~/.config/ssh/config" >>~/.ssh/config
+    mkdir -p /.ssh
+    echo "Include /.config/ssh/config" >>/.ssh/config
   fi
 fi
