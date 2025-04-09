@@ -33,9 +33,19 @@ Linux)
     fi
     # On Fedora Silverblue, use rpm-ostree to overlay 1Password
     if [ "$VARIANT_ID" = "silverblue" ]; then
-      rpm-ostree install --idempotent -y 1password 1password-cli
+      if ! rpm -q 1password; then
+        rpm-ostree install -y 1password 
+      fi
+      if ! rpm -q 1password-cli; then
+        rpm-ostree install -y 1password-cli
+      fi
     else
-      sudo dnf install 1password 1password-cli
+      if ! dnf list installed 1password; then
+        sudo dnf install 1password
+      fi
+      if ! dnf list installed 1password-cli; then
+        sudo dnf install 1password-cli
+      fi
     fi
     ;;
   debian | ubuntu)
@@ -54,7 +64,7 @@ Linux)
 esac
 
 # Configure 1P SSH
-if [ -L ~/.1password/agent.sock ]; then
+if [ -S ${HOME}/.1password/agent.sock ]; then
   if ! [ -f ~/.ssh/config ] || ! grep -q -x "Include ~/.config/ssh/config" ~/.ssh/config; then
     echo "Enable SSH IdentityAgent"
     mkdir -p ~/.ssh
