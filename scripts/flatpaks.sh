@@ -22,4 +22,9 @@ echo "Installing Flatpaks from Flathub..."
 flatpak install -y flathub com.valvesoftware.Steam
 flatpak install -y flathub com.vivaldi.Vivaldi
 flatpak install -y flathub io.github.shiftkey.Desktop
+flatpak install -y flathub io.podman_desktop.PodmanDesktop
 flatpak install -y flathub org.gnome.Geary
+
+# Set default applications
+xdg-settings set default-web-browser com.vivaldi.Vivaldi.desktop
+xdg-mime default org.gnome.Geary.desktop x-scheme-handler/mailto
