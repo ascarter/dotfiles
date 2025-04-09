@@ -17,7 +17,10 @@ Linux)
     fedora)
       case "${VARIANT_ID}" in
       silverblue)
-        echo "Use toolbox for gh on ${ID} ${VARIANT_ID}"
+        if ! [ -f /etc/yum.repos.d/gh-cli.repo ]; then
+	  sudo curl -L -o /etc/yum.repos.d/gh-cli.repo https://cli.github.com/packages/rpm/gh-cli.repo
+	fi
+	rpm-ostree install --idempotent -y gh
         ;;
       *)
         # DNF5 installation commands
@@ -48,10 +51,10 @@ if command -v gh >/dev/null 2>&1; then
     echo "GitHub CLI extension ${extension}"
     gh extension install ${extension} || true
   done
-fi
 
-# 1Password CLI
-if command -v op > /dev/null 2>&1; then
-  op plugin init gh
-  op plugin inspect gh
+  # 1Password CLI
+  if command -v op > /dev/null 2>&1; then
+    op plugin init gh
+    op plugin inspect gh
+  fi
 fi
