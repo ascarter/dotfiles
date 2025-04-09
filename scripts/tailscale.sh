@@ -25,7 +25,7 @@ Linux)
       if ! [ -f /etc/yum.repos.d/tailscale.repo ]; then
         sudo curl -L -o /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       fi
-      rpm-ostree install -y tailscale
+      rpm-ostree install --idempotent -y tailscale
       ;;
     *)
       sudo dnf config-manager addrepo --overwrite --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -48,6 +48,7 @@ esac
 
   if command -v tailscaled > /dev/null 2>&1; then
     sudo tailscale up --ssh --accept-routes
+    sudo tailscale set --operator=$USER
     tailscale ip -4
   fi
   ;;

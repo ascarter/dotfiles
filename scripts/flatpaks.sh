@@ -9,19 +9,17 @@ fi
 flatpak update -y
 
 # Install Flatseal for managing Flatpak permissions
-echo "Installing essential Flatpaks..."
-flatpak install -y com.github.tchx84.Flatseal
-flatpak install -y com.mattjakeman.ExtensionManager
-flatpak install -y io.missioncenter.MissionCenter
-flatpak install -y io.podman_desktop.PodmanDesktop
-flatpak install -y org.gnome.Connections
-flatpak install -y org.gnome.Loupe
-flatpak install -y org.gnome.NautilusPreviewer
+echo "Installing fedora Flatpaks"
+flatpak install -y fedora com.github.tchx84.Flatseal
+flatpak install -y fedora org.gnome.Connections
+flatpak install -y fedora org.gnome.Extensions
+flatpak install -y fedora org.gnome.Loupe
+flatpak install -y fedora org.gnome.NautilusPreviewer
 
-echo "Installing Flatpaks from Flathub..."
-flatpak install -y flathub com.valvesoftware.Steam
+echo "Installing flathub Flatpaks"
+flatpak install -y flathub com.mattjakeman.ExtensionManager
 flatpak install -y flathub com.vivaldi.Vivaldi
-flatpak install -y flathub io.github.shiftkey.Desktop
+flatpak install -y flathub io.missioncenter.MissionCenter
 flatpak install -y flathub io.podman_desktop.PodmanDesktop
 flatpak install -y flathub org.gnome.Geary
 
