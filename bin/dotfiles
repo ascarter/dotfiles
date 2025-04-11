@@ -99,6 +99,23 @@ write_config() {
   log "added" "$1"
 }
 
+# Initialize shell integration
+init() {
+  for shell in $(grep -o -E '(bash|zsh)$' /etc/shells | sort -u); do
+    case $shell in
+    bash)
+      profile="${HOME}/.bashrc"
+      ;;
+    zsh)
+      profile="${ZDOTDIR:-$HOME}/.zshrc"
+    ;;
+    esac
+    if [ -n "$profile" ]; then
+      write_config "$profile" "eval \"\$($dotfiles_command shellenv)\""
+    fi
+  done
+}
+
 # Sync configuration files from source to target directory
 # $1: action
 #  list: check status
@@ -178,19 +195,7 @@ status)
   sync "list"
   ;;
 init)
-  for shell in $(grep -o -E '(bash|zsh)$' /etc/shells | sort -u); do
-    case $shell in
-    bash)
-      profile="${HOME}/.bashrc"
-      ;;
-    zsh)
-      profile="${ZDOTDIR:-$HOME}/.zshrc"
-    ;;
-    esac
-    if [ -n "$profile" ]; then
-      write_config "$profile" "eval \"\$($dotfiles_command shellenv)\""
-    fi
-  done
+  init
   ;;
 link)
   sync "link"
@@ -204,6 +209,9 @@ update)
 
   # Update git repo
   git -C ${DOTFILES} pull
+
+  # Init shell integration
+  init
 
   # Re-install links
   sync "link"
