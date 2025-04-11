@@ -8,6 +8,11 @@ alias dev="cd ${HOME}/Developer"
 # ssh
 alias sshpw="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no"
 
+# Install Ghostty term info on target server
+ghostty_term() {
+  infocmp -x | ssh $@ -SERVER -- tic -x -
+}
+
 # Platform specific aliases
 case $(uname) in
 Darwin)
