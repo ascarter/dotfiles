@@ -86,6 +86,9 @@ else
   fi
 fi
 
+# Init dotfiles
+"${DOTFILES}/bin/dotfiles" ${FLAGS} -d "${DOTFILES}" -t "${TARGET}" init
+
 # Link dotfiles
 "${DOTFILES}/bin/dotfiles" ${FLAGS} -d "${DOTFILES}" -t "${TARGET}" link
 
@@ -104,3 +107,5 @@ fi
 echo ""
 echo "dotfiles installation complete"
 echo "Reload your session to apply configuration"
+
+# vim: set ft=sh ts=2 sw=2 et:

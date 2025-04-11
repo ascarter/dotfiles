@@ -1,5 +1,0 @@
-# Open man page as PDF
-
-emulate -L zsh
-
-mandoc -T pdf $(man -w $@) | open -f -a Preview

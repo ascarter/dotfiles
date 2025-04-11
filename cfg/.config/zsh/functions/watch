@@ -1,9 +1,0 @@
-# Watch process with htop
-
-emulate -L zsh
-
-_watch() {
-  htop -F "${1}"
-}
-
-_watch "$@"

@@ -1,0 +1,66 @@
+# dotfiles
+alias dfcd="cd ${DOTFILES}"
+alias dfz="EDITOR=zed dotfiles edit"
+
+# developer
+alias dev="cd ${HOME}/Developer"
+
+# ssh
+alias sshpw="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no"
+
+# Platform specific aliases
+case $(uname) in
+Darwin)
+  # System information
+  alias about="system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType"
+  alias sysver="sw_vers"
+
+  # QuickLook
+  alias ql='qlmanage -p "$@" >& /dev/null'
+
+  # Sketch
+  alias sketchtool="$(mdfind kMDItemCFBundleIdentifier = 'com.bohemiancoding.sketch3' | head -n 1)/Contents/Resources/sketchtool/bin/sketchtool"
+
+  # Tailscale
+  alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+
+  # Proxyman
+  alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+
+  # View manpage as PDF
+  manp() {
+    mandoc -T pdf $(man -w $@) | open -f -a Preview
+  }
+
+  # View man page in new terminal window
+  manx() {
+    # Opens in a terminal window
+    if [ -n "${2}" ]; then
+      open x-man-page://${1}/${2}
+    else
+      open x-man-page://${1}
+    fi
+  }
+  ;;
+Linux)
+  # Linux version of macOS pbcopy/pbpaste.
+  if command -v xsel > /dev/null 2>&1 ; then
+    alias pbcopy="xsel --clipboard --input"
+    alias pbpaste="xsel --clipboard --output"
+  fi
+
+  # View man page as PDF
+  manp() {
+    man -Tpdf $@ | flatpak run org.gnome.Evince
+  }
+
+  # View man page in help viewer
+  manx() {
+    # Use yelp to open man page
+    yelp "man:${1}" 2 >/dev/null 2>&1 &
+  }
+
+  ;;
+esac
+
+# vim: set ft=sh ts=2 sw=2 et:

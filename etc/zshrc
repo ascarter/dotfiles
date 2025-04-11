@@ -1,15 +1,8 @@
-# =====================================
-# Path and function loading
-# =====================================
-
-# Add function directories to fpath
-typeset -U fpath
-fpath=(${ZDOTDIR}/functions ${ZDOTDIR}/prompts ${ZDOTDIR}/completions $fpath)
-
-# Add local zsh functions
-if [[ -d "${HOME}/.local/share/zsh/functions" ]]; then
-  fpath=(${HOME}/.local/share/zsh/functions $fpath)
-fi
+# Non-interactive shell configuration:
+# zshenv ➜ zprofile
+#
+# Interactive shell configuration:
+# zshenv ➜ zprofile ➜ zshrc ➜ zlogin ➜ zlogout
 
 # =====================================
 # Completion system
@@ -22,10 +15,6 @@ compinit -u
 # Load colors
 autoload -Uz colors
 colors
-
-# Enable prompts
-autoload -U promptinit
-promptinit
 
 # Load utility functions, ignoring those starting with underscore
 if [[ -d ${ZDOTDIR}/functions ]]; then
@@ -93,18 +82,6 @@ zstyle ':completion:*' file-list all
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 # =====================================
-# Prompt
-# =====================================
-
-# Default: PS1="%m%# "
-# Default macOS:  PS1="%n@%m %1~ %#"
-# Default Fedora: PS1="[%n@%m]%~%#"
-# Default Ubuntu: PS1="%m%#"
-# unset PS1
-prompt terminal
-# PS1="[%n@%m]%1~ %# "
-
-# =====================================
 # Key bindings & Vi Mode
 # =====================================
 
@@ -147,14 +124,4 @@ bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 bindkey '^w' backward-kill-word
 
-# =====================================
-# Shell configuration
-# =====================================
-
-if [[ -d ${HOME}/.bashrc.d ]]; then
-  for rc in ${HOME}/.bashrc.d/* ; do
-    if [ -f "$rc" ]; then
-      . "$rc"
-    fi
-  done
-fi
+# vim: set ft=sh ts=2 sw=2 et:

@@ -4,13 +4,12 @@
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
-DOTFILES_CONFIG_DIR=${DOTFILES}/cfg
-DOTFILES_LIB_DIR=${DOTFILES}/lib
 
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
+
+git_root="$(git -C $(dirname $0) rev-parse --show-toplevel)"
 
 log() {
   if [ "$#" -eq 1 ]; then
@@ -33,10 +32,13 @@ usage() {
   log "Usage:" "dotfiles [options] <command>"
   log ""
   log "Commands:" ""
+  log "  shellenv" "Export configuration for dotfiles"
   log "  status" "Show configuration status"
+  log "  init" "Init dotfiles for shells"
   log "  link" "Link configuration"
   log "  unlink" "Unlink configuration"
   log "  update" "Update dotfiles"
+  log "  edit" "Edit dotfiles in $EDITOR"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -59,13 +61,51 @@ check_symlink() {
   fi
 }
 
+# Check if directory is empty and remove it
+remove_empty_dir() {
+  if ! [ -d "${1}" ]; then
+    vlog "missing" "${1}"
+  elif [ -z "$(ls -A "${1}")" ]; then
+    log "rm" "${1}"
+    rmdir "${1}"
+  else
+    vlog "not empty" "${1}"
+  fi
+}
+
+display_path() {
+  if [ "${1/#$HOME\/}" != "$1" ]; then
+    printf '~/%s' "${1/#$HOME\/}"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+shellenv() {
+  printf 'export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}\n'
+  printf 'export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}\n'
+  printf 'export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}\n'
+  printf 'export PATH=${DOTFILES}/bin:$PATH\n'
+  printf '[ -f ${DOTFILES}/etc/profile ] && . ${DOTFILES}/etc/profile'
+}
+
+write_config() {
+  if grep -q "dotfiles shellenv" "$1" 2>/dev/null; then
+    vlog "skip" "$1"
+    return 0
+  fi
+  mkdir -p "${1%/*}"
+  printf '\n#Added by `dotfiles init` on %s\n%s\n' "$(date)" "$2" >> "$1"
+  log "added" "$1"
+}
+
 # Sync configuration files from source to target directory
 # $1: action
 #  list: check status
 #  link: link source to target
 #  unlink: unlink target
 sync() {
-  source_dir="${DOTFILES_CONFIG_DIR}"
+  source_dir="${DOTFILES}/src"
   target_dir="${TARGET}"
   action="${1}"
 
@@ -103,6 +143,7 @@ sync() {
         rm "${target_file}"
         log "unlink" "${target_file} -> ${source_file}"
       fi
+      remove_empty_dir "$(dirname "${target_file}")"
     fi
   done
 }
@@ -122,16 +163,58 @@ while getopts ":d:t:v" opt; do
 done
 shift $((OPTIND - 1))
 
+dotfiles_command="$(display_path "$git_root/bin/dotfiles")"
+
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
+vlog "GIT_ROOT" "${git_root}"
+#log "dotfiles_root" "$(display_path "${git_root}")"
 
 case ${1} in
-status) sync "list" ;;
-link)   sync "link" ;;
-unlink) sync "unlink" ;;
-update)
-  git -C ${DOTFILES} pull
+shellenv)
+  shellenv
+  ;;
+status)
+  sync "list"
+  ;;
+init)
+  for shell in $(grep -o -E '(bash|zsh)$' /etc/shells | sort -u); do
+    case $shell in
+    bash)
+      if [ -f ${HOME}/.bashrc ] && [ ! -f ~/.bash_profile ]; then
+        profile="${HOME}/.bashrc"
+      else
+        profile="$(ls ${HOME}/.bash_profile ${HOME}/.bash_login ${HOME}/.profile 2>/dev/null | head -n1)"
+        [ -n "$profile" ] || profile="${HOME}/.bash_profile"
+      fi
+      ;;
+    zsh)
+      profile="${ZDOTDIR:-$HOME}/.zshrc"
+    ;;
+    esac
+    if [ -n "$profile" ]; then
+      write_config "$profile" "eval \"\$($dotfiles_command shellenv)\""
+    fi
+  done
+  ;;
+link)
   sync "link"
+  ;;
+unlink)
+  sync "unlink"
+  ;;
+update)
+  # Unlink everything in case files were removed
+  sync "unlink"
+
+  # Update git repo
+  git -C ${DOTFILES} pull
+
+  # Re-install links
+  sync "link"
+  ;;
+edit)
+  ${EDITOR} ${DOTFILES}
   ;;
 *)
   # No command - show help
@@ -139,3 +222,5 @@ update)
   exit 1
   ;;
 esac
+
+# vim: set ft=sh ts=2 sw=2 et:
