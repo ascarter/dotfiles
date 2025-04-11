@@ -95,7 +95,7 @@ write_config() {
     return 0
   fi
   mkdir -p "${1%/*}"
-  printf '\n#Added by `dotfiles init` on %s\n%s\n' "$(date)" "$2" >> "$1"
+  printf '\n# Added by `dotfiles init` on %s\n%s\n' "$(date)" "$2" >> "$1"
   log "added" "$1"
 }
 
@@ -181,12 +181,7 @@ init)
   for shell in $(grep -o -E '(bash|zsh)$' /etc/shells | sort -u); do
     case $shell in
     bash)
-      if [ -f ${HOME}/.bashrc ] && [ ! -f ~/.bash_profile ]; then
-        profile="${HOME}/.bashrc"
-      else
-        profile="$(ls ${HOME}/.bash_profile ${HOME}/.bash_login ${HOME}/.profile 2>/dev/null | head -n1)"
-        [ -n "$profile" ] || profile="${HOME}/.bash_profile"
-      fi
+      profile="${HOME}/.bashrc"
       ;;
     zsh)
       profile="${ZDOTDIR:-$HOME}/.zshrc"
