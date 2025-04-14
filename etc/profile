@@ -1,10 +1,5 @@
 # dotfiles shell configuration
 
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
-export PATH=${DOTFILES}/bin:$PATH
-
 # Homebrew
 export HOMEBREW_NO_EMOJI=1
 if [ -d /opt/homebrew ]; then
@@ -20,7 +15,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   [ -f ${DOTFILES}/etc/zshrc ] && . ${DOTFILES}/etc/zshrc
 fi
 
-if [[ -d ${DOTFILES}/etc/profile.d ]]; then
+if [ -d ${DOTFILES}/etc/profile.d ]; then
   for rc in ${DOTFILES}/etc/profile.d/* ; do
     if [ -f "$rc" ]; then
       . "$rc"

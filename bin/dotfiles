@@ -4,12 +4,13 @@
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+
+dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
-
-git_root="$(git -C $(dirname $0) rev-parse --show-toplevel)"
 
 log() {
   if [ "$#" -eq 1 ]; then
@@ -84,8 +85,9 @@ display_path() {
 shellenv() {
   printf 'export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}\n'
   printf 'export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}\n'
-  printf 'export DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}\n'
-  printf 'export PATH=${DOTFILES}/bin:$PATH\n'
+  printf 'export LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}\n'
+  printf 'export DOTFILES=${DOTFILES:-$XDG_DATA_HOME/dotfiles}\n'
+  printf 'export PATH=$LOCAL_BIN_HOME:$PATH\n'
   printf '[ -f ${DOTFILES}/etc/profile ] && . ${DOTFILES}/etc/profile'
 }
 
@@ -180,12 +182,9 @@ while getopts ":d:t:v" opt; do
 done
 shift $((OPTIND - 1))
 
-dotfiles_command="$(display_path "$git_root/bin/dotfiles")"
 
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
-vlog "GIT_ROOT" "${git_root}"
-#log "dotfiles_root" "$(display_path "${git_root}")"
 
 case ${1} in
 shellenv)

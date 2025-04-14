@@ -6,6 +6,7 @@ set -eu
 
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 TARGET=${TARGET:-$HOME}
 
@@ -33,6 +34,15 @@ done
 shift $((OPTIND - 1))
 
 ${DOTFILES}/bin/dotfiles ${FLAGS} -d ${DOTFILES} -t ${TARGET} unlink
+
+# Remove symlinks
+for dfbin in ${DOTFILES}/bin/* ; do
+  bin="$LOCAL_BIN_HOME/${dfbin##*/}"
+  if [ -L $bin ]; then
+    echo "Remove $bin"
+    rm $bin
+  fi
+done
 
 # Remove dotfiles
 if [ -d "${DOTFILES}" ]; then

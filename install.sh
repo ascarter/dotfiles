@@ -7,6 +7,7 @@ set -eu
 # Define XDG directories if not already set
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 
 # Default directories and settings
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
@@ -85,6 +86,19 @@ else
     git -C "${DOTFILES}" pull
   fi
 fi
+
+# Install dotfiles symlinks
+for dfbin in ${DOTFILES}/bin/* ; do
+  bin="$LOCAL_BIN_HOME/${dfbin##*/}"
+  if ! [ -L $bin ]; then
+    if [ -e $bin ]; then
+      echo "Conflict: $bin exists" >&2
+    else
+      echo "link $dfbin -> $bin"
+      ln -s $dfbin $bin
+    fi
+  fi
+done
 
 # Init dotfiles
 "${DOTFILES}/bin/dotfiles" ${FLAGS} -d "${DOTFILES}" -t "${TARGET}" init
