@@ -16,11 +16,6 @@ compinit -u
 autoload -Uz colors
 colors
 
-# Load utility functions, ignoring those starting with underscore
-if [[ -d ${ZDOTDIR}/functions ]]; then
-  autoload -Uz ${ZDOTDIR}/functions/[^_]*(:t)
-fi
-
 # Load hook system
 autoload -Uz add-zsh-hook
 

@@ -1,0 +1,5 @@
+# bashrc
+
+if command -v brew >/dev/null 2>&1; then
+  [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]] && . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+fi

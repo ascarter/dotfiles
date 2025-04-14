@@ -13,14 +13,11 @@ elif [ -d /home/linuxbrew/.linuxbrew ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-# Detect if running in zsh and source zshrc
-if [ -n "$ZSH_VERSION" ]; then
-  [ -f ${DOTFILES}/etc/zshrc ] && . ${DOTFILES}/etc/zshrc
-fi
-
-# Detect if running in bash and source bashrc
+# Detect shell and run matching rc script
 if [ -n "$BASH_VERSION" ]; then
   [ -f ${DOTFILES}/etc/bashrc ] && . ${DOTFILES}/etc/bashrc
+elif [ -n "$ZSH_VERSION" ]; then
+  [ -f ${DOTFILES}/etc/zshrc ] && . ${DOTFILES}/etc/zshrc
 fi
 
 if [[ -d ${DOTFILES}/etc/profile.d ]]; then
