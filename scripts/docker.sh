@@ -18,11 +18,3 @@ Linux)
   ;;
 *) echo "unknown" ;;
 esac
-
-# Generate completions
-if command -v docker >/dev/null 2>&1; then
-  echo "Generate completion for docker"
-  completion_dir="${HOME}/.local/share/zsh/functions"
-  mkdir -p "${completion_dir}"
-  docker completion zsh >"${completion_dir}/_docker"
-fi
