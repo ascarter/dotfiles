@@ -16,10 +16,22 @@ if [ -f "${XDG_CONFIG_HOME}/op/plugins.sh" ]; then
 fi
 
 # 1Password completions
-if [ -n "$BASH_VERSION" ]; then
-  source <(op completion bash)
-elif [ -n "$ZSH_VERSION" ]; then
-  eval "$(op completion zsh)"; compdef _op op
+# Only load completions in interactive Bash or Zsh, skip for /bin/sh
+if [ -n "$PS1" ]; then
+  # Check if we're directly in bash or zsh (not just any shell with PS1 set)
+  case "$0" in
+    *bash)
+      if [ -n "$BASH_VERSION" ]; then
+        eval "$(op completion bash)"
+      fi
+      ;;
+    *zsh)
+      if [ -n "$ZSH_VERSION" ]; then
+        eval "$(op completion zsh)"
+        compdef _op op
+      fi
+      ;;
+  esac
 fi
 
 # vim: set ft=sh ts=2 sw=2 et:
