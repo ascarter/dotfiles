@@ -1,42 +1,76 @@
 #!/bin/sh
-# gitconfig.sh - generate git config global file
 
-_gc_get() {
-  git config --file "$1" --get "$2"
-}
+# Generate git config global file
 
-_gc_set() {
-  git config --file "$1" "$2" "$3"
-}
+. ${DOTFILES}/etc/profile.d/1password.sh
 
-_gc_add() {
-  git config --file "$1" --add "$2" "$3"
-}
-
-_gc_unset() {
-  git config --file "$1" --unset "$2"
-}
-
-_gc_clear() {
-  git config --file "$1" --unset-all "$2"
-}
-
-_gc_update() {
-  _gc_unset "$1" "$2"
-  if [ -n "$3" ]; then
-    _gc_set "$1" "$2" "$3"
+log() {
+  if [ "$#" -eq 1 ]; then
+    printf "%s\n" "$1"
+  elif [ "$#" -gt 1 ]; then
+    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
   fi
+}
+
+# verbose log
+vlog() {
+  if [ $verbose -eq 1 ]; then
+    log "$@"
+  fi
+}
+
+usage() {
+  log "gitconfig -- Generate git config"
+  log "Usage: gitconfig [options] [config file path]"
+  log ""
+  log "Options:"
+  log "  -u" "Unset all values set by gitconfig"
+  log "  -f" "Replace existing config file"
+  log "  -v" "Verbose"
+}
+
+gc_get() {
+  $GIT_CMD --get "$1"
+}
+
+gc_set() {
+  if [ $unset -eq 1 ]; then
+    vlog "skip" "set $1=$2"
+    return
+  fi
+
+  vlog "set" "$1 = $2"
+  $GIT_CMD "$1" "$2"
+}
+
+gc_add() {
+  if [ $unset -eq 1 ]; then
+    vlog "skip" "add $1=$2"
+    return
+  fi
+
+  vlog "add" "$1 = $2"
+  $GIT_CMD --add "$1" "$2"
+}
+
+gc_unset() {
+  vlog "unset" "$1"
+  $GIT_CMD --unset "$1"
+}
+
+gc_clear() {
+  vlog "clear" "$1"
+  $GIT_CMD --unset-all "$1"
 }
 
 # Prompt for git config key
 # Parameters:
-#   $1 == gitconfig file
-#   $2 == key
-#   $3 == default value
-_gc_prompt() {
-  curr=$(git config --file "$1" --get "$2")
-  input="${curr:-$3}"
-  printf "%s: " "$2"
+#   $1 == key
+#   $2 == default value
+gc_prompt() {
+  curr=$($GIT_CMD --get "$1")
+  input="${curr:-$2}"
+  printf "$1: "
   # read -e -i is not POSIX, we need to handle default values manually
   if [ -n "$input" ]; then
     printf "[%s] " "$input"
@@ -46,138 +80,176 @@ _gc_prompt() {
   if [ -z "$user_input" ]; then
     user_input="$input"
   fi
-  _gc_update "$1" "$2" "$user_input"
+  gc_set "$1" "$user_input"
+}
+
+gc_tools() {
+  gc_clear diff.guitool
+  gc_clear merge.guitool
+
+  if [ $unset -eq 1 ]; then
+    vlog "skip" "Git tools"
+    return
+  fi
+
+  # Use opendiff on macOS for gui diff/merge tools
+  if command -v opendiff >/dev/null 2>&1; then
+    gc_set diff.guitool "opendiff"
+    gc_set merge.guitool "opendiff"
+  fi
+}
+
+gc_user() {
+  # Get user info from current file
+  username=$(gc_get "user.name")
+  email=$(gc_get "user.email")
+
+  # Clear user
+  gc_unset user.name
+  gc_unset user.email
+
+  if [ $unset -eq 1 ]; then
+    vlog "skip" "Git user"
+    return
+  fi
+
+  gc_prompt user.name "${username:-${USER:-$(whoami)}}"
+  gc_prompt user.email "${email:-${ghuser:-${USER:-$(whoami)}}@users.noreply.github.com}"
 }
 
 # Configure git credential managers
-_gc_credentials() {
-  gitconfig_file=$1
-  # Define URLs as space-separated strings
-  gh_urls="https://github.com https://gist.github.com"
-  az_urls="https://dev.azure.com https://*.visualstudio.com/"
-  git_cred_helper=""
+gc_credentials() {
+  # Clear default credential helper
+  gc_clear credential.helper
 
+  git_cred_helper=""
   if command -v op >/dev/null 2>&1; then
-    echo "Use 1Password for GitHub"
+    log "credentials" "1Password"
     git_cred_helper="!op plugin run -- gh auth git-credential"
   elif command -v gh >/dev/null 2>&1; then
-    echo "Use GitHub CLI"
+    log "credentials" "gh"
     git_cred_helper="!gh auth git-credential"
   elif command -v git-credential-manager >/dev/null 2>&1; then
-    echo "Use Git Credential Manager"
+    log "credentials" "gcm"
     git_cred_helper="git-credential-manager"
   else
-    echo "Use keychain caching"
     case $(uname) in
-    Darwin) git_cred_helper="osxkeychain" ;;
-    Linux) git_cred_helper="cache" ;;
+    Darwin)
+      log "credentials" "osxkeychain"
+      git_cred_helper="osxkeychain"
+      ;;
+    Linux)
+      log "credentials" "cache"
+      git_cred_helper="cache"
+      ;;
     esac
   fi
 
-  # Clear default credential helper
-  _gc_clear "$gitconfig_file" credential.helper
-
   # Configure GitHub
+  gh_urls="https://github.com https://gist.github.com"
   for url in $gh_urls; do
-    _gc_clear "$gitconfig_file" credential.${url}.helper
-    _gc_add "$gitconfig_file" credential.${url}.helper ''
-    _gc_add "$gitconfig_file" credential.${url}.helper "$git_cred_helper"
+    gc_clear credential.${url}.helper
+    gc_add credential.${url}.helper ''
+    gc_add credential.${url}.helper "$git_cred_helper"
   done
 
   # Configure Azure DevOps if GCM is installed
   if command -v git-credential-manager >/dev/null 2>&1; then
+    az_urls="https://dev.azure.com https://*.visualstudio.com/"
     for url in $az_urls; do
-      _gc_clear "$gitconfig_file" credential.${url}.helper
-      _gc_add "$gitconfig_file" credential.${url}.helper ''
-      _gc_add "$gitconfig_file" credential.${url}.helper git-credential-manager
-      _gc_set "$gitconfig_file" credential.${url}.useHttpPath true
-      _gc_set "$gitconfig_file" credential.azreposCredentialType oauth
+      gc_clear credential.${url}.helper
+      gc_clear credential.${url}.useHttpPath
+      gc_clear credential.azreposCredentialType
+
+      gc_add credential.${url}.helper ''
+      gc_add credential.${url}.helper git-credential-manager
+      gc_set credential.${url}.useHttpPath true
+      gc_set credential.azreposCredentialType oauth
     done
   fi
+}
 
-  # Clear gpg signing
-  _gc_clear "$gitconfig_file" user.signingkey
-  _gc_clear "$gitconfig_file" gpg.format
-  _gc_clear "$gitconfig_file" gpg.ssh.program
-  _gc_clear "$gitconfig_file" commit.gpgsign
+gc_commitsigning() {
+  # Clear gpg/ssh signing
+  gc_clear user.signingkey
+  gc_clear gpg.format
+  gc_clear gpg.ssh.program
+  gc_clear commit.gpgsign
+  gc_clear gpg.ssh.allowedSignersFile
+
+  if [ $unset -eq 1 ]; then
+    vlog "skip" "GPG/SSH Signing keys"
+    return
+  fi
 
   # Configure gpg signing
   if command -v op >/dev/null 2>&1; then
     # Use 1Password SSH for signing
-    signing_key=$(op read "op://Private/GitHub SSH Key/public key")
+    signing_key=$(op read "op://Private/GitHub SSH/public key")
     if [ -n "$signing_key" ]; then
-      _gc_set "$gitconfig_file" user.signingkey "$signing_key"
-      _gc_set "$gitconfig_file" gpg.format ssh
       # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
-      _gc_set "$gitconfig_file" commit.gpgsign true
+      log "signingkey" "$signing_key"
+      gc_set user.signingkey "$signing_key"
+      gc_set gpg.format ssh
+      gc_set commit.gpgsign true
+
+      gpg_ssh_cmd=""
+      if command -v op-ssh-sign >/dev/null 2>&1; then
+        gpg_ssh_cmd="op-ssh-sign"
+      elif [ -x /Applications/1Password.app/Contents/MacOS/op-ssh-sign ]; then
+        gpg_ssh_cmd="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      elif [ -x /run/host/opt/1Password/op-ssh-sign ]; then
+        gpg_ssh_cmd=/run/host/opt/1Password/op-ssh-sign
+      fi
+      if [ -n "$gpg_ssh_cmd" ]; then
+        gc_set gpg.ssh.program $gpg_ssh_cmd
+      fi
     fi
   fi
-}
 
-_gc_signers() {
-  gitconfig_file=$1
-  ghuser=$2
+  if [ -n "${ghuser}" ]; then
+    # Download signing keys from GitHub
+    signers="$HOME/.ssh/allowed_signers"
+    signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
 
-  # Download signing keys from GitHub
-  signers="$HOME/.ssh/allowed_signers"
-  signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
+    # Use POSIX-compliant loop
+    echo "$signing_keys" | while read -r pubkey; do
+      if ! grep -q -F "$pubkey" "$signers" 2>/dev/null; then
+        # Add the key, narrowly scoped for Git
+        log "add" "Signing key ${pubkey} for ${ghuser}"
+        mkdir -p "$(dirname "${signers}")"
+        echo "${ghuser} namespaces=\"git\" ${pubkey}" >>${signers}
+      else
+        vlog "exists" "Signing key ${pubkey} for ${ghuser}"
+      fi
+    done
 
-  # Use POSIX-compliant loop
-  echo "$signing_keys" | while read -r pubkey; do
-    if ! grep -q -F "$pubkey" "$signers" 2>/dev/null; then
-      # Add the key, narrowly scoped for Git
-      echo "Adding key ${pubkey} for user ${ghuser}"
-      echo "${ghuser} namespaces=\"git\" ${pubkey}" >>${signers}
-    else
-      echo "Key ${pubkey} already exists for user ${ghuser}"
+    if [ -s ${signers} ]; then
+      gc_set gpg.ssh.allowedSignersFile "$signers"
     fi
-  done
-
-  _gc_clear "$gitconfig_file" gpg.ssh.allowedSignersFile
-
-  if [ -s ${signers} ]; then
-    _gc_set "$gitconfig_file" gpg.ssh.allowedSignersFile "$signers"
-  fi
-}
-
-_gc_tools() {
-  # Use opendiff on macOS for gui diff/merge tools
-  if command -v opendiff >/dev/null 2>&1; then
-    _gc_set "$1" diff.guitool "opendiff"
-    _gc_set "$1" merge.guitool "opendiff"
   fi
 }
 
 # Main script function
 
 # Parse command line arguments
-force=""
-help=""
+verbose=0
+force=0
+unset=0
 
-while [ $# -gt 0 ]; do
-  case $1 in
-  -f | --force)
-    force="true"
-    shift
-    ;;
-  -h | --help)
-    help="true"
-    shift
-    ;;
-  *)
-    GIT_CONFIG_FILE="$1"
-    shift
-    ;;
+while getopts "fhuv" opt; do
+  case ${opt} in
+  f) force=1 ;;
+  u) unset=1 ;;
+  v) verbose=1 ;;
+  h) usage && exit 0 ;;
+  \?) usage && exit 1 ;;
   esac
 done
+shift $((OPTIND - 1))
 
-# Show help
-if [ -n "${help}" ]; then
-  printf "%s -- Generate git config\nUsage: %s [-f|--force] [config file path]\n\n  -f, --force          replace existing config file if present\n" "$(basename "$0")" "$(basename "$0")"
-  exit 1
-fi
-
-GIT_CONFIG_FILE=${GIT_CONFIG_FILE:-${HOME}/.gitconfig}
+GIT_CONFIG_FILE=${1:-${GIT_CONFIG_FILE:-${HOME}/.gitconfig}}
+GIT_CMD="git config --file $GIT_CONFIG_FILE"
 
 # Get the GitHub username if gh command is available
 ghuser=""
@@ -185,25 +257,16 @@ if command -v gh >/dev/null 2>&1; then
   ghuser=$(gh api user --jq '.login')
 fi
 
-# Get user info from current file
-username=$(_gc_get "$GIT_CONFIG_FILE" "user.name")
-email=$(_gc_get "$GIT_CONFIG_FILE" "user.email")
-
-if [ -n "${force}" ]; then
+if [ $force -eq 1 ]; then
   echo "Removing existing ${GIT_CONFIG_FILE}"
   rm "${GIT_CONFIG_FILE}"
 fi
 touch "${GIT_CONFIG_FILE}"
 
-echo "Generating ${GIT_CONFIG_FILE}"
-_gc_prompt "$GIT_CONFIG_FILE" user.name "${username:-${USER:-$(whoami)}}"
-_gc_prompt "$GIT_CONFIG_FILE" user.email "${email:-${ghuser:-${USER:-$(whoami)}}@users.noreply.github.com}"
-_gc_credentials "$GIT_CONFIG_FILE"
-_gc_tools "$GIT_CONFIG_FILE"
-
-if [ -n "${ghuser}" ]; then
-  echo "Download SSH signing keys from GitHub for user ${ghuser}"
-  _gc_signers "$GIT_CONFIG_FILE" "${ghuser}"
-fi
+vlog "config file" "${GIT_CONFIG_FILE}"
+gc_tools
+gc_user
+gc_credentials
+gc_commitsigning
 
 # vim: set ft=sh ts=2 sw=2 et:
