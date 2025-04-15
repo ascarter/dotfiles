@@ -85,6 +85,7 @@ display_path() {
 shellenv() {
   printf 'export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}\n'
   printf 'export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}\n'
+  printf 'export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}\n'
   printf 'export LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}\n'
   printf 'export DOTFILES=${DOTFILES:-$XDG_DATA_HOME/dotfiles}\n'
   printf 'export PATH=$LOCAL_BIN_HOME:$PATH\n'
