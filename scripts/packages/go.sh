@@ -2,8 +2,6 @@
 
 set -eu
 
-XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-LOCAL_BIN_HOME="${LOCAL_BIN_HOME:-$HOME/.local/bin}"
 GOROOT="$XDG_DATA_HOME/go"
 
 # Go programming language
@@ -119,17 +117,3 @@ uninstall() {
   echo "Removing existing Go installation at $XDG_DATA_HOME/go"
   rm -rf "$XDG_DATA_HOME/go"
 }
-usage() {
-  echo "${0} Manage Go install"
-  echo "Usage: ${0} [action]"
-  echo ""
-  echo "Actions:"
-  echo "  install    Install Go [default]"
-  echo "  uninstall  Uninstall Go"
-}
-
-case ${1:-install} in
-install) install ;;
-uninstall) uninstall ;;
-*) usage ;;
-esac
