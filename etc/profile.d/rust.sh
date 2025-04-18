@@ -1,6 +1,9 @@
+export RUSTUP_HOME="${XDG_DATA_HOME}/rustup"
+export CARGO_HOME="${XDG_DATA_HOME}/cargo"
+
 # Rust shell configuration
-if [ -d ${HOME}/.cargo ]; then
-  . "$HOME/.cargo/env"
+if [ -d ${CARGO_HOME} ]; then
+  . "${CARGO_HOME}/env"
 fi
 
 # Enable shell completions for rustup and cargo

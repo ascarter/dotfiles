@@ -4,23 +4,6 @@ set -eu
 
 GOROOT="$XDG_DATA_HOME/go"
 
-# Go programming language
-#
-#
-# rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.2.linux-amd64.tar.gz
-#
-
-# XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-# GO_DIR=${XDG_DATA_HOME}/go
-
-# GO_VERSION=1.24.2
-# GO_OS=darwin
-# GO_ARCH=arm64
-# GO_URL=https://go.dev/dl/go${GO_VERSION}.${GO_OS}-${GO_ARCH}.tar.gz
-
-# rm -rf ${GO_DIR}
-# curl -fsSL ${GO_URL} | tar -C ${XDG_DATA_HOME} -xz
-
 install() {
   case $(uname -s) in
   Linux*)
@@ -116,4 +99,22 @@ uninstall() {
   # Remove any existing Go installation
   echo "Removing existing Go installation at $XDG_DATA_HOME/go"
   rm -rf "$XDG_DATA_HOME/go"
+}
+
+info() {
+  if [ -d $GOROOT ]; then
+    echo "GOROOT=$GOROOT"
+    go version
+  else
+    echo "Go is not installed"
+  fi
+}
+
+doctor() {
+  if [ -d $GOROOT ]; then
+    info
+    go env
+  else
+    echo "Go is not installed"
+  fi
 }

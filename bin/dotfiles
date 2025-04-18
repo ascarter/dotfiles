@@ -6,6 +6,7 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+DOTFILES_LIB=${DOTFILES}/lib
 
 dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 
@@ -40,6 +41,7 @@ usage() {
   log "  unlink" "Unlink configuration"
   log "  update" "Update dotfiles"
   log "  edit" "Edit dotfiles in $EDITOR"
+  log "  pkg" "<install|uninstall|info|doctor> <pkg>"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -74,18 +76,11 @@ remove_empty_dir() {
   fi
 }
 
-display_path() {
-  if [ "${1/#$HOME\/}" != "$1" ]; then
-    printf '~/%s' "${1/#$HOME\/}"
-  else
-    printf '%s' "$1"
-  fi
-}
-
 shellenv() {
   printf 'export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}\n'
   printf 'export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}\n'
   printf 'export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}\n'
+  printf 'export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}\n'
   printf 'export LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}\n'
   printf 'export DOTFILES=${DOTFILES:-$XDG_DATA_HOME/dotfiles}\n'
   printf 'export PATH=$LOCAL_BIN_HOME:$PATH\n'
@@ -98,7 +93,7 @@ write_config() {
     return 0
   fi
   mkdir -p "${1%/*}"
-  printf '\n# Added by `dotfiles init` on %s\n%s\n' "$(date)" "$2" >> "$1"
+  printf '\n# Added by `dotfiles init` on %s\n%s\n' "$(date)" "$2" >>"$1"
   log "added" "$1"
 }
 
@@ -111,7 +106,7 @@ init() {
       ;;
     zsh)
       profile="${ZDOTDIR:-$HOME}/.zshrc"
-    ;;
+      ;;
     esac
     if [ -n "$profile" ]; then
       write_config "$profile" "eval \"\$($dotfiles_command shellenv)\""
@@ -168,6 +163,27 @@ sync() {
   done
 }
 
+pkg() {
+  action=$1
+  package=$2
+  pkg_script=${DOTFILES_LIB}/packages/$package.sh
+
+  case "$action" in
+  doctor | install | uninstall | info)
+    if [ -f ${pkg_script} ]; then
+      log "$action" "$package"
+      . ${DOTFILES_LIB}/packages/$package.sh
+      $action
+    else
+      log "missing" "$package"
+    fi
+    ;;
+  *)
+    log "invalid" "Action must be: install | uninstall | info | doctor"
+    ;;
+  esac
+}
+
 # ------------------------------
 # main
 # ------------------------------
@@ -182,7 +198,6 @@ while getopts ":d:t:v" opt; do
   esac
 done
 shift $((OPTIND - 1))
-
 
 vlog "DOTFILES" ${DOTFILES}
 vlog "TARGET" ${TARGET}
@@ -218,6 +233,10 @@ update)
   ;;
 edit)
   ${EDITOR} ${DOTFILES}
+  ;;
+pkg)
+  shift
+  pkg $1 $2
   ;;
 *)
   # No command - show help

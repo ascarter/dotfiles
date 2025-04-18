@@ -12,7 +12,7 @@ LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 # Default directories and settings
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
-DOTFILES_SCRIPTS=${DOTFILES}/scripts
+DOTFILES_LIB=${DOTFILES}/lib
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -108,7 +108,7 @@ done
 
 # Identify platform and run appropriate installation script
 PLATFORM_ID=$(get_platform_id)
-PLATFORM_SCRIPT="${DOTFILES_SCRIPTS}/os/${PLATFORM_ID}.sh"
+PLATFORM_SCRIPT="${DOTFILES_LIB}/os/${PLATFORM_ID}.sh"
 
 if [ -f "${PLATFORM_SCRIPT}" ]; then
   if prompt "Run ${PLATFORM_ID} provisioning script?"; then
