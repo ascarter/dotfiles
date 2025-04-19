@@ -88,6 +88,7 @@ else
 fi
 
 # Install dotfiles symlinks
+mkdir -p "$LOCAL_BIN_HOME"
 for dfbin in ${DOTFILES}/bin/* ; do
   bin="$LOCAL_BIN_HOME/${dfbin##*/}"
   if ! [ -L $bin ]; then
