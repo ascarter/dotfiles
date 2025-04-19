@@ -4,10 +4,6 @@
 
 set -eu
 
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
-DOTFILES_SCRIPTS=${DOTFILES}/scripts
-
 # Verify macOS
 if [ "$(uname -s)" != "Darwin" ]; then
   echo "macOS only" >&2
