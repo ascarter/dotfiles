@@ -9,7 +9,10 @@ install() {
   Darwin)
     # Check if homebrew is installed. If it is, use homebrew to install 1Password
     if command -v brew >/dev/null 2>&1; then
-      brew install --cask 1password 1password-cli
+      if ! [ -d /Applications/1Password.app ]; then
+        brew install --cask 1password
+      fi
+      brew install --cask 1password-cli
       if [ -S ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ] && ! [ -L ${HOME}/.1password/agent.sock ]; then
         mkdir -p ${HOME}/.1password
         ln -s ${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ${HOME}/.1password/agent.sock
@@ -63,10 +66,10 @@ install() {
 
   # Configure 1P SSH
   if [ -S ${HOME}/.1password/agent.sock ]; then
-    if ! [ -f /.ssh/config ] || ! grep -q -x "Include /.config/ssh/config" /.ssh/config; then
+    if ! [ -f ${HOME}/.ssh/config ] || ! grep -q -x "Include ${HOME}/.config/ssh/config" ${HOME}/.ssh/config; then
       echo "Enable SSH IdentityAgent"
       mkdir -p ${HOME}/.ssh
-      echo "Include /.config/ssh/config" >>/.ssh/config
+      echo "Include ${HOME}/.config/ssh/config" >>${HOME}/.ssh/config
     fi
   fi
 }

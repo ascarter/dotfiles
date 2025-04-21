@@ -32,11 +32,11 @@ uninstall() {
     fi
     ;;
   Linux)
-    if ! command -v zed >/dev/null 2>&1; then
+    if command -v zed >/dev/null 2>&1; then
       zed --uninstall
     fi
 
-    if ! command -v zed-preview >/dev/null 2>&1; then
+    if command -v zed-preview >/dev/null 2>&1; then
       zed-preview --uninstall
     fi
     ;;
