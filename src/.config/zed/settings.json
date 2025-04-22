@@ -17,7 +17,7 @@
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-3-7-sonnet"
+      "model": "o4-mini"
     },
     "version": "2"
   },
@@ -27,7 +27,7 @@
   "theme": {
     "mode": "system",
     "light": "Xcode Default Light",
-    "dark": "One Dark Pro"
+    "dark": "Xcode Default Dark"
   },
   "ui_font_family": ".SystemUIFont",
   "buffer_font_family": "Berkeley Mono",
@@ -76,10 +76,8 @@
   "auto_install_extensions": {
     "docker-compose": true,
     "dockerfile": true,
-    "github-theme": true,
     "liquid": true,
     "lua": true,
-    "macos-classic": true,
     "make": true,
     "marksman": true,
     "postgres-context-server": true,
@@ -88,8 +86,10 @@
     "sql": true,
     "swift": true,
     "toml": true,
-    "xcode-themes": true,
-    "zig": true
+    "zig": true,
+    "github-theme": true,
+    "macos-classic": true,
+    "xcode-themes": true
   },
   "languages": {
     "Liquid": {
