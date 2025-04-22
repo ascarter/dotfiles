@@ -2,6 +2,14 @@
 alias dfcd="cd ${DOTFILES}"
 alias dfz="EDITOR=zed dotfiles edit"
 
+# ls - Use uutils if installed
+if command -v uls >/dev/null 2>&1; then
+  alias ls='uls --group-directories-first --color=auto -h'
+fi
+alias la='ls -a -l'
+alias ll='ls -l'
+alias l.='ls -d .*'
+
 # developer
 alias dev="cd ${HOME}/Developer"
 

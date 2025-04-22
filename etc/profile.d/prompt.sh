@@ -48,4 +48,15 @@ elif [ -n "$ZSH_VERSION" ]; then
   PROMPT='${DIM_ON}%n@%m${DIM_OFF}:%B%1~%b${DIM_ON}${ITALIC_ON}${vcs_info_msg_0_:+ ($vcs_info_msg_0_)}${ITALIC_OFF}${DIM_OFF} %# '
 fi
 
+# Set grep colors on macOS
+# Bold (1) and italic (3) with default foreground color (39)
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR='1;3;39'
+
+# ls
+# directories (di) bold (1)  default FG (39)
+# symlink (ln)     italic(3) default FG (39)
+# executable (ex)  dim (2)   default FG (39)
+export LS_COLORS='di=1;39:ln=3;39:ex=2;39'
+
 # vim: set ft=sh ts=2 sw=2 et:
