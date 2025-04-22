@@ -179,7 +179,11 @@ pkg() {
     fi
     ;;
   *)
-    log "invalid" "Action must be: install | uninstall | info | doctor"
+    # List all packages in lib/packages (basename without .sh extension)
+    for pkg in ${DOTFILES_LIB}/packages/*.sh; do
+      name=${pkg##*/}
+      log "${name%.sh}"
+    done
     ;;
   esac
 }
