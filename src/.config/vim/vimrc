@@ -2,18 +2,11 @@
 let mapleader = " "
 let maplocalleader = " "
 
-" Basic interface settings
+" -------------------------------------
+" Interface settings
+" -------------------------------------
 set number
 set relativenumber
-
-" Group for number-toggle autocmds
-augroup NumberToggle
-  autocmd!
-  " When entering Insert mode, disable relative numbers
-  autocmd InsertEnter * set norelativenumber
-  " When leaving Insert mode, re-enable relative numbers
-  autocmd InsertLeave * set relativenumber
-augroup END
 
 set cursorline
 set scrolloff=10
@@ -63,7 +56,6 @@ set noruler
 set laststatus=2
 set statusline=%!ModeStatusLine()
 
-
 function! ModeStatusLine()
   let l:ms = mode()
   if l:ms ==# 'n'
@@ -90,6 +82,40 @@ function! ModeStatusLine()
   return l:left . '%=' . l:center . '%=' . l:right
 endfunction
 
+" Group for number-toggle autocmds
+augroup NumberToggle
+  autocmd!
+  " When entering Insert mode, disable relative numbers
+  autocmd InsertEnter * set norelativenumber
+  " When leaving Insert mode, re-enable relative numbers
+  autocmd InsertLeave * set relativenumber
+augroup END
+
+" -------------------------------------
+" Keymaps
+" -------------------------------------
+
+" Clear search highlighting when pressing <Esc> in normal mode
+nnoremap <Esc> :nohlsearch<CR>
+
+" Exit terminal mode with <Esc><Esc>
+tnoremap <Esc><Esc> <C-\><C-n>
+
+" Split-window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Move windows with Ctrl+Shift+{hjkl}
+nnoremap <C-S-h> <C-w>H
+nnoremap <C-S-j> <C-w>J
+nnoremap <C-S-k> <C-w>K
+nnoremap <C-S-l> <C-w>L
+
+" -------------------------------------
+" Colorscheme
+" -------------------------------------
 " Use ANSI 16 colors from terminal
 colorscheme ansi
 
