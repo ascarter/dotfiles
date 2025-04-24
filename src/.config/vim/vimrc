@@ -5,9 +5,46 @@ let maplocalleader = " "
 " Basic interface settings
 set number
 set relativenumber
+
+" Group for number-toggle autocmds
+augroup NumberToggle
+  autocmd!
+  " When entering Insert mode, disable relative numbers
+  autocmd InsertEnter * set norelativenumber
+  " When leaving Insert mode, re-enable relative numbers
+  autocmd InsertLeave * set relativenumber
+augroup END
+
 set cursorline
 set scrolloff=10
 set mouse=a
+set breakindent
+
+" Filetypes
+filetype on
+filetype plugin indent on
+syntax on
+
+" Case-insensitive searching UNLESS \C or one or more capital letters in the search term
+set ignorecase
+set smartcase
+
+" Configure how new splits should be opened
+set splitright
+set splitbelow
+
+" turn on “list” mode to show whitespace
+set list
+
+" configure which symbols to use
+"  · (dot)      for trailing spaces
+"  »·<space>    for tabs
+"  ␣ (open box) for non‑breaking spaces
+set listchars=tab:»\ ,trail:·,nbsp:␣
+
+" When an operation that would fail due to unsaved changes, raise a dialog
+" See `:help 'confirm'`
+set confirm
 
 " Use system clipboard
 if has("nvim")
@@ -19,5 +56,41 @@ else
     set clipboard=unnamedplus
   endif
 endif
+
+" Statusline
+set noshowmode
+set noruler
+set laststatus=2
+set statusline=%!ModeStatusLine()
+
+
+function! ModeStatusLine()
+  let l:ms = mode()
+  if l:ms ==# 'n'
+    let l:hl = '%#ModeNormal#'
+    let l:modetext = ' NORMAL '
+  elseif l:ms ==# 'i'
+    let l:hl = '%#ModeInsert#'
+    let l:modetext = ' INSERT '
+  elseif l:ms =~# '\v^[vV\x16]'
+    let l:hl = '%#ModeVisual#'
+    let l:modetext = ' VISUAL '
+  else
+    " fallback for Replace, Select, etc.
+    let l:hl   = '%#ModeNormal#'
+    let l:modetext = ' '.toupper(l:ms).' '
+  endif
+
+  " Build status line
+  let l:left = l:hl . l:modetext . '%*' . ' %n %f %m%r'
+  let l:center = '%q%w' . &filetype
+  let l:right = '%l:%c %L %p%%'
+  "let l:fileinfo = ' %f %m %= %l:%c %L %p'
+  "return l:hl . l:modetext . '%*' . l:fileinfo
+  return l:left . '%=' . l:center . '%=' . l:right
+endfunction
+
+" Use ANSI 16 colors from terminal
+colorscheme ansi
 
 " vim: ts=2 sts=2 sw=2 et
