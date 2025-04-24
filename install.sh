@@ -31,32 +31,32 @@ prompt() {
   read -p "$1 (y/N) " -n 1 choice
   echo
   case $choice in
-    [yY]) return 0 ;;
-    *) return 1 ;;
+  [yY]) return 0 ;;
+  *) return 1 ;;
   esac
 }
 
 get_platform_id() {
   case "$(uname -s)" in
-    Darwin)
-      echo "macos"
-      ;;
-    Linux)
-      if [ -f /etc/os-release ]; then
-        # Source the os-release file to get ID and VARIANT_ID
-        . /etc/os-release
-        if [ -n "${VARIANT_ID:-}" ]; then
-          echo "${ID}-${VARIANT_ID}"
-        else
-          echo "${ID}"
-        fi
+  Darwin)
+    echo "macos"
+    ;;
+  Linux)
+    if [ -f /etc/os-release ]; then
+      # Source the os-release file to get ID and VARIANT_ID
+      . /etc/os-release
+      if [ -n "${VARIANT_ID:-}" ]; then
+        echo "${ID}-${VARIANT_ID}"
       else
-        echo "linux-unknown"
+        echo "${ID}"
       fi
-      ;;
-    *)
-      echo "unknown"
-      ;;
+    else
+      echo "linux-unknown"
+    fi
+    ;;
+  *)
+    echo "unknown"
+    ;;
   esac
 }
 
@@ -64,12 +64,12 @@ FLAGS=""
 
 while getopts ":vhb:d:t:" opt; do
   case ${opt} in
-    b) DOTFILES_BRANCH=${OPTARG} ;;
-    d) DOTFILES=${OPTARG} ;;
-    t) TARGET=${OPTARG} ;;
-    v) FLAGS="-v" ;;
-    h) usage && exit 0 ;;
-    \?) usage && exit 1 ;;
+  b) DOTFILES_BRANCH=${OPTARG} ;;
+  d) DOTFILES=${OPTARG} ;;
+  t) TARGET=${OPTARG} ;;
+  v) FLAGS="-v" ;;
+  h) usage && exit 0 ;;
+  \?) usage && exit 1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -89,7 +89,7 @@ fi
 
 # Install dotfiles symlinks
 mkdir -p "$LOCAL_BIN_HOME"
-for dfbin in ${DOTFILES}/bin/* ; do
+for dfbin in ${DOTFILES}/bin/*; do
   bin="$LOCAL_BIN_HOME/${dfbin##*/}"
   if ! [ -L $bin ]; then
     if [ -e $bin ]; then
