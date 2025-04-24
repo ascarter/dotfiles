@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ansicolors — visualize your 16 ANSI colors + names
+
+# 16‑color ANSI palette names
+names=(
+  Black         Red           Green        Yellow
+  Blue          Magenta       Cyan         White
+  BrightBlack   BrightRed     BrightGreen  BrightYellow
+  BrightBlue    BrightMagenta BrightCyan   BrightWhite
+)
+
+# compute the width we need for the longest name
+# (BrightMagenta = 14 chars)
+width=14
+
+for i in "${!names[@]}"; do
+  name=${names[i]}
+  # print:
+  #  • index padded to 2 columns
+  #  • a block of width=$width containing the name,
+  #    with background color i and reset after
+  printf "%2d: \e[48;5;%sm %-*s \e[0m\n" \
+    "$i" "$i" "$width" "$name"
+done
