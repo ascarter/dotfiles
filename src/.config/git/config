@@ -92,6 +92,7 @@
 	logd = log --date=local -- .
 	ls = log --oneline --graph --all
 	prune-all = !git remote | xargs -n 1 git remote prune
+	pullref = rev-parse --abbrev-ref @{push}
 	remotes = remote --verbose
 	root = rev-parse --show-toplevel
 	setemail = !git config user.email
