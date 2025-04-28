@@ -18,7 +18,7 @@ fi
 sudo dnf install -y dnf-plugins-core @development-tools curl git zsh
 
 # Update firmware
-sudo fwupdmgr refresh
+sudo fwupdmgr refresh --force
 sudo fwupdmgr update
 
 echo 'Fedora Workstation provisioning complete'

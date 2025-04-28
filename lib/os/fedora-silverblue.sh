@@ -27,7 +27,7 @@ rpm-ostree upgrade
 rpm-ostree install --idempotent gnome-tweaks
 
 # Update firmware
-sudo fwupdmgr refresh
+sudo fwupdmgr refresh --force
 sudo fwupdmgr update
 
 # Add minimize button to window controls
