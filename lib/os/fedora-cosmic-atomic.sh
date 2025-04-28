@@ -24,6 +24,7 @@ fi
 rpm-ostree upgrade
 
 # Update firmware
+sudo fwupdmgr refresh
 sudo fwupdmgr update
 
 # Enable Flathub

@@ -17,5 +17,9 @@ fi
 
 sudo dnf install -y dnf-plugins-core @development-tools curl git zsh
 
-# Change default shell to zsh
-sudo usermod -s /usr/bin/zsh ${USER}
+# Update firmware
+sudo fwupdmgr refresh
+sudo fwupdmgr update
+
+echo 'Fedora Workstation provisioning complete'
+echo 'Run "systemctl reboot" to start a reboot'

@@ -20,11 +20,6 @@ if [ "$ID" != "fedora" ] || [ "$VARIANT_ID" != "silverblue" ]; then
   exit 1
 fi
 
-# Add Ghostty repository
-# if ! [ -f "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:pgdev:ghostty.repo" ]; then
-#   sudo sh -c 'echo -e "[copr:copr.fedorainfracloud.org:pgdev:ghostty]\nname=Copr repo for Ghostty owned by pgdev\nbaseurl=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/fedora-\$releasever-\$basearch/\ntype=rpm-md\nskip_if_unavailable=True\ngpgcheck=1\ngpgkey=https://download.copr.fedorainfracloud.org/results/pgdev/ghostty/pubkey.gpg\nrepo_gpgcheck=0\nenabled=1\nenabled_metadata=1" > /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:pgdev:ghostty.repo'
-# fi
-
 # Update rpm-ostree
 rpm-ostree upgrade
 
@@ -32,6 +27,7 @@ rpm-ostree upgrade
 rpm-ostree install --idempotent gnome-tweaks
 
 # Update firmware
+sudo fwupdmgr refresh
 sudo fwupdmgr update
 
 # Add minimize button to window controls
