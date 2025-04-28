@@ -17,9 +17,9 @@ fi
 
 # 1Password completions
 # Only load completions in interactive Bash or Zsh, skip for /bin/sh
-if [ -n "$PS1" ]; then
+if [ -n "$PS1" ] && command -v op >/dev/null 2>&1; then
   # Check if we're directly in bash or zsh (not just any shell with PS1 set)
-  case "$0" in
+  case "$SHELL" in
     *bash)
       if [ -n "$BASH_VERSION" ]; then
         eval "$(op completion bash)"
