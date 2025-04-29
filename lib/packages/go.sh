@@ -33,10 +33,25 @@ install() {
 
   ext="tar.gz"
   GO_RELEASES_URL="https://go.dev/dl/?mode=json"
+  jq_filter='
+    .[0].files[]
+    | select(
+      .os == $os and .arch == $arch and (
+        .filename | endswith($ext)
+      )
+    )
+    | [.filename, .sha256, .version]
+    | @tsv'
 
   read filename checksum version <<EOF
-    $(curl -s "$GO_RELEASES_URL" | jq -r --arg os "$os" --arg arch "$arch" --arg ext "$ext" '.[0].files[] | select(.os==$os and .arch==$arch and (.filename | endswith($ext))) | "\(.filename) \(.sha256) \(.version)"')
+    $(curl -s "$GO_RELEASES_URL" | jq -r --arg os "$os" --arg arch "$arch" --arg ext "$ext" "$jq_filter")
 EOF
+
+  # Verify version found
+  if [ -z "$version" ] || [ -z "$filename" ] || [ -z "$checksum" ]; then
+    echo "No matching stable release found for '$arch-$os'" >&2
+    exit 1
+  fi
 
   # Check if existing Go install matches current stable
   if [ -d $GOROOT ]; then
@@ -47,27 +62,24 @@ EOF
   fi
 
   # Download to a temporary file
+  tmpfile=$(mktemp)
+  trap 'rm -f "$tmpfile"' EXIT
+
   download_url="https://go.dev/dl/$filename"
   echo "Downloading $download_url"
-  temp_file=$(mktemp)
-  curl -L -o "$temp_file" "$download_url"
+  curl -fsSL -o "$tmpfile" "$download_url"
 
   # Verify checksum
-  if ! echo "$checksum  $temp_file" | sha256sum -c -; then
+  if ! sha256 --quiet -c "$checksum" "$tmpfile"; then
     echo "Checksum verification failed." >&2
-    rm -f "$temp_file"
     exit 1
   fi
-  echo "Checksum verified successfully."
 
   # Uninstall existing Go install
   uninstall
 
   # Extract the archive
-  echo "Extract Go archive"
-  # The tarball typically contains a top-level "go" directory.
-  tar -C "$XDG_DATA_HOME" -xzf "$temp_file"
-  rm -f "$temp_file"
+  tar -C "$XDG_DATA_HOME" -xzf "$tmpfile"
 
   # Symlink binaries
   for gobin in ${GOROOT}/bin/*; do
@@ -78,7 +90,7 @@ EOF
     fi
   done
 
-  echo "Go installed to $XDG_DATA_HOME/go"
+  echo "Go ${version} installed to $XDG_DATA_HOME/go"
 }
 
 uninstall() {
@@ -96,14 +108,13 @@ uninstall() {
       rm $bin
     fi
   done
-  # Remove any existing Go installation
+
   echo "Removing existing Go installation at $XDG_DATA_HOME/go"
   rm -rf "$XDG_DATA_HOME/go"
 }
 
 info() {
   if [ -d $GOROOT ]; then
-    echo "GOROOT=$GOROOT"
     go version
   else
     echo "Go is not installed"
