@@ -23,7 +23,7 @@ install() {
     case "$ID" in
     fedora)
       case "${VARIANT_ID}" in
-      silverblue)
+      silverblue | cosmic-atomic)
         rpm-ostree install --idempotent -y steam-devices
         ;;
       *)
@@ -64,7 +64,7 @@ uninstall() {
     case "$ID" in
     fedora)
       case "${VARIANT_ID}" in
-      silverblue)
+      silverblue | cosmic-atomic)
         rpm-ostree uninstall -y steam-devices
         ;;
       *)

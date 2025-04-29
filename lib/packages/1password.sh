@@ -32,22 +32,25 @@ install() {
       if ! [ -f /etc/yum.repos.d/1password.repo ]; then
         sudo sh -c 'echo -e "[1password]\nname=1Password Stable Channel\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://downloads.1password.com/linux/keys/1password.asc" > /etc/yum.repos.d/1password.repo'
       fi
-      # On Fedora Silverblue, use rpm-ostree to overlay 1Password
-      if [ "$VARIANT_ID" = "silverblue" ]; then
+
+      case "${VARIANT_ID}" in
+      silverblue | comsic-atomic)
         if ! rpm -q 1password; then
           rpm-ostree install -y 1password
         fi
         if ! rpm -q 1password-cli; then
           rpm-ostree install -y 1password-cli
         fi
-      else
+        ;;
+      *)
         if ! dnf list installed 1password; then
           sudo dnf install 1password
         fi
         if ! dnf list installed 1password-cli; then
           sudo dnf install 1password-cli
         fi
-      fi
+        ;;
+      esac
       ;;
     debian | ubuntu)
       arch=$(dpkg --print-architecture)
@@ -94,21 +97,24 @@ uninstall() {
 
     case $ID in
     fedora)
-      if [ "$VARIANT_ID" = "silverblue" ]; then
+      case "$VARIANT_ID" in
+      silverblue | cosmic-atomic)
         if rpm -q 1password; then
           rpm-ostree uninstall -y 1password
         fi
         if rpm -q 1password-cli; then
           rpm-ostree uninstall -y 1password-cli
         fi
-      else
+        ;;
+      *)
         if dnf list installed 1password; then
           sudo dnf uninstall 1password
         fi
         if dnf list installed 1password-cli; then
           sudo dnf uninstall 1password-cli
         fi
-      fi
+        ;;
+      esac
 
       # Remove 1Password repository
       if [ -f /etc/yum.repos.d/1password.repo ]; then

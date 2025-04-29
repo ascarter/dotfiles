@@ -15,7 +15,7 @@ install() {
       case "${ID}" in
       fedora)
         case "${VARIANT_ID}" in
-        silverblue)
+        silverblue | cosmic-atomic)
           if ! [ -f /etc/yum.repos.d/gh-cli.repo ]; then
             sudo curl -L -o /etc/yum.repos.d/gh-cli.repo https://cli.github.com/packages/rpm/gh-cli.repo
           fi
@@ -88,7 +88,7 @@ uninstall() {
       case "${ID}" in
       fedora)
         case "${VARIANT_ID}" in
-        silverblue)
+        silverblue | cosmic-atomic)
           if rpm -q gh; then
             rpm-ostree uninstall -y gh
           fi

@@ -22,7 +22,7 @@ install() {
     case "$ID" in
     fedora)
       case "${VARIANT_ID}" in
-      silverblue)
+      silverblue | comsic-atomic)
         if ! [ -f /etc/yum.repos.d/tailscale.repo ]; then
           sudo curl -L -o /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
         fi
@@ -79,7 +79,7 @@ uninstall() {
     case "$ID" in
     fedora)
       case "${VARIANT_ID}" in
-      silverblue)
+      silverblue | comsic-atomic)
         if rpm -q tailscale; then
           rpm-ostree uinstall -y tailscale
         fi
