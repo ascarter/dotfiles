@@ -10,13 +10,13 @@ install() {
   flatpak update -y
 
   echo "Installing fedora Flatpaks"
-  flatpak install -y fedora com.github.tchx84.Flatseal
   flatpak install -y fedora org.gnome.Connections
   flatpak install -y fedora org.gnome.Extensions
   flatpak install -y fedora org.gnome.Loupe
   flatpak install -y fedora org.gnome.NautilusPreviewer
 
   echo "Installing flathub Flatpaks"
+  flatpak install -y flathub com.github.tchx84.Flatseal
   flatpak install -y flathub com.mattjakeman.ExtensionManager
   flatpak install -y flathub com.vivaldi.Vivaldi
   flatpak install -y flathub io.missioncenter.MissionCenter
