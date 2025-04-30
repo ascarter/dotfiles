@@ -10,19 +10,29 @@ fi
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak update -y
 
-echo "Installing fedora Flatpaks"
-flatpak install -y fedora org.gnome.Connections
-flatpak install -y fedora org.gnome.Extensions
-flatpak install -y fedora org.gnome.Loupe
-flatpak install -y fedora org.gnome.NautilusPreviewer
-
-echo "Installing flathub Flatpaks"
 flatpak install -y flathub com.github.tchx84.Flatseal
-flatpak install -y flathub com.mattjakeman.ExtensionManager
 flatpak install -y flathub com.vivaldi.Vivaldi
+flatpak install -y flathub io.github.shiftey.Desktop
 flatpak install -y flathub io.missioncenter.MissionCenter
 flatpak install -y flathub io.podman_desktop.PodmanDesktop
-flatpak install -y flathub org.gnome.Geary
+flatpak install -y flathub org.videolan.VLC
+
+# flatpak install -y flathub org.gnome.Geary
+
+case "$XDG_CURRENT_DESKTOP" in
+COSMIC)
+  flatpak install -y flathub com.jwestall.Forecast
+  flatpak install -y flathub dev.edfloreshz.Calculator
+  flatpak install -y flathub io.github.cosmic_utils.Examine
+  ;;
+GNOME)
+  flatpak install -y fedora org.gnome.Connections
+  flatpak install -y fedora org.gnome.Extensions
+  flatpak install -y fedora org.gnome.Loupe
+  flatpak install -y fedora org.gnome.NautilusPreviewer
+  flatpak install -y flathub com.mattjakeman.ExtensionManager
+  ;;
+esac
 
 # Set default applications
 xdg-settings set default-web-browser com.vivaldi.Vivaldi.desktop

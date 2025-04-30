@@ -44,7 +44,7 @@ silverblue | cosmic-atomic)
 server)
   sudo dnf install -y dnf-plugins-core curl git
   ;;
-workstation)
+workstation | wsl)
   sudo dnf install -y dnf-plugins-core @development-tools curl git zsh
   ;;
 *)

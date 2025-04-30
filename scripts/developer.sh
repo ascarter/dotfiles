@@ -2,6 +2,7 @@
 
 # Developer provisioning script
 
+# Rust
 if command -v rustup >/dev/null 2>&1; then
   # Initialize default toolchain if not installed
   if ! rustup show active-toolchain; then
@@ -10,6 +11,7 @@ if command -v rustup >/dev/null 2>&1; then
   fi
 fi
 
+# Ruby
 if command -v rbenv >/dev/null 2>&1; then
   # Install latest Ruby and enable YJIT
   export RUBY_CONFIGURE_OPTS="--enable-yjit"
