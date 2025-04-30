@@ -16,15 +16,18 @@ brew "helix"
 
 # Developer tools
 brew "gh"
-brew "golang"
 brew "marksman"
-brew "rbenv"
-brew "ruby-build"
-brew "rustup"
 brew "shfmt"
 brew "sqlite"
 brew "taplo"
 
+# Software Development Kits
+brew "golang"
+brew "rbenv"
+brew "ruby-build"
+brew "rustup"
+
+# 3rd party utilities
 tap "teamookla/speedtest"
 brew "teamookla/speedtest/speedtest"
 
@@ -47,4 +50,4 @@ elsif OS.linux?
   # ...
 end
 
-# vim: set ft=sh ts=2 sw=2 et:
+# vim: set ft=rb ts=2 sw=2 et:
