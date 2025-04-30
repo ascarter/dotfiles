@@ -184,6 +184,7 @@ shellenv)
   shellenv
   ;;
 status)
+  VERBOSE=1
   sync "list"
   ;;
 init)
