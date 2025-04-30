@@ -1,5 +1,8 @@
 # dotfiles shell configuration
 
+# Configure readline
+export INPUTRC="${XDG_CONFIG_HOME}/readline/inputrc"
+
 # Homebrew
 # * Verify brew is installed
 # * Intialize brew for shell environment if interactive
