@@ -11,7 +11,7 @@ Darwin)
 Linux)
   HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
   sudo dnf group install development-tools
-;;
+  ;;
 esac
 
 # Homebrew install
