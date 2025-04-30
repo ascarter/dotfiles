@@ -36,3 +36,5 @@ if command -v brew >/dev/null 2>&1; then
     ;;
   esac
 fi
+
+# vim: set ft=sh ts=2 sw=2 et:

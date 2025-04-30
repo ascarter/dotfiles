@@ -1,4 +1,4 @@
-export RBENV_ROOT="${XDG_STATE_HOME}/rbenv"
+export RBENV_ROOT="${XDG_DATA_HOME}/rbenv"
 export RUBY_CONFIGURE_OPTS="--enable-yjit"
 
 # Ruby shell configuration

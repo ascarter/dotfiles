@@ -55,3 +55,5 @@ esac
 
 echo 'Fedora provisioning complete'
 echo 'Run "systemctl reboot" to start a reboot'
+
+# vim: set ft=sh ts=2 sw=2 et:

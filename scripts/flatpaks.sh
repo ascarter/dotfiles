@@ -27,3 +27,5 @@ flatpak install -y flathub org.gnome.Geary
 # Set default applications
 xdg-settings set default-web-browser com.vivaldi.Vivaldi.desktop
 # xdg-mime default org.gnome.Geary.desktop x-scheme-handler/mailto
+
+# vim: set ft=sh ts=2 sw=2 et:

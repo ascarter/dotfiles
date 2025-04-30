@@ -20,3 +20,5 @@ debian | ubuntu)
   exit 1
   ;;
 esac
+
+# vim: set ft=sh ts=2 sw=2 et:
