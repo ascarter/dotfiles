@@ -46,3 +46,5 @@ if OS.mac?
 elsif OS.linux?
   # ...
 end
+
+# vim: set ft=sh ts=2 sw=2 et:
