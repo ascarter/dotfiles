@@ -34,6 +34,7 @@ if OS.mac?
   cask "chatgpt"
   cask "docker"
   cask "ghostty"
+  cask "github"
   cask "hhkb"
   cask "netnewswire"
   cask "signal"
