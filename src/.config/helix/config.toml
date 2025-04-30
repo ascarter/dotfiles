@@ -49,13 +49,13 @@ mode.select = "SELECT"
 "C-space" = "completion"
 
 [keys.normal]
-G = "goto_file_end"
-X = "extend_line_above"
-ret = ["move_line_down", "goto_line_start"]
+G = "goto_file_end"                         # Goto end of file
+X = "extend_line_above"                     # Extend line above
+ret = ["move_line_down", "goto_line_start"] # Move to beginning of next line
 
 [keys.normal.g]
-q = ":reflow"
+q = ":reflow" # Reflow
 
 [keys.normal.space]
-q = ":quit"
-w = ":write"
+q = ":quit"  # Quit
+w = ":write" # Write buffer
