@@ -1,4 +1,11 @@
 # dotfiles
+
+if ! command -v zed >/dev/null 2>&1; then
+  if command -v zed-preview >/dev/null 2>&1; then
+    alias zed=zed-preview
+  fi
+fi
+
 alias dfcd="cd ${DOTFILES}"
 alias dfz="EDITOR=zed dotfiles edit"
 

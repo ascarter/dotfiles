@@ -8,6 +8,9 @@
 # Completion system
 # =====================================
 
+# Add homebrew completion locations
+if (( $+commands[brew] )) && (( $+commands[rustup] )); then
+
 # Enable advanced tab completion
 autoload -Uz compinit
 compinit -u

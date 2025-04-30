@@ -1,4 +1,5 @@
-theme = "ansi"
+# theme = "ansi"
+theme = "base16_transparent"
 
 [editor]
 cursorline = false
@@ -46,3 +47,15 @@ mode.select = "SELECT"
 
 [keys.insert]
 "C-space" = "completion"
+
+[keys.normal]
+G = "goto_file_end"
+X = "extend_line_above"
+ret = ["move_line_down", "goto_line_start"]
+
+[keys.normal.g]
+q = ":reflow"
+
+[keys.normal.space]
+q = ":quit"
+w = ":write"

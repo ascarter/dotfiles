@@ -1,6 +1,6 @@
 # Editor preference
-if command -v nvim >/dev/null 2>&1; then
-  export EDITOR="nvim"
+if command -v hx >/dev/null 2>&1; then
+  export EDITOR="hx"
 elif command -v vim >/dev/null 2>&1; then
   export EDITOR="vim"
 else
