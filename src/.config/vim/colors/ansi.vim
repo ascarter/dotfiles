@@ -36,7 +36,7 @@ hi CursorColumn ctermfg=NONE ctermbg=NONE cterm=NONE
 
 " Line numbers
 hi CursorLineNr ctermfg=NONE  ctermbg=NONE   cterm=bold
-hi LineNr       ctermfg=DarkGray
+hi LineNr       ctermfg=Gray
 
 " Status line
 hi StatusLine   ctermfg=NONE   ctermbg=NONE   cterm=bold
@@ -79,21 +79,22 @@ hi ErrorMsg   ctermfg=15 ctermbg=1  cterm=bold,italic
 hi Boolean      ctermfg=NONE
 hi Comment      ctermfg=7    cterm=italic
 hi Conditional  ctermfg=NONE
-hi Constant     ctermfg=4    cterm=bold
+hi Constant     ctermfg=3    cterm=bold
+hi Number       ctermfg=4    cterm=bold
 hi Exception    ctermfg=NONE
 hi Function     ctermfg=NONE cterm=bold
 hi Identifier   ctermfg=NONE cterm=italic
 hi Include      ctermfg=NONE
 hi Keyword      ctermfg=NONE
 hi Label        ctermfg=NONE
-hi Macro        ctermfg=8    cterm=italic
+hi Macro        ctermfg=NONE cterm=italic
 hi Operator     ctermfg=NONE
 hi PreProc      ctermfg=NONE cterm=italic
 hi Repeat       ctermfg=NONE
 hi Special      ctermfg=NONE
 hi Statement    ctermfg=NONE
 hi StorageClass ctermfg=NONE
-hi String       ctermfg=12
+hi String       ctermfg=4
 hi Structure    ctermfg=NONE cterm=bold
 hi Tag          ctermfg=4
 hi Type         ctermfg=NONE

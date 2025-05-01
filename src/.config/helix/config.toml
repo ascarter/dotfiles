@@ -1,8 +1,7 @@
-# theme = "ansi"
-theme = "base16_transparent"
+theme = "ansi"
 
 [editor]
-cursorline = false
+line-number = "relative"
 color-modes = true
 bufferline = "multiple"
 popup-border = "all"
@@ -41,9 +40,9 @@ right = [
   "register",
   "file-encoding",
 ]
-mode.normal = "NORMAL"
-mode.insert = "INSERT"
-mode.select = "SELECT"
+# mode.normal = "NORMAL"
+# mode.insert = "INSERT"
+# mode.select = "SELECT"
 
 [keys.insert]
 "C-space" = "completion"

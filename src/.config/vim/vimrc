@@ -60,17 +60,17 @@ function! ModeStatusLine()
   let l:ms = mode()
   if l:ms ==# 'n'
     let l:hl = '%#ModeNormal#'
-    let l:modetext = ' NORMAL '
+    let l:modetext = ' NOR '
   elseif l:ms ==# 'i'
     let l:hl = '%#ModeInsert#'
-    let l:modetext = ' INSERT '
+    let l:modetext = ' INS '
   elseif l:ms =~# '\v^[vV\x16]'
     let l:hl = '%#ModeVisual#'
-    let l:modetext = ' VISUAL '
+    let l:modetext = ' VIS '
   else
     " fallback for Replace, Select, etc.
     let l:hl   = '%#ModeNormal#'
-    let l:modetext = ' '.toupper(l:ms).' '
+    let l:modetext = '     '
   endif
 
   " Build status line
