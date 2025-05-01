@@ -6,7 +6,6 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
-DOTFILES_LIB=${DOTFILES}/lib
 
 dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 
@@ -41,7 +40,6 @@ usage() {
   log "  unlink" "Unlink configuration"
   log "  update" "Update dotfiles"
   log "  edit" "Edit dotfiles in $EDITOR"
-  log "  pkg" "<install|uninstall|info|doctor> <pkg>"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -163,31 +161,6 @@ sync() {
   done
 }
 
-pkg() {
-  action=$1
-  package=$2
-  pkg_script=${DOTFILES_LIB}/packages/$package.sh
-
-  case "$action" in
-  doctor | install | uninstall | info)
-    if [ -f ${pkg_script} ]; then
-      log "$action" "$package"
-      . ${DOTFILES_LIB}/packages/$package.sh
-      $action
-    else
-      log "missing" "$package"
-    fi
-    ;;
-  *)
-    # List all packages in lib/packages (basename without .sh extension)
-    for pkg in ${DOTFILES_LIB}/packages/*.sh; do
-      name=${pkg##*/}
-      log "${name%.sh}"
-    done
-    ;;
-  esac
-}
-
 # ------------------------------
 # main
 # ------------------------------
@@ -211,6 +184,7 @@ shellenv)
   shellenv
   ;;
 status)
+  VERBOSE=1
   sync "list"
   ;;
 init)
@@ -237,10 +211,6 @@ update)
   ;;
 edit)
   ${EDITOR} ${DOTFILES}
-  ;;
-pkg)
-  shift
-  pkg $1 $2
   ;;
 *)
   # No command - show help

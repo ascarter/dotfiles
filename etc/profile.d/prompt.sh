@@ -13,25 +13,30 @@ if [ -n "$BASH_VERSION" ]; then
   GIT_BRANCH=""
 
   update_git_branch() {
-     GIT_BRANCH=""
-     if git rev-parse --git-dir > /dev/null 2>&1; then
-       local branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)
-       if [ -n "$branch" ]; then
-         GIT_BRANCH="$branch"
-       fi
-     fi
-   }
+    GIT_BRANCH=""
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+      local branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)
+      if [ -n "$branch" ]; then
+        GIT_BRANCH="$branch"
+      fi
+    fi
+  }
 
-   PROMPT_COMMAND="update_git_branch"
+  PROMPT_COMMAND="update_git_branch"
 
-   PS1="${DIM}\u@\h${RESET}:${BOLD}\W${RESET}${DIM}${ITALIC}\${GIT_BRANCH:+ (\$GIT_BRANCH)}${RESET} \$ "
+  PS1="${DIM}\u@\h${RESET}:${BOLD}\W${RESET}${DIM}${ITALIC}\${GIT_BRANCH:+ (\$GIT_BRANCH)}${RESET} \$ "
+
+  # Add working directory to tile if not using Ghostty
+  if ! [ "$TERM" == "xterm-ghostty" ]; then
+    PS1=${PS1}'\[\e]2;\w\a\]'
+  fi
 elif [ -n "$ZSH_VERSION" ]; then
   # Defauls:
   #   macOS:  PS1="%n@%m %1~ %#"
   #   Fedora: PS1="[%n@%m]%~%#"
   #   Ubuntu: PS1="%m%#"
 
-  prompt_opts=( cr percent subst )
+  prompt_opts=(cr percent subst)
   autoload -Uz vcs_info
   autoload -Uz add-zsh-hook
   add-zsh-hook precmd vcs_info

@@ -12,7 +12,6 @@ LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 # Default directories and settings
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 DOTFILES_BRANCH=${DOTFILES_BRANCH:-main}
-DOTFILES_LIB=${DOTFILES}/lib
 TARGET=${TARGET:-$HOME}
 
 usage() {
@@ -45,11 +44,7 @@ get_platform_id() {
     if [ -f /etc/os-release ]; then
       # Source the os-release file to get ID and VARIANT_ID
       . /etc/os-release
-      if [ -n "${VARIANT_ID:-}" ]; then
-        echo "${ID}-${VARIANT_ID}"
-      else
-        echo "${ID}"
-      fi
+      echo "${ID}"
     else
       echo "linux-unknown"
     fi
@@ -109,7 +104,7 @@ done
 
 # Identify platform and run appropriate installation script
 PLATFORM_ID=$(get_platform_id)
-PLATFORM_SCRIPT="${DOTFILES_LIB}/os/${PLATFORM_ID}.sh"
+PLATFORM_SCRIPT="${DOTFILES}/scripts/${PLATFORM_ID}.sh"
 
 if [ -f "${PLATFORM_SCRIPT}" ]; then
   if prompt "Run ${PLATFORM_ID} provisioning script?"; then

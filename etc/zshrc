@@ -8,6 +8,11 @@
 # Completion system
 # =====================================
 
+# Add homebrew completion locations
+if (( $+commands[brew] )) && (( $+commands[rustup] )); then
+  fpath+=($(brew --prefix rustup)/share/zsh/site-functions)
+fi
+
 # Enable advanced tab completion
 autoload -Uz compinit
 compinit -u

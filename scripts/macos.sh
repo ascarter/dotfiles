@@ -24,3 +24,5 @@ spctl developer-mode enable-terminal
 
 # Focus follow mouse
 defaults write com.apple.terminal FocusFollowsMouse -string true
+
+# vim: set ft=sh ts=2 sw=2 et:
