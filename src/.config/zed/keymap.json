@@ -18,11 +18,5 @@
     "bindings": {
       // "j k": ["workspace::SendKeystrokes", "escape"]
     }
-  },
-  {
-    "context": "Editor && vim_mode != helix_normal && vim_operator == none && !VimWaiting",
-    "bindings": {
-      "escape": "vim::SwitchToHelixNormalMode"
-    }
   }
 ]
