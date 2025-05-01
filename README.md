@@ -9,7 +9,7 @@ I run on the following platforms:
 
 * macOS (primary)
 * Fedora Cosmic Atomic
-* Window 11 WSL 2 Fedora
+* Windows 11 WSL 2 Fedora
 
 ## Motivation
 
