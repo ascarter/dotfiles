@@ -27,6 +27,10 @@ vlog() {
   fi
 }
 
+err() {
+    echo "$*" >&2
+}
+
 usage() {
   log "dotfiles" "Configuration management tool using symlinks"
   log ""
@@ -51,11 +55,13 @@ check_symlink() {
   # Try `realpath` (works on both macOS and Linux if installed)
   if command -v realpath >/dev/null 2>&1; then
     link_target=$(realpath "$1")
+    link_src=$(realpath "$2")
   else
     # Fallback to `readlink` for macOS and Linux
     link_target=$(cd "$(dirname "$1")" && cd "$(readlink "$1")" && pwd)
+    link_src=$(cd "$(dirname "$2")" && cd "$(readlink "$2")" && pwd)
   fi
-  if [ "$2" = "$link_target" ]; then
+  if [ "$link_src" = "$link_target" ]; then
     return 0
   else
     return 1
