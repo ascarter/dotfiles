@@ -237,3 +237,10 @@ xcuserdata/
 
 ## Gcc Patch
 /*.gcno
+
+########################################
+# 1Password
+########################################
+
+# per directory for op cli
+.op/*
