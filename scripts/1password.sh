@@ -37,7 +37,7 @@ Linux)
     fi
 
     case "${VARIANT_ID}" in
-    silverblue | comsic-atomic)
+    silverblue | cosmic-atomic)
       if ! rpm -q 1password; then
         rpm-ostree install -y 1password
       fi

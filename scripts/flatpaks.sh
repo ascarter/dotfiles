@@ -22,6 +22,7 @@ flatpak install -y flathub org.videolan.VLC
 case "$XDG_CURRENT_DESKTOP" in
 COSMIC)
   flatpak install -y flathub com.jwestall.Forecast
+  flatpak install -y flathub dev.deedles.Trayscale
   flatpak install -y flathub dev.edfloreshz.Calculator
   flatpak install -y flathub io.github.cosmic_utils.Examine
   ;;
