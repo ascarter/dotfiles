@@ -27,10 +27,6 @@ brew "rbenv"
 brew "ruby-build"
 brew "rustup"
 
-# 3rd party utilities
-tap "teamookla/speedtest"
-brew "teamookla/speedtest/speedtest"
-
 if OS.mac?
   cask_args adopt: true
   cask "bbedit"
@@ -46,6 +42,9 @@ if OS.mac?
   cask "xquartz"
   cask "yubico-authenticator"
   cask "zed@preview"
+  # 3rd party utilities
+  tap "teamookla/speedtest"
+  brew "teamookla/speedtest/speedtest"
 elsif OS.linux?
   # ...
 end
