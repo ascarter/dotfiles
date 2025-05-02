@@ -7,7 +7,7 @@ if [ -d "${CARGO_HOME}" ]; then
 fi
 
 # Enable shell completions for rustup and cargo
-if command -v rustup >/dev/null 2>&1; then
+if command -v rustc >/dev/null 2>&1; then
   if [ -n "$BASH_VERSION" ]; then
     source "$(rustc --print sysroot)"/etc/bash_completion.d/cargo
   elif [ -n "$ZSH_VERSION" ]; then
