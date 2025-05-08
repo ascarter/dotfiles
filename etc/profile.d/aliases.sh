@@ -3,15 +3,18 @@
 if ! command -v zed >/dev/null 2>&1; then
   if command -v zed-preview >/dev/null 2>&1; then
     alias zed=zed-preview
+    alias dfz="EDITOR=zed-preview dotfiles edit"
   fi
+else
+  alias dfz="EDITOR=zed dotfiles edit"
 fi
 
 alias dfcd="cd ${DOTFILES}"
-alias dfz="EDITOR=zed dotfiles edit"
 
 # ls - Use uutils if installed
 if command -v uls >/dev/null 2>&1; then
-  alias ls='uls --group-directories-first --color=auto --hyperlink=auto --human-readable --classify=auto'
+  alias ls='uls --group-directories-first --color=auto --human-readable'
+  alias lc='ls -l -a --classify=auto'
 fi
 alias la='ls -a -l'
 alias ll='ls -l'
