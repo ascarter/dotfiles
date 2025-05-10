@@ -131,7 +131,7 @@ gc_credentials() {
     git_cred_helper="!gh auth git-credential"
   elif command -v git-credential-manager >/dev/null 2>&1; then
     log "credentials" "gcm"
-    git_cred_helper="git-credential-manager"
+    git_cred_helper="$(command -v git-credential-manager)"
   else
     case $(uname) in
     Darwin)
@@ -155,16 +155,16 @@ gc_credentials() {
 
   # Configure Azure DevOps if GCM is installed
   if command -v git-credential-manager >/dev/null 2>&1; then
-    az_urls="https://dev.azure.com https://*.visualstudio.com/"
+    az_urls="https://dev.azure.com https://*.visualstudio.com"
     for url in $az_urls; do
       gc_clear credential.${url}.helper
       gc_clear credential.${url}.useHttpPath
       gc_clear credential.azreposCredentialType
 
       gc_add credential.${url}.helper ''
-      gc_add credential.${url}.helper git-credential-manager
+      gc_add credential.${url}.helper $(command -v git-credential-manager)
       gc_set credential.${url}.useHttpPath true
-      gc_set credential.azreposCredentialType oauth
+      gc_set credential.${url}.azreposCredentialType oauth
     done
   fi
 }
