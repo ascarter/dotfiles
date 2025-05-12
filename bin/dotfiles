@@ -6,6 +6,7 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+DOTFILES_SCRIPTS=${DOTFILES}/scripts
 
 dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 
@@ -44,6 +45,7 @@ usage() {
   log "  unlink" "Unlink configuration"
   log "  update" "Update dotfiles"
   log "  edit" "Edit dotfiles in $EDITOR"
+  log "  script" "Run dofiles provisioning script"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -167,6 +169,32 @@ sync() {
   done
 }
 
+# Run provisioning scripts from scripts directory
+run_script() {
+  # If no scripts provided, list all available
+  if [ $# -eq 0 ]; then
+    log "Available scripts:"
+    for script in "${DOTFILES_SCRIPTS}"/*.sh; do
+      if [ -f "${script}" ]; then
+        script_name=$(basename "${script}" .sh)
+        log "  ${script_name}"
+      fi
+    done
+    return 0
+  fi
+
+  # Run each provided script
+  for script in "$@"; do
+    script_path="${DOTFILES_SCRIPTS}/${script}.sh"
+    if [ -f "${script_path}" ]; then
+      log "Running" "${script}"
+      sh "${script_path}"
+    else
+      err "Script not found: ${script}.sh"
+    fi
+  done
+}
+
 # ------------------------------
 # main
 # ------------------------------
@@ -217,6 +245,11 @@ update)
   ;;
 edit)
   ${EDITOR} ${DOTFILES}
+  ;;
+script)
+  # Pass remaining arguments to script function
+  shift
+  run_script "$@"
   ;;
 *)
   # No command - show help
