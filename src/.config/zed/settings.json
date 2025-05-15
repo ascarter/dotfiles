@@ -22,7 +22,7 @@
     "version": "2"
   },
   "features": {
-    "edit_prediction_provider": "zed"
+    "edit_prediction_provider": "copilot"
   },
   "theme": {
     "mode": "system",
@@ -123,6 +123,15 @@
     },
     "Rust": {
       "wrap_guides": [100]
+    },
+    "Shell Script": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "shfmt",
+          "args": ["--filename", "{buffer_path}", "--indent", "2"]
+        }
+      }
     }
   },
   "lsp": {
