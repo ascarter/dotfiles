@@ -122,6 +122,7 @@
       "format_on_save": "on"
     },
     "Rust": {
+      "format_on_save": "on",
       "wrap_guides": [100]
     },
     "Shell Script": {
