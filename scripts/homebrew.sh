@@ -7,16 +7,18 @@ set -eu
 case "$(uname -s)" in
 Darwin)
   HOMEBREW_PREFIX="/opt/homebrew"
+  HOMEBREW_INTERACTIVE=""
   ;;
 Linux)
   HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+  HOMEBREW_INTERACTIVE="NONINTERACTIVE=1"
   ;;
 esac
 
 # Homebrew install
 if ! [ -d "${HOMEBREW_PREFIX}" ]; then
   echo "Install Homebrew"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  ${HOMEBREW_INTERACTIVE} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
 fi
 
