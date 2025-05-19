@@ -69,6 +69,42 @@ while getopts ":vhb:d:t:" opt; do
 done
 shift $((OPTIND - 1))
 
+PLATFORM_ID=$(get_platform_id)
+
+# Check if git is installed
+if ! command -v git >/dev/null 2>&1; then
+  case "$PLATFORM_ID" in
+  macos)
+    if prompt "Install Xcode command line tools?"; then
+      xcode-select --install
+    else
+      echo "Please install Xcode command line tools: xcode-select --install" >&2
+      exit 1
+    fi
+    ;;
+  fedora)
+    if prompt "Install git using dnf?"; then
+      sudo dnf install -y git
+    else
+      echo "Please install git using your package manager: sudo dnf install git" >&2
+      exit 1
+    fi
+    ;;
+  ubuntu | debian)
+    if prompt "Install git using apt?"; then
+      sudo apt install -y git
+    else
+      echo "Please install git using your package manager: sudo apt install git" >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Git is not installed. Please install git and try again." >&2
+    exit 1
+    ;;
+  esac
+fi
+
 # Clone dotfiles
 if [ ! -d "${DOTFILES}" ]; then
   echo "Clone dotfiles ($DOTFILES_BRANCH) -> ${DOTFILES}"
@@ -102,10 +138,8 @@ done
 # Link dotfiles
 "${DOTFILES}/bin/dotfiles" ${FLAGS} -d "${DOTFILES}" -t "${TARGET}" link
 
-# Identify platform and run appropriate installation script
-PLATFORM_ID=$(get_platform_id)
+# Run appropriate installation script
 PLATFORM_SCRIPT="${DOTFILES}/scripts/${PLATFORM_ID}.sh"
-
 if [ -f "${PLATFORM_SCRIPT}" ]; then
   if prompt "Run ${PLATFORM_ID} provisioning script?"; then
     "${PLATFORM_SCRIPT}"

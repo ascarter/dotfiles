@@ -20,8 +20,13 @@ if [ "$ID" != "fedora" ]; then
 fi
 
 # Update firmware
-sudo fwupdmgr refresh --force
-sudo fwupdmgr update
+if command -v fwupdmgr >/dev/null 2>&1; then
+  echo "Updating firmware..."
+  sudo fwupdmgr refresh --force
+  sudo fwupdmgr update
+else
+  echo "fwupdmgr not found, skipping firmware update"
+fi
 
 case "$VARIANT_ID" in
 silverblue | cosmic-atomic)
