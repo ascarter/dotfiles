@@ -18,7 +18,7 @@ esac
 # Homebrew install
 if ! [ -d "${HOMEBREW_PREFIX}" ]; then
   echo "Install Homebrew"
-  ${HOMEBREW_INTERACTIVE} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  env ${HOMEBREW_INTERACTIVE} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
 fi
 
