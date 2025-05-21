@@ -15,10 +15,12 @@ fi
 if command -v rbenv >/dev/null 2>&1; then
   # Install latest Ruby and enable YJIT
   export RUBY_CONFIGURE_OPTS="--enable-yjit"
-  ruby_ver=3.4.3
+  ruby_ver=$(rbenv install --list | grep -E '^[0-9].[0-9]+.[0-9]+' | sort -V | tail -n 1)
 
   if ! rbenv versions | grep $ruby_ver; then
-    rbenv install 3.4.3
+    rbenv install $ruby_ver
+  else
+    echo "Ruby $ruby_ver already installed"
   fi
 fi
 
