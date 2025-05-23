@@ -49,9 +49,11 @@ right = [
 
 [keys.normal]
 D = "kill_to_line_end"
-G = "goto_file_end"                         # Goto end of file
-X = "extend_line_above"                     # Extend line above
-ret = ["move_line_down", "goto_line_start"] # Move to beginning of next line
+G = "goto_file_end"
+X = "extend_line_above"
+ret = ["move_line_down", "goto_line_start"]
+S-l = ":buffer-next"
+S-h = ":buffer-previous"
 
 [keys.normal.g]
 q = ":reflow" # Reflow
