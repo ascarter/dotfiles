@@ -26,7 +26,7 @@ if [ -n "$BASH_VERSION" ]; then
 
   PS1="${DIM}\u@\h${RESET}:${BOLD}\W${RESET}${DIM}${ITALIC}\${GIT_BRANCH:+ (\$GIT_BRANCH)}${RESET} \$ "
 
-  # Add working directory to tile if not using Ghostty
+  # Add working directory to title if not using Ghostty
   if ! [ "$TERM" == "xterm-ghostty" ]; then
     PS1=${PS1}'\[\e]2;\w\a\]'
   fi

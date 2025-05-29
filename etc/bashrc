@@ -4,4 +4,10 @@ if command -v brew >/dev/null 2>&1; then
   [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]] && . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
 fi
 
+# Enable vi editing mode
+set -o vi
+bind 'set show-mode-in-prompt on'
+bind 'set vi-ins-mode-string \1\e[5 q\2'
+bind 'set vi-cmd-mode-string \1\e[2 q\2'
+
 # vim: set ft=sh ts=2 sw=2 et:

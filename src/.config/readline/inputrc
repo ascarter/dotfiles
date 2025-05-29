@@ -1,7 +1,10 @@
 set editing-mode vi
 set show-mode-in-prompt on
-# set vi-ins-mode-string \1\e[5 q\2
-# set vi-cmd-mode-string \1\e[2 q\2
+
+# Insert mode -> Beam (\e[5 q)
+# Normal mode -> Block (\e[2 q)
+set vi-ins-mode-string \1\e[5 q\2
+set vi-cmd-mode-string \1\e[2 q\2
 
 set keymap vi-insert
 
@@ -15,3 +18,5 @@ set keymap vi-insert
 
 # Kill‐word
 "\C-w": backward-kill-word     # ^W → backward‐kill‐word
+
+# vim: set ft=sh ts=2 sw=2 et:
