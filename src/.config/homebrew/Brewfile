@@ -36,6 +36,7 @@ if OS.mac?
   cask "github"
   cask "hhkb"
   cask "netnewswire"
+  cask "orion"
   cask "signal"
   cask "tailscale"
   cask "vivaldi"
