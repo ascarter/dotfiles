@@ -36,11 +36,11 @@ if OS.mac?
   cask "github"
   cask "hhkb"
   cask "netnewswire"
-  cask "orion"
   cask "signal"
   cask "tailscale"
   cask "vivaldi"
   cask "xquartz"
+  cask "xscope"
   cask "yubico-authenticator"
   cask "zed@preview"
   # 3rd party utilities
