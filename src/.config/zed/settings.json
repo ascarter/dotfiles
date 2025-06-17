@@ -14,10 +14,11 @@
     "enabled_in_text_threads": true
   },
   "agent": {
+    "default_profile": "write",
     "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-sonnet-4"
+      "provider": "copilot_chat",
+      "model": "o4-mini"
     },
     "version": "2"
   },
