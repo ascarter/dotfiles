@@ -94,7 +94,9 @@ gc_tools() {
 
   # Use opendiff on macOS for gui diff/merge tools
   if command -v opendiff >/dev/null 2>&1; then
+    gc_set diff.tool "opendiff"
     gc_set diff.guitool "opendiff"
+    gc_set merge.tool "opendiff"
     gc_set merge.guitool "opendiff"
   fi
 }

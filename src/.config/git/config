@@ -52,11 +52,9 @@
 
 [diff]
 	gui = auto
-	tool = nvimdiff
 
 [merge]
 	gui = auto
-	tool = nvimdiff
 
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
