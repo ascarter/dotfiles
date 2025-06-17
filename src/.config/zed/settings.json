@@ -16,8 +16,8 @@
   "agent": {
     "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-3.7-sonnet-thought"
+      "provider": "zed.dev",
+      "model": "claude-sonnet-4"
     },
     "version": "2"
   },
@@ -26,8 +26,8 @@
   },
   "theme": {
     "mode": "system",
-    "light": "Xcode Default Light",
-    "dark": "Xcode Default Dark"
+    "light": "Xcode Light",
+    "dark": "Xcode Dark"
   },
   "ui_font_family": ".SystemUIFont",
   "buffer_font_family": "Berkeley Mono",
@@ -89,9 +89,7 @@
     "swift": true,
     "toml": true,
     "zig": true,
-    "github-theme": true,
-    "macos-classic": true,
-    "xcode-themes": true
+    "github-theme": true
   },
   "languages": {
     "Liquid": {
