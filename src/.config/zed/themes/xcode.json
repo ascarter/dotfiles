@@ -157,7 +157,7 @@
           {
             "cursor": "#0a84ffff",
             "background": "#0a84ffff",
-            "selection": "#0a84ff80"
+            "selection": "#3a4662cc"
           },
           {
             "cursor": "#ff453aff",
@@ -553,7 +553,7 @@
           {
             "cursor": "#007affff",
             "background": "#007affff",
-            "selection": "#007aff80"
+            "selection": "#cce4ffcc"
           },
           {
             "cursor": "#ff3b30ff",
