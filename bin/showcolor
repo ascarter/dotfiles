@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Function to display a hex color with preview
+
+hex="$1"
+
+# Remove the 'ff' alpha channel if present for RGB display
+rgb_hex=$(echo "$hex" | sed 's/#\([0-9a-fA-F]\{6\}\)[0-9a-fA-F]\{2\}$/\1/' | sed 's/^#//')
+
+# Convert hex to RGB
+r=$((16#${rgb_hex:0:2}))
+g=$((16#${rgb_hex:2:2}))
+b=$((16#${rgb_hex:4:2}))
+
+# Display the color with ANSI escape codes
+printf "\e[48;2;%d;%d;%dm    \e[0m %s (RGB: %d,%d,%d)\n" "$r" "$g" "$b" "$hex" "$r" "$g" "$b"
