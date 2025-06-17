@@ -13,6 +13,9 @@ dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
 
+# Files and patterns to exclude from linking
+EXCLUDE_PATTERNS=".DS_Store Thumbs.db *.tmp .gitkeep"
+
 log() {
   if [ "$#" -eq 1 ]; then
     printf "%s\n" "$1"
@@ -29,7 +32,7 @@ vlog() {
 }
 
 err() {
-    echo "$*" >&2
+  echo "$*" >&2
 }
 
 usage() {
@@ -130,7 +133,13 @@ sync() {
   target_dir="${TARGET}"
   action="${1}"
 
-  find "${source_dir}" -type f | sort | while read -r source_file; do
+  # Build find command with exclude patterns
+  find_cmd="find \"${source_dir}\" -type f"
+  for pattern in ${EXCLUDE_PATTERNS}; do
+    find_cmd="${find_cmd} -not -name \"${pattern}\""
+  done
+
+  eval "${find_cmd}" | sort | while read -r source_file; do
     target_file="${target_dir}/${source_file#${source_dir}/}"
     if [ "${action}" = "list" ]; then
       if [ -L "${target_file}" ]; then
