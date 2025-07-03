@@ -44,9 +44,9 @@
     "close_position": "left",
     "file_icons": true
   },
-  "vim_mode": true,
+  "helix_mode": true,
   "vim": {
-    "default_mode": "helix_normal",
+    "default_mode": "normal",
     "toggle_relative_line_numbers": true,
     "use_smartcase_find": true
   },
