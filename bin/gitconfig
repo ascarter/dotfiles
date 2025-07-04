@@ -232,6 +232,12 @@ gc_commitsigning() {
   fi
 }
 
+gc_lfs() {
+  if command -v git-lfs >/dev/null 2>&1; then
+    git lfs install
+  fi
+}
+
 # Main script function
 
 # Parse command line arguments
@@ -270,5 +276,6 @@ gc_tools
 gc_user
 gc_credentials
 gc_commitsigning
+gc_lfs
 
 # vim: set ft=sh ts=2 sw=2 et:
