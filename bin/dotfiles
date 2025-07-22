@@ -7,6 +7,7 @@ XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
 DOTFILES_SCRIPTS=${DOTFILES}/scripts
+DOTFILES_CONFIG=${XDG_CONFIG_HOME}/dotfiles
 
 dotfiles_command=$LOCAL_BIN_HOME/dotfiles
 
@@ -56,6 +57,9 @@ usage() {
   log "  -v" "Verbose"
 }
 
+remove "$DOTFILES_CONFIG"
+remove "$DOTFILES"
+
 check_symlink() {
   # Try `realpath` (works on both macOS and Linux if installed)
   if command -v realpath >/dev/null 2>&1; then
@@ -70,6 +74,26 @@ check_symlink() {
     return 0
   else
     return 1
+  fi
+}
+
+# Confirm and remove a file or directory
+remove() {
+  path="$1"
+  if [ -e "$path" ]; then
+    printf "Are you sure you want to remove '%s'? [y/N] " "$path"
+    read answer
+    case "$answer" in
+    [Yy]*)
+      log "remove" "$path"
+      rm -rf "$path"
+      ;;
+    *)
+      log "skip" "$path"
+      ;;
+    esac
+  else
+    vlog "missing" "$path"
   fi
 }
 
@@ -92,6 +116,7 @@ shellenv() {
   printf 'export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}\n'
   printf 'export LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}\n'
   printf 'export DOTFILES=${DOTFILES:-$XDG_DATA_HOME/dotfiles}\n'
+  printf 'export DOTFILES_CONFIG=${DOTFILES_CONFIG:-$XDG_CONFIG_HOME/dotfiles}\n'
   printf 'export PATH=$LOCAL_BIN_HOME:$PATH\n'
   printf '[ -f ${DOTFILES}/etc/profile ] && . ${DOTFILES}/etc/profile'
 }
