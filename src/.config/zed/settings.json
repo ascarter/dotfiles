@@ -10,19 +10,20 @@
   "show_completions_on_input": false,
   "show_edit_predictions": true,
   "edit_predictions": {
-    "mode": "subtle",
+    "mode": "eager",
     "enabled_in_text_threads": true
   },
   "agent": {
+    "play_sound_when_agent_done": true,
     "default_profile": "write",
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
-      "model": "gpt-4.1"
+      "model": "claude-sonnet-4"
     }
   },
   "features": {
-    "edit_prediction_provider": "copilot"
+    "edit_prediction_provider": "zed"
   },
   "theme": {
     "mode": "system",
