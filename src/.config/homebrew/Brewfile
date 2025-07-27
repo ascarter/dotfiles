@@ -31,6 +31,7 @@ if OS.mac?
   cask_args adopt: true
   cask "bbedit"
   cask "chatgpt"
+  cask "claude"
   cask "docker"
   cask "ghostty"
   cask "github"
