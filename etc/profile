@@ -15,6 +15,11 @@ if [[ $- == *i* ]]; then
   fi
 fi
 
+# Set SSH key provider for FIDO2
+if [ -f ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib ]; then
+  export SSH_SK_PROVIDER=${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib
+fi
+
 # Detect shell and run matching rc script
 if [ -n "$BASH_VERSION" ]; then
   [ -f ${DOTFILES}/etc/bashrc ] && . ${DOTFILES}/etc/bashrc
@@ -23,11 +28,9 @@ elif [ -n "$ZSH_VERSION" ]; then
 fi
 
 if [ -d ${DOTFILES}/etc/profile.d ]; then
-  for rc in ${DOTFILES}/etc/profile.d/* ; do
+  for rc in ${DOTFILES}/etc/profile.d/*; do
     if [ -f "$rc" ]; then
       . "$rc"
     fi
   done
 fi
-
-# vim: set ft=sh ts=2 sw=2 et:

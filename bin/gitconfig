@@ -2,8 +2,6 @@
 
 # Generate git config global file
 
-. ${DOTFILES}/etc/profile.d/1password.sh
-
 log() {
   if [ "$#" -eq 1 ]; then
     printf "%s\n" "$1"
@@ -125,15 +123,14 @@ gc_credentials() {
   gc_clear credential.helper
 
   git_cred_helper=""
-  if command -v op >/dev/null 2>&1; then
-    log "credentials" "1Password"
-    git_cred_helper="!op plugin run -- gh auth git-credential"
-  elif command -v gh >/dev/null 2>&1; then
+  if command -v gh >/dev/null 2>&1; then
     log "credentials" "gh"
-    git_cred_helper="!gh auth git-credential"
+    gh auth setup-git
+    # git_cred_helper="!$(command -v gh) auth git-credential"
   elif command -v git-credential-manager >/dev/null 2>&1; then
     log "credentials" "gcm"
-    git_cred_helper="$(command -v git-credential-manager)"
+    git-credential-manager configure
+    # git_cred_helper="$(command -v git-credential-manager)"
   else
     case $(uname) in
     Darwin)
@@ -145,15 +142,8 @@ gc_credentials() {
       git_cred_helper="cache"
       ;;
     esac
+    gc_add credential.helper "$git_cred_helper"
   fi
-
-  # Configure GitHub
-  gh_urls="https://github.com https://gist.github.com"
-  for url in $gh_urls; do
-    gc_clear credential.${url}.helper
-    gc_add credential.${url}.helper ''
-    gc_add credential.${url}.helper "$git_cred_helper"
-  done
 
   # Configure Azure DevOps if GCM is installed
   if command -v git-credential-manager >/dev/null 2>&1; then
@@ -172,7 +162,7 @@ gc_credentials() {
 }
 
 gc_commitsigning() {
-  # Clear gpg/ssh signing
+  # Clear signing keys
   gc_clear user.signingkey
   gc_clear gpg.format
   gc_clear gpg.ssh.program
@@ -180,54 +170,52 @@ gc_commitsigning() {
   gc_clear gpg.ssh.allowedSignersFile
 
   if [ $unset -eq 1 ]; then
-    vlog "skip" "GPG/SSH Signing keys"
+    vlog "skip" "Commit signing keys"
     return
   fi
 
-  # Configure gpg signing
-  if command -v op >/dev/null 2>&1; then
-    # Use 1Password SSH for signing
-    signing_key=$(op read "op://Private/GitHub SSH/public key")
-    if [ -n "$signing_key" ]; then
-      # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
-      log "signingkey" "$signing_key"
-      gc_set user.signingkey "$signing_key"
-      gc_set gpg.format ssh
-      gc_set commit.gpgsign true
+  # Configure commit signing using SSH
+  # Get public key from attached YubiKey resident SSH key
+  signing_key=""
+  if command -v ssh-add >/dev/null 2>&1; then
+    # Try to get YubiKey public key from ssh-agent
+    signing_key=$(ssh-add -L 2>/dev/null | grep -E "(sk-|ecdsa-sk|ed25519-sk)" | head -n1)
+  fi
 
-      gpg_ssh_cmd=""
-      if command -v op-ssh-sign >/dev/null 2>&1; then
-        gpg_ssh_cmd="op-ssh-sign"
-      elif [ -x /Applications/1Password.app/Contents/MacOS/op-ssh-sign ]; then
-        gpg_ssh_cmd="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-      elif [ -x /run/host/opt/1Password/op-ssh-sign ]; then
-        gpg_ssh_cmd=/run/host/opt/1Password/op-ssh-sign
-      fi
-      if [ -n "$gpg_ssh_cmd" ]; then
-        gc_set gpg.ssh.program $gpg_ssh_cmd
-      fi
-    fi
+  # Fallback: check for downloaded resident keys
+  if [ -z "$signing_key" ] && [ -f ~/.ssh/id_ed25519_sk.pub ]; then
+    signing_key=$(cat ~/.ssh/id_ed25519_sk.pub)
+  fi
+
+  if [ -n "$signing_key" ]; then
+    # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
+    log "signingkey" "$(echo "$signing_key" | cut -d' ' -f1-2)"
+    gc_set user.signingkey "$signing_key"
+    gc_set gpg.format ssh
+    # gc_set commit.gpgsign true
   fi
 
   if [ -n "${ghuser}" ]; then
-    # Download signing keys from GitHub
-    signers="$HOME/.ssh/allowed_signers"
-    signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
+    if command -v gh >/dev/null 2>&1; then
+      # Download signing keys from GitHub
+      signers="$HOME/.ssh/allowed_signers"
+      signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
 
-    # Use POSIX-compliant loop
-    echo "$signing_keys" | while read -r pubkey; do
-      if ! grep -q -F "$pubkey" "$signers" 2>/dev/null; then
-        # Add the key, narrowly scoped for Git
-        log "add" "Signing key ${pubkey} for ${ghuser}"
-        mkdir -p "$(dirname "${signers}")"
-        echo "${ghuser} namespaces=\"git\" ${pubkey}" >>${signers}
-      else
-        vlog "exists" "Signing key ${pubkey} for ${ghuser}"
+      # Use POSIX-compliant loop
+      echo "$signing_keys" | while read -r pubkey; do
+        if ! grep -q -F "$pubkey" "$signers" 2>/dev/null; then
+          # Add the key, narrowly scoped for Git
+          log "add" "Signing key ${pubkey} for ${ghuser}"
+          mkdir -p "$(dirname "${signers}")"
+          echo "${ghuser} namespaces=\"git\" ${pubkey}" >>${signers}
+        else
+          vlog "exists" "Signing key ${pubkey} for ${ghuser}"
+        fi
+      done
+
+      if [ -s ${signers} ]; then
+        gc_set gpg.ssh.allowedSignersFile "$signers"
       fi
-    done
-
-    if [ -s ${signers} ]; then
-      gc_set gpg.ssh.allowedSignersFile "$signers"
     fi
   fi
 }
@@ -272,10 +260,8 @@ fi
 touch "${GIT_CONFIG_FILE}"
 
 vlog "config file" "${GIT_CONFIG_FILE}"
-gc_tools
 gc_user
 gc_credentials
 gc_commitsigning
+gc_tools
 gc_lfs
-
-# vim: set ft=sh ts=2 sw=2 et:

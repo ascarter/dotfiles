@@ -4,21 +4,12 @@
 
 set -eu
 
-op_container_sock=${HOME}/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
-op_agent_sock=${HOME}/.1password/agent.sock
-
 case $(uname -s) in
 Darwin)
   # Use homebrew to install 1Password
   if command -v brew >/dev/null 2>&1; then
     brew install --adopt --cask 1password
     brew install --cask 1password-cli
-
-    # Symlink 1P agent socket to standard location ~/.1password/agent.sock
-    if [ -S "${op_container_sock}" ] && ! [ -L "${op_agent_sock}" ]; then
-      mkdir -p ${HOME}/.1password
-      ln -s "${op_container_sock}" "${op_agent_sock}"
-    fi
   else
     echo "Homebrew is not installed. Please install Homebrew first."
     exit 1
@@ -69,28 +60,3 @@ Linux)
   esac
   ;;
 esac
-
-# Configure 1P SSH
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-dotfiles_ssh_config=${XDG_CONFIG_HOME}/ssh/config
-
-if [ -S "${op_container_sock}" ]; then
-  if ! [ -f ${HOME}/.ssh/config ] || ! grep -q -x "Include ${dotfiles_ssh_config}" ${HOME}/.ssh/config; then
-    echo "Enable SSH IdentityAgent"
-    mkdir -p ${HOME}/.ssh
-    echo "Include ${dotfiles_ssh_config}" >>${HOME}/.ssh/config
-  fi
-fi
-
-# 1Password CLI
-if command -v op >/dev/null 2>&1; then
-  if command -v gh >/dev/null 2>&1; then
-    op plugin init gh
-    if [ -f "${XDG_CONFIG_HOME}/op/plugins.sh" ]; then
-      source "${XDG_CONFIG_HOME}/op/plugins.sh"
-    fi
-    op plugin inspect gh
-  fi
-fi
-
-# vim: set ft=sh ts=2 sw=2 et:
