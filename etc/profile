@@ -7,6 +7,7 @@ export INPUTRC="${XDG_CONFIG_HOME}/readline/inputrc"
 # * Verify brew is installed
 # * Intialize brew for shell environment if interactive
 export HOMEBREW_NO_EMOJI=1
+export HOMEBREW_DOWNLOAD_CONCURRENCY=auto
 if [[ $- == *i* ]]; then
   if [ -d /opt/homebrew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -18,6 +19,11 @@ fi
 # Set SSH key provider for FIDO2
 if [ -f /usr/local/lib/sk-libfido2.dylib ]; then
   export SSH_SK_PROVIDER=/usr/local/lib/sk-libfido2.dylib
+fi
+
+if command -v ssh-askpass >/dev/null; then
+  export SSH_ASKPASS=ssh-askpass
+  export DISPLAY=:0
 fi
 
 # Detect shell and run matching rc script
