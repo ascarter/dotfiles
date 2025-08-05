@@ -32,12 +32,6 @@ class SkLibfido2 < Formula
 
     # Install the standalone library
     lib.install "sk-libfido2.#{shared_library_extension}"
-
-    # Create platform-appropriate symlinks for consistency
-    if OS.mac?
-      # On macOS, create .so symlink for applications expecting Linux naming
-      lib.install_symlink "sk-libfido2.dylib" => "sk-libfido2.so"
-    end
   end
 
   def caveats

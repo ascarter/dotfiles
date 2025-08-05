@@ -16,8 +16,8 @@ if [[ $- == *i* ]]; then
 fi
 
 # Set SSH key provider for FIDO2
-if [ -f ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib ]; then
-  export SSH_SK_PROVIDER=${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib
+if [ -f /usr/local/lib/sk-libfido2.dylib ]; then
+  export SSH_SK_PROVIDER=/usr/local/lib/sk-libfido2.dylib
 fi
 
 # Detect shell and run matching rc script

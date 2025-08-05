@@ -36,6 +36,8 @@ case $(uname -s) in
 Darwin)
   if command -v brew >/dev/null 2>&1 && [ -n "$HOMEBREW_PREFIX" ]; then
     brew install --formula "${DOTFILES}/formula/sk-libfido2.rb"
+    echo "Install security key provider"
+    sudo cp ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib /usr/local/lib/sk-libfido2.dylib
   else
     echo "Homebrew is not installed. Please install Homebrew first."
     exit 1
@@ -68,11 +70,11 @@ else
 fi
 
 # Add security key provider
+SECURITY_KEY_LINE=""
 case $(uname -s) in
 Darwin)
-  if [ -f "${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib" ]; then
-    SECURITY_KEY_LINE="SecurityKeyProvider ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib"
-    add_to_ssh_config "$SSH_CONFIG" "$SECURITY_KEY_LINE" "SecurityKeyProvider.*sk-libfido2"
+  if [ -f /usr/local/lib/sk-libfido2.dylib ]; then
+    SECURITY_KEY_LINE="SecurityKeyProvider /usr/local/lib/sk-libfido2.dylib"
   fi
   ;;
 Linux)
@@ -80,12 +82,14 @@ Linux)
   for lib_path in "/usr/lib/x86_64-linux-gnu/sk-libfido2.so" "/usr/lib/sk-libfido2.so" "/usr/local/lib/sk-libfido2.so"; do
     if [ -f "$lib_path" ]; then
       SECURITY_KEY_LINE="SecurityKeyProvider $lib_path"
-      add_to_ssh_config "$SSH_CONFIG" "$SECURITY_KEY_LINE" "SecurityKeyProvider.*sk-libfido2"
       break
     fi
   done
   ;;
 esac
+if [ -n "$SECURITY_KEY_LINE" ]; then
+  add_to_ssh_config "$SSH_CONFIG" "$SECURITY_KEY_LINE" "SecurityKeyProvider.*sk-libfido2"
+fi
 
 # Set permissions on SSH config
 chmod 700 "${SSH_DIR}"
