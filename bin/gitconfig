@@ -192,7 +192,7 @@ gc_commitsigning() {
     log "signingkey" "$(echo "$signing_key" | cut -d' ' -f1-2)"
     gc_set user.signingkey "$signing_key"
     gc_set gpg.format ssh
-    # gc_set commit.gpgsign true
+    gc_set commit.gpgsign true
   fi
 
   if [ -n "${ghuser}" ]; then
