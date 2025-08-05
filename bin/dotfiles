@@ -6,10 +6,11 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}
 DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+DOTFILES_BIN=${DOTFILES}/bin
 DOTFILES_SCRIPTS=${DOTFILES}/scripts
 DOTFILES_CONFIG=${XDG_CONFIG_HOME}/dotfiles
 
-dotfiles_command=$LOCAL_BIN_HOME/dotfiles
+dotfiles_command=${DOTFILES_BIN}/dotfiles
 
 TARGET=${TARGET:-$HOME}
 VERBOSE=0
@@ -94,7 +95,7 @@ shellenv() {
   printf 'export LOCAL_BIN_HOME=${LOCAL_BIN_HOME:-$HOME/.local/bin}\n'
   printf 'export DOTFILES=${DOTFILES:-$XDG_DATA_HOME/dotfiles}\n'
   printf 'export DOTFILES_CONFIG=${DOTFILES_CONFIG:-$XDG_CONFIG_HOME/dotfiles}\n'
-  printf 'export PATH=$LOCAL_BIN_HOME:$PATH\n'
+  printf 'export PATH=${LOCAL_BIN_HOME}:${DOTFILES}/bin:$PATH\n'
   printf '[ -f ${DOTFILES}/etc/profile ] && . ${DOTFILES}/etc/profile'
 }
 
