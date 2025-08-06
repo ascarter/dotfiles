@@ -125,6 +125,7 @@ gc_credentials() {
   git_cred_helper=""
   if command -v gh >/dev/null 2>&1; then
     log "credentials" "gh"
+
     gh auth setup-git
     # git_cred_helper="!$(command -v gh) auth git-credential"
   elif command -v git-credential-manager >/dev/null 2>&1; then
@@ -175,29 +176,22 @@ gc_commitsigning() {
   fi
 
   # Configure commit signing using SSH
-  # Get public key from attached YubiKey resident SSH key
-  signing_key=""
-  if command -v ssh-add >/dev/null 2>&1; then
-    # Try to get YubiKey public key from ssh-agent
-    signing_key=$(ssh-add -L 2>/dev/null | grep -E "(sk-|ecdsa-sk|ed25519-sk)" | head -n1)
-  fi
-
-  # Fallback: check for downloaded resident keys
-  if [ -z "$signing_key" ] && [ -f ~/.ssh/id_ed25519_sk.pub ]; then
-    signing_key=$(cat ~/.ssh/id_ed25519_sk.pub)
-  fi
-
-  if [ -n "$signing_key" ]; then
-    # Use ssh for signing. Requires SSH_AUTH_SOCK to be set
-    log "signingkey" "$(echo "$signing_key" | cut -d' ' -f1-2)"
-    gc_set user.signingkey "$signing_key"
+  # Get YubiKey keys and save with unique naming
+  yubikey_private_path=$(get_yubikey_keys)
+  if [ -n "$yubikey_private_path" ]; then
+    # Use ssh for signing. This will prompt for YubiKey PIN when signing
+    log "signingkey" "YubiKey SSH key: $(basename "$yubikey_private_path")"
+    gc_set user.signingkey "$yubikey_private_path"
     gc_set gpg.format ssh
     gc_set commit.gpgsign true
+  else
+    vlog "warning" "No YubiKey resident SSH key found"
   fi
 
   if [ -n "${ghuser}" ]; then
     if command -v gh >/dev/null 2>&1; then
       # Download signing keys from GitHub
+
       signers="$HOME/.ssh/allowed_signers"
       signing_keys=$(gh api users/${ghuser}/ssh_signing_keys --jq '.[] | .key | @text')
 
@@ -218,6 +212,56 @@ gc_commitsigning() {
       fi
     fi
   fi
+}
+
+# Get YubiKey SSH keys from resident keys and save with unique naming
+# Returns the path to the private key file on success
+get_yubikey_keys() {
+  if ! command -v ssh-keygen >/dev/null 2>&1 || ! command -v ykman >/dev/null 2>&1; then
+    return 1
+  fi
+
+  # Get YubiKey serial number for unique identification
+  yubikey_serial=$(ykman info 2>/dev/null | grep "Serial number:" | awk '{print $3}')
+  if [ -z "$yubikey_serial" ]; then
+    vlog "error" "Could not get YubiKey serial number"
+    return 1
+  fi
+
+  # Create temporary directory for key download
+  temp_dir=$(mktemp -d)
+  trap 'rm -rf "$temp_dir"' EXIT
+
+  # Change to temp directory and download resident keys from YubiKey (will prompt for PIN)
+  if (cd "$temp_dir" && ssh-keygen -K -f "id_" -N "" >/dev/null 2>&1); then
+    # Find the first hardware key files
+    private_key_file=$(find "$temp_dir" -name "*_sk_rk_*" -not -name "*.pub" | head -n1)
+    public_key_file=$(find "$temp_dir" -name "*_sk_rk_*.pub" | head -n1)
+
+    if [ -n "$private_key_file" ] && [ -n "$public_key_file" ]; then
+      # Extract algorithm from public key (e.g., "ed25519" from "sk-ssh-ed25519@openssh.com")
+      algorithm=$(head -1 "$public_key_file" | cut -d' ' -f1 | sed 's/sk-ssh-//' | sed 's/@.*//')
+
+      # Construct filename: id_<serial>_<algorithm>_sk
+      key_filename="id_${yubikey_serial}_${algorithm}_sk"
+      yubikey_private_path="$HOME/.ssh/$key_filename"
+      yubikey_public_path="$HOME/.ssh/${key_filename}.pub"
+
+      # Save keys with unique naming
+      mkdir -p "$(dirname "$yubikey_private_path")"
+      cp "$private_key_file" "$yubikey_private_path"
+      cp "$public_key_file" "$yubikey_public_path"
+
+      # Set proper permissions
+      chmod 600 "$yubikey_private_path"
+      chmod 644 "$yubikey_public_path"
+
+      echo "$yubikey_private_path"
+      return 0
+    fi
+  fi
+
+  return 1
 }
 
 gc_lfs() {
