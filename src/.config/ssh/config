@@ -1,3 +1,7 @@
+Host *
+	IdentityAgent none
+	IdentitiesOnly yes
+
 Host github.com
 	User git
 	IdentitiesOnly yes

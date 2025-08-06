@@ -27,7 +27,7 @@ add_to_ssh_config() {
 
   if ! ssh_config_has_line "$config_file" "$pattern"; then
     echo "Added: $line"
-    printf "%s\n" "$line" >>"$config_file"
+    printf "\n%s\n\n" "$line" >>"$config_file"
   fi
 }
 
@@ -38,9 +38,6 @@ Darwin)
     brew install --formula "${DOTFILES}/formula/sk-libfido2.rb"
     echo "Install security key provider"
     sudo cp ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib /usr/local/lib/sk-libfido2.dylib
-  else
-    echo "Homebrew is not installed. Please install Homebrew first."
-    exit 1
   fi
   ;;
 esac
@@ -69,26 +66,55 @@ else
   echo "Warning: Dotfiles SSH config not found at $DOTFILES_SSH_CONFIG"
 fi
 
-# Add security key provider
+# Add security key providers
 SECURITY_KEY_LINE=""
+PKCS11_PROVIDER_LINE=""
 case $(uname -s) in
 Darwin)
-  if [ -f /usr/local/lib/sk-libfido2.dylib ]; then
-    SECURITY_KEY_LINE="SecurityKeyProvider /usr/local/lib/sk-libfido2.dylib"
-  fi
+  fido2_libs="/usr/local/lib/sk-libfido2.dylib"
+  for lib_path in $fido2_libs; do
+    if [ -f "$lib_path" ]; then
+      echo "Setting SecurityKeyProvider $lib_path"
+      SECURITY_KEY_LINE="SecurityKeyProvider $lib_path"
+      launchctl setenv SSH_SK_PROVIDER "$lib_path"
+      break
+    fi
+  done
+
+  # Configure SSH_ASKPASS helper
+  echo "Setting SSH_ASKPASS launchctl environment variable..."
+  launchctl setenv SSH_ASKPASS "${DOTFILES}/bin/ssh-askpass"
+  launchctl setenv SSH_ASKPASS_REQUIRE force
+
+  pkcs11_libs="${HOMEBREW_PREFIX}/lib/libykcs11.dylib ${HOMEBREW_PREFIX}/lib/opensc-pkcs11.dylib /usr/lib/ssh-keychain.dylib"
+  echo $pkcs11_libs
+  for lib_path in $pkcs11_libs; do
+    echo "Checking $lib_path..."
+    if [ -f "$lib_path" ]; then
+      echo "Setting PKCS11Provider $lib_path"
+      PKCS11_PROVIDER_LINE="PKCS11Provider $lib_path"
+      break
+    fi
+  done
   ;;
 Linux)
   # Check for libfido2 library in common locations
-  for lib_path in "/usr/lib/x86_64-linux-gnu/sk-libfido2.so" "/usr/lib/sk-libfido2.so" "/usr/local/lib/sk-libfido2.so"; do
+  fido2_libs="/usr/lib/x86_64-linux-gnu/sk-libfido2.so /usr/lib/sk-libfido2.so /usr/local/lib/sk-libfido2.so"
+  for lib_path in $fido2_libs; do
     if [ -f "$lib_path" ]; then
+      echo "Setting SecurityKeyProvider $lib_path"
       SECURITY_KEY_LINE="SecurityKeyProvider $lib_path"
       break
     fi
   done
   ;;
 esac
+
 if [ -n "$SECURITY_KEY_LINE" ]; then
-  add_to_ssh_config "$SSH_CONFIG" "$SECURITY_KEY_LINE" "SecurityKeyProvider.*sk-libfido2"
+  add_to_ssh_config "$SSH_CONFIG" "$SECURITY_KEY_LINE" "SecurityKeyProvider.*"
+fi
+if [ -n "$PKCS11_PROVIDER_LINE" ]; then
+  add_to_ssh_config "$SSH_CONFIG" "$PKCS11_PROVIDER_LINE" "PKCS11Provider.*"
 fi
 
 # Set permissions on SSH config
