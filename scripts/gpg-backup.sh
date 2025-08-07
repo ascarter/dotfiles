@@ -5,12 +5,15 @@
 #        Default target directory is current directory
 #        If key_id not provided, will prompt to select from available keys
 
-# Check if running in interactive mode
-if [ -t 0 ] && [ -t 1 ]; then
-  INTERACTIVE=true
-else
-  INTERACTIVE=false
-fi
+# Function to prompt for yes/no confirmation
+prompt() {
+  printf "%s (y/N): " "$1" >&2
+  read choice
+  case "$choice" in
+  [yY] | [yY][eE][sS]) return 0 ;;
+  *) return 1 ;;
+  esac
+}
 
 # Function to discover and select GPG key
 discover_key() {
@@ -57,23 +60,12 @@ discover_key() {
   gpg --list-secret-keys --keyid-format=long "$SELECTED_KEY" >&2
   printf "\n" >&2
 
-  if [ "$INTERACTIVE" = "true" ]; then
-    printf "Use this key for backup? (y/N): " >&2
-    read confirm
-    case "$confirm" in
-    [Yy]*)
-      printf "$SELECTED_KEY"
-      return 0
-      ;;
-    *)
-      printf "Backup cancelled.\n" >&2
-      exit 0
-      ;;
-    esac
-  else
-    printf "Non-interactive mode: using key automatically\n" >&2
+  if prompt "Use this key for backup?"; then
     printf "$SELECTED_KEY"
     return 0
+  else
+    printf "Backup cancelled.\n" >&2
+    exit 0
   fi
 }
 
@@ -123,6 +115,37 @@ if ! gpg --list-secret-keys --keyid-format=long "$KEYID" >/dev/null 2>&1; then
   printf "Available keys:\n"
   gpg --list-secret-keys --keyid-format=long
   exit 1
+fi
+
+# CRITICAL SAFETY CHECK: Ensure we have real private keys, not YubiKey stubs
+printf "Checking key status...\n"
+KEY_LISTING=$(gpg --list-secret-keys --keyid-format=long "$KEYID")
+
+# Check for YubiKey stubs (indicated by '>' symbol)
+if printf "%s" "$KEY_LISTING" | grep -q "ssb>"; then
+  printf "\n❌ ERROR: Cannot backup - subkeys are stored on YubiKey!\n"
+  printf "\nDetected YubiKey stubs (indicated by '>' symbol):\n"
+  printf "%s\n" "$KEY_LISTING" | grep "ssb>" | sed 's/^/  /'
+  printf "\nYubiKey stubs contain no private key material and cannot be backed up.\n"
+  printf "\nValid backup scenarios:\n"
+  printf "  • Before moving keys to YubiKey (initial key generation)\n"
+  printf "  • After restoring from backup (temporary access to private keys)\n"
+  printf "\nIf you need a backup:\n"
+  printf "  1. Use your existing backup (created before YubiKey setup)\n"
+  printf "  2. Or temporarily restore from backup, then create new backup\n"
+  exit 1
+fi
+
+# Warn about backup timing if this appears to be a fresh key
+if ! printf "%s" "$KEY_LISTING" | grep -q "card-no:"; then
+  printf "\n💡 IMPORTANT: This may be your only chance to backup private keys!\n"
+  printf "   Once subkeys are moved to YubiKey, they become stubs and cannot be backed up.\n"
+  printf "   Store this backup securely before proceeding with YubiKey setup.\n"
+
+  if ! prompt "\nContinue with backup?"; then
+    printf "Backup cancelled.\n"
+    exit 0
+  fi
 fi
 
 # Create backup directory name with key ID for uniqueness

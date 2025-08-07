@@ -50,7 +50,7 @@ usage() {
   log "  unlink" "Unlink configuration"
   log "  update" "Update dotfiles"
   log "  edit" "Edit dotfiles in $EDITOR"
-  log "  script" "Run dofiles provisioning script"
+  log "  script" "Run dotfiles provisioning script [script1 script2 -- args]"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -195,12 +195,37 @@ run_script() {
     return 0
   fi
 
-  # Run each provided script
-  for script in "$@"; do
+  # Parse arguments to find -- separator
+  script_names=""
+  script_args=""
+  found_separator=0
+
+  for arg in "$@"; do
+    if [ "$arg" = "--" ]; then
+      found_separator=1
+      continue
+    fi
+
+    if [ $found_separator -eq 0 ]; then
+      script_names="$script_names $arg"
+    else
+      script_args="$script_args $arg"
+    fi
+  done
+
+  # If no separator found, treat all args as script names (backward compatibility)
+  if [ $found_separator -eq 0 ]; then
+    script_names="$@"
+    script_args=""
+  fi
+
+  # Run each script with the provided arguments
+  for script in $script_names; do
     script_path="${DOTFILES_SCRIPTS}/${script}.sh"
     if [ -f "${script_path}" ]; then
       log "Running" "${script}"
-      sh "${script_path}"
+      # Execute script with proper terminal I/O for interaction
+      sh "${script_path}" $script_args </dev/tty
     else
       err "Script not found: ${script}.sh"
     fi
