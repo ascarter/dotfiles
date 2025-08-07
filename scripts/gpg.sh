@@ -30,3 +30,10 @@ Darwin)
   fi
   ;;
 esac
+
+# Import GitHub published GPG keys
+ghuser=""
+if command -v gh >/dev/null 2>&1; then
+  ghuser=$(gh api user --jq '.login')
+  curl -fsSL https://github.com/$ghuser.gpg | gpg --import
+fi
