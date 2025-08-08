@@ -26,6 +26,11 @@ if command -v ssh-askpass >/dev/null; then
   export DISPLAY=:0
 fi
 
+if [ -n "${SSH_CONNECTION}" ]; then
+  export PINENTRY_USER_DATA=USE_CURSES=1
+  export GPG_TTY=$(tty)
+fi
+
 # Detect shell and run matching rc script
 if [ -n "$BASH_VERSION" ]; then
   [ -f ${DOTFILES}/etc/bashrc ] && . ${DOTFILES}/etc/bashrc

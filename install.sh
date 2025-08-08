@@ -118,20 +118,6 @@ else
   fi
 fi
 
-# Install dotfiles symlinks
-mkdir -p "$LOCAL_BIN_HOME"
-for dfbin in ${DOTFILES}/bin/*; do
-  bin="$LOCAL_BIN_HOME/${dfbin##*/}"
-  if ! [ -L $bin ]; then
-    if [ -e $bin ]; then
-      echo "Conflict: $bin exists" >&2
-    else
-      echo "link $dfbin -> $bin"
-      ln -s $dfbin $bin
-    fi
-  fi
-done
-
 # Init dotfiles
 "${DOTFILES}/bin/dotfiles" ${FLAGS} -d "${DOTFILES}" -t "${TARGET}" init
 
