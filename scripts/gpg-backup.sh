@@ -69,7 +69,8 @@ discover_key() {
   fi
 }
 
-TIMESTAMP=$(date "+%Y%m%d_%H%M")
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+FILE_TIMESTAMP=$(date "+%Y%m%d_%H%M%S")
 
 # Parse arguments
 TARGET_DIR="."
@@ -150,7 +151,7 @@ fi
 
 # Create backup directory name with key ID for uniqueness
 SHORT_KEYID=$(printf "%s" "$KEYID" | tail -c 9)
-BACKUP_DIR="gpg-backup-${SHORT_KEYID}-${TIMESTAMP}"
+BACKUP_DIR="gpg-backup-${SHORT_KEYID}-${FILE_TIMESTAMP}"
 
 # Create target directory if it doesn't exist
 if [ ! -d "$TARGET_DIR" ]; then
@@ -202,12 +203,12 @@ SUBKEY_INFO=$(gpg --list-secret-keys --keyid-format=long "$KEYID" | grep "^ssb" 
 
 # Create README with key information
 cat >"${BACKUP_PATH}/README.txt" <<EOF
-GPG Key Backup - ${TIMESTAMP}
+GPG Key Backup
 =============================
 
-Master Key ID: ${KEYID}
-Creation Date: ${CREATION_DATE}
-Backup Created: $(date)
+Master Key ID:     ${KEYID}
+Key Creation Date: ${CREATION_DATE}
+Backup Created:    ${TIMESTAMP}
 
 User IDs:
 $(printf "%s\n" "$USER_IDS" | sed 's/^/- /')
@@ -234,22 +235,27 @@ gpg --import-ownertrust ownertrust.txt
 
 To move subkeys to YubiKey after restore:
 gpg --expert --edit-key ${KEYID}
-(Select each subkey and use 'keytocard' command)
+
+Then run these commands in the GPG key editor:
+  key 2         (select signing subkey)
+  keytocard     (move to card - select 1 for Signature key)
+  key 2         (deselect signing subkey)
+  key 3         (select encryption subkey)
+  keytocard     (move to card - select 2 for Encryption key)
+  key 3         (deselect encryption subkey)
+  key 4         (select authentication subkey)
+  keytocard     (move to card - select 3 for Authentication key)
+  save          (save changes and exit)
 
 Store this backup securely offline!
 EOF
 
-# Create tarball in target directory
-BACKUP_FILE="${TARGET_DIR}/${BACKUP_DIR}.tar.gz"
-tar -czf "${BACKUP_FILE}" -C "${TARGET_DIR}" "${BACKUP_DIR}"
-rm -rf "${BACKUP_PATH}"
-
 printf "\n"
-printf "✅ Backup created: ${BACKUP_FILE}\n"
-printf "📁 Size: %s\n" "$(du -h "${BACKUP_FILE}" | cut -f1)"
+printf "✅ Backup created: ${BACKUP_PATH}\n"
+printf "📁 Size: %s\n" "$(du -sh "${BACKUP_PATH}" | cut -f1)"
 printf "\n"
 printf "🔐 IMPORTANT: Store this backup securely!\n"
 printf "📝 Use gpg-restore.sh to restore to a YubiKey\n"
 printf "\n"
 printf "Example restore usage:\n"
-printf "  ./gpg-restore.sh \"${BACKUP_FILE}\"\n"
+printf "  ./gpg-restore.sh \"${BACKUP_PATH}\"\n"

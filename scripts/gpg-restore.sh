@@ -1,7 +1,8 @@
 #!/bin/sh
 # gpg-restore.sh - Restore GPG key from backup to YubiKey
 #
-# Usage: ./gpg-restore.sh backup.tar.gz
+# Usage: ./gpg-restore.sh [backup_directory]
+#        Default backup directory is current directory
 
 # Colors for output
 RED='\033[0;31m'
@@ -22,9 +23,10 @@ prompt() {
 
 # Show usage
 show_usage() {
-  printf "Usage: $0 backup.tar.gz\n"
+  printf "Usage: $0 [backup_directory]\n"
   printf "\n"
   printf "Restores GPG key from backup to YubiKey.\n"
+  printf "Default backup directory is current directory.\n"
   printf "\n"
   printf "Options:\n"
   printf "  -h    Show this help message\n"
@@ -48,36 +50,29 @@ done
 # Shift past the options
 shift $((OPTIND - 1))
 
-# Check if backup file is provided
-if [ $# -ne 1 ]; then
-  printf "${RED}Error: backup.tar.gz file is required${NC}\n"
+# Set backup directory (default to current directory)
+if [ $# -eq 0 ]; then
+  BACKUP_DIR="."
+elif [ $# -eq 1 ]; then
+  BACKUP_DIR="$1"
+else
+  printf "${RED}Error: Too many arguments${NC}\n"
   printf "\n"
   show_usage
   exit 1
 fi
 
-BACKUP_FILE="$1"
-
 printf "${BLUE}🔑 GPG YubiKey Restore Script${NC}\n"
 printf "===============================\n"
 printf "\n"
 
-# Check if backup file exists
-if [ ! -f "$BACKUP_FILE" ]; then
-  printf "${RED}❌ Error: Backup file not found: $BACKUP_FILE${NC}\n"
+# Check if backup directory exists
+if [ ! -d "$BACKUP_DIR" ]; then
+  printf "${RED}❌ Error: Backup directory not found: $BACKUP_DIR${NC}\n"
   exit 1
 fi
 
-# Check if it's a .tar.gz file
-case "$BACKUP_FILE" in
-*.tar.gz) ;;
-*)
-  printf "${RED}❌ Error: File must be a .tar.gz archive${NC}\n"
-  exit 1
-  ;;
-esac
-
-printf "${GREEN}✅ Found backup file: $BACKUP_FILE${NC}\n"
+printf "${GREEN}✅ Found backup directory: $BACKUP_DIR${NC}\n"
 
 # Check if YubiKey is detected
 if ! command -v ykman >/dev/null 2>&1; then
@@ -99,23 +94,16 @@ ykman info
 printf "\n"
 
 printf "${BLUE}Step 1: Inspecting backup...${NC}\n"
-# Normalize archive paths (strip leading ./ or /) and detect key files safely
-TAR_LIST=$(tar -tzf "$BACKUP_FILE" | sed -E 's#^\./##; s#^/##')
-MASTER_PATH=$(printf "%s\n" "$TAR_LIST" | grep -E '(^|.*/)[^/]+-master\.asc$' | head -n1)
+# Find master key file in backup directory
+MASTER_FILE=$(find "$BACKUP_DIR" -name "*-master.asc" -type f | head -n1)
 
-if [ -z "$MASTER_PATH" ]; then
-  printf "${RED}❌ Error: Could not locate key files in archive${NC}\n"
+if [ -z "$MASTER_FILE" ]; then
+  printf "${RED}❌ Error: Could not locate master key file in backup${NC}\n"
   exit 1
 fi
 
-# Determine prefix directory (may be empty if files are at archive root)
-PREFIX=$(dirname "$MASTER_PATH")
-if [ "$PREFIX" = "." ]; then
-  PREFIX=""
-fi
-
 # Auto-detect the KEYID from the master key filename
-KEYID=$(basename "$MASTER_PATH" | sed -E 's#-master\.asc$##')
+KEYID=$(basename "$MASTER_FILE" | sed -E 's#-master\.asc$##')
 
 if [ -z "$KEYID" ]; then
   printf "${RED}❌ Error: Could not detect GPG key ID from backup files${NC}\n"
@@ -124,13 +112,13 @@ fi
 
 printf "${BLUE}Detected Key ID: $KEYID${NC}\n"
 
-# Locate optional README file within archive
-README_PATH=$(printf "%s\n" "$TAR_LIST" | grep -E "^${PREFIX:+$PREFIX/}README(\.(md|txt))?$" | head -n1)
+# Locate optional README file in backup directory
+README_FILE=$(find "$BACKUP_DIR" -name "README*" -type f | head -n1)
 
 # Verify required files exist
 printf "\n${BLUE}Verifying backup contents:${NC}\n"
 for file in "${KEYID}-master.asc" "${KEYID}-subkeys.asc" "ownertrust.txt"; do
-  if printf "%s\n" "$TAR_LIST" | grep -qx "${PREFIX:+$PREFIX/}$file"; then
+  if [ -f "$BACKUP_DIR/$file" ]; then
     printf "  ${GREEN}✅ $file${NC}\n"
   else
     printf "  ${RED}❌ $file (missing)${NC}\n"
@@ -182,9 +170,9 @@ if [ "$KEY_EXISTS" = "true" ]; then
 fi
 
 # Show backup README (if available) before proceeding
-if [ -n "$README_PATH" ]; then
+if [ -n "$README_FILE" ]; then
   printf "\n${BLUE}Backup README:${NC}\n"
-  tar -xOzf "$BACKUP_FILE" "$README_PATH" | sed 's/^/    /'
+  sed 's/^/    /' "$README_FILE"
 fi
 
 # Confirm operation
@@ -207,11 +195,12 @@ else
   fi
 fi
 
-# Remove only shadowed stubs corresponding to this key's keygrips (derived from backup, no import yet)
 printf "\n${BLUE}Step 3: Cleaning up existing stubs for this key...${NC}\n"
+
+# Remove only shadowed stubs corresponding to this key's keygrips (derived from backup, no import yet)
 keygrips=$({
-  tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-master.asc"
-  tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-subkeys.asc"
+  cat "$BACKUP_DIR/${KEYID}-master.asc"
+  cat "$BACKUP_DIR/${KEYID}-subkeys.asc"
 } 2>/dev/null | gpg --show-keys --with-colons --with-keygrip 2>/dev/null | awk -F: '$1=="grp"{print $10}' | sort -u)
 for grip in $keygrips; do
   f="$HOME/.gnupg/private-keys-v1.d/$grip.key"
@@ -225,15 +214,15 @@ printf "\n${BLUE}Step 4: Importing GPG keys from backup...${NC}\n"
 
 # Import master key
 printf "Importing master key...\n"
-tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-master.asc" | gpg --import
+gpg --import "$BACKUP_DIR/${KEYID}-master.asc"
 
 # Import subkeys
 printf "Importing subkeys...\n"
-tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-subkeys.asc" | gpg --import
+gpg --import "$BACKUP_DIR/${KEYID}-subkeys.asc"
 
 # Import trust settings
 printf "Importing trust settings...\n"
-tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}ownertrust.txt" | gpg --import-ownertrust
+gpg --import-ownertrust "$BACKUP_DIR/ownertrust.txt"
 
 # Get user info for YubiKey configuration
 uid_line=$(gpg --list-keys --with-colons "$KEYID" | awk -F: '$1=="uid"{print $10; exit}')
