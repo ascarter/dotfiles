@@ -12,8 +12,8 @@ NC='\033[0m'
 
 # Function to prompt for yes/no confirmation
 prompt() {
-  printf "%s (y/N): " "$1" >&2
-  read choice
+  printf "%s (y/N): " "$1"
+  read -r choice
   case "$choice" in
   [yY] | [yY][eE][sS]) return 0 ;;
   *) return 1 ;;
@@ -98,53 +98,43 @@ printf "\n${BLUE}YubiKey Information:${NC}\n"
 ykman info
 printf "\n"
 
-# Create temporary directory for extraction
-TEMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'gpg-restore')
+printf "${BLUE}Step 1: Inspecting backup...${NC}\n"
+# Normalize archive paths (strip leading ./ or /) and detect key files safely
+TAR_LIST=$(tar -tzf "$BACKUP_FILE" | sed -E 's#^\./##; s#^/##')
+MASTER_PATH=$(printf "%s\n" "$TAR_LIST" | grep -E '(^|.*/)[^/]+-master\.asc$' | head -n1)
 
-printf "${BLUE}Step 1: Extracting backup...${NC}\n"
-tar -xzf "$BACKUP_FILE" -C "$TEMP_DIR"
-
-# Find the extracted directory
-EXTRACT_DIR=""
-for dir in "$TEMP_DIR"/*/; do
-  if [ -d "$dir" ]; then
-    EXTRACT_DIR="${dir%/}"
-    break
-  fi
-done
-
-if [ -z "$EXTRACT_DIR" ]; then
-  printf "${RED}❌ Error: Could not find extracted directory${NC}\n"
-  rm -rf "$TEMP_DIR"
+if [ -z "$MASTER_PATH" ]; then
+  printf "${RED}❌ Error: Could not locate key files in archive${NC}\n"
   exit 1
 fi
 
-# Auto-detect the KEYID from the filenames
-KEYID=""
-for file in "$EXTRACT_DIR"/*-master.asc; do
-  if [ -f "$file" ]; then
-    KEYID=$(basename "$file" | sed 's/-master\.asc$//')
-    break
-  fi
-done
+# Determine prefix directory (may be empty if files are at archive root)
+PREFIX=$(dirname "$MASTER_PATH")
+if [ "$PREFIX" = "." ]; then
+  PREFIX=""
+fi
+
+# Auto-detect the KEYID from the master key filename
+KEYID=$(basename "$MASTER_PATH" | sed -E 's#-master\.asc$##')
 
 if [ -z "$KEYID" ]; then
   printf "${RED}❌ Error: Could not detect GPG key ID from backup files${NC}\n"
-  rm -rf "$TEMP_DIR"
   exit 1
 fi
 
 printf "${BLUE}Detected Key ID: $KEYID${NC}\n"
 
+# Locate optional README file within archive
+README_PATH=$(printf "%s\n" "$TAR_LIST" | grep -E "^${PREFIX:+$PREFIX/}README(\.(md|txt))?$" | head -n1)
+
 # Verify required files exist
 printf "\n${BLUE}Verifying backup contents:${NC}\n"
 for file in "${KEYID}-master.asc" "${KEYID}-subkeys.asc" "ownertrust.txt"; do
-  if [ -f "$EXTRACT_DIR/$file" ]; then
+  if printf "%s\n" "$TAR_LIST" | grep -qx "${PREFIX:+$PREFIX/}$file"; then
     printf "  ${GREEN}✅ $file${NC}\n"
   else
     printf "  ${RED}❌ $file (missing)${NC}\n"
     printf "${RED}❌ Error: Required backup files are missing!${NC}\n"
-    rm -rf "$TEMP_DIR"
     exit 1
   fi
 done
@@ -157,7 +147,7 @@ fi
 
 # Check current YubiKey status
 YUBIKEY_HAS_KEYS=false
-if gpg --card-status 2>/dev/null | grep -q "Signature key"; then
+if gpg --card-status 2>/dev/null | grep -E "(Signature key|Encryption key|Authentication key)" | grep -vq "\[none\]"; then
   YUBIKEY_HAS_KEYS=true
 fi
 
@@ -171,7 +161,7 @@ fi
 
 if [ "$YUBIKEY_HAS_KEYS" = "true" ]; then
   printf "  ${YELLOW}⚠️  YubiKey already contains OpenPGP keys${NC}\n"
-  gpg --card-status | grep -E "(Signature key|Encryption key|Authentication key)" | sed 's/^/    /'
+  gpg --card-status | grep -E "(Signature key|Encryption key|Authentication key)" | grep -v "\[none\]" | sed 's/^/    /'
 else
   printf "  ${GREEN}ℹ️  YubiKey OpenPGP applet is empty${NC}\n"
 fi
@@ -182,69 +172,108 @@ printf "This will import keys from backup and move subkeys to YubiKey.\n"
 
 # Warning and confirmation
 printf "\n"
-printf "${YELLOW}⚠️  WARNING: This will reset the YubiKey's OpenPGP applet!${NC}\n"
 if [ "$YUBIKEY_HAS_KEYS" = "true" ]; then
-  printf "   Existing YubiKey keys will be erased.\n"
+  printf "${YELLOW}⚠️  WARNING: This will reset the YubiKey's OpenPGP applet and erase existing keys!${NC}\n"
+else
+  printf "${BLUE}ℹ️  YubiKey appears empty. Reset is optional; you can skip to keep counters and settings, or reset to ensure a clean state.${NC}\n"
 fi
 if [ "$KEY_EXISTS" = "true" ]; then
   printf "   Local keys will be reimported from backup.\n"
 fi
 
+# Show backup README (if available) before proceeding
+if [ -n "$README_PATH" ]; then
+  printf "\n${BLUE}Backup README:${NC}\n"
+  tar -xOzf "$BACKUP_FILE" "$README_PATH" | sed 's/^/    /'
+fi
+
+# Confirm operation
 printf "\n"
 if ! prompt "Continue with this operation?"; then
   printf "Operation cancelled.\n"
-  rm -rf "$TEMP_DIR"
   exit 0
 fi
 
 # Reset YubiKey OpenPGP applet
-printf "\n${BLUE}Step 2: Resetting YubiKey OpenPGP applet...${NC}\n"
-ykman openpgp reset
+if [ "$YUBIKEY_HAS_KEYS" = "true" ]; then
+  printf "\n${BLUE}Step 2: Resetting YubiKey OpenPGP applet (existing keys detected)...${NC}\n"
+  ykman openpgp reset
+else
+  printf "\n${BLUE}Step 2: YubiKey reset (optional)${NC}\n"
+  if prompt "Reset the YubiKey OpenPGP applet before proceeding?"; then
+    ykman openpgp reset
+  else
+    printf "Skipping YubiKey reset.\n"
+  fi
+fi
 
-# Import keys - always import from backup to ensure we have the private key material
-printf "\n${BLUE}Step 3: Importing GPG keys from backup...${NC}\n"
+# Remove only shadowed stubs corresponding to this key's keygrips (derived from backup, no import yet)
+printf "\n${BLUE}Step 3: Cleaning up existing stubs for this key...${NC}\n"
+keygrips=$({
+  tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-master.asc"
+  tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-subkeys.asc"
+} 2>/dev/null | gpg --show-keys --with-colons --with-keygrip 2>/dev/null | awk -F: '$1=="grp"{print $10}' | sort -u)
+for grip in $keygrips; do
+  f="$HOME/.gnupg/private-keys-v1.d/$grip.key"
+  if [ -f "$f" ] && grep -q 'shadowed' "$f" 2>/dev/null; then
+    rm -f "$f"
+    printf "  Removed stub: %s\n" "$f"
+  fi
+done
+
+printf "\n${BLUE}Step 4: Importing GPG keys from backup...${NC}\n"
 
 # Import master key
 printf "Importing master key...\n"
-gpg --import "$EXTRACT_DIR/${KEYID}-master.asc"
+tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-master.asc" | gpg --import
 
 # Import subkeys
 printf "Importing subkeys...\n"
-gpg --import "$EXTRACT_DIR/${KEYID}-subkeys.asc"
+tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}${KEYID}-subkeys.asc" | gpg --import
 
 # Import trust settings
 printf "Importing trust settings...\n"
-gpg --import-ownertrust "$EXTRACT_DIR/ownertrust.txt"
-
-printf "\n${BLUE}Step 4: Cleaning up old YubiKey stubs...${NC}\n"
-# Remove any existing YubiKey key stubs that might conflict
-find ~/.gnupg/private-keys-v1.d/ -name "*.key" -delete 2>/dev/null || true
-
-# Re-import subkeys to ensure we have local copies for moving to card
-printf "Ensuring local subkey copies are available for transfer...\n"
-gpg --import "$EXTRACT_DIR/${KEYID}-subkeys.asc"
+tar -xOzf "$BACKUP_FILE" "${PREFIX:+$PREFIX/}ownertrust.txt" | gpg --import-ownertrust
 
 # Get user info for YubiKey configuration
-full_name=$(gpg --list-keys --with-colons "$KEYID" | grep "^uid" | head -1 | cut -d: -f10 | sed 's/ <.*//' | sed 's/.*(//' | sed 's/).*//')
-if [ -z "$full_name" ]; then
-  full_name=$(id -F 2>/dev/null || id -un)
-fi
-
-login_user=$(gh api user --jq '.login' 2>/dev/null || whoami)
+uid_line=$(gpg --list-keys --with-colons "$KEYID" | awk -F: '$1=="uid"{print $10; exit}')
+name=$(printf "%s" "$uid_line" | sed -E 's/ *<[^>]*>//; s/ *\([^)]*\)//; s/^ *//; s/ *$//')
+login=$(printf "%s" "$uid_line" | sed -nE 's/.*<([^>]+)>.*/\1/p' | sed -E 's/@.*$//')
+url="https://github.com/${login}.gpg"
 
 printf "\n${BLUE}Step 5: YubiKey Configuration${NC}\n"
-printf "Configure your YubiKey with these recommended settings:\n"
-printf "  - Admin PIN: 8+ digits (default: 12345678)\n"
-printf "  - User PIN: 6+ digits (default: 123456)\n"
-printf "  - Name: ${full_name}\n"
-printf "  - Login: ${login_user}\n"
-printf "  - URL: https://github.com/${login_user}.gpg\n"
+
+# Configure PINs via ykman
+printf "${BLUE}Setting YubiKey PINs...${NC}\n"
+
+# Change User PIN
+printf "\n${BLUE}Changing User PIN (default: 123456)${NC}\n"
+ykman openpgp access change-pin
+
+# Change Admin PIN
+printf "\n${BLUE}Changing Admin PIN (default: 12345678)${NC}\n"
+ykman openpgp access change-admin-pin
+
+printf "\n${GREEN}✅ PINs configured successfully${NC}\n"
+
+# Configure metadata
+printf "\n${BLUE}Setting YubiKey metadata...${NC}\n"
+printf "Configure your YubiKey with these settings:\n"
+printf "  - Name: ${name}\n"
+printf "  - Login: ${login}\n"
+printf "  - URL: ${url}\n"
 printf "\n"
-printf "Press Enter to start YubiKey configuration..."
+printf "Press Enter to start metadata configuration..."
 read dummy
 
 # Configure YubiKey - user must do this interactively
-printf "\n${BLUE}Starting YubiKey configuration...${NC}\n"
+printf "\n${BLUE}Starting metadata configuration...${NC}\n"
+printf "${BLUE}In the GPG card editor, run these commands:${NC}\n"
+printf "  ${GREEN}admin${NC}       (enable admin commands)\n"
+printf "  ${GREEN}name${NC}        (enter: %s)\n" "$name"
+printf "  ${GREEN}login${NC}       (enter: %s)\n" "$login"
+printf "  ${GREEN}url${NC}         (enter: %s)\n" "$url"
+printf "  ${GREEN}quit${NC}        (exit the card editor)\n"
 gpg --card-edit
 
 printf "\n${BLUE}Step 6: Moving Subkeys to YubiKey${NC}\n"
@@ -278,8 +307,7 @@ gpg --list-secret-keys --keyid-format=long "$KEYID"
 
 printf "\n${GREEN}✅ YubiKey restore process complete!${NC}\n"
 
-# Cleanup
-rm -rf "$TEMP_DIR"
+# Cleanup (no temporary files created during restore)
 
 printf "\n${BLUE}Next steps:${NC}\n"
 printf "1. Test GPG signing: echo 'test' | gpg --clearsign\n"
