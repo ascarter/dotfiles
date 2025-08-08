@@ -1,2 +1,7 @@
-Match host * exec "test -z $SSH_TTY && test -S ~/.1password/agent.sock"
-    IdentityAgent "~/.1password/agent.sock"
+Host *
+	IdentityAgent none
+	IdentitiesOnly yes
+
+Host github.com
+	User git
+	IdentitiesOnly yes
