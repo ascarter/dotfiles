@@ -28,6 +28,11 @@ brew "ruby-build"
 brew "rustup"
 
 if OS.mac?
+  brew "gnupg"
+  brew "pinentry"
+  brew "pinentry-mac"
+  brew "yubico-piv-tool"
+
   cask_args adopt: true
   cask "bbedit"
   cask "chatgpt"
@@ -43,7 +48,7 @@ if OS.mac?
   cask "xquartz"
   cask "xscope"
   cask "yubico-authenticator"
-  cask "zed@preview"
+
   # 3rd party utilities
   tap "teamookla/speedtest"
   brew "teamookla/speedtest/speedtest"
