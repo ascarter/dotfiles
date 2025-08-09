@@ -98,3 +98,37 @@ All scripts can be run independently and repeatedly without issues.
 ## Configuration Override
 
 User-specific configurations can be placed in `$XDG_CONFIG_HOME/dotfiles/` to override defaults without modifying the main repository.
+
+# Remote workflows and credentials
+
+Use cases:
+* Git
+* GitHub
+* Remote tunnels
+* Remote connections (SSH)
+
+Platforms:
+* macOS (primary)
+* Linux (usually Fedora)
+* Windows
+
+Services:
+* Tailscale
+* Git
+* GitHub
+* 1Password
+* YubiKey 5-series
+
+
+## Goals
+
+* Secure credential management
+* Consistent workflow
+* Utilize YubiKey (with resident SSH keys for example)
+* 1Password is my password manager but does not have to be my credential management
+* My machines are using Tailscale for overlay network connections
+* SSH is mostly for shell sessions
+* Prefer HTTPS for Git remotes
+* Supporting devcontainer would be nice
+* Supporting CI/deployments would be nice
+* Needs to be something I can incorporate into my shared dotfiles management system.
