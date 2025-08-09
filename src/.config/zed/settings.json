@@ -7,6 +7,15 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "context_servers": {
+    "homebrew-mcp-server": {
+      "source": "custom",
+      "enabled": true,
+      "command": "/opt/homebrew/bin/brew mcp-server",
+      "args": [],
+      "env": {}
+    }
+  },
   "show_completions_on_input": false,
   "show_edit_predictions": true,
   "edit_predictions": {
