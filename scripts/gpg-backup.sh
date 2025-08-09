@@ -5,6 +5,8 @@
 #        Default target directory is current directory
 #        If key_id not provided, will prompt to select from available keys
 
+set -eu
+
 # Function to prompt for yes/no confirmation
 prompt() {
   printf "%s (y/N): " "$1" >&2
@@ -124,13 +126,13 @@ KEY_LISTING=$(gpg --list-secret-keys --keyid-format=long "$KEYID")
 
 # Check for YubiKey stubs (indicated by '>' symbol)
 if printf "%s" "$KEY_LISTING" | grep -q "ssb>"; then
-  printf "\n❌ ERROR: Cannot backup - subkeys are stored on YubiKey!\n"
+  printf "\nERROR: Cannot backup - subkeys are stored on YubiKey!\n"
   printf "\nDetected YubiKey stubs (indicated by '>' symbol):\n"
   printf "%s\n" "$KEY_LISTING" | grep "ssb>" | sed 's/^/  /'
   printf "\nYubiKey stubs contain no private key material and cannot be backed up.\n"
   printf "\nValid backup scenarios:\n"
-  printf "  • Before moving keys to YubiKey (initial key generation)\n"
-  printf "  • After restoring from backup (temporary access to private keys)\n"
+  printf "  - Before moving keys to YubiKey (initial key generation)\n"
+  printf "  - After restoring from backup (temporary access to private keys)\n"
   printf "\nIf you need a backup:\n"
   printf "  1. Use your existing backup (created before YubiKey setup)\n"
   printf "  2. Or temporarily restore from backup, then create new backup\n"
@@ -139,7 +141,7 @@ fi
 
 # Warn about backup timing if this appears to be a fresh key
 if ! printf "%s" "$KEY_LISTING" | grep -q "card-no:"; then
-  printf "\n💡 IMPORTANT: This may be your only chance to backup private keys!\n"
+  printf "\nIMPORTANT: This may be your only chance to backup private keys!\n"
   printf "   Once subkeys are moved to YubiKey, they become stubs and cannot be backed up.\n"
   printf "   Store this backup securely before proceeding with YubiKey setup.\n"
 
@@ -251,11 +253,11 @@ Store this backup securely offline!
 EOF
 
 printf "\n"
-printf "✅ Backup created: ${BACKUP_PATH}\n"
-printf "📁 Size: %s\n" "$(du -sh "${BACKUP_PATH}" | cut -f1)"
+printf "Backup created: ${BACKUP_PATH}\n"
+printf "Size: %s\n" "$(du -sh "${BACKUP_PATH}" | cut -f1)"
 printf "\n"
-printf "🔐 IMPORTANT: Store this backup securely!\n"
-printf "📝 Use gpg-restore.sh to restore to a YubiKey\n"
+printf "IMPORTANT: Store this backup securely!\n"
+printf "Use gpg-restore.sh to restore to a YubiKey\n"
 printf "\n"
 printf "Example restore usage:\n"
 printf "  ./gpg-restore.sh \"${BACKUP_PATH}\"\n"

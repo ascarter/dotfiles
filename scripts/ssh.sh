@@ -87,9 +87,8 @@ Darwin)
   launchctl setenv SSH_ASKPASS_REQUIRE force
 
   pkcs11_libs="${HOMEBREW_PREFIX}/lib/libykcs11.dylib ${HOMEBREW_PREFIX}/lib/opensc-pkcs11.dylib /usr/lib/ssh-keychain.dylib"
-  echo $pkcs11_libs
+
   for lib_path in $pkcs11_libs; do
-    echo "Checking $lib_path..."
     if [ -f "$lib_path" ]; then
       echo "Setting PKCS11Provider $lib_path"
       PKCS11_PROVIDER_LINE="PKCS11Provider $lib_path"
