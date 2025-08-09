@@ -1,6 +1,6 @@
-# CLAUDE.md
+# ASSISTANT.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI assistants when working with code in this repository.
 
 ## Repository Overview
 
@@ -63,12 +63,22 @@ The dotfiles system is built around a central shell script (`bin/dotfiles`) that
 ### Development
 No build, test, or lint commands - this is a shell script-based configuration management system.
 
-## Directory Structure
+## Coding Standards
 
-- `bin/` - The main dotfiles management script
-- `etc/` - Shell profile configuration (bashrc, zshrc, profile.d modules)
-- `scripts/` - Platform and tool-specific installation scripts
-- `src/` - Configuration files in target directory structure (e.g., `src/.config/vim/vimrc` → `~/.config/vim/vimrc`)
+* DRY but within reason.
+* Implementing DRY principles should not lead to overly complex or unreadable code.
+* Prefer simple patterns of repeated code across scripts over complex inclusion of shared code or configuration.
+* Don't create functions that are called only once.
+* Prefer POSIX-compliant syntax (#/bin/sh)
+* Scripts should be idempotent
+* Don't use emoji's or excessive colors.
+* Prefer using bolding or italics over colors
+
+## Project Rules
+* Standardize logging to match dotfiles logging form
+* Honor .editorconfig guidelines
+* Use XDG environment variables
+* NEVER hardcode anything that could be a secret or identifiable (like names or logins)
 
 ## Script System
 
