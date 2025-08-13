@@ -57,7 +57,7 @@
 	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 
 [difftool "zed"]
-  cmd = zed-preview --wait --diff $LOCAL $REMOTE
+  cmd = zed --wait --diff $LOCAL $REMOTE
 
 [alias]
 	aliases = !git config --get-regexp alias | cut -c 7-
