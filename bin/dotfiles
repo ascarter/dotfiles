@@ -1,4 +1,4 @@
-#!/bin/sh
+!/bin/sh
 
 # set -x
 
@@ -181,6 +181,54 @@ sync() {
   done
 }
 
+# Update dotfiles with smart change detection
+update() {
+  # Fetch latest changes from remote
+  log "fetch" "Fetching latest changes from remote"
+  if ! git -C "${DOTFILES}" fetch origin; then
+    err "Failed to fetch from remote"
+    return 1
+  fi
+
+  # Get current branch (assume main/master)
+  current_branch=$(git -C "${DOTFILES}" rev-parse --abbrev-ref HEAD)
+  remote_branch="origin/${current_branch}"
+
+  # Check if remote branch exists
+  if ! git -C "${DOTFILES}" rev-parse --verify "${remote_branch}" >/dev/null 2>&1; then
+    err "Remote branch ${remote_branch} not found"
+    return 1
+  fi
+
+  # Check if there are differences between local and remote
+  local_commit=$(git -C "${DOTFILES}" rev-parse HEAD)
+  remote_commit=$(git -C "${DOTFILES}" rev-parse "${remote_branch}")
+
+  if [ "${local_commit}" = "${remote_commit}" ]; then
+    log "up-to-date" "No changes from remote"
+    return 0
+  fi
+
+  log "changes" "Detected changes from remote, updating..."
+
+  # Unlink everything before updating (in case files were removed)
+  sync "unlink"
+
+  # Update local branch to match remote
+  if ! git -C "${DOTFILES}" reset --hard "${remote_branch}"; then
+    err "Failed to update local branch"
+    return 1
+  fi
+
+  # Reinitialize shell integration
+  init
+
+  # Re-install links
+  sync "link"
+
+  log "updated" "Successfully updated dotfiles"
+}
+
 # Run provisioning scripts from scripts directory
 run_script() {
   # If no scripts provided, list all available
@@ -268,17 +316,7 @@ unlink)
   sync "unlink"
   ;;
 update)
-  # Unlink everything in case files were removed
-  sync "unlink"
-
-  # Update git repo
-  git -C ${DOTFILES} pull
-
-  # Init shell integration
-  init
-
-  # Re-install links
-  sync "link"
+  update
   ;;
 edit)
   ${EDITOR} ${DOTFILES}
