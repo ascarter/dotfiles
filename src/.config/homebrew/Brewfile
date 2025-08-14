@@ -49,6 +49,10 @@ if OS.mac?
   cask "xscope"
   cask "yubico-authenticator"
 
+  # My extras
+  tap "ascarter/extras"
+  brew "sk-libfido2"
+
   # 3rd party utilities
   tap "teamookla/speedtest"
   brew "teamookla/speedtest/speedtest"
