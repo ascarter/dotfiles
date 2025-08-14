@@ -37,6 +37,14 @@ Darwin)
   if command -v brew >/dev/null 2>&1 && [ -n "$HOMEBREW_PREFIX" ]; then
     brew install --formula "${DOTFILES}/formula/sk-libfido2.rb"
     echo "Install security key provider"
+
+    # Create /usr/local/lib if it doesn't exist
+    if [ ! -d "/usr/local/lib" ]; then
+      sudo mkdir -p /usr/local/lib
+      sudo chown "root:wheel" /usr/local/lib
+      sudo chmod 755 /usr/local/lib
+    fi
+
     sudo cp ${HOMEBREW_PREFIX}/lib/sk-libfido2.dylib /usr/local/lib/sk-libfido2.dylib
   fi
   ;;
