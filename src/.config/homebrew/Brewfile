@@ -51,7 +51,7 @@ if OS.mac?
 
   # My extras
   tap "ascarter/extras"
-  brew "sk-libfido2"
+  brew "ascarter/extras/sk-libfido2"
 
   # 3rd party utilities
   tap "teamookla/speedtest"

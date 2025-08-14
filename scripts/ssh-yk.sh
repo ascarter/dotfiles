@@ -102,6 +102,32 @@ download_resident_keys() {
   fi
 }
 
+# Create default symlinks for SSH auto-discovery
+create_default_symlinks() {
+  serial="$1"
+  private_key="${SSH_DIR}/id_ed25519_sk_${serial}"
+  public_key="${SSH_DIR}/id_ed25519_sk_${serial}.pub"
+  default_private="${SSH_DIR}/id_ed25519_sk"
+  default_public="${SSH_DIR}/id_ed25519_sk.pub"
+
+  echo "Creating default symlinks for SSH auto-discovery..."
+
+  # Remove existing symlinks if they exist
+  [ -L "$default_private" ] && rm "$default_private"
+  [ -L "$default_public" ] && rm "$default_public"
+
+  # Create symlinks to the serial-numbered keys
+  if [ -f "$private_key" ]; then
+    ln -s "id_ed25519_sk_${serial}" "$default_private"
+    echo "Created symlink: ~/.ssh/id_ed25519_sk -> id_ed25519_sk_${serial}"
+  fi
+
+  if [ -f "$public_key" ]; then
+    ln -s "id_ed25519_sk_${serial}.pub" "$default_public"
+    echo "Created symlink: ~/.ssh/id_ed25519_sk.pub -> id_ed25519_sk_${serial}.pub"
+  fi
+}
+
 # Generate SSH FIDO2 resident key
 generate_resident_key() {
   yubikey_name="$1"
@@ -203,6 +229,9 @@ main() {
       echo "Key stub files not found in ~/.ssh"
       if confirm "Download resident key files from YubiKey?"; then
         download_resident_keys "$serial"
+        if confirm "Create default symlinks for SSH auto-discovery?"; then
+          create_default_symlinks "$serial"
+        fi
       fi
     else
       # Show existing key files
@@ -211,6 +240,11 @@ main() {
           echo "Key stub files exist $file"
         fi
       done
+
+      # Offer to create symlinks even if keys exist
+      if confirm "Create/update default symlinks for SSH auto-discovery?"; then
+        create_default_symlinks "$serial"
+      fi
     fi
   else
     echo "No resident keys found on YubiKey"
@@ -233,7 +267,11 @@ main() {
 
       echo ""
       # Generate the key
-      generate_resident_key "$yubikey_name" "$github_user" "$serial"
+      if generate_resident_key "$yubikey_name" "$github_user" "$serial"; then
+        if confirm "Create default symlinks for SSH auto-discovery?"; then
+          create_default_symlinks "$serial"
+        fi
+      fi
     else
       echo "No action taken"
     fi
