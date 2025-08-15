@@ -16,7 +16,8 @@ check_yubikey() {
     exit 1
   fi
 
-  if ! ykman list >/dev/null 2>&1; then
+  # Check if any YubiKeys are present
+  if [ -z "$(ykman list 2>/dev/null)" ]; then
     echo "Error: No YubiKey detected. Please insert your YubiKey."
     exit 1
   fi
@@ -102,103 +103,77 @@ download_resident_keys() {
   fi
 }
 
-# Add IdentityFile to SSH config
-add_identity_to_ssh_config() {
+# Add IdentityFile to ~/.ssh/identities
+add_identity() {
   serial="$1"
   private_key="${SSH_DIR}/id_ed25519_sk_${serial}"
-  ssh_config="${SSH_DIR}/config"
+  identities_file="${SSH_DIR}/identities"
 
-  echo "Adding IdentityFile to SSH config..."
+  echo "Adding IdentityFile to ~/.ssh/identities..."
 
-  # Create SSH config if it doesn't exist
-  if [ ! -f "$ssh_config" ]; then
-    touch "$ssh_config"
-    chmod 600 "$ssh_config"
+  # Create identities file if it doesn't exist
+  if [ ! -f "$identities_file" ]; then
+    touch "$identities_file"
+    chmod 600 "$identities_file"
   fi
 
-  # Extract all existing IdentityFile entries (excluding the one we're adding)
-  existing_identities=$(grep "^IdentityFile" "$ssh_config" 2>/dev/null | grep -v "id_ed25519_sk_${serial}" 2>/dev/null || true)
-
-  # Count existing identities and calculate final count
-  if [ -n "$existing_identities" ]; then
-    existing_count=$(echo "$existing_identities" | wc -l)
-  else
-    existing_count=0
-  fi
-  final_count=$((existing_count + 1))
-
-  # Check if this identity file is already in the config
-  if grep -q "IdentityFile.*id_ed25519_sk_${serial}" "$ssh_config"; then
-    echo "IdentityFile for serial $serial already exists in SSH config"
+  # Check if this identity already exists
+  identity_exists=false
+  if grep -q "id_ed25519_sk_${serial}" "$identities_file"; then
+    echo "IdentityFile for serial $serial already exists"
     identity_exists=true
   else
     identity_exists=false
   fi
 
-  # If there will be multiple identities, ask about primary
+  # Count existing identities to determine if we should prompt for primary
+  if [ -f "$identities_file" ]; then
+    if grep -q "^IdentityFile" "$identities_file" 2>/dev/null; then
+      id_count=$(grep -c "^IdentityFile" "$identities_file" 2>/dev/null)
+    else
+      id_count=0
+    fi
+  else
+    id_count=0
+  fi
+
+  # If adding a new identity, increment count
+  if [ "$identity_exists" = "false" ]; then
+    id_count=$((id_count + 1))
+  fi
+
+  # Ask about primary only if there will be multiple identities
   make_primary=false
-  if [ "$final_count" -gt 1 ]; then
+  if [ "$id_count" -gt 1 ]; then
     if confirm "Set this YubiKey as primary SSH identity? (avoids multiple PIN prompts)"; then
       make_primary=true
     elif [ "$identity_exists" = "true" ]; then
-      # Identity exists but user doesn't want to make it primary, so we're done
+      # Identity exists and user doesn't want to change it, so we're done
       return 0
     fi
   elif [ "$identity_exists" = "true" ]; then
-    # Identity exists and only one identity total, so we're done
+    # Identity exists and it's the only one, so we're done
     return 0
   fi
 
-  # For new identities or reordering existing ones, proceed with file manipulation
-  # Remove all IdentityFile lines from config and save the rest
-  config_without_identities=$(mktemp)
-  # Remove IdentityFile lines, then clean up extra blank lines
-  grep -v "^[[:space:]]*IdentityFile" "$ssh_config" | sed '/^[[:space:]]*$/N; /\n[[:space:]]*$/d' >"$config_without_identities"
-
-  # Find insertion point (after Include statements but before Host/Match blocks)
-  # Look for first Host, Match, or any other block-starting directive
-  first_block_line=$(grep -n "^Host\|^Match\|^CanonicalizeHostname\|^ProxyCommand" "$config_without_identities" | head -1 | cut -d: -f1)
-
-  if [ -n "$first_block_line" ]; then
-    # Insert IdentityFile block before the first block
-    head -n $((first_block_line - 1)) "$config_without_identities" >"$ssh_config"
-
-    # Add IdentityFile entries with spacing
-    echo "" >>"$ssh_config"
-    if [ "$make_primary" = "true" ]; then
-      echo "IdentityFile ${private_key}" >>"$ssh_config"
-      [ -n "$existing_identities" ] && echo "$existing_identities" >>"$ssh_config"
-    else
-      [ -n "$existing_identities" ] && echo "$existing_identities" >>"$ssh_config"
-      echo "IdentityFile ${private_key}" >>"$ssh_config"
-    fi
-    echo "" >>"$ssh_config"
-
-    # Add the rest of the config
-    tail -n +$first_block_line "$config_without_identities" >>"$ssh_config"
-  else
-    # No blocks found, add IdentityFile entries at the end
-    cp "$config_without_identities" "$ssh_config"
-
-    # Add IdentityFile entries with spacing
-    echo "" >>"$ssh_config"
-    if [ "$make_primary" = "true" ]; then
-      echo "IdentityFile ${private_key}" >>"$ssh_config"
-      [ -n "$existing_identities" ] && echo "$existing_identities" >>"$ssh_config"
-    else
-      [ -n "$existing_identities" ] && echo "$existing_identities" >>"$ssh_config"
-      echo "IdentityFile ${private_key}" >>"$ssh_config"
-    fi
-    echo "" >>"$ssh_config"
+  # Remove existing entry for this serial if it exists
+  if [ "$identity_exists" = "true" ]; then
+    grep -v "id_ed25519_sk_${serial}" "$identities_file" >"${identities_file}.tmp"
+    mv "${identities_file}.tmp" "$identities_file"
   fi
 
-  # Clean up temp file
-  rm "$config_without_identities"
-
+  # Add the identity
   if [ "$make_primary" = "true" ]; then
-    echo "Added IdentityFile ${private_key} to SSH config (as primary key)"
+    # Add at the beginning (primary)
+    temp_file=$(mktemp)
+    echo "IdentityFile ${private_key}" >"$temp_file"
+    cat "$identities_file" >>"$temp_file"
+    mv "$temp_file" "$identities_file"
+    echo "Added IdentityFile ${private_key} as primary identity"
   else
-    echo "Added IdentityFile ${private_key} to SSH config"
+    # Append to the end
+    echo "IdentityFile ${private_key}" >>"$identities_file"
+    echo "Added IdentityFile ${private_key}"
   fi
 }
 
@@ -303,7 +278,7 @@ main() {
       echo "Key stub files not found in ~/.ssh"
       if confirm "Download resident key files from YubiKey?"; then
         download_resident_keys "$serial"
-        add_identity_to_ssh_config "$serial"
+        add_identity "$serial"
       fi
     else
       # Show existing key files
@@ -314,7 +289,7 @@ main() {
       done
 
       # Add to SSH config if keys exist
-      add_identity_to_ssh_config "$serial"
+      add_identity "$serial"
     fi
   else
     echo "No resident keys found on YubiKey"
@@ -338,7 +313,7 @@ main() {
       echo ""
       # Generate the key
       if generate_resident_key "$yubikey_name" "$github_user" "$serial"; then
-        add_identity_to_ssh_config "$serial"
+        add_identity "$serial"
       fi
     else
       echo "No action taken"
