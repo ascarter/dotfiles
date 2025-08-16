@@ -85,7 +85,7 @@ No build, test, or lint commands - this is a shell script-based configuration ma
 The `scripts/` directory contains idempotent provisioning scripts for:
 - Platform setup (macos.sh, fedora.sh, ubuntu.sh)
 - Development tools (developer.sh, github.sh, zed.sh)
-- Applications (1password.sh, homebrew.sh, tailscale.sh)
+- Applications (homebrew.sh, tailscale.sh)
 
 All scripts can be run independently and repeatedly without issues.
 
@@ -116,7 +116,7 @@ Services:
 * Tailscale
 * Git
 * GitHub
-* 1Password
+* Proton
 * YubiKey 5-series
 
 
