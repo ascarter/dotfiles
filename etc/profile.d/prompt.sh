@@ -22,9 +22,27 @@ if [ -n "$BASH_VERSION" ]; then
     fi
   }
 
+  get_truncated_pwd() {
+    local pwd_path="${PWD/#$HOME/~}"
+    local IFS='/'
+    local parts=($pwd_path)
+    local num_parts=${#parts[@]}
+
+    if [ $num_parts -le 3 ]; then
+      echo "$pwd_path"
+    else
+      echo "${parts[$((num_parts - 3))]}/${parts[$((num_parts - 2))]}/${parts[$((num_parts - 1))]}"
+    fi
+  }
+
   PROMPT_COMMAND="update_git_branch"
 
-  PS1="${DIM}\u@\h${RESET}:${BOLD}\W${RESET}${DIM}${ITALIC}\${GIT_BRANCH:+ (\$GIT_BRANCH)}${RESET} \$ "
+  # Build prompt conditionally (two lines with blank line above)
+  PS1="\n"
+  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    PS1="${PS1}${DIM}\u@\h${RESET}:"
+  fi
+  PS1="${PS1}${BOLD}\$(get_truncated_pwd)${RESET}${DIM}${ITALIC}\${GIT_BRANCH:+ (\$GIT_BRANCH)}${RESET}\n\$ "
 
   # Add working directory to title if not using Ghostty
   if ! [ "$TERM" == "xterm-ghostty" ]; then
@@ -50,7 +68,12 @@ elif [ -n "$ZSH_VERSION" ]; then
   ITALIC_ON="%{$(echo -e '\e[3m')%}"
   ITALIC_OFF="%{$(echo -e '\e[23m')%}"
 
-  PROMPT='${DIM_ON}%n@%m${DIM_OFF}:%B%1~%b${DIM_ON}${ITALIC_ON}${vcs_info_msg_0_:+ ($vcs_info_msg_0_)}${ITALIC_OFF}${DIM_OFF} %# '
+  # Build prompt conditionally (two lines with blank line above)
+  PROMPT=$'\n'
+  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    PROMPT="${PROMPT}${DIM_ON}%n@%m${DIM_OFF}:"
+  fi
+  PROMPT="${PROMPT}%B%3~%b${DIM_ON}${ITALIC_ON}"'${vcs_info_msg_0_:+ ($vcs_info_msg_0_)}'${ITALIC_OFF}${DIM_OFF}$'\n''%# '
 fi
 
 # Set grep colors on macOS
@@ -63,5 +86,3 @@ export GREP_COLOR='1;3;39'
 # symlink (ln)     italic(3) default FG (39)
 # executable (ex)  dim (2)   default FG (39)
 export LS_COLORS='di=1;39:ln=3;39:ex=2;39'
-
-# vim: set ft=sh ts=2 sw=2 et:
