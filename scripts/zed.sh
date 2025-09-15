@@ -31,23 +31,8 @@ while getopts ":hc:" opt; do
 done
 shift $((OPTIND - 1))
 
-case $(uname -s) in
-Darwin)
-  if command -v brew >/dev/null 2>&1; then
-    CASK=zed
-    if ! [ "$ZED_CHANNEL" = "stable" ]; then
-      CASK="${CASK}@${ZED_CHANNEL}"
-    fi
-    brew install --cask "${CASK}"
-  else
-    echo "Homebrew is not installed. Please install Homebrew first."
-  fi
-  ;;
-Linux)
-  if ! command -v zed >/dev/null 2>&1; then
-    # Install Zed app bundle and add `zed` to ~/.local/bin
-    echo "Install zed ${ZED_CHANNEL}"
-    curl -f https://zed.dev/install.sh | ZED_CHANNEL=$ZED_CHANNEL sh
-  fi
-  ;;
-esac
+if ! command -v zed >/dev/null 2>&1; then
+  # Install Zed app bundle and add `zed` to ~/.local/bin
+  echo "Install zed ${ZED_CHANNEL}"
+  curl -f https://zed.dev/install.sh | ZED_CHANNEL=$ZED_CHANNEL sh
+fi
