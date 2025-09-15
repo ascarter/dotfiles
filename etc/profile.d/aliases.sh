@@ -38,6 +38,9 @@ Darwin)
   alias about="system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType"
   alias sysver="sw_vers"
 
+  # Rebuild Spotlight index
+  alias spotlight-rebuild="sudo mdutil -E /"
+
   # QuickLook
   alias ql='qlmanage -p "$@" >& /dev/null'
 
