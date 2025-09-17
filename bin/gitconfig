@@ -126,6 +126,7 @@ gc_commitsigning() {
   $GIT_CMD --unset-all user.signingkey 2>/dev/null || true
   $GIT_CMD --unset gpg.format 2>/dev/null || true
   $GIT_CMD --unset gpg.ssh.program 2>/dev/null || true
+  $GIT_CMD --unset gpg.program 2>/dev/null || true
   $GIT_CMD --unset commit.gpgsign 2>/dev/null || true
   $GIT_CMD --unset tag.gpgsign 2>/dev/null || true
   $GIT_CMD --unset gpg.ssh.allowedSignersFile 2>/dev/null || true
@@ -136,6 +137,9 @@ gc_commitsigning() {
     return
   fi
 
+  # Get the full path to gpg
+  gpg_path=$(command -v gpg)
+
   # Get the signing key ID from YubiKey
   # Parse colon-separated output: find first secret subkey (ssb) with signing capability (s) and return key ID (field 5)
   signing_key=$(gpg --list-secret-keys --with-colons 2>/dev/null | awk -F: '/^ssb/ && $12 ~ /s/ {print $5; exit}')
@@ -144,6 +148,7 @@ gc_commitsigning() {
     # Use GPG for signing. This will prompt for YubiKey PIN when signing
     log "signingkey" "YubiKey GPG key: $signing_key"
     $GIT_CMD user.signingkey "$signing_key"
+    $GIT_CMD gpg.program "$gpg_path"
     $GIT_CMD commit.gpgsign true
     $GIT_CMD tag.gpgsign true
   else
