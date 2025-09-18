@@ -5,3 +5,5 @@ keybind = global:alt+grave_accent=toggle_quick_terminal
 mouse-hide-while-typing = true
 focus-follows-mouse = true
 keybind = shift+enter=text:\n
+window-padding-x = 12
+window-padding-y = 12
