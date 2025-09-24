@@ -18,5 +18,3 @@ if command -v rustc >/dev/null 2>&1; then
     compdef _cargo_wrapper cargo
   fi
 fi
-
-# vim: set ft=sh ts=2 sw=2 et:

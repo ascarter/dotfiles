@@ -51,6 +51,7 @@ usage() {
   log "  update" "Update dotfiles"
   log "  edit" "Edit dotfiles in $EDITOR"
   log "  script" "Run dotfiles provisioning script [script1 script2 -- args]"
+  log "  devtools" "Manage development toolchains [env|init|update|remove|status]"
   log ""
   log "Options:" ""
   log "  -d" "dotfiles directory"
@@ -325,6 +326,11 @@ script)
   # Pass remaining arguments to script function
   shift
   run_script "$@"
+  ;;
+devtools)
+  # Pass remaining arguments to devtools function
+  shift
+  "${DOTFILES_BIN}/devtools" "$@"
   ;;
 *)
   # No command - show help

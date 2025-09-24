@@ -1,0 +1,102 @@
+#!/bin/sh
+
+# Development toolchain management for dotfiles
+
+set -e
+
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+DOTFILES=${DOTFILES:-${XDG_DATA_HOME}/dotfiles}
+DOTFILES_TOOLCHAINS="${DOTFILES}/toolchains"
+
+log() {
+  if [ "$#" -eq 1 ]; then
+    printf "%s\n" "$1"
+  elif [ "$#" -gt 1 ]; then
+    printf "$(tput bold)%-10s$(tput sgr0)\t%s\n" "$1" "$2"
+  fi
+}
+
+err() {
+  echo "$*" >&2
+}
+
+usage() {
+  log "devtools" "Development toolchain management"
+  log ""
+  log "Usage:" "devtools <command> [options]"
+  log ""
+  log "Commands:" ""
+  log "  install [toolchain]" "Install toolchains (default: all)"
+  log "  update [toolchain]" "Update toolchains (default: all)"
+  log "  uninstall [toolchain]" "Uninstall toolchains (default: all)"
+  log "  status [toolchain]" "Show toolchain status (default: all)"
+  log ""
+  log "Toolchains:" ""
+  for toolchain in $(get_toolchains); do
+    log "  ${toolchain}"
+  done
+}
+
+# Get list of available toolchains
+get_toolchains() {
+  if [ -n "$1" ]; then
+    # Specific toolchain requested
+    echo "$1"
+  else
+    # All toolchains
+    for toolchain_file in "${DOTFILES_TOOLCHAINS}"/*.sh; do
+      if [ -f "${toolchain_file}" ]; then
+        basename "${toolchain_file}" .sh
+      fi
+    done
+  fi
+}
+
+# Execute a toolchain script with action argument
+call_toolchain() {
+  local toolchain="$1"
+  local action="$2"
+  local toolchain_file="${DOTFILES_TOOLCHAINS}/${toolchain}.sh"
+
+  if [ ! -f "${toolchain_file}" ]; then
+    err "Toolchain not found: ${toolchain}"
+    return 1
+  fi
+
+  if [ "${action}" != "status" ]; then
+    log "${action}" "${toolchain}"
+  fi
+
+  # Execute the toolchain script with the action as an argument
+  "${toolchain_file}" "${action}"
+}
+
+# Run command for all specified toolchains
+run_command() {
+  local command="$1"
+  shift
+  for toolchain in $(get_toolchains "$@"); do
+    call_toolchain "${toolchain}" "${command}"
+  done
+}
+
+# Main execution
+if [ $# -eq 0 ]; then
+  usage
+  exit 1
+fi
+
+command="$1"
+shift
+case "${command}" in
+install | update | uninstall | status)
+  run_command "${command}" "$@"
+  if [ "${command}" != "status" ]; then
+    log "info" "Reload your shell or restart your terminal to apply changes."
+  fi
+  ;;
+*)
+  usage
+  exit 1
+  ;;
+esac

@@ -21,12 +21,6 @@ brew "shfmt"
 brew "sqlite"
 brew "taplo"
 
-# Software Development Kits
-brew "golang"
-brew "rbenv"
-brew "ruby-build"
-brew "rustup"
-
 if OS.mac?
   brew "gnupg"
   brew "pinentry"
@@ -62,6 +56,9 @@ if OS.mac?
   # 3rd party utilities
   tap "teamookla/speedtest"
   brew "teamookla/speedtest/speedtest"
+
+  tap "dagger/tap"
+  cask "container-use"
 elsif OS.linux?
   # ...
 end
