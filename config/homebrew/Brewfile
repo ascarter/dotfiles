@@ -1,0 +1,49 @@
+brew "btop"
+brew "cmark-gfm"
+brew "eza"
+brew "htop"
+brew "shellcheck"
+brew "sqlite"
+brew "uutils-coreutils"
+brew "uutils-diffutils"
+brew "uutils-findutils"
+brew "ykman"
+
+if OS.mac?
+  brew "gnupg"
+  brew "pinentry"
+  brew "pinentry-mac"
+  brew "yubico-piv-tool"
+
+  cask_args adopt: true
+  cask "bbedit"
+  cask "chatgpt"
+  cask "docker-desktop"
+  cask "github"
+  cask "hhkb"
+  cask "netnewswire"
+  cask "proton-drive"
+  cask "proton-mail"
+  cask "proton-mail-bridge"
+  cask "proton-pass"
+  cask "protonvpn"
+  cask "signal"
+  cask "tailscale"
+  cask "vivaldi"
+  cask "xquartz"
+  cask "xscope"
+  cask "yubico-authenticator"
+
+  # My extras
+  tap "ascarter/extras"
+  brew "ascarter/extras/sk-libfido2"
+
+  # 3rd party utilities
+  tap "teamookla/speedtest"
+  brew "teamookla/speedtest/speedtest"
+
+  # tap "dagger/tap"
+  # cask "container-use"
+elsif OS.linux?
+  # ...
+end
