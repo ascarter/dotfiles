@@ -7,7 +7,89 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "theme": {
+    "mode": "system",
+    "light": "Tokul Light",
+    "dark": "Tokul Dark"
+  },
+  "ui_font_family": ".SystemUIFont",
+  "buffer_font_family": "Berkeley Mono",
+  "active_pane_modifiers": {
+    "border_size": 0.5,
+    "inactive_opacity": 0.7
+  },
+  "show_completions_on_input": false,
+  "show_edit_predictions": true,
+  "edit_predictions": {
+    "mode": "eager",
+    "enabled_in_text_threads": true
+  },
+  "always_treat_brackets_as_autoclosed": true,
+  "indent_guides": {
+    "enabled": false
+  },
+  "wrap_guides": [80],
+  "tabs": {
+    "close_position": "left",
+    "file_icons": true
+  },
+  "helix_mode": true,
+  "vim": {
+    "default_mode": "normal",
+    "toggle_relative_line_numbers": true,
+    "use_smartcase_find": true
+  },
+  "git": {
+    "inline_blame": {
+      "enabled": false
+    }
+  },
+  "project_panel": {
+    "auto_fold_dirs": false,
+    "git_status": true,
+    "indent_guides": {
+      "show": "never"
+    }
+  },
+  "outline_panel": {
+    "auto_fold_dirs": false,
+    "git_status": true,
+    "indent_guides": {
+      "show": "never"
+    }
+  },
+  "terminal": {
+    "line_height": "standard",
+    "font_size": 13
+  },
+  "journal": {
+    "hour_format": "hour24"
+  },
+  "auto_install_extensions": {
+    "docker-compose": true,
+    "dockerfile": true,
+    "liquid": true,
+    "lua": true,
+    "make": true,
+    "marksman": true,
+    "mcp-server-context7": true,
+    "mcp-server-github": true,
+    "postgres-context-server": true,
+    "roc": true,
+    "ruby": true,
+    "sql": true,
+    "swift": true,
+    "toml": true,
+    "zig": true
+  },
   "context_servers": {
+    "mcp-server-context7": {
+      "source": "extension",
+      "enabled": true,
+      "settings": {
+        "context7_api_key": ""
+      }
+    },
     "container-use-mcp": {
       "source": "extension",
       "enabled": true,
@@ -22,12 +104,6 @@
       "args": ["mcp-server"],
       "env": {}
     }
-  },
-  "show_completions_on_input": false,
-  "show_edit_predictions": true,
-  "edit_predictions": {
-    "mode": "eager",
-    "enabled_in_text_threads": true
   },
   "agent": {
     "profiles": {
@@ -65,74 +141,6 @@
   "features": {
     "edit_prediction_provider": "copilot"
   },
-  "theme": {
-    "mode": "system",
-    "light": "Tokul Light",
-    "dark": "Tokul Dark"
-  },
-  "ui_font_family": ".SystemUIFont",
-  "buffer_font_family": "Berkeley Mono",
-  "active_pane_modifiers": {
-    "border_size": 0.5,
-    "inactive_opacity": 0.7
-  },
-  "indent_guides": {
-    "enabled": false
-  },
-  "wrap_guides": [80],
-  "tabs": {
-    "close_position": "left",
-    "file_icons": true
-  },
-  "helix_mode": true,
-  "vim": {
-    "default_mode": "normal",
-    "toggle_relative_line_numbers": true,
-    "use_smartcase_find": true
-  },
-  "git": {
-    "inline_blame": {
-      "enabled": false
-    }
-  },
-  "project_panel": {
-    "auto_fold_dirs": false,
-    "git_status": false,
-    "indent_guides": {
-      "show": "never"
-    }
-  },
-  "outline_panel": {
-    "auto_fold_dirs": false,
-    "git_status": false,
-    "indent_guides": {
-      "show": "never"
-    }
-  },
-  "terminal": {
-    "line_height": "standard",
-    "font_size": 13
-  },
-  "journal": {
-    "hour_format": "hour24"
-  },
-  "auto_install_extensions": {
-    "docker-compose": true,
-    "dockerfile": true,
-    "liquid": true,
-    "lua": true,
-    "make": true,
-    "marksman": true,
-    "mcp-server-context7": true,
-    "mcp-server-github": true,
-    "postgres-context-server": true,
-    "roc": true,
-    "ruby": true,
-    "sql": true,
-    "swift": true,
-    "toml": true,
-    "zig": true
-  },
   "languages": {
     "Liquid": {
       "prettier": {
@@ -169,11 +177,11 @@
       "wrap_guides": [100]
     },
     "Shell Script": {
-      "format_on_save": "on",
+      "format_on_save": "off",
       "formatter": {
         "external": {
           "command": "shfmt",
-          "arguments": ["--filename", "{buffer_path}", "--indent", "2"]
+          "arguments": ["--filename", "{buffer_path}"]
         }
       }
     }
@@ -214,6 +222,14 @@
           "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
         }
       }
+    }
+  },
+  "profiles": {
+    "Presentation": {
+      "buffer_font_size": 20,
+      "ui_font_size": 18,
+      "theme": "Tokul Light",
+      "redact_private_values": true
     }
   }
 }
