@@ -12,3 +12,7 @@ trim_trailing_whitespace = true
 indent_style = tab
 indent_size = 4
 tab_width = 4
+
+[*.sh]
+binary_next_line = true
+switch_case_indent = true
