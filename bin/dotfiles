@@ -1,3 +1,195 @@
 #!/bin/sh
+#
+# dotfiles - dispatcher for managing this dotfiles repository
+#
 
-echo dotfiles!
+set -eu
+
+VERBOSE=0
+
+SCRIPT_DIR=$(dirname $(realpath "$0"))
+DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
+
+error() {
+  printf 'ERROR: %s\n' "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+dotfiles - manage dotfiles repository
+
+Usage:
+  dotfiles [options] <command>
+
+Commands:
+  init        Initialize dotfiles (.zshenv entry)
+  env         Print export statements for environment
+  sync        Synchronize config/ -> $XDG_CONFIG_HOME using git ls-files (tracked + untracked, excluding ignored) with orphan report
+EOF
+}
+
+# ------------------------------
+# Command functions
+# ------------------------------
+
+cmd_init() {
+  zshenv="$HOME/.zshenv"
+
+  # Check if already initialized
+  if [ -f "${zshenv}" ] && grep -qE "eval \"\\\$\(.*/dotfiles env\)\"" "${zshenv}"; then
+    echo "zsh already initialized"
+    return 0
+  fi
+
+  # Append bootstrap lines
+  cat >> "${zshenv}" <<EOF
+# dotfiles environment
+eval "\$($SCRIPT_DIR/dotfiles env)"
+EOF
+
+  echo "Initialized dotfiles for zsh"
+  echo "Restart your shell or run:"
+  echo "   source ~/.zshenv"
+}
+
+cmd_env() {
+  # zsh environment setup
+  cat <<'EOF'
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
+export DOTFILES_HOME="${DOTFILES_HOME:-$XDG_DATA_HOME/dotfiles}"
+typeset -U path
+path=("$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
+EOF
+}
+cmd_sync() {
+  # Synchronize config/ into XDG config home using git ls-files (tracked + untracked, excluding ignored); orphan detection retained
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+  CONFIG_SRC="${DOTFILES_HOME}/config/"
+  CONFIG_DEST="${XDG_CONFIG_HOME}/"
+  EXCLUDE_FILE="${DOTFILES_HOME}/.rsyncexclude"  # legacy; git ignore used instead
+
+  command -v rsync >/dev/null 2>&1 || error "rsync not installed"
+  command -v git >/dev/null 2>&1 || error "git not installed"
+  [ -d "${CONFIG_SRC}" ] || error "Source config directory not found: ${CONFIG_SRC}"
+
+  RSYNC_FLAGS="-av"
+
+  echo "Sync config:"
+  echo " Source: ${CONFIG_SRC}"
+  echo " Destination: ${CONFIG_DEST}"
+  echo
+  echo "Analyzing differences..."
+
+  changes=$(git -C "${DOTFILES_HOME}" ls-files -co --exclude-standard config \
+    | sed 's:^config/::' \
+    | rsync ${RSYNC_FLAGS} -ain --files-from=- "${CONFIG_SRC}" "${CONFIG_DEST}" \
+    | awk 'NR==1 && $0 ~ /^sending incremental file list$/ {next} /^[.]/ {next} NF')
+
+  added_list=""
+  changed_list=""
+  added_count=0
+  changed_count=0
+  deleted_count=0  # placeholder (no deletions performed)
+  deleted_list=""
+
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    code=${line%% *}
+    file=${line#* }
+    # Detect deletions (not active unless rsync run with --delete)
+    if printf "%s" "$code" | grep -q '^\*deleting'; then
+      deleted_list="${deleted_list}${file}\n"
+      deleted_count=$((deleted_count+1))
+      continue
+    fi
+    # Classify purely by destination existence: if file not present in destination it's an addition; otherwise a change
+    if [ ! -e "${CONFIG_DEST}${file}" ]; then
+      added_list="${added_list}${file}\n"
+      added_count=$((added_count+1))
+    else
+      changed_list="${changed_list}${file}\n"
+      changed_count=$((changed_count+1))
+    fi
+  done <<EOF
+$changes
+EOF
+
+  echo
+  echo "Changed files:"
+  if [ $changed_count -gt 0 ]; then
+    printf '%b' "$changed_list" | while IFS= read -r f; do [ -n "$f" ] && echo "  $f"; done
+  else
+    echo "  (none)"
+  fi
+
+  echo
+  echo "Added files:"
+  if [ $added_count -gt 0 ]; then
+    printf '%b' "$added_list" | while IFS= read -r f; do [ -n "$f" ] && echo "  $f"; done
+  else
+    echo "  (none)"
+  fi
+
+  echo
+  echo "Deleted files:"
+  echo "  (none)"
+
+  echo
+  echo "Orphaned files (present in destination, missing in source; candidates for deletion or rename):"
+  orphan_count=0
+  for srcsub in "${CONFIG_SRC}"*/; do
+    [ -d "$srcsub" ] || continue
+    name=$(basename "$srcsub")
+    destsub="${CONFIG_DEST}${name}/"
+    [ -d "$destsub" ] || continue
+    # Scan destination files for orphans
+    while IFS= read -r dfile; do
+      rel="${dfile#"$destsub"}"
+      if [ ! -f "${srcsub}${rel}" ]; then
+        if git -C "${DOTFILES_HOME}" check-ignore -q "config/${name}/${rel}"; then
+          continue
+        fi
+        printf '  %s/%s\n' "$name" "$rel"
+        orphan_count=$((orphan_count+1))
+      fi
+    done <<EOF
+$(find "$destsub" -type f)
+EOF
+  done
+  [ $orphan_count -eq 0 ] && echo "  (none)"
+
+  echo
+  printf "Proceed with sync to %s? [y/N] " "${CONFIG_DEST}"
+  read ans
+  case "$ans" in
+    y|Y|yes|YES)
+      git -C "${DOTFILES_HOME}" ls-files -co --exclude-standard config \
+        | sed 's:^config/::' \
+        | rsync ${RSYNC_FLAGS} --files-from=- "${CONFIG_SRC}" "${CONFIG_DEST}"
+      echo "Config synced to ${CONFIG_DEST}"
+      ;;
+    *)
+      echo "Sync aborted"
+      ;;
+  esac
+}
+
+[ $# -gt 0 ] || {
+  usage >&2
+  exit 1
+}
+COMMAND="$1"
+shift
+
+case "$COMMAND" in
+env)   cmd_env ;;
+init)  cmd_init ;;
+sync)  cmd_sync ;;
+*)     error "Unknown command: $COMMAND" ;;
+esac

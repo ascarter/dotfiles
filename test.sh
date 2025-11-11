@@ -6,6 +6,7 @@ set -eu
 
 SCRIPT_DIR="$(dirname "$0")"
 TEST_HOME="${SCRIPT_DIR}/.testuser"
+TEST_DOTFILES_HOME=${TEST_HOME}/.local/share/dotfiles
 
 echo "Test TEST_HOME: ${TEST_HOME}"
 
@@ -19,28 +20,38 @@ else
   mkdir -p "${TEST_HOME}"
 fi
 
-# Run installer
-echo "Running installer with isolated environment..."
+# Create TEST_DOTFILES_HOME
+mkdir -p "${TEST_DOTFILES_HOME}"
+
+# Overlay local working tree changes using rsync
+if ! command -v rsync >/dev/null 2>&1; then
+  echo "ERROR: rsync not installed (needed to overlay local changes)" >&2
+  exit 1
+fi
+
+rsync -a --exclude='.git/' --exclude='.testuser/' "${SCRIPT_DIR}/" "${TEST_DOTFILES_HOME}/"
+
+# dotfiles init
 export HOME="${TEST_HOME}"
-sh "${SCRIPT_DIR}/install.sh"
+echo "${HOME} dotfiles init"
+sh "${TEST_DOTFILES_HOME}/bin/dotfiles" init
+sh "${TEST_DOTFILES_HOME}/bin/dotfiles" sync
 
-exit 0
-
-# Basic post-install checks
+# Post-install checks
 STATUS=0
-if [ ! -d "${DOTFILES_HOME}" ]; then
-  echo "ERROR: DOTFILES_HOME was not created at ${DOTFILES_HOME}"
+if [ ! -d "${TEST_DOTFILES_HOME}" ]; then
+  echo "ERROR: TEST_DOTFILES_HOME was not created at ${TEST_DOTFILES_HOME}"
   STATUS=1
 else
-  echo "DOTFILES_HOME present."
-  if [ -x "${DOTFILES_HOME}/bin/dotfiles" ]; then
+  echo "TEST_DOTFILES_HOME present."
+  if [ -x "${TEST_DOTFILES_HOME}/bin/dotfiles" ]; then
     echo "dotfiles executable found."
   else
-    echo "WARNING: dotfiles executable missing or not executable at ${DOTFILES_HOME}/bin/dotfiles"
+    echo "WARNING: dotfiles executable missing or not executable at ${TEST_DOTFILES_HOME}/bin/dotfiles"
   fi
 fi
 
 echo "Test installation complete (status=${STATUS})."
-echo "You can inspect ${DOTFILES_HOME} to verify contents."
+echo "You can inspect ${TEST_DOTFILES_HOME} to verify contents."
 
 exit "${STATUS}"
