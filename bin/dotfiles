@@ -25,7 +25,7 @@ Usage:
 Commands:
   init        Initialize dotfiles (.zshenv entry)
   env         Print export statements for environment
-  sync        Synchronize config/ -> $XDG_CONFIG_HOME using git ls-files (tracked + untracked, excluding ignored) with orphan report
+  sync        Synchronize config/ -> $XDG_CONFIG_HOME
 EOF
 }
 
@@ -67,29 +67,38 @@ typeset -U path
 path=("$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
 EOF
 }
+
+print_section() {
+  # Usage: print_section "Header:" "$list"
+  # Prints section only if list (newline-delimited) is non-empty.
+  header="$1"
+  data="$2"
+  if [ -n "$data" ]; then
+    echo
+    echo "$header"
+    printf '%b' "$data" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "  $f"
+    done
+  fi
+}
 cmd_sync() {
   # Synchronize config/ into XDG config home using git ls-files (tracked + untracked, excluding ignored); orphan detection retained
   XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
   CONFIG_SRC="${DOTFILES_HOME}/config/"
   CONFIG_DEST="${XDG_CONFIG_HOME}/"
-  EXCLUDE_FILE="${DOTFILES_HOME}/.rsyncexclude"  # legacy; git ignore used instead
 
   command -v rsync >/dev/null 2>&1 || error "rsync not installed"
   command -v git >/dev/null 2>&1 || error "git not installed"
   [ -d "${CONFIG_SRC}" ] || error "Source config directory not found: ${CONFIG_SRC}"
 
+  echo "Sync ${CONFIG_SRC} -> ${CONFIG_DEST}"
+
   RSYNC_FLAGS="-av"
-
-  echo "Sync config:"
-  echo " Source: ${CONFIG_SRC}"
-  echo " Destination: ${CONFIG_DEST}"
-  echo
-  echo "Analyzing differences..."
-
   changes=$(git -C "${DOTFILES_HOME}" ls-files -co --exclude-standard config \
     | sed 's:^config/::' \
     | rsync ${RSYNC_FLAGS} -ain --files-from=- "${CONFIG_SRC}" "${CONFIG_DEST}" \
-    | awk 'NR==1 && $0 ~ /^sending incremental file list$/ {next} /^[.]/ {next} NF')
+    | awk 'NR==1 && $0 ~ /^sending incremental file list$/ {next} /^[.]/ {next} /^$/ {next} {print}' \
+    | sed -n '/^>f/p;/^\*deleting /p')
 
   added_list=""
   changed_list=""
@@ -100,6 +109,13 @@ cmd_sync() {
 
   while IFS= read -r line; do
     [ -z "$line" ] && continue
+    case "$line" in
+      '>f'*|'*deleting '*)
+        ;;
+      *)
+        continue
+        ;;
+    esac
     code=${line%% *}
     file=${line#* }
     # Detect deletions (not active unless rsync run with --delete)
@@ -120,52 +136,47 @@ cmd_sync() {
 $changes
 EOF
 
-  echo
-  echo "Changed files:"
-  if [ $changed_count -gt 0 ]; then
-    printf '%b' "$changed_list" | while IFS= read -r f; do [ -n "$f" ] && echo "  $f"; done
-  else
-    echo "  (none)"
-  fi
-
-  echo
-  echo "Added files:"
-  if [ $added_count -gt 0 ]; then
-    printf '%b' "$added_list" | while IFS= read -r f; do [ -n "$f" ] && echo "  $f"; done
-  else
-    echo "  (none)"
-  fi
-
-  echo
-  echo "Deleted files:"
-  echo "  (none)"
-
-  echo
-  echo "Orphaned files (present in destination, missing in source; candidates for deletion or rename):"
+  orphan_list=""
+  # Orphan detection
   orphan_count=0
   for srcsub in "${CONFIG_SRC}"*/; do
     [ -d "$srcsub" ] || continue
     name=$(basename "$srcsub")
     destsub="${CONFIG_DEST}${name}/"
     [ -d "$destsub" ] || continue
-    # Scan destination files for orphans
     while IFS= read -r dfile; do
       rel="${dfile#"$destsub"}"
       if [ ! -f "${srcsub}${rel}" ]; then
         if git -C "${DOTFILES_HOME}" check-ignore -q "config/${name}/${rel}"; then
           continue
         fi
-        printf '  %s/%s\n' "$name" "$rel"
+        orphan_list="${orphan_list}${name}/${rel}\n"
         orphan_count=$((orphan_count+1))
       fi
     done <<EOF
 $(find "$destsub" -type f)
 EOF
   done
-  [ $orphan_count -eq 0 ] && echo "  (none)"
+
+  echo "Added $added_count, Changed $changed_count, Orphaned $orphan_count"
+
+  # Nothing to do (no changes and no orphans)
+  if [ $changed_count -eq 0 ] && [ $added_count -eq 0 ] && [ $orphan_count -eq 0 ]; then
+    echo "Up to date."
+    return 0
+  fi
+
+  # Print sections only when non-empty
+  print_section "Changed files:" "$changed_list"
+  print_section "Added files:" "$added_list"
+  print_section "Orphaned files:" "$orphan_list"
+  # If only orphans and no changes, skip prompt
+  if [ -n "$orphan_list" ] && [ -z "$changed_list" ] && [ -z "$added_list" ]; then
+    return 0
+  fi
 
   echo
-  printf "Proceed with sync to %s? [y/N] " "${CONFIG_DEST}"
+  printf "Proceed with sync (apply added/changed) to %s? [y/N] " "${CONFIG_DEST}"
   read ans
   case "$ans" in
     y|Y|yes|YES)

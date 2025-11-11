@@ -120,7 +120,6 @@ bindkey '^h' backward-delete-char
 # =====================================
 
 for mod in "${ZDOTDIR}"/interactive.d/*.zsh(.N); do
-  print "Including $mod"
   source "$mod"
 done
 unset mod

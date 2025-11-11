@@ -6,7 +6,6 @@
 # =====================================
 
 for profile in "${ZDOTDIR}"/profile.d/*.zsh(.N); do
-  print "Including $profile"
   source "$profile"
 done
 unset profile
