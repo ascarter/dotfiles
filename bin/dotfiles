@@ -1,14 +1,34 @@
 #!/bin/sh
 #
-# dotfiles - dispatcher for managing this dotfiles repository
+# dotfiles management tool
 #
 
 set -eu
 
 VERBOSE=0
+FORCE=0
+FORCE_ALL=0
 
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
+
+log() {
+  if [ "$#" -eq 0 ]; then
+    printf "\n"
+  elif [ "$#" -eq 1 ]; then
+    printf "%s\n" "$1"
+  else
+    label="$1"
+    message="${2:-}"
+    printf "$(tput bold)%s$(tput sgr0) %s\n" "$label" "$message"
+  fi
+}
+
+vlog() {
+  if [ "$VERBOSE" -eq 1 ]; then
+    log "$@"
+  fi
+}
 
 error() {
   printf 'ERROR: %s\n' "$*" >&2
@@ -23,14 +43,175 @@ Usage:
   dotfiles [options] <command>
 
 Commands:
-  init        Initialize dotfiles (.zshenv entry)
-  env         Print export statements for environment
-  sync        Synchronize config/ -> $XDG_CONFIG_HOME
+  init        Initialize dotfiles
+  env         Export configuration for environment
+  sync        Synchronize config
+  uninstall   Uninstall dotfiles
+  status      Show status of dotfiles
+
+Options:
+  -v          Enable verbose output
+  -f          Force actions where applicable
+  -h          Show this help message
 EOF
 }
 
 # ------------------------------
-# Command functions
+# Helper functions
+# ------------------------------
+
+prompt() {
+  if [ "$FORCE_ALL" -eq 1 ]; then
+    return 0
+  fi
+
+  printf "%s (y/N/a) " "$1" > /dev/tty
+  IFS= read -r choice < /dev/tty || choice=""
+  case "$choice" in
+  [yY]) return 0 ;;
+  [a]) FORCE_ALL=1; return 0 ;;
+  esac
+  return 1
+}
+
+create_symlink() {
+  src_path="$1"
+  dest_path="$2"
+  dest_dir=$(dirname "$dest_path")
+
+  # Create destination directory if it doesn't exist
+  mkdir -p "$dest_dir"
+
+  # If force is enabled, remove existing file/symlink first
+  if [ "$FORCE" -eq 1 ]; then
+    remove_symlink "$dest_path" "$src_path"
+  fi
+
+  # Create symlink if it doesn't already exist or points to a different source
+  if [ -L "$dest_path" ]; then
+    existing_target=$(readlink "$dest_path")
+    if [ "$existing_target" != "$src_path" ]; then
+      ln -sf "$src_path" "$dest_path"
+      log "updated" "$dest_path -> $src_path"
+    else
+      log "ok" "$dest_path -> $src_path"
+    fi
+  elif [ -e "$dest_path" ]; then
+    log "skip" "$dest_path"
+  else
+    ln -s "$src_path" "$dest_path"
+    log "link" "$dest_path -> $src_path"
+  fi
+}
+
+remove_symlink() {
+  dest_path="$1"
+  src_path="$2"
+
+  if [ -L "$dest_path" ]; then
+    existing_target=$(readlink "$dest_path")
+    if [ "$existing_target" = "$src_path" ]; then
+      rm "$dest_path"
+      log "unlink" "$dest_path"
+    else
+      if [ "$FORCE" -eq 1 ]; then
+        if prompt "Symlink $dest_path points to $existing_target instead of $src_path. Remove?"; then
+          rm "$dest_path"
+          log "force-unlink" "$dest_path (was -> $existing_target)"
+          return 0
+        fi
+      fi
+      log "skip" "$dest_path -> $existing_target (expected $src_path)"
+    fi
+  else
+    if [ -e "$dest_path" ]; then
+      if [ "$FORCE" -eq 1 ]; then
+        if cmp -s "$dest_path" "$src_path"; then
+          cmp_msg="matches source"
+        else
+          cmp_msg="differs from source"
+        fi
+        if prompt "$dest_path exists and $cmp_msg. Remove?"; then
+          rm -rf "$dest_path"
+          log "force-remove" "$dest_path"
+          return 0
+        fi
+      fi
+      log "skip" "$dest_path"
+    else
+      log "missing" "$dest_path"
+    fi
+  fi
+}
+
+check_symlink() {
+  dest_path="$1"
+  src_path="$2"
+
+  if [ -L "$dest_path" ]; then
+    existing_target=$(readlink "$dest_path")
+    if [ "$existing_target" = "$src_path" ]; then
+      log "ok" "$dest_path -> $src_path"
+    else
+      log "mismatch" "$dest_path -> $existing_target (expected $src_path)"
+    fi
+  else
+    if [ -e "$dest_path" ]; then
+      # Compare file contents
+      # If they match, consider it "exists", else "mismatch"
+      if cmp -s "$dest_path" "$src_path"; then
+        log "exists" "$dest_path (matches source)"
+      else
+        log "mismatch" "$dest_path (differs from source)"
+      fi
+    else
+      log "missing" "$dest_path"
+    fi
+  fi
+}
+
+sync() {
+  # Action to apply for each file
+  # Actions: link | unlink | status
+  action=${1:-status}
+
+  # Synchronize config/ into XDG config home using git ls-files (tracked + untracked, excluding ignored); orphan detection retained
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+  SRC="${DOTFILES_HOME}/config/"
+  DEST="${XDG_CONFIG_HOME}/"
+
+  # Files and patterns to exclude from linking
+  EXCLUDE_PATTERNS=".DS_Store Thumbs.db *.tmp .gitkeep"
+
+  find_cmd="find \"$SRC\" -type f"
+  for pattern in $EXCLUDE_PATTERNS; do
+    find_cmd="$find_cmd -not -name \"$pattern\""
+  done
+
+  log "$action" "$SRC -> $DEST"
+  eval "$find_cmd" | sort | while read -r source_file; do
+    target_file="${DEST}${source_file#$SRC}"
+    vlog "$action" "$target_file -> $source_file"
+
+    case "$action" in
+    link)
+      create_symlink "$source_file" "$target_file"
+      ;;
+    unlink)
+      remove_symlink "$target_file" "$source_file"
+      ;;
+    status)
+      check_symlink "$target_file" "$source_file"
+      ;;
+    *)
+      error "Unknown action: $action"
+      ;;
+    esac
+  done
+}
+
+# ------------------------------
+# Commands
 # ------------------------------
 
 cmd_init() {
@@ -38,9 +219,17 @@ cmd_init() {
 
   # Check if already initialized
   if [ -f "${zshenv}" ] && grep -qE "eval \"\\\$\(.*/dotfiles env\)\"" "${zshenv}"; then
-    echo "zsh already initialized"
+    log "init" "zsh already initialized"
     return 0
   fi
+  # Create XDG directories
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+  XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+  XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+  XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+  XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+
+  mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_BIN_HOME"
 
   # Append bootstrap lines
   cat >> "${zshenv}" <<EOF
@@ -68,139 +257,53 @@ path=("$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
 EOF
 }
 
-print_section() {
-  # Usage: print_section "Header:" "$list"
-  # Prints section only if list (newline-delimited) is non-empty.
-  header="$1"
-  data="$2"
-  if [ -n "$data" ]; then
-    echo
-    echo "$header"
-    printf '%b' "$data" | while IFS= read -r f; do
-      [ -n "$f" ] && echo "  $f"
-    done
-  fi
-}
 cmd_sync() {
-  # Synchronize config/ into XDG config home using git ls-files (tracked + untracked, excluding ignored); orphan detection retained
-  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-  CONFIG_SRC="${DOTFILES_HOME}/config/"
-  CONFIG_DEST="${XDG_CONFIG_HOME}/"
+  sync link
+}
 
-  command -v rsync >/dev/null 2>&1 || error "rsync not installed"
-  command -v git >/dev/null 2>&1 || error "git not installed"
-  [ -d "${CONFIG_SRC}" ] || error "Source config directory not found: ${CONFIG_SRC}"
-
-  echo "Sync ${CONFIG_SRC} -> ${CONFIG_DEST}"
-
-  RSYNC_FLAGS="-av"
-  changes=$(git -C "${DOTFILES_HOME}" ls-files -co --exclude-standard config \
-    | sed 's:^config/::' \
-    | rsync ${RSYNC_FLAGS} -ain --files-from=- "${CONFIG_SRC}" "${CONFIG_DEST}" \
-    | awk 'NR==1 && $0 ~ /^sending incremental file list$/ {next} /^[.]/ {next} /^$/ {next} {print}' \
-    | sed -n '/^>f/p;/^\*deleting /p')
-
-  added_list=""
-  changed_list=""
-  added_count=0
-  changed_count=0
-  deleted_count=0  # placeholder (no deletions performed)
-  deleted_list=""
-
-  while IFS= read -r line; do
-    [ -z "$line" ] && continue
-    case "$line" in
-      '>f'*|'*deleting '*)
-        ;;
-      *)
-        continue
-        ;;
-    esac
-    code=${line%% *}
-    file=${line#* }
-    # Detect deletions (not active unless rsync run with --delete)
-    if printf "%s" "$code" | grep -q '^\*deleting'; then
-      deleted_list="${deleted_list}${file}\n"
-      deleted_count=$((deleted_count+1))
-      continue
-    fi
-    # Classify purely by destination existence: if file not present in destination it's an addition; otherwise a change
-    if [ ! -e "${CONFIG_DEST}${file}" ]; then
-      added_list="${added_list}${file}\n"
-      added_count=$((added_count+1))
-    else
-      changed_list="${changed_list}${file}\n"
-      changed_count=$((changed_count+1))
-    fi
-  done <<EOF
-$changes
-EOF
-
-  orphan_list=""
-  # Orphan detection
-  orphan_count=0
-  for srcsub in "${CONFIG_SRC}"*/; do
-    [ -d "$srcsub" ] || continue
-    name=$(basename "$srcsub")
-    destsub="${CONFIG_DEST}${name}/"
-    [ -d "$destsub" ] || continue
-    while IFS= read -r dfile; do
-      rel="${dfile#"$destsub"}"
-      if [ ! -f "${srcsub}${rel}" ]; then
-        if git -C "${DOTFILES_HOME}" check-ignore -q "config/${name}/${rel}"; then
-          continue
-        fi
-        orphan_list="${orphan_list}${name}/${rel}\n"
-        orphan_count=$((orphan_count+1))
-      fi
-    done <<EOF
-$(find "$destsub" -type f)
-EOF
-  done
-
-  echo "Added $added_count, Changed $changed_count, Orphaned $orphan_count"
-
-  # Nothing to do (no changes and no orphans)
-  if [ $changed_count -eq 0 ] && [ $added_count -eq 0 ] && [ $orphan_count -eq 0 ]; then
-    echo "Up to date."
-    return 0
-  fi
-
-  # Print sections only when non-empty
-  print_section "Changed files:" "$changed_list"
-  print_section "Added files:" "$added_list"
-  print_section "Orphaned files:" "$orphan_list"
-  # If only orphans and no changes, skip prompt
-  if [ -n "$orphan_list" ] && [ -z "$changed_list" ] && [ -z "$added_list" ]; then
-    return 0
-  fi
-
-  echo
-  printf "Proceed with sync (apply added/changed) to %s? [y/N] " "${CONFIG_DEST}"
-  read ans
-  case "$ans" in
-    y|Y|yes|YES)
-      git -C "${DOTFILES_HOME}" ls-files -co --exclude-standard config \
-        | sed 's:^config/::' \
-        | rsync ${RSYNC_FLAGS} --files-from=- "${CONFIG_SRC}" "${CONFIG_DEST}"
-      echo "Config synced to ${CONFIG_DEST}"
-      ;;
-    *)
-      echo "Sync aborted"
-      ;;
-  esac
+cmd_uninstall() {
+  log "uninstall" "Removing dotfiles"
+  sync unlink
 }
 
 [ $# -gt 0 ] || {
   usage >&2
   exit 1
 }
-COMMAND="$1"
-shift
 
-case "$COMMAND" in
-env)   cmd_env ;;
-init)  cmd_init ;;
-sync)  cmd_sync ;;
-*)     error "Unknown command: $COMMAND" ;;
-esac
+cmd_status() {
+  sync status
+}
+
+main() {
+  cmd="$1"
+  shift
+
+  case "$cmd" in
+  env|init|sync|uninstall|status)
+    cmd_$cmd "$@"
+    ;;
+  help)
+    usage
+    ;;
+  *)
+    if [ -n "$cmd" ]; then
+      error "Unknown command: $cmd"
+    fi
+    usage
+    exit 1
+    ;;
+  esac
+}
+
+# Parse command line options
+while getopts "vfh" opt; do
+  case $opt in
+  v) VERBOSE=1 ;;
+  f) FORCE=1 ;;
+  h | \?) usage && exit 0 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+main "$@"
