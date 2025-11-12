@@ -1,8 +1,8 @@
 #autoload
 # zsh module loader
 # Usage:
-#   load_zsh_modules "$ZDOTDIR/profile.d"
-#   load_zsh_modules "$ZDOTDIR/interactive.d" '*.(zsh|sh)'
+#   load_zsh_modules "$ZDOTDIR"/profile.d
+#   load_zsh_modules "$ZDOTDIR"/interactive.d '*.(zsh|sh)'
 #
 # Args:
 #   $1 dir
@@ -15,7 +15,7 @@ load_zsh_modules() {
   local pattern=${2:-'*.zsh'}
   local file
 
-  for file in $dir/${~pattern}(-.N); do
+  for file in ${dir}/${~pattern}(-.N); do
     source "$file"
   done
 }

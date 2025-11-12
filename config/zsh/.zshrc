@@ -15,7 +15,7 @@ fpath=("${ZDOTDIR}/functions" $fpath)
 
 # Autoload function definitions
 if [[ -d ${ZDOTDIR}/functions ]]; then
-  for f in "${ZDOTDIR}/functions"/*(-.N); do
+  for f in "${ZDOTDIR}"/functions/*(-.N); do
     autoload -Uz "${f:t}"
   done
 fi
@@ -42,12 +42,12 @@ setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT COMPLETE_ALIASES ALWAYS
 setopt RM_STAR_WAIT
 
 # Sessions
-[[ -d ${XDG_STATE_HOME}/zsh/sessions ]] || mkdir -p "${XDG_STATE_HOME}/zsh/sessions"
-SHELL_SESSION_DIR="${XDG_STATE_HOME}/zsh/sessions"
+[[ -d ${XDG_STATE_HOME}/zsh/sessions ]] || mkdir -p "${XDG_STATE_HOME}"/zsh/sessions
+SHELL_SESSION_DIR="${XDG_STATE_HOME}"/zsh/sessions
 setopt SHARE_HISTORY
 
 # History
-HISTFILE="${XDG_STATE_HOME}/zsh/history"
+HISTFILE="${XDG_STATE_HOME}"/zsh/history
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -59,7 +59,7 @@ setopt APPEND_HISTORY INC_APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGN
 
 # Add XDG completions directory
 if [[ -d ${XDG_DATA_HOME}/zsh/completions ]]; then
-  fpath=("${XDG_DATA_HOME}/zsh/completions" $fpath)
+  fpath=("${XDG_DATA_HOME}"/zsh/completions $fpath)
 fi
 
 # Enable advanced tab completion
@@ -72,7 +72,7 @@ zstyle ':completion:*' rehash true
 
 # Cache completion for performance
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}"/zsh/zcompcache
 
 # Completion behavior
 zstyle ':completion:*' completer _extensions _complete _approximate
@@ -136,4 +136,4 @@ bindkey '^h' backward-delete-char
 # Load interactive modules
 # =====================================
 
-load_zsh_modules "${ZDOTDIR}/interactive.d"
+load_zsh_modules "${ZDOTDIR}"/interactive.d

@@ -1,4 +1,3 @@
-# dev
 if ! (( $+commands[zed] )); then
   if (( $+commands[zed-preview] )); then
     alias zed=zed-preview
@@ -6,13 +5,13 @@ if ! (( $+commands[zed] )); then
 fi
 
 if (( $+commands[zed] )); then
-  alias devz="EDITOR=zed dev edit"
+  alias dfedit="EDITOR=zed dev edit"
 fi
 
-alias devcd='cd ${DEV_HOME}'
+alias dfcd='cd ${DOTFILES_HOME}'
 
-if [ -d ~/Developer ]; then
-  alias devd='cd ~/Developer'
+if [[ -d ~/Developer ]]; then
+  alias dev='cd ~/Developer'
 fi
 
 # ls - Use uutils if installed
@@ -56,12 +55,14 @@ Darwin)
   alias sketchtool="$(mdfind kMDItemCFBundleIdentifier = 'com.bohemiancoding.sketch3' | head -n 1)/Contents/Resources/sketchtool/bin/sketchtool"
 
   # Tailscale
-  if [ -d /Applications/Tailscale.app ]; then
+  if [[ -d /Applications/Tailscale.app ]]; then
     alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
   fi
 
   # Proxyman
-  alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+  if [[ -d /Applications/Proxyman.app ]]; then
+    alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+  fi
   ;;
 Linux)
   # Linux version of macOS pbcopy/pbpaste.
