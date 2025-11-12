@@ -27,11 +27,6 @@ alias l.='ls -d .*'
 # ssh
 alias sshpw="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no"
 
-# Install Ghostty term info on target server
-ghostty_term() {
-  infocmp -x | ssh $@ -SERVER -- tic -x -
-}
-
 # Developer tools
 
 if (( $+commands[rustup] )); then
@@ -67,21 +62,6 @@ Darwin)
 
   # Proxyman
   alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
-
-  # View manpage as PDF
-  manp() {
-    mandoc -T pdf $(man -w $@) | open -f -a Preview
-  }
-
-  # View man page in new terminal window
-  manx() {
-    # Opens in a terminal window
-    if [ -n "${2}" ]; then
-      open x-man-page://${1}/${2}
-    else
-      open x-man-page://${1}
-    fi
-  }
   ;;
 Linux)
   # Linux version of macOS pbcopy/pbpaste.
@@ -89,17 +69,6 @@ Linux)
     alias pbcopy="xsel --clipboard --input"
     alias pbpaste="xsel --clipboard --output"
   fi
-
-  # View man page as PDF
-  manp() {
-    man -Tpdf $@ | flatpak run org.gnome.Evince
-  }
-
-  # View man page in help viewer
-  manx() {
-    # Use yelp to open man page
-    yelp "man:${1}" 2 >/dev/null 2>&1 &
-  }
 
   if (( $+commands[flatpak] )); then
     if flatpak info io.github.shiftey.Desktop &>/dev/null; then

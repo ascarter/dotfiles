@@ -1,0 +1,9 @@
+#autoload
+# Install Ghostty terminfo on a remote server.
+# Usage: ghostty_term user@host
+ghostty_term() {
+  emulate -L zsh
+  # Pipe local terminfo (including extended capabilities) to remote `tic`.
+  # All arguments ($@) are passed to ssh (typically user@host).
+  infocmp -x | ssh "$@" -SERVER -- tic -x -
+}

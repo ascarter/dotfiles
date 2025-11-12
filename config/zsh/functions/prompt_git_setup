@@ -1,0 +1,31 @@
+#autoload
+prompt_git_help() {
+  cat <<-EOF
+2-line prompt with git info
+EOF
+}
+
+prompt_git_setup() {
+  prompt_opts=( cr percent subst )
+  autoload -Uz vcs_info add-zsh-hook
+  add-zsh-hook precmd vcs_info
+  zstyle ':vcs_info:*' enable git
+  zstyle ':vcs_info:git:*' formats '%b'
+  zstyle ':vcs_info:*' check-for-changes false
+
+  # SGR sequences wrapped for prompt (use %{% ... %} for non-printing)
+  DIM_ON="%{$(printf '\e[2m')%}"
+  DIM_OFF="%{$(printf '\e[22m')%}"
+  ITALIC_ON="%{$(printf '\e[3m')%}"
+  ITALIC_OFF="%{$(printf '\e[23m')%}"
+
+  local host_part=''
+  if [[ -n $SSH_CLIENT || -n $SSH_TTY ]]; then
+    host_part="${DIM_ON}%n@%m${DIM_OFF}:"
+  fi
+
+  PROMPT=$'\n'"${host_part}%B%3~%b${DIM_ON}${ITALIC_ON}"'${vcs_info_msg_0_:+ ($vcs_info_msg_0_)}'${ITALIC_OFF}${DIM_OFF}$'\n''%# '
+  RPROMPT='%(?..%F{red}✖ %?%f)'
+}
+
+prompt_git_setup "$@"

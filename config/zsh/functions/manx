@@ -1,0 +1,32 @@
+#autoload
+# Open man page in a new terminal window (GUI open).
+# Usage:
+#   manx ls
+#   manx 3 printf   (section + name)
+manx() {
+  emulate -L zsh
+  local section name
+  case $# in
+    1) name="$1" ;;
+    2) section="$1"; name="$2" ;;
+    *) print -u2 "Usage: manx [section] name"; return 1 ;;
+  esac
+
+  case "$(uname)" in
+    Darwin)
+      if [[ -n $section ]]; then
+        open "x-man-page://$section/$name"
+      else
+        open "x-man-page://$name"
+      fi
+      ;;
+    Linux)
+      # Yelp understands man:topic; section may be encoded differently, so best-effort.
+      if [[ -n $section ]]; then
+        yelp "man:${name}(${section})" >/dev/null 2>&1 &
+      else
+        yelp "man:${name}" >/dev/null 2>&1 &
+      fi
+      ;;
+  esac
+}

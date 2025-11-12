@@ -1,0 +1,21 @@
+#autoload
+# zsh module loader
+# Usage:
+#   load_zsh_modules "$ZDOTDIR/profile.d"
+#   load_zsh_modules "$ZDOTDIR/interactive.d" '*.(zsh|sh)'
+#
+# Args:
+#   $1 dir
+#   $2 pattern (default *.zsh)
+
+load_zsh_modules() {
+  emulate zsh
+  setopt extended_glob
+  local dir=$1
+  local pattern=${2:-'*.zsh'}
+  local file
+
+  for file in $dir/${~pattern}(-.N); do
+    source "$file"
+  done
+}

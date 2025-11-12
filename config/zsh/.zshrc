@@ -7,31 +7,33 @@
 # zprofile / zlogin / zlogout -- login shells only
 
 # =====================================
-# Completion system
+# Functions
 # =====================================
 
-# Add dev completions directory
-if [[ -d "${XDG_DATA_HOME}/zsh/completions" ]]; then
-  fpath=("${XDG_DATA_HOME}/zsh/completions" $fpath)
-fi
+# Add functions directory to fpath
+fpath=("${ZDOTDIR}/functions" $fpath)
 
-# Enable advanced tab completion
-autoload -Uz compinit
-compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
+# Autoload function definitions
+if [[ -d ${ZDOTDIR}/functions ]]; then
+  for f in "${ZDOTDIR}/functions"/*(-.N); do
+    autoload -Uz "${f:t}"
+  done
+fi
 
 # Load colors
 autoload -Uz colors
 colors
 
-# Load hook system
-autoload -Uz add-zsh-hook
+# =====================================
+# Prompt
+# =====================================
 
-# Enable bash compatibility
-# autoload -Uz bashcompinit
-# bashcompinit
+autoload -Uz promptinit
+promptinit
+prompt git
 
 # =====================================
-# ZSH Options
+# Options
 # =====================================
 
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT COMPLETE_ALIASES ALWAYS_TO_END COMPLETE_IN_WORD EXTENDED_GLOB GLOB_DOTS
@@ -40,6 +42,7 @@ setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT COMPLETE_ALIASES ALWAYS
 setopt RM_STAR_WAIT
 
 # Sessions
+[[ -d ${XDG_STATE_HOME}/zsh/sessions ]] || mkdir -p "${XDG_STATE_HOME}/zsh/sessions"
 SHELL_SESSION_DIR="${XDG_STATE_HOME}/zsh/sessions"
 setopt SHARE_HISTORY
 
@@ -53,6 +56,16 @@ setopt APPEND_HISTORY INC_APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGN
 # =====================================
 # Completion configuration
 # =====================================
+
+# Add XDG completions directory
+if [[ -d ${XDG_DATA_HOME}/zsh/completions ]]; then
+  fpath=("${XDG_DATA_HOME}/zsh/completions" $fpath)
+fi
+
+# Enable advanced tab completion
+[[ -d ${XDG_CACHE_HOME}/zsh ]] || mkdir -p "${XDG_CACHE_HOME}"/zsh
+autoload -Uz compinit
+compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
 
 # Automatically rehash command list when new executables are added
 zstyle ':completion:*' rehash true
@@ -75,6 +88,10 @@ zstyle ':completion:*' file-list all
 
 # Fuzzy matching for completion
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Enable bash compatibility
+# autoload -Uz bashcompinit
+# bashcompinit
 
 # =====================================
 # Key bindings (Emacs mode with Vim-inspired enhancements)
@@ -119,7 +136,4 @@ bindkey '^h' backward-delete-char
 # Load interactive modules
 # =====================================
 
-for mod in "${ZDOTDIR}"/interactive.d/*.zsh(.N); do
-  source "$mod"
-done
-unset mod
+load_zsh_modules "${ZDOTDIR}/interactive.d"

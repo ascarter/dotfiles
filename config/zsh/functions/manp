@@ -1,0 +1,16 @@
+#autoload
+# View a man page as a PDF (Platform-specific viewer).
+# Usage: manp <topic>
+manp() {
+  emulate -L zsh
+  case "$(uname)" in
+    Darwin)
+      # mandoc gives nicer PDF; `man -w` yields path to the man file.
+      mandoc -T pdf "$(man -w "$@")" | open -f -a Preview
+      ;;
+    Linux)
+      # Fallback using groff pipeline via man -Tpdf
+      man -Tpdf "$@" | flatpak run org.gnome.Evince
+      ;;
+  esac
+}

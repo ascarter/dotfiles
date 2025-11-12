@@ -5,7 +5,6 @@
 # Load profile modules
 # =====================================
 
-for profile in "${ZDOTDIR}"/profile.d/*.zsh(.N); do
-  source "$profile"
-done
-unset profile
+fpath=("${ZDOTDIR}/functions" $fpath)
+autoload -Uz load_zsh_modules
+load_zsh_modules "${ZDOTDIR}/profile.d"
