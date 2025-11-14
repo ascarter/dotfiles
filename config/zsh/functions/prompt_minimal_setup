@@ -1,0 +1,57 @@
+#autoload
+prompt_minimal_help() {
+  cat <<-EOF
+Minimal prompt with optional git support.
+EOF
+}
+
+prompt_minimal_setup() {
+  emulate -L zsh
+  local -a opt_git
+  zparseopts -git=opt_git
+
+  prompt_opts=(cr percent subst)
+
+  supports_unicode() {
+    # Prefer LC_ALL, then LC_CTYPE, then LANG
+    local loc="${LC_ALL:-${LC_CTYPE:-$LANG}}"
+
+    # Case-insensitive match for UTF-8 / UTF8
+    [[ $loc == *[Uu][Tt][Ff]-8* || $loc == *[Uu][Tt][Ff]8* ]]
+  }
+
+  if supports_unicode; then
+    typeset -g prompt_symbol="❯"
+    typeset -g root_symbol="#"
+  else
+    typeset -g prompt_symbol=">"
+    typeset -g root_symbol="#"
+  fi
+
+  # Initialize PROMPT variable
+  PROMPT=
+
+  # User and host for SSH sessions
+  if [[ -n $SSH_CONNECTION ]]; then
+    PROMPT+="[%B%n@%m%b] "
+  fi
+
+  # Working directory
+  PROMPT='%F{cyan}%B%2~%b%f'
+
+  # Optional git branch info
+  if (( $#opt_git )); then
+    autoload -Uz vcs_info add-zsh-hook
+    add-zsh-hook precmd vcs_info
+    zstyle ':vcs_info:*' enable git
+    zstyle ':vcs_info:git:*' formats '%b'
+    zstyle ':vcs_info:git*:*' actionformats '%b|%a'
+    zstyle ':vcs_info:*' check-for-changes false
+    PROMPT+='%F{cyan}${vcs_info_msg_0_:+ $vcs_info_msg_0_}%f'
+  fi
+
+  # Prompt symbol
+  PROMPT+=' %(!.%F{red}${root_symbol}%f.${prompt_symbol}) '
+}
+
+prompt_minimal_setup "$@"
