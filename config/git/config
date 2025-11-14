@@ -92,6 +92,7 @@
 	root = rev-parse --show-toplevel
 	setemail = !git config user.email
 	sha = rev-parse --verify HEAD
+	st = status --short --branch
 	tags = tag -l
 	undo = reset --soft HEAD^
 	unstage = restore --staged
