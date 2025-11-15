@@ -12,16 +12,35 @@ FORCE_ALL=0
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
 
+# ANSI style (skip colors if NO_COLOR set or stdout not a tty)
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  BOLD=$(printf '\033[1m')
+  RESET=$(printf '\033[0m')
+else
+  BOLD=''
+  RESET=''
+fi
+
 log() {
-  if [ "$#" -eq 0 ]; then
-    printf "\n"
-  elif [ "$#" -eq 1 ]; then
-    printf "%s\n" "$1"
-  else
+  case $# in
+  0) printf "\n" ;;
+  1) printf "%s\n" "$1" ;;
+  *)
     label="$1"
-    message="${2:-}"
-    printf "$(tput bold)%s$(tput sgr0) %s\n" "$label" "$message"
-  fi
+    shift
+    printf "%s%-10s%s " "$BOLD" "$label" "$RESET"
+    message="$1"
+    shift
+    printf "%s\n" "$message"
+
+    if [ "$VERBOSE" -eq 1 ]; then
+      for arg do
+        [ -n "$arg" ] || continue
+        printf "\t\t%s\n" "$arg"
+      done
+    fi
+    ;;
+  esac
 }
 
 vlog() {
@@ -46,6 +65,7 @@ Commands:
   init        Initialize dotfiles
   env         Export configuration for environment
   sync        Synchronize config
+  unlink      Remove symlinks for config
   uninstall   Uninstall dotfiles
   status      Show status of dotfiles
 
@@ -74,102 +94,6 @@ prompt() {
   return 1
 }
 
-create_symlink() {
-  src_path="$1"
-  dest_path="$2"
-  dest_dir=$(dirname "$dest_path")
-
-  # Create destination directory if it doesn't exist
-  mkdir -p "$dest_dir"
-
-  # If force is enabled, remove existing file/symlink first
-  if [ "$FORCE" -eq 1 ]; then
-    remove_symlink "$dest_path" "$src_path"
-  fi
-
-  # Create symlink if it doesn't already exist or points to a different source
-  if [ -L "$dest_path" ]; then
-    existing_target=$(readlink "$dest_path")
-    if [ "$existing_target" != "$src_path" ]; then
-      ln -sf "$src_path" "$dest_path"
-      log "updated" "$dest_path -> $src_path"
-    else
-      log "ok" "$dest_path -> $src_path"
-    fi
-  elif [ -e "$dest_path" ]; then
-    log "skip" "$dest_path"
-  else
-    ln -s "$src_path" "$dest_path"
-    log "link" "$dest_path -> $src_path"
-  fi
-}
-
-remove_symlink() {
-  dest_path="$1"
-  src_path="$2"
-
-  if [ -L "$dest_path" ]; then
-    existing_target=$(readlink "$dest_path")
-    if [ "$existing_target" = "$src_path" ]; then
-      rm "$dest_path"
-      log "unlink" "$dest_path"
-    else
-      if [ "$FORCE" -eq 1 ]; then
-        if prompt "Symlink $dest_path points to $existing_target instead of $src_path. Remove?"; then
-          rm "$dest_path"
-          log "force-unlink" "$dest_path (was -> $existing_target)"
-          return 0
-        fi
-      fi
-      log "skip" "$dest_path -> $existing_target (expected $src_path)"
-    fi
-  else
-    if [ -e "$dest_path" ]; then
-      if [ "$FORCE" -eq 1 ]; then
-        if cmp -s "$dest_path" "$src_path"; then
-          cmp_msg="matches source"
-        else
-          cmp_msg="differs from source"
-        fi
-        if prompt "$dest_path exists and $cmp_msg. Remove?"; then
-          rm -rf "$dest_path"
-          log "force-remove" "$dest_path"
-          return 0
-        fi
-      fi
-      log "skip" "$dest_path"
-    else
-      log "missing" "$dest_path"
-    fi
-  fi
-}
-
-check_symlink() {
-  dest_path="$1"
-  src_path="$2"
-
-  if [ -L "$dest_path" ]; then
-    existing_target=$(readlink "$dest_path")
-    if [ "$existing_target" = "$src_path" ]; then
-      log "ok" "$dest_path -> $src_path"
-    else
-      log "mismatch" "$dest_path -> $existing_target (expected $src_path)"
-    fi
-  else
-    if [ -e "$dest_path" ]; then
-      # Compare file contents
-      # If they match, consider it "exists", else "mismatch"
-      if cmp -s "$dest_path" "$src_path"; then
-        log "exists" "$dest_path (matches source)"
-      else
-        log "mismatch" "$dest_path (differs from source)"
-      fi
-    else
-      log "missing" "$dest_path"
-    fi
-  fi
-}
-
 sync() {
   # Action to apply for each file
   # Actions: link | unlink | status
@@ -188,25 +112,91 @@ sync() {
     find_cmd="$find_cmd -not -name \"$pattern\""
   done
 
-  log "$action" "$SRC -> $DEST"
+  link() {
+    src_path="$1"
+    dest_path="$2"
+    rel_src="${src_path#$SRC}"
+
+    if [ -e "$dest_path" ] && [ "$FORCE" -eq 1 ]; then
+      unlink "$src_path" "$dest_path"
+    fi
+
+    if [ -e "$dest_path" ]; then
+      status "$src_path" "$dest_path"
+    else
+      mkdir -p "$(dirname "$dest_path")"
+      ln -s "$src_path" "$dest_path"
+      log "link" "$rel_src" "$dest_path -> $src_path"
+    fi
+  }
+
+  unlink() {
+    src_path="$1"
+    dest_path="$2"
+    rel_src="${src_path#$SRC}"
+
+    compare_files() {
+      if cmp -s "$dest_path" "$src_path"; then
+        printf "matches source"
+      else
+        printf "differs from source"
+      fi
+    }
+
+    if [ -L "$dest_path" ]; then
+      existing_target=$(readlink "$dest_path")
+      if [ "$existing_target" = "$src_path" ]; then
+        rm "$dest_path"
+        log "unlink" "$rel_src" "removed $dest_path"
+      elif [ "$FORCE" -eq 1 ] && prompt "Symlink $dest_path points to $existing_target instead of $rel_src. Remove?"; then
+        rm "$dest_path"
+        log "unlink" "$rel_src" "deleted $dest_path -> $existing_target)"
+      else
+        log "skip" "$rel_src" "ignore $dest_path -> $existing_target"
+      fi
+    else
+      if [ -e "$dest_path" ]; then
+        if [ "$FORCE" -eq 1 ] && prompt "$dest_path exists and $(compare_files "$src_path" "$dest_path"). Remove?"; then
+          rm -rf "$dest_path"
+          log "deleted" "$rel_src" "deleted $dest_path"
+        else
+          log "skip" "$dest_path"
+        fi
+      else
+        log "missing" "$dest_path"
+      fi
+    fi
+  }
+
+  status() {
+    src_path="$1"
+    dest_path="$2"
+    rel_src="${src_path#$SRC}"
+
+    if [ -L "$dest_path" ]; then
+      existing_target=$(readlink "$dest_path")
+      if [ "$existing_target" = "$src_path" ]; then
+        log "ok" "$rel_src"
+      else
+        log "conflict" "$rel_src" "$dest_path -> $existing_target"
+      fi
+    else
+      if [ -e "$dest_path" ]; then
+        if cmp -s "$dest_path" "$src_path"; then
+          log "exists" "$rel_src" "$dest_path matches source"
+        else
+          log "conflict" "$rel_src" "$dest_path differs from source"
+        fi
+      else
+        log "missing" "$rel_src" "no file at $dest_path"
+      fi
+    fi
+  }
+
   eval "$find_cmd" | sort | while read -r source_file; do
     target_file="${DEST}${source_file#$SRC}"
     vlog "$action" "$target_file -> $source_file"
-
-    case "$action" in
-    link)
-      create_symlink "$source_file" "$target_file"
-      ;;
-    unlink)
-      remove_symlink "$target_file" "$source_file"
-      ;;
-    status)
-      check_symlink "$target_file" "$source_file"
-      ;;
-    *)
-      error "Unknown action: $action"
-      ;;
-    esac
+    $action "$source_file" "$target_file"
   done
 }
 
@@ -258,21 +248,20 @@ EOF
 }
 
 cmd_sync() {
-  sync link
+  (sync link)
+}
+
+cmd_unlink() {
+  (sync unlink)
+}
+
+cmd_status() {
+  (sync status)
 }
 
 cmd_uninstall() {
   log "uninstall" "Removing dotfiles"
-  sync unlink
-}
-
-[ $# -gt 0 ] || {
-  usage >&2
-  exit 1
-}
-
-cmd_status() {
-  sync status
+  cmd_unlink
 }
 
 main() {
@@ -280,7 +269,7 @@ main() {
   shift
 
   case "$cmd" in
-  env|init|sync|uninstall|status)
+  env|init|sync|unlink|uninstall|status)
     cmd_$cmd "$@"
     ;;
   help)
@@ -305,5 +294,11 @@ while getopts "vfh" opt; do
   esac
 done
 shift $((OPTIND - 1))
+
+# Require subcommand
+[ $# -gt 0 ] || {
+  usage >&2
+  exit 1
+}
 
 main "$@"
