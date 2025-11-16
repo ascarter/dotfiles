@@ -8,6 +8,7 @@ set -eu
 VERBOSE=0
 FORCE=0
 FORCE_ALL=0
+QUIET=0
 
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
@@ -50,8 +51,12 @@ vlog() {
 }
 
 error() {
-  printf 'ERROR: %s\n' "$*" >&2
+  printf "%s%-10s%s %s\n" "$BOLD" "error" "$RESET" "$*" >&2
   exit 1
+}
+
+reload_msg() {
+  log "Restart your shell or run \`source ~/.zshenv\`"
 }
 
 usage() {
@@ -68,6 +73,7 @@ Commands:
   unlink      Remove symlinks for config
   uninstall   Uninstall dotfiles
   status      Show status of dotfiles
+  update      Update dotfiles repository
 
 Options:
   -v          Enable verbose output
@@ -117,7 +123,7 @@ sync() {
   log_sync() {
     label="$1"
     shift
-    log "$label" "$@"
+    [ "$QUIET" -ne 1 ] && log "$label" "$@"
     case "$label" in
     link | unlink | ok) return 0 ;;
     *) return 1 ;;
@@ -246,9 +252,8 @@ cmd_init() {
 eval "\$($SCRIPT_DIR/dotfiles env)"
 EOF
 
-  echo "Initialized dotfiles for zsh"
-  echo "Restart your shell or run:"
-  echo "   source ~/.zshenv"
+  log "Initialized dotfiles for zsh"
+  reload_msg
 }
 
 cmd_env() {
@@ -283,12 +288,33 @@ cmd_uninstall() {
   cmd_unlink
 }
 
+cmd_update() {
+  # Suppress output except errors
+  QUIET=1
+
+  # Unlink files before updating in case of structure changes
+  if ! cmd_unlink; then
+    error "Failed to unlink files before update"
+  fi
+
+  # Update the repository
+  log "git" "Updating dotfiles repository"
+  git -C "$DOTFILES_HOME" pull --ff-only
+
+  # Resync files after update
+  if ! cmd_sync; then
+    error "Failed to resync files after update"
+  fi
+
+  reload_msg
+}
+
 main() {
   cmd="$1"
   shift
 
   case "$cmd" in
-  env|init|sync|unlink|uninstall|status)
+  env|init|sync|unlink|uninstall|status|update)
     cmd_$cmd "$@"
     ;;
   help)
