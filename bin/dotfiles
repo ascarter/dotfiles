@@ -112,6 +112,18 @@ sync() {
     find_cmd="$find_cmd -not -name \"$pattern\""
   done
 
+  vlog "$action" "$SRC -> $DEST"
+
+  log_sync() {
+    label="$1"
+    shift
+    log "$label" "$@"
+    case "$label" in
+    link | unlink | ok) return 0 ;;
+    *) return 1 ;;
+    esac
+  }
+
   link() {
     src_path="$1"
     dest_path="$2"
@@ -126,7 +138,7 @@ sync() {
     else
       mkdir -p "$(dirname "$dest_path")"
       ln -s "$src_path" "$dest_path"
-      log "link" "$rel_src" "$dest_path -> $src_path"
+      log_sync "link" "$rel_src" "$dest_path -> $src_path"
     fi
   }
 
@@ -147,23 +159,23 @@ sync() {
       existing_target=$(readlink "$dest_path")
       if [ "$existing_target" = "$src_path" ]; then
         rm "$dest_path"
-        log "unlink" "$rel_src" "removed $dest_path"
+        log_sync "unlink" "$rel_src" "removed $dest_path"
       elif [ "$FORCE" -eq 1 ] && prompt "Symlink $dest_path points to $existing_target instead of $rel_src. Remove?"; then
         rm "$dest_path"
-        log "unlink" "$rel_src" "deleted $dest_path -> $existing_target)"
+        log_sync "unlink" "$rel_src" "deleted $dest_path -> $existing_target)"
       else
-        log "skip" "$rel_src" "ignore $dest_path -> $existing_target"
+        log_sync "skip" "$rel_src" "ignore $dest_path -> $existing_target"
       fi
     else
       if [ -e "$dest_path" ]; then
         if [ "$FORCE" -eq 1 ] && prompt "$dest_path exists and $(compare_files "$src_path" "$dest_path"). Remove?"; then
           rm -rf "$dest_path"
-          log "deleted" "$rel_src" "deleted $dest_path"
+          log_sync "deleted" "$rel_src" "deleted $dest_path"
         else
-          log "skip" "$dest_path"
+          log_sync "skip" "$dest_path"
         fi
       else
-        log "missing" "$dest_path"
+        log_sync "missing" "$dest_path"
       fi
     fi
   }
@@ -176,28 +188,35 @@ sync() {
     if [ -L "$dest_path" ]; then
       existing_target=$(readlink "$dest_path")
       if [ "$existing_target" = "$src_path" ]; then
-        log "ok" "$rel_src"
+        if [ "$VERBOSE" -eq 1 ]; then
+          log_sync "ok" "$rel_src"
+        fi
       else
-        log "conflict" "$rel_src" "$dest_path -> $existing_target"
+        log_sync "conflict" "$rel_src" "$dest_path -> $existing_target"
       fi
     else
       if [ -e "$dest_path" ]; then
         if cmp -s "$dest_path" "$src_path"; then
-          log "exists" "$rel_src" "$dest_path matches source"
+          log_sync "exists" "$rel_src" "$dest_path matches source"
         else
-          log "conflict" "$rel_src" "$dest_path differs from source"
+          log_sync "conflict" "$rel_src" "$dest_path differs from source"
         fi
       else
-        log "missing" "$rel_src" "no file at $dest_path"
+        log_sync "missing" "$rel_src" "no file at $dest_path"
       fi
     fi
   }
 
-  eval "$find_cmd" | sort | while read -r source_file; do
-    target_file="${DEST}${source_file#$SRC}"
-    vlog "$action" "$target_file -> $source_file"
-    $action "$source_file" "$target_file"
-  done
+  eval "$find_cmd" | sort | (
+    RC=0
+    while read -r source_file; do
+      target_file="${DEST}${source_file#$SRC}"
+      if ! $action "$source_file" "$target_file"; then
+        RC=1
+      fi
+    done
+    return $RC
+  )
 }
 
 # ------------------------------
@@ -248,15 +267,15 @@ EOF
 }
 
 cmd_sync() {
-  (sync link)
+  (sync link) && log "sync" "ok"
 }
 
 cmd_unlink() {
-  (sync unlink)
+  (sync unlink) && log "unlink" "ok"
 }
 
 cmd_status() {
-  (sync status)
+  (sync status) && log "status" "ok"
 }
 
 cmd_uninstall() {
