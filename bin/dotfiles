@@ -28,23 +28,23 @@ tty_reset="$(tty_escape 0)"
 
 log() {
   case $# in
-  0) printf "\n" ;;
-  1) printf "%s\n" "$1" ;;
-  *)
-    label="$1"
-    shift
-    printf "${tty_bold}%s${tty_reset} " "${label}"
-    message="$1"
-    shift
-    printf "%s\n" "$message"
+    0) printf "\n" ;;
+    1) printf "%s\n" "$1" ;;
+    *)
+      label="$1"
+      shift
+      printf "${tty_bold}%s${tty_reset} " "${label}"
+      message="$1"
+      shift
+      printf "%s\n" "$message"
 
-    if [ "$VERBOSE" -eq 1 ]; then
-      for arg; do
-        [ -n "$arg" ] || continue
-        printf "\t\t%s\n" "$arg"
-      done
-    fi
-    ;;
+      if [ "$VERBOSE" -eq 1 ]; then
+        for arg; do
+          [ -n "$arg" ] || continue
+          printf "\t\t%s\n" "$arg"
+        done
+      fi
+      ;;
   esac
 }
 
@@ -149,14 +149,14 @@ sync() {
     label="$1"
     shift
     case "$label" in
-    link | unlink | ok)
-      [ "$QUIET" -ne 1 ] && log "$label" "$@"
-      return 0
-      ;;
-    *)
-      [ "$QUIET" -ne 1 ] && warn "$label" "$@"
-      return 1
-      ;;
+      link | unlink | ok)
+        [ "$QUIET" -ne 1 ] && log "$label" "$@"
+        return 0
+        ;;
+      *)
+        [ "$QUIET" -ne 1 ] && warn "$label" "$@"
+        return 1
+        ;;
     esac
   }
 
@@ -267,6 +267,7 @@ cmd_init() {
     log "init" "zsh already initialized"
     return 0
   fi
+
   # Create XDG directories
   XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
   XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
@@ -339,19 +340,19 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | sync | unlink | uninstall | status | update)
-    cmd_$cmd "$@"
-    ;;
-  help)
-    usage
-    ;;
-  *)
-    if [ -n "$cmd" ]; then
-      error "Unknown command: $cmd"
-    fi
-    usage
-    exit 1
-    ;;
+    env | init | sync | unlink | uninstall | status | update)
+      cmd_$cmd "$@"
+      ;;
+    help)
+      usage
+      ;;
+    *)
+      if [ -n "$cmd" ]; then
+        error "Unknown command: $cmd"
+      fi
+      usage
+      exit 1
+      ;;
   esac
 }
 
