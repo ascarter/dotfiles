@@ -13,14 +13,18 @@ QUIET=0
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
 
-# ANSI style (skip colors if NO_COLOR set or stdout not a tty)
-if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-  BOLD=$(printf '\033[1m')
-  RESET=$(printf '\033[0m')
+# ANSI strings
+if [[ -t 1 ]]; then
+  tty_escape() { printf "\033[%sm" "$1"; }
 else
-  BOLD=''
-  RESET=''
+  tty_escape() { :; }
 fi
+tty_mkbold() { tty_escape "1;$1"; }
+tty_underline="$(tty_escape "4;39")"
+tty_blue="$(tty_mkbold 34)"
+tty_red="$(tty_mkbold 31)"
+tty_bold="$(tty_mkbold 39)"
+tty_reset="$(tty_escape 0)"
 
 log() {
   case $# in
@@ -29,13 +33,13 @@ log() {
   *)
     label="$1"
     shift
-    printf "%s%-10s%s " "$BOLD" "$label" "$RESET"
+    printf "${tty_bold}%s${tty_reset} " "${label}"
     message="$1"
     shift
     printf "%s\n" "$message"
 
     if [ "$VERBOSE" -eq 1 ]; then
-      for arg do
+      for arg; do
         [ -n "$arg" ] || continue
         printf "\t\t%s\n" "$arg"
       done
@@ -51,12 +55,30 @@ vlog() {
 }
 
 error() {
-  printf "%s%-10s%s %s\n" "$BOLD" "error" "$RESET" "$*" >&2
+  printf "${tty_red}error${tty_reset} %s\n" "$*" >&2
+}
+
+warn() {
+  label="${1:-warning}"
+  shift
+  printf "${tty_blue}%s${tty_reset} %s\n" "$label" "$*" >&2
+}
+
+abort() {
+  error "$@"
   exit 1
 }
 
-reload_msg() {
+ensure() {
+  if ! "$@"; then
+    abort "command failed: $*"
+  fi
+}
+
+success() {
+  log "$@"
   log "Restart your shell or run \`source ~/.zshenv\`"
+  exit 0
 }
 
 usage() {
@@ -91,11 +113,14 @@ prompt() {
     return 0
   fi
 
-  printf "%s (y/N/a) " "$1" > /dev/tty
-  IFS= read -r choice < /dev/tty || choice=""
+  printf "%s (y/N/a) " "$1" >/dev/tty
+  IFS= read -r choice </dev/tty || choice=""
   case "$choice" in
   [yY]) return 0 ;;
-  [a]) FORCE_ALL=1; return 0 ;;
+  [a])
+    FORCE_ALL=1
+    return 0
+    ;;
   esac
   return 1
 }
@@ -123,10 +148,15 @@ sync() {
   log_sync() {
     label="$1"
     shift
-    [ "$QUIET" -ne 1 ] && log "$label" "$@"
     case "$label" in
-    link | unlink | ok) return 0 ;;
-    *) return 1 ;;
+    link | unlink | ok)
+      [ "$QUIET" -ne 1 ] && log "$label" "$@"
+      return 0
+      ;;
+    *)
+      [ "$QUIET" -ne 1 ] && warn "$label" "$@"
+      return 1
+      ;;
     esac
   }
 
@@ -247,13 +277,12 @@ cmd_init() {
   mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_BIN_HOME"
 
   # Append bootstrap lines
-  cat >> "${zshenv}" <<EOF
+  cat >>"${zshenv}" <<EOF
 # dotfiles environment
 eval "\$($SCRIPT_DIR/dotfiles env)"
 EOF
 
-  log "Initialized dotfiles for zsh"
-  reload_msg
+  success "Initialized dotfiles for zsh"
 }
 
 cmd_env() {
@@ -293,20 +322,16 @@ cmd_update() {
   QUIET=1
 
   # Unlink files before updating in case of structure changes
-  if ! cmd_unlink; then
-    error "Failed to unlink files before update"
-  fi
+  cmd_unlink || abort "failed to unlink files before update"
 
   # Update the repository
   log "git" "Updating dotfiles repository"
   git -C "$DOTFILES_HOME" pull --ff-only
 
   # Resync files after update
-  if ! cmd_sync; then
-    error "Failed to resync files after update"
-  fi
+  cmd_sync || abort "failed to resync files after update"
 
-  reload_msg
+  success "dotfiles updated"
 }
 
 main() {
@@ -314,7 +339,7 @@ main() {
   shift
 
   case "$cmd" in
-  env|init|sync|unlink|uninstall|status|update)
+  env | init | sync | unlink | uninstall | status | update)
     cmd_$cmd "$@"
     ;;
   help)
