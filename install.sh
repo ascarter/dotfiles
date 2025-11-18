@@ -4,8 +4,8 @@
 
 set -eu
 
-export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-export DOTFILES_HOME=${DOTFILES_HOME:-${XDG_DATA_HOME}/dotfiles}
+: "${XDG_DATA_HOME:=$HOME/.local/share}"
+: "${DOTFILES_HOME:=${XDG_DATA_HOME}/dotfiles}"
 
 # Check if git is installed
 if ! command -v git >/dev/null 2>&1; then

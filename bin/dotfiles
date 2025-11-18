@@ -92,7 +92,6 @@ Commands:
   init        Initialize dotfiles
   env         Export configuration for environment
   sync        Synchronize config
-  unlink      Remove symlinks for config
   uninstall   Uninstall dotfiles
   status      Show status of dotfiles
   update      Update dotfiles repository
@@ -269,13 +268,17 @@ cmd_init() {
   fi
 
   # Create XDG directories
-  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-  XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-  XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-  XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-  XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+  : "${XDG_CONFIG_HOME:=$HOME/.config}"
+  : "${XDG_DATA_HOME:=$HOME/.local/share}"
+  : "${XDG_STATE_HOME:=$HOME/.local/state}"
+  : "${XDG_CACHE_HOME:=$HOME/.cache}"
+  : "${XDG_BIN_HOME:=$HOME/.local/bin}"
 
-  mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_BIN_HOME"
+  mkdir -p "$XDG_CONFIG_HOME" \
+           "$XDG_DATA_HOME"   \
+           "$XDG_STATE_HOME"  \
+           "$XDG_CACHE_HOME"  \
+           "$XDG_BIN_HOME"
 
   # Append bootstrap lines
   cat >>"${zshenv}" <<EOF
@@ -305,17 +308,12 @@ cmd_sync() {
   (sync link) && log "sync" "ok"
 }
 
-cmd_unlink() {
-  (sync unlink) && log "unlink" "ok"
-}
-
 cmd_status() {
   (sync status) && log "status" "ok"
 }
 
 cmd_uninstall() {
-  log "uninstall" "Removing dotfiles"
-  cmd_unlink
+  (sync unlink) && log "unlink" "ok"
 }
 
 cmd_update() {
@@ -323,7 +321,7 @@ cmd_update() {
   QUIET=1
 
   # Unlink files before updating in case of structure changes
-  cmd_unlink || abort "failed to unlink files before update"
+  cmd_uninstall || abort "failed to unlink files before update"
 
   # Update the repository
   log "git" "Updating dotfiles repository"
