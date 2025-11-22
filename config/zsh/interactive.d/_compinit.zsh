@@ -3,8 +3,8 @@
 # =====================================
 
 # Add XDG completions directory
-if [[ -d ${XDG_DATA_HOME}/zsh/completions ]]; then
-  fpath=("${XDG_DATA_HOME}"/zsh/completions $fpath)
+if [[ -d ${XDG_STATE_HOME}/zsh/completions ]]; then
+  fpath=("${XDG_STATE_HOME}"/zsh/completions $fpath)
 fi
 
 # Enable advanced tab completion
@@ -33,7 +33,3 @@ zstyle ':completion:*' file-list all
 
 # Fuzzy matching for completion
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-
-# Enable bash compatibility
-# autoload -Uz bashcompinit
-# bashcompinit

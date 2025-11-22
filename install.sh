@@ -23,7 +23,10 @@ if [ ! -d "${DOTFILES_HOME}" ]; then
 fi
 
 # Init dotfiles
-[ -x "${DOTFILES_HOME}/bin/dotfiles" ] && "${DOTFILES_HOME}/bin/dotfiles" init
+if [ -x "${DOTFILES_HOME}/bin/dotfiles" ]; then
+  "${DOTFILES_HOME}/bin/dotfiles" init
+  "${DOTFILES_HOME}/bin/dotfiles" sync
+fi
 
 echo "dotfiles installated"
 echo "Reload your session to apply configuration"

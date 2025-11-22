@@ -10,8 +10,8 @@ FORCE=0
 FORCE_ALL=0
 QUIET=0
 
-SCRIPT_DIR=$(dirname $(realpath "$0"))
-DOTFILES_HOME=$(dirname ${SCRIPT_DIR})
+DOTFILES_HOME=$(realpath $(dirname $(realpath "$0"))/..)
+DOTFILES_SCRIPTS_DIR="${DOTFILES_HOME}/scripts"
 
 # ANSI strings
 if [[ -t 1 ]]; then
@@ -19,32 +19,32 @@ if [[ -t 1 ]]; then
 else
   tty_escape() { :; }
 fi
+tty_reset="$(tty_escape 0)"
 tty_mkbold() { tty_escape "1;$1"; }
 tty_underline="$(tty_escape "4;39")"
 tty_blue="$(tty_mkbold 34)"
 tty_red="$(tty_mkbold 31)"
 tty_bold="$(tty_mkbold 39)"
-tty_reset="$(tty_escape 0)"
 
 log() {
   case $# in
-    0) printf "\n" ;;
-    1) printf "%s\n" "$1" ;;
-    *)
-      label="$1"
-      shift
-      printf "${tty_bold}%s${tty_reset} " "${label}"
-      message="$1"
-      shift
-      printf "%s\n" "$message"
+  0) printf "\n" ;;
+  1) printf "%s\n" "$1" ;;
+  *)
+    label="$1"
+    shift
+    printf "${tty_bold}%s${tty_reset} " "${label}"
+    message="$1"
+    shift
+    printf "%s\n" "$message"
 
-      if [ "$VERBOSE" -eq 1 ]; then
-        for arg; do
-          [ -n "$arg" ] || continue
-          printf "\t\t%s\n" "$arg"
-        done
-      fi
-      ;;
+    if [ "$VERBOSE" -eq 1 ]; then
+      for arg; do
+        [ -n "$arg" ] || continue
+        printf "\t\t%s\n" "$arg"
+      done
+    fi
+    ;;
   esac
 }
 
@@ -124,6 +124,36 @@ prompt() {
   return 1
 }
 
+platform_id() {
+  case "$(uname -s)" in
+  Darwin)
+    echo "macos"
+    ;;
+  Linux)
+    if [ -f /etc/os-release ]; then
+      . /etc/os-release
+      echo "${ID}"
+    else
+      echo "linux-unknown"
+    fi
+    ;;
+  *)
+    echo "unknown"
+    ;;
+  esac
+}
+
+run_script() {
+  script_name="$1"
+  shift
+  script_path="${DOTFILES_SCRIPTS_DIR}/host/${script_name}.sh"
+
+  [ -f "$script_path" ] || abort "script not found: $script_name"
+
+  vlog "script" "running $script_name"
+  ensure sh "$script_path" "$@"
+}
+
 sync() {
   # Action to apply for each file
   # Actions: link | unlink | status
@@ -148,14 +178,14 @@ sync() {
     label="$1"
     shift
     case "$label" in
-      link | unlink | ok)
-        [ "$QUIET" -ne 1 ] && log "$label" "$@"
-        return 0
-        ;;
-      *)
-        [ "$QUIET" -ne 1 ] && warn "$label" "$@"
-        return 1
-        ;;
+    link | unlink | ok)
+      [ "$QUIET" -ne 1 ] && log "$label" "$@"
+      return 0
+      ;;
+    *)
+      [ "$QUIET" -ne 1 ] && warn "$label" "$@"
+      return 1
+      ;;
     esac
   }
 
@@ -259,32 +289,32 @@ sync() {
 # ------------------------------
 
 cmd_init() {
-  zshenv="$HOME/.zshenv"
-
-  # Check if already initialized
-  if [ -f "${zshenv}" ] && grep -qE "eval \"\\\$\(.*/dotfiles env\)\"" "${zshenv}"; then
-    log "init" "zsh already initialized"
-    return 0
-  fi
-
   # Create XDG directories
+  : "${XDG_BIN_HOME:=$HOME/.local/bin}"
   : "${XDG_CONFIG_HOME:=$HOME/.config}"
   : "${XDG_DATA_HOME:=$HOME/.local/share}"
   : "${XDG_STATE_HOME:=$HOME/.local/state}"
   : "${XDG_CACHE_HOME:=$HOME/.cache}"
-  : "${XDG_BIN_HOME:=$HOME/.local/bin}"
 
-  mkdir -p "$XDG_CONFIG_HOME" \
-           "$XDG_DATA_HOME"   \
-           "$XDG_STATE_HOME"  \
-           "$XDG_CACHE_HOME"  \
-           "$XDG_BIN_HOME"
+  for dir in "$XDG_BIN_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"; do
+    vlog "xdg" "ensuring $dir exists"
+    [ -d "$dir" ] || mkdir -p "$dir"
+  done
 
-  # Append bootstrap lines
-  cat >>"${zshenv}" <<EOF
+  # Check if zsh initialized
+  zshenv="$HOME/.zshenv"
+  if [ ! -f "${zshenv}" ] || ! grep -qE '"\$\(.*\/dotfiles env\)"' "${zshenv}"; then
+    # Append bootstrap lines
+    cat >>"${zshenv}" <<EOF
 # dotfiles environment
-eval "\$($SCRIPT_DIR/dotfiles env)"
+eval "\$(${DOTFILES_HOME}/bin/dotfiles env)"
 EOF
+  fi
+
+  cmd_sync
+
+  run_script $(platform_id)
+  run_script "homebrew"
 
   success "Initialized dotfiles for zsh"
 }
@@ -292,11 +322,11 @@ EOF
 cmd_env() {
   # zsh environment setup
   cat <<'EOF'
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
 export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
 export DOTFILES_HOME="${DOTFILES_HOME:-$XDG_DATA_HOME/dotfiles}"
 typeset -U path
@@ -338,19 +368,19 @@ main() {
   shift
 
   case "$cmd" in
-    env | init | sync | unlink | uninstall | status | update)
-      cmd_$cmd "$@"
-      ;;
-    help)
-      usage
-      ;;
-    *)
-      if [ -n "$cmd" ]; then
-        error "Unknown command: $cmd"
-      fi
-      usage
-      exit 1
-      ;;
+  env | init | sync | unlink | uninstall | status | update)
+    cmd_$cmd "$@"
+    ;;
+  help)
+    usage
+    ;;
+  *)
+    if [ -n "$cmd" ]; then
+      error "Unknown command: $cmd"
+    fi
+    usage
+    exit 1
+    ;;
   esac
 }
 
