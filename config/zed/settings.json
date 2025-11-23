@@ -7,12 +7,17 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "sticky_scroll": {
+    "enabled": true
+  },
+  "buffer_font_size": 13.0,
   "theme": {
     "mode": "system",
     "light": "Tokul Light",
     "dark": "Tokul Dark"
   },
   "ui_font_family": ".SystemUIFont",
+  "ui_font_size": 14.0,
   "buffer_font_family": "Berkeley Mono",
   "active_pane_modifiers": {
     "border_size": 0.5,
@@ -57,10 +62,6 @@
     "indent_guides": {
       "show": "never"
     }
-  },
-  "terminal": {
-    "line_height": "standard",
-    "font_size": 13
   },
   "journal": {
     "hour_format": "hour24"
