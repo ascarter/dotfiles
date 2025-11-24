@@ -7,6 +7,10 @@ if [[ -d ${CARGO_HOME} ]]; then
 fi
 
 # Enable shell completions for rustup and cargo
+if (( $+commands[rustup] )); then
+  source <(rustup completions zsh)
+fi
+
 if (( $+commands[rustc] )); then
   _cargo_wrapper() {
     source "$(rustc --print sysroot)"/share/zsh/site-functions/_cargo
