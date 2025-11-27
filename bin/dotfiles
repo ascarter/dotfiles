@@ -315,6 +315,7 @@ EOF
 
   run_script $(platform_id)
   run_script "homebrew"
+  run_script "gitconfig"
 
   success "Initialized dotfiles for zsh"
 }
