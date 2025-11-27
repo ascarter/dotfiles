@@ -63,12 +63,13 @@ configure_user() {
 
 # Configure git credential managers
 configure_credentials() {
-  # Clear default credential helper
-  gc_clear credential.helper
-
   # Use GitHub CLI for GitHub authentication
   if command -v gh >/dev/null 2>&1; then
     printf "Enable gh (GitHub) credential helper\n"
+    gh_urls="https://github.com https://gist.github.com"
+    for url in $gh_urls; do
+      gc_clear credential.${url}.helper
+    done
     gh auth setup-git
   fi
 
@@ -128,7 +129,9 @@ configure_signing() {
 # Configure GUI tools
 configure_tools() {
   gc_clear diff.guitool
+  gc_clear diff.tool
   gc_clear merge.guitool
+  gc_clear merge.tool
 
   # Use opendiff on macOS for gui diff/merge tools
   if command -v opendiff >/dev/null 2>&1; then
@@ -144,6 +147,11 @@ configure_tools() {
 configure_lfs() {
   if command -v git-lfs >/dev/null 2>&1; then
     printf "Enable Git LFS\n"
+    gc_clear filter.lfs.clean
+    gc_clear filter.lfs.smudge
+    gc_clear filter.lfs.required
+    gc_clear filter.lfs.process
+
     git lfs install
   fi
 }
