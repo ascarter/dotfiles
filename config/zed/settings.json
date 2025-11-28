@@ -7,6 +7,9 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "terminal": {
+    "blinking": "on"
+  },
   "sticky_scroll": {
     "enabled": true
   },
@@ -85,21 +88,18 @@
   },
   "context_servers": {
     "mcp-server-context7": {
-      "source": "extension",
       "enabled": true,
       "settings": {
         "context7_api_key": ""
       }
     },
     "container-use-mcp": {
-      "source": "extension",
       "enabled": true,
       "settings": {
         "cu_path": "container-use"
       }
     },
     "homebrew-mcp-server": {
-      "source": "custom",
       "enabled": true,
       "command": "/opt/homebrew/bin/brew",
       "args": ["mcp-server"],

@@ -13,6 +13,8 @@ set scrolloff=10
 set mouse=a
 set breakindent
 
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+
 " Filetypes
 filetype on
 filetype plugin indent on
