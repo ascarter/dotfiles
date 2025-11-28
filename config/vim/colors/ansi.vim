@@ -43,7 +43,7 @@ hi StatusLine   ctermfg=NONE   ctermbg=NONE   cterm=bold
 hi StatusLineNC ctermfg=8 cterm=NONE
 
 " Modes
-hi ModeInsert ctermfg=0  ctermbg=11 cterm=bold
+hi ModeInsert ctermfg=0  ctermbg=3 cterm=bold
 hi ModeVisual ctermfg=15 ctermbg=4 cterm=bold
 
 " Popup menus
@@ -53,18 +53,14 @@ hi PmenuSbar  ctermfg=4    ctermbg=8
 hi PmenuThumb ctermfg=NONE ctermbg=7
 
 " Visual selection
-if &background ==# 'dark'
-  hi Visual ctermfg=15 ctermbg=12 cterm=NONE
-else
-  hi Visual ctermfg=0 ctermbg=12 cterm=NONE
-endif
+hi Visual ctermfg=4 ctermbg=NONE cterm=reverse
 
 " Incremental search / highlight
 hi Search ctermfg=11 ctermbg=NONE cterm=reverse
 hi IncSearch ctermfg=11 ctermbg=NONE cterm=reverse
 
 " Bracket match (cursor.match)
-hi MatchParen ctermfg=11 ctermbg=NONE cterm=bold,reverse
+hi MatchParen ctermfg=3 ctermbg=NONE cterm=bold,reverse
 
 " Gutter/sign column
 hi SignColumn ctermfg=7 ctermbg=NONE

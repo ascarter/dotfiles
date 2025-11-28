@@ -22,15 +22,15 @@
 show_colors() {
   emulate -L zsh
 
-  local name
-  local -a color_names=(
-    black red green yellow blue magenta cyan white
-    brightblack brightred brightgreen brightyellow
-    brightblue brightmagenta brightcyan brightwhite
-  )
+  local -a color_names=(black red green yellow blue magenta cyan white)
 
-  local i
-  for ((i = 0; i <= 15; i++)); do
-    printf '%2d %-14s \e[38;5;%dm████████\e[0m\n' "$i" "$color_names[i+1]" "$i"
+  printf "%-14s %-6s %-6s\n" "Color" "Normal" "Bright"
+  for i in {0..7}; do
+    printf "%2d %-12s" "$i" "${color_names[i+1]}"
+    printf "\e[4%dm      \e[0m " "$i"   # background 40–47
+    # printf "\e[3%dm██████\e[0m " "$i"  # foreground 30–37
+    printf "\e[10%dm      \e[0m" "$i"  # bright bg 100–107
+    # printf "\e[9%dm██████\e[0m\n" "$i"  # bright fg 90–97
+    printf "\n"
   done
 }

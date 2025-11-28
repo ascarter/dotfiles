@@ -11,7 +11,7 @@
 # UI
 # -------------------
 
-"ui.cursor" = { fg = "default", bg = "light-blue" }
+"ui.cursor" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 "ui.cursor.insert" = { fg = "default", bg = "default", modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "default", bg = "yellow", modifiers = ["bold"] }
 "ui.cursor.select" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
@@ -32,12 +32,12 @@
 "ui.statusline.separator" = { modifiers = ["dim"] }
 "ui.statusline.inactive" = { bg = "default", modifiers = ["dim"] }
 "ui.statusline.normal" = { modifiers = ["bold"] }
-"ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
+"ui.statusline.insert" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
 
-"ui.selection" = { fg = "default", bg = "light-blue" }
+"ui.selection" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
 
-"ui.menu.selected" = { fg = "default", bg = "blue", modifiers = ["bold"] }
+"ui.menu.selected" = { fg = "blue", bg = "default", modifiers = ["bold","reversed"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
 
 "ui.highlight" = { fg = "yellow", bg = "light-blue", modifiers = ["italic"] }
