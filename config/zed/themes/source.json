@@ -13,34 +13,34 @@
         "editor.gutter.background": "#FFFFFFFF",
         "editor.gutter.foreground": "#6E6E73FF",
         "editor.active_line_number": "#1C1C1EFF",
-        "editor.active_line.background": "#6F82B320",
-        "editor.line_number": "#C7C7CCFF",
+        "editor.active_line.background": "#8FA7E820",
+        "editor.line_number": "#8E8E93FF",
         "editor.document_highlight.bracket_background": "#FF8F1FA6",
         "search.match_background": "#FF8F1FFF",
         "text": "#1C1C1EFF",
-        "text.accent": "#B45309FF",
+        "text.accent": "#FF8F1FFF",
         "text.disabled": "#C7C7CCFF",
         "text.muted": "#6E6E73FF",
-        "created": "#6F82B3FF",
+        "created": "#8FA7E8FF",
         "deleted": "#D70015FF",
         "error": "#D70015FF",
         "hidden": "#C7C7CCFF",
         "modified": "#FF8F1FFF",
         "warning": "#FF8F1FFF",
-        "version_control.added": "#1C2B5AFF",
-        "version_control.modified": "#B45309FF",
+        "version_control.added": "#2F4A8FFF",
+        "version_control.modified": "#FF8F1FFF",
         "version_control.deleted": "#6E6E73FF",
-        "version_control.conflict_marker.ours": "#1C2B5AFF",
+        "version_control.conflict_marker.ours": "#2F4A8FFF",
         "version_control.conflict_marker.theirs": "#FF8F1FFF",
         "vim.mode.text": "#1C1C1EFF",
         "vim.normal.background": "#C7C7CCA6",
-        "vim.insert.background": "#FF8F1FFF",
-        "vim.visual.background": "#6F82B340",
-        "vim.replace.background": "#FF8F1FFF",
-        "vim.visual_line.background": "#6F82B340",
-        "vim.visual_block.background": "#6F82B340",
+        "vim.insert.background": "#FFB766FF",
+        "vim.visual.background": "#8FA7E840",
+        "vim.replace.background": "#FFB766FF",
+        "vim.visual_line.background": "#8FA7E840",
+        "vim.visual_block.background": "#8FA7E840",
         "vim.helix_normal.background": "#C7C7CCA6",
-        "vim.helix_select.background": "#6F82B340",
+        "vim.helix_select.background": "#8FA7E840",
         "syntax": {
           "comment": {
             "color": "#6E6E73FF",
@@ -56,16 +56,15 @@
             "font_weight": 700
           },
           "function": {
-            "color": "#1C2B5AFF"
+            "font_weight": 600
           },
           "link_text": {
-            "color": "#1C2B5AA6"
+            "color": "#2F4A8FA6"
           },
           "link_uri": {
-            "color": "#1C2B5AFF"
+            "color": "#2F4A8FFF"
           },
           "namespace": {
-            "color": "#1C2B5AFF",
             "font_weight": 600
           },
           "preproc": {
@@ -76,19 +75,16 @@
             "font_weight": 600
           },
           "string": {
-            "color": "#1C2B5AFF",
-            "font_style": "italic"
+            "color": "#8E8E93FF"
           },
           "string.regex": {
-            "font_style": "italic",
             "font_weight": 600
           },
           "string.special": {
-            "font_style": "italic",
             "font_weight": 600
           },
           "tag": {
-            "color": "#1C2B5AFF",
+            "color": "#2F4A8FFF",
             "font_weight": 600
           },
           "text.literal": {
@@ -100,8 +96,8 @@
         },
         "players": [
           {
-            "cursor": "#1C2B5AFF",
-            "selection": "#6F82B340"
+            "cursor": "#2F4A8FFF",
+            "selection": "#8FA7E840"
           }
         ]
       }
@@ -116,35 +112,35 @@
         "editor.gutter.background": "#1C1C1EFF",
         "editor.gutter.foreground": "#8E8E93FF",
         "editor.active_line_number": "#F2F2F7FF",
-        "editor.active_line.background": "#5C74B840",
-        "editor.line_number": "#3A3A3CFF",
+        "editor.active_line.background": "#A9B9E840",
+        "editor.line_number": "#A1A1A6FF",
         "editor.document_highlight.bracket_background": "#FFC36A40",
         "search.match_background": "#FF9F1CFF",
         "text": "#F2F2F7FF",
         "text.accent": "#FF9F1CFF",
-        "text.disabled": "#3A3A3CFF",
+        "text.disabled": "#2C2C2EFF",
         "text.muted": "#8E8E93FF",
-        "created": "#8FA7E8FF",
+        "created": "#6C86C3FF",
         "deleted": "#FF453AFF",
         "error": "#FF453AFF",
-        "hidden": "#3A3A3CFF",
+        "hidden": "#2C2C2EFF",
         "modified": "#FF9F1CFF",
         "warning": "#C2410CFF",
         "warning.background": "#C2410CFF",
-        "version_control.added": "#8FA7E8FF",
+        "version_control.added": "#6C86C3FF",
         "version_control.modified": "#FF9F1CFF",
         "version_control.deleted": "#8E8E93FF",
-        "version_control.conflict_marker.ours": "#8FA7E8FF",
+        "version_control.conflict_marker.ours": "#6C86C3FF",
         "version_control.conflict_marker.theirs": "#FF9F1CFF",
         "vim.mode.text": "#F2F2F7FF",
-        "vim.normal.background": "#3A3A3CFF",
-        "vim.insert.background": "#C2410CFF",
-        "vim.visual.background": "#5C74B8A6",
-        "vim.replace.background": "#C2410CFF",
-        "vim.visual_line.background": "#5C74B8A6",
-        "vim.visual_block.background": "#5C74B8A6",
-        "vim.helix_normal.background": "#3A3A3CFF",
-        "vim.helix_select.background": "#5C74B8A6",
+        "vim.normal.background": "#2C2C2EA6",
+        "vim.insert.background": "#FFC36AA6",
+        "vim.visual.background": "#A9B9E8A6",
+        "vim.replace.background": "#FFC36AA6",
+        "vim.visual_line.background": "#A9B9E8A6",
+        "vim.visual_block.background": "#A9B9E8A6",
+        "vim.helix_normal.background": "#2C2C2EA6",
+        "vim.helix_select.background": "#A9B9E8A6",
         "syntax": {
           "comment": {
             "color": "#8E8E93FF",
@@ -160,16 +156,15 @@
             "font_weight": 700
           },
           "function": {
-            "color": "#8FA7E8FF"
+            "font_weight": 600
           },
           "link_text": {
-            "color": "#5C74B8A6"
+            "color": "#A9B9E8A6"
           },
           "link_uri": {
-            "color": "#5C74B8FF"
+            "color": "#A9B9E8FF"
           },
           "namespace": {
-            "color": "#8FA7E8FF",
             "font_weight": 600
           },
           "preproc": {
@@ -180,19 +175,16 @@
             "font_weight": 600
           },
           "string": {
-            "color": "#8FA7E8FF",
-            "font_style": "italic"
+            "color": "#A1A1A6"
           },
           "string.regex": {
-            "font_style": "italic",
             "font_weight": 600
           },
           "string.special": {
-            "font_style": "italic",
             "font_weight": 600
           },
           "tag": {
-            "color": "#8FA7E8FF",
+            "color": "#6C86C3FF",
             "font_weight": 600
           },
           "text.literal": {
@@ -204,8 +196,8 @@
         },
         "players": [
           {
-            "cursor": "#8FA7E8FF",
-            "selection": "#5C74B8A6"
+            "cursor": "#6C86C3FF",
+            "selection": "#A9B9E8A6"
           }
         ]
       }

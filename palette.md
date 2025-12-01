@@ -39,15 +39,16 @@ This palette intentionally avoids rainbow syntax highlighting and instead provid
 | Background | White | #FFFFFF |
 | Foreground | Black | #1C1C1E |
 | Comment    | Gray  | #6E6E73 |
+| Subtle     | Gray  | #8E8E93 |
 | UI         | Gray  | #C7C7CC |
 
 ## Light Mode – Navy
 
 | Name      | Color   | Value   |
 | --------- | ------- | ------- |
-| Main      | Navy    | #1C2B5A |
-| Secondary | Navy    | #6F82B3 |
-| Base      | Navy    | #101C3A |
+| Base      | Ink     | #1B2340 |
+| Main      | Navy    | #2F4A8F |
+| Secondary | Sky     | #8FA7E8 |
 
 ## Light Mode – Accent
 
@@ -67,15 +68,16 @@ This palette intentionally avoids rainbow syntax highlighting and instead provid
 | Background | Black | #1C1C1E |
 | Foreground | White | #F2F2F7 |
 | Comment    | Gray  | #8E8E93 |
-| UI         | Gray  | #3A3A3C |
+| Subtle     | Gray  | #A1A1A6 |
+| UI         | Gray  | #2C2C2E |
 
 ## Dark Mode – Navy
 
 | Name      | Color     | Value   |
 | --------- | --------- | ------- |
-| Main      | Navy      | #8FA7E8 |
-| Secondary | Navy Soft | #5C74B8 |
-| Base      | Navy      | #334789 |
+| Base      | Ink       | #3D4F86 |
+| Main      | Navy      | #6C86C3 |
+| Secondary | Sky       | #A9B9E8 |
 
 ## Dark Mode – Accent
 
@@ -135,7 +137,7 @@ Rules:
 | 1    | red     | #D70015 | Error          |
 | 2    | green   | #3E6F6B | Muted success  |
 | 3    | yellow  | #FFB766 | Warm cue       |
-| 4    | blue    | #1C2B5A | Navy           |
+| 4    | blue    | #2F4A8F | Navy           |
 | 5    | magenta | #6E4B8B | Reserved       |
 | 6    | cyan    | #3D6970 | Teal           |
 | 7    | white   | #C7C7CC | UI gray        |
@@ -148,7 +150,7 @@ Rules:
 | 9    | bright_red     | #FF453A |
 | 10   | bright_green   | #5F8F8C |
 | 11   | bright_yellow  | #FF8F1F |
-| 12   | bright_blue    | #6F82B3 |
+| 12   | bright_blue    | #8FA7E8 |
 | 13   | bright_magenta | #8B6FB1 |
 | 14   | bright_cyan    | #6FA1A7 |
 | 15   | bright_white   | #FFFFFF |
@@ -156,7 +158,7 @@ Rules:
 Defaults:
 foreground: #1C1C1E
 background: #FFFFFF
-cursor: #101C3A
+cursor: #1B2340
 
 ---
 
@@ -170,7 +172,7 @@ cursor: #101C3A
 | 1    | red     | #FF453A | Error         |
 | 2    | green   | #67B7A4 | Muted success |
 | 3    | yellow  | #FFC36A | Warm cue      |
-| 4    | blue    | #8FA7E8 | Navy          |
+| 4    | blue    | #6C86C3 | Navy          |
 | 5    | magenta | #B58CC9 | Reserved      |
 | 6    | cyan    | #6FA1A7 | Teal          |
 | 7    | white   | #8E8E93 | Comment gray  |
@@ -179,11 +181,11 @@ cursor: #101C3A
 
 | Slot | Name           | Hex     |
 | ---- | -------------- | ------- |
-| 8    | bright_black   | #3A3A3C |
+| 8    | bright_black   | #2C2C2E |
 | 9    | bright_red     | #FF6A5E |
 | 10   | bright_green   | #8AD4C2 |
 | 11   | bright_yellow  | #FF9F1C |
-| 12   | bright_blue    | #8EA2D6 |
+| 12   | bright_blue    | #A9B9E8 |
 | 13   | bright_magenta | #D1A8E6 |
 | 14   | bright_cyan    | #9BC7CC |
 | 15   | bright_white   | #F2F2F7 |
@@ -191,7 +193,7 @@ cursor: #101C3A
 Defaults:
 foreground: #F2F2F7
 background: #1C1C1E
-cursor: #334789
+cursor: #3D4F86
 
 ---
 

@@ -35,7 +35,7 @@
 "ui.statusline.insert" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "light-blue", modifiers = ["bold"] }
 
-"ui.selection" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
+"ui.selection" = { fg = "default", bg = "light-blue" }
 
 "ui.menu.selected" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
