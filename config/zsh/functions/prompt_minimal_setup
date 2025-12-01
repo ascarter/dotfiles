@@ -37,7 +37,7 @@ prompt_minimal_setup() {
   fi
 
   # Working directory
-  PROMPT='%F{cyan}%B%2~%b%f'
+  PROMPT='%F{blue}%B%2~%b%f'
 
   # Optional git branch info
   if (( $#opt_git )); then
@@ -47,7 +47,7 @@ prompt_minimal_setup() {
     zstyle ':vcs_info:git:*' formats '%b'
     zstyle ':vcs_info:git*:*' actionformats '%b|%a'
     zstyle ':vcs_info:*' check-for-changes false
-    PROMPT+='%F{cyan}${vcs_info_msg_0_:+ $vcs_info_msg_0_}%f'
+    PROMPT+='%F{yellow}${vcs_info_msg_0_:+ $vcs_info_msg_0_}%f'
   fi
 
   # Prompt symbol

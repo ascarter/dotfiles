@@ -1,0 +1,214 @@
+{
+  "$schema": "https://zed.dev/schema/themes/v0.2.0.json",
+  "name": "Source",
+  "author": "Andrew Carter <ascarter@icloud.com>",
+  "themes": [
+    {
+      "name": "Source Light",
+      "appearance": "light",
+      "style": {
+        "background": "#FFFFFF",
+        "editor.background": "#FFFFFFFF",
+        "editor.foreground": "#1C1C1EFF",
+        "editor.gutter.background": "#FFFFFFFF",
+        "editor.gutter.foreground": "#6E6E73FF",
+        "editor.active_line_number": "#1C1C1EFF",
+        "editor.active_line.background": "#6F82B320",
+        "editor.line_number": "#C7C7CCFF",
+        "editor.document_highlight.bracket_background": "#FF8F1FA6",
+        "search.match_background": "#FF8F1FFF",
+        "text": "#1C1C1EFF",
+        "text.accent": "#B45309FF",
+        "text.disabled": "#C7C7CCFF",
+        "text.muted": "#6E6E73FF",
+        "created": "#6F82B3FF",
+        "deleted": "#D70015FF",
+        "error": "#D70015FF",
+        "hidden": "#C7C7CCFF",
+        "modified": "#FF8F1FFF",
+        "warning": "#FF8F1FFF",
+        "version_control.added": "#1C2B5AFF",
+        "version_control.modified": "#B45309FF",
+        "version_control.deleted": "#6E6E73FF",
+        "version_control.conflict_marker.ours": "#1C2B5AFF",
+        "version_control.conflict_marker.theirs": "#FF8F1FFF",
+        "vim.mode.text": "#1C1C1EFF",
+        "vim.normal.background": "#C7C7CCA6",
+        "vim.insert.background": "#FF8F1FFF",
+        "vim.visual.background": "#6F82B340",
+        "vim.replace.background": "#FF8F1FFF",
+        "vim.visual_line.background": "#6F82B340",
+        "vim.visual_block.background": "#6F82B340",
+        "vim.helix_normal.background": "#C7C7CCA6",
+        "vim.helix_select.background": "#6F82B340",
+        "syntax": {
+          "comment": {
+            "color": "#6E6E73FF",
+            "font_style": "italic"
+          },
+          "constant": {
+            "font_style": "italic"
+          },
+          "emphasis": {
+            "font_weight": 400
+          },
+          "emphasis.strong": {
+            "font_weight": 700
+          },
+          "function": {
+            "color": "#1C2B5AFF"
+          },
+          "link_text": {
+            "color": "#1C2B5AA6"
+          },
+          "link_uri": {
+            "color": "#1C2B5AFF"
+          },
+          "namespace": {
+            "color": "#1C2B5AFF",
+            "font_weight": 600
+          },
+          "preproc": {
+            "color": "#6E6E73FF",
+            "font_style": "italic"
+          },
+          "punctuation.list_marker": {
+            "font_weight": 600
+          },
+          "string": {
+            "color": "#1C2B5AFF",
+            "font_style": "italic"
+          },
+          "string.regex": {
+            "font_style": "italic",
+            "font_weight": 600
+          },
+          "string.special": {
+            "font_style": "italic",
+            "font_weight": 600
+          },
+          "tag": {
+            "color": "#1C2B5AFF",
+            "font_weight": 600
+          },
+          "text.literal": {
+            "font_style": "italic"
+          },
+          "title": {
+            "font_weight": 600
+          }
+        },
+        "players": [
+          {
+            "cursor": "#1C2B5AFF",
+            "selection": "#6F82B340"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Source Dark",
+      "appearance": "dark",
+      "style": {
+        "background": "#1C1C1E",
+        "editor.background": "#1C1C1EFF",
+        "editor.foreground": "#F2F2F7FF",
+        "editor.gutter.background": "#1C1C1EFF",
+        "editor.gutter.foreground": "#8E8E93FF",
+        "editor.active_line_number": "#F2F2F7FF",
+        "editor.active_line.background": "#5C74B840",
+        "editor.line_number": "#3A3A3CFF",
+        "editor.document_highlight.bracket_background": "#FFC36A40",
+        "search.match_background": "#FF9F1CFF",
+        "text": "#F2F2F7FF",
+        "text.accent": "#FF9F1CFF",
+        "text.disabled": "#3A3A3CFF",
+        "text.muted": "#8E8E93FF",
+        "created": "#8FA7E8FF",
+        "deleted": "#FF453AFF",
+        "error": "#FF453AFF",
+        "hidden": "#3A3A3CFF",
+        "modified": "#FF9F1CFF",
+        "warning": "#C2410CFF",
+        "warning.background": "#C2410CFF",
+        "version_control.added": "#8FA7E8FF",
+        "version_control.modified": "#FF9F1CFF",
+        "version_control.deleted": "#8E8E93FF",
+        "version_control.conflict_marker.ours": "#8FA7E8FF",
+        "version_control.conflict_marker.theirs": "#FF9F1CFF",
+        "vim.mode.text": "#F2F2F7FF",
+        "vim.normal.background": "#3A3A3CFF",
+        "vim.insert.background": "#C2410CFF",
+        "vim.visual.background": "#5C74B8A6",
+        "vim.replace.background": "#C2410CFF",
+        "vim.visual_line.background": "#5C74B8A6",
+        "vim.visual_block.background": "#5C74B8A6",
+        "vim.helix_normal.background": "#3A3A3CFF",
+        "vim.helix_select.background": "#5C74B8A6",
+        "syntax": {
+          "comment": {
+            "color": "#8E8E93FF",
+            "font_style": "italic"
+          },
+          "constant": {
+            "font_style": "italic"
+          },
+          "emphasis": {
+            "font_weight": 400
+          },
+          "emphasis.strong": {
+            "font_weight": 700
+          },
+          "function": {
+            "color": "#8FA7E8FF"
+          },
+          "link_text": {
+            "color": "#5C74B8A6"
+          },
+          "link_uri": {
+            "color": "#5C74B8FF"
+          },
+          "namespace": {
+            "color": "#8FA7E8FF",
+            "font_weight": 600
+          },
+          "preproc": {
+            "color": "#8E8E93FF",
+            "font_style": "italic"
+          },
+          "punctuation.list_marker": {
+            "font_weight": 600
+          },
+          "string": {
+            "color": "#8FA7E8FF",
+            "font_style": "italic"
+          },
+          "string.regex": {
+            "font_style": "italic",
+            "font_weight": 600
+          },
+          "string.special": {
+            "font_style": "italic",
+            "font_weight": 600
+          },
+          "tag": {
+            "color": "#8FA7E8FF",
+            "font_weight": 600
+          },
+          "text.literal": {
+            "font_style": "italic"
+          },
+          "title": {
+            "font_weight": 600
+          }
+        },
+        "players": [
+          {
+            "cursor": "#8FA7E8FF",
+            "selection": "#5C74B8A6"
+          }
+        ]
+      }
+    }
+  ]
+}

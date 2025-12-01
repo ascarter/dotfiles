@@ -2,8 +2,3 @@
 
 # Ignore test install directory
 .testuser/
-
-# zed
-/config/zed/conversations/
-/config/zed/prompts/
-/config/zed/settings_backup.json

@@ -11,7 +11,7 @@
 # UI
 # -------------------
 
-"ui.cursor" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
+"ui.cursor" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
 "ui.cursor.insert" = { fg = "default", bg = "default", modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "default", bg = "yellow", modifiers = ["bold"] }
 "ui.cursor.select" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
@@ -33,11 +33,11 @@
 "ui.statusline.inactive" = { bg = "default", modifiers = ["dim"] }
 "ui.statusline.normal" = { modifiers = ["bold"] }
 "ui.statusline.insert" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
-"ui.statusline.select" = { fg = "white", bg = "blue", modifiers = ["bold"] }
+"ui.statusline.select" = { fg = "white", bg = "light-blue", modifiers = ["bold"] }
 
-"ui.selection" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
+"ui.selection" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 
-"ui.menu.selected" = { fg = "blue", bg = "default", modifiers = ["bold","reversed"] }
+"ui.menu.selected" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
 
 "ui.highlight" = { fg = "yellow", bg = "light-blue", modifiers = ["italic"] }
@@ -55,12 +55,12 @@
 
 warning = "yellow"
 error = "red"
-info = "default"
-hint = "cyan"
+info = "blue"
+hint = "gray"
 
 "diagnostic" = { underline = { color = "red", style = "curl" } }
 "diagnostic.hint" = { underline = { color = "gray", style = "curl" } }
-"diagnostic.info" = { underline = { color = "cyan", style = "curl" } }
+"diagnostic.info" = { underline = { color = "blue", style = "curl" } }
 "diagnostic.warning" = { underline = { color = "yellow", style = "curl" } }
 "diagnostic.error" = { underline = { color = "red", style = "curl" } }
 
@@ -69,16 +69,10 @@ hint = "cyan"
 # -------------------
 
 # Match tree-sitter scopes
-comment = { fg = "light-gray", modifiers = ["italic"] }
-constant = { fg = "yellow", modifiers = ["bold"] }
-"constant.numeric" = { fg = "yellow", modifiers = ["bold"] }
-string = { fg = "green" }
-variable = { modifiers = ["italic"] }
-function = { modifiers = ["bold"] }
-type = { fg = "cyan" }
-structure = { fg = "cyan" }
-statement = { fg = "blue" }
-keyword = { fg = "blue", modifiers = ["bold"] }
+comment = { modifiers = ["dim","italic"] }
+constant = { modifiers = ["italic"] }
+string = { modifiers = ["bold", "italic"] }
+function = { fg = "blue", modifiers = ["italic"] }
 tag = "blue"
 namespace = { modifiers = ["bold"] }
 
@@ -98,7 +92,7 @@ namespace = { modifiers = ["bold"] }
 "diff.plus" = { modifiers = ["bold"] }
 "diff.minus" = { fg = "red", modifiers = ["bold"] }
 "diff.delta" = { modifiers = ["bold", "italic"] }
-"diff.plus.gutter" = "green"
+"diff.plus.gutter" = "blue"
 "diff.minus.gutter" = "red"
 "diff.delta.gutter" = "yellow"
 

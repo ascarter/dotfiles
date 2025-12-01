@@ -7,25 +7,35 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "git_panel": {
+    "collapse_untracked_diff": true,
+    "status_style": "icon"
+  },
+  "title_bar": {
+    
+  },
+  "file_finder": {
+    "file_icons": false
+  },
+  "current_line_highlight": "gutter",
+  "buffer_line_height": "comfortable",
+  "icon_theme": "Zed (Default)",
   "terminal": {
     "blinking": "on"
   },
   "sticky_scroll": {
     "enabled": true
   },
-  "buffer_font_size": 13.0,
   "theme": {
     "mode": "system",
-    "light": "Tokul Light",
-    "dark": "Tokul Dark"
+    "light": "Source Light",
+    "dark": "Source Dark"
   },
   "ui_font_family": ".SystemUIFont",
   "ui_font_size": 14.0,
   "buffer_font_family": "Berkeley Mono",
-  "active_pane_modifiers": {
-    "border_size": 0.5,
-    "inactive_opacity": 0.7
-  },
+  "buffer_font_size": 13.0,
+  "active_pane_modifiers": { "border_size": 0.5, "inactive_opacity": 0.7 },
   "show_completions_on_input": false,
   "show_edit_predictions": true,
   "edit_predictions": {
@@ -38,8 +48,9 @@
   },
   "wrap_guides": [80],
   "tabs": {
+    "git_status": false,
     "close_position": "left",
-    "file_icons": true
+    "file_icons": false
   },
   "helix_mode": true,
   "vim": {
@@ -48,20 +59,23 @@
     "use_smartcase_find": true
   },
   "git": {
+    "hunk_style": "staged_hollow",
     "inline_blame": {
       "enabled": false
     }
   },
   "project_panel": {
+    "hide_root": true,
+    "git_status": false,
+    "file_icons": false,
+    "entry_spacing": "comfortable",
     "auto_fold_dirs": false,
-    "git_status": true,
     "indent_guides": {
       "show": "never"
     }
   },
   "outline_panel": {
     "auto_fold_dirs": false,
-    "git_status": true,
     "indent_guides": {
       "show": "never"
     }
@@ -229,7 +243,7 @@
     "Presentation": {
       "buffer_font_size": 20,
       "ui_font_size": 18,
-      "theme": "Tokul Light",
+      "theme": "Source Light",
       "redact_private_values": true
     }
   }
