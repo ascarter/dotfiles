@@ -32,7 +32,7 @@ fi
 
 autoload -Uz promptinit
 promptinit
-prompt minimal
+prompt source
 
 # =====================================
 # Options

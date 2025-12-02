@@ -217,13 +217,13 @@ Rules:
 | 4    | blue    | #6C86C3 | Navy          |
 | 5    | magenta | #B58CC9 | Reserved      |
 | 6    | cyan    | #6FA1A7 | Teal          |
-| 7    | white   | #8E8E93 | Comment gray  |
+| 7    | white   | #A1A1A6 | Comment gray  |
 
 ## Bright 16
 
 | Slot | Name           | Hex     |
 | ---- | -------------- | ------- |
-| 8    | bright_black   | #2C2C2E |
+| 8    | bright_black   | #8E8E93 |
 | 9    | bright_red     | #FF6A5E |
 | 10   | bright_green   | #8AD4C2 |
 | 11   | bright_yellow  | #FF9F1C |

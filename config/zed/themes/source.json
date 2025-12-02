@@ -7,7 +7,6 @@
       "name": "Source Light",
       "appearance": "light",
       "style": {
-        "background": "#FFFFFF",
         "editor.background": "#FFFFFFFF",
         "editor.foreground": "#1C1C1EFF",
         "editor.gutter.background": "#FFFFFFFF",
@@ -102,9 +101,6 @@
           "punctuation.list_marker": {
             "font_weight": 600
           },
-          "string": {
-            "color": "#8E8E93FF"
-          },
           "string.regex": {
             "font_weight": 600
           },
@@ -134,7 +130,6 @@
       "name": "Source Dark",
       "appearance": "dark",
       "style": {
-        "background": "#1C1C1E",
         "editor.background": "#1C1C1EFF",
         "editor.foreground": "#F2F2F7FF",
         "editor.gutter.background": "#1C1C1EFF",
@@ -149,7 +144,7 @@
         "terminal.bright_foreground": "#FFFFFFFF",
         "terminal.dim_foreground": "#3D4F86FF",
         "terminal.ansi.black": "#1C1C1EFF",
-        "terminal.ansi.bright_black": "#2C2C2EFF",
+        "terminal.ansi.bright_black": "#8E8E93FF",
         "terminal.ansi.dim_black": "#121214FF",
         "terminal.ansi.red": "#FF453AFF",
         "terminal.ansi.bright_red": "#FF6A5EFF",
@@ -169,7 +164,7 @@
         "terminal.ansi.cyan": "#6FA1A7FF",
         "terminal.ansi.bright_cyan": "#9BC7CCFF",
         "terminal.ansi.dim_cyan": "#558287FF",
-        "terminal.ansi.white": "#8E8E93FF",
+        "terminal.ansi.white": "#A1A1A6FF",
         "terminal.ansi.bright_white": "#F2F2F7FF",
         "terminal.ansi.dim_white": "#6D6D72FF",
         "text": "#F2F2F7FF",
@@ -229,9 +224,6 @@
           },
           "punctuation.list_marker": {
             "font_weight": 600
-          },
-          "string": {
-            "color": "#A1A1A6"
           },
           "string.regex": {
             "font_weight": 600
