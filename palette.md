@@ -28,6 +28,30 @@ This palette intentionally avoids rainbow syntax highlighting and instead provid
 - **Avoid color noise**
 - **macOS integrated**
 
+## Usage
+
+Base Navy
+
+✔ borders
+✔ active frame
+✔ caret
+✔ underlines
+✔ subtle UI anchors
+
+Main Navy
+
+✔ functions
+✔ namespaces
+✔ types
+✔ links
+
+Secondary Navy
+
+✔ selections (with alpha)
+✔ search
+✔ highlights
+✔ shadows
+
 ---
 
 # Core Palette
@@ -44,11 +68,11 @@ This palette intentionally avoids rainbow syntax highlighting and instead provid
 
 ## Light Mode – Navy
 
-| Name      | Color   | Value   |
-| --------- | ------- | ------- |
-| Base      | Ink     | #1B2340 |
-| Main      | Navy    | #2F4A8F |
-| Secondary | Sky     | #8FA7E8 |
+| Name      | Color | Value   |
+| --------- | ----- | ------- |
+| Base      | Ink   | #1B2340 |
+| Main      | Navy  | #2F4A8F |
+| Secondary | Sky   | #8FA7E8 |
 
 ## Light Mode – Accent
 
@@ -73,11 +97,11 @@ This palette intentionally avoids rainbow syntax highlighting and instead provid
 
 ## Dark Mode – Navy
 
-| Name      | Color     | Value   |
-| --------- | --------- | ------- |
-| Base      | Ink       | #3D4F86 |
-| Main      | Navy      | #6C86C3 |
-| Secondary | Sky       | #A9B9E8 |
+| Name      | Color | Value   |
+| --------- | ----- | ------- |
+| Base      | Ink   | #3D4F86 |
+| Main      | Navy  | #6C86C3 |
+| Secondary | Sky   | #A9B9E8 |
 
 ## Dark Mode – Accent
 
@@ -155,10 +179,28 @@ Rules:
 | 14   | bright_cyan    | #6FA1A7 |
 | 15   | bright_white   | #FFFFFF |
 
-Defaults:
-foreground: #1C1C1E
-background: #FFFFFF
-cursor: #1B2340
+## Dim
+
+| Name        | Hex     |
+| ----------- | ------- |
+| dim_black   | #8E8E93 |
+| dim_red     | #A11318 |
+| dim_green   | #2F5C58 |
+| dim_yellow  | #D89A51 |
+| dim_blue    | #24396C |
+| dim_magenta | #573C70 |
+| dim_cyan    | #2F5358 |
+| dim_white   | #AEB3B8 |
+
+## Defaults
+
+| Name              | Hex     |
+| ----------------- | ------- |
+| foreground        | #1C1C1E |
+| background        | #FFFFFF |
+| cursor            | #1B2340 |
+| bright_foreground | #000000 |
+| dim_foreground    | #6E6E73 |
 
 ---
 
@@ -190,10 +232,28 @@ cursor: #1B2340
 | 14   | bright_cyan    | #9BC7CC |
 | 15   | bright_white   | #F2F2F7 |
 
-Defaults:
-foreground: #F2F2F7
-background: #1C1C1E
-cursor: #3D4F86
+## Dim
+
+| Name        | Hex     |
+| ----------- | ------- |
+| dim_black   | #121214 |
+| dim_red     | #C53A33 |
+| dim_green   | #4F9383 |
+| dim_yellow  | #D2A14E |
+| dim_blue    | #536AA2 |
+| dim_magenta | #8E73A3 |
+| dim_cyan    | #558287 |
+| dim_white   | #6D6D72 |
+
+## Defaults
+
+| Name              | Hex     |
+| ----------------- | ------- |
+| foreground        | #F2F2F7 |
+| background        | #1C1C1E |
+| cursor            | #3D4F86 |
+| bright_foreground | #FFFFFF |
+| dim_foreground    | #3D4F86 |
 
 ---
 

@@ -35,7 +35,7 @@ hi CursorLine   ctermfg=NONE ctermbg=NONE cterm=NONE
 hi CursorColumn ctermfg=NONE ctermbg=NONE cterm=NONE
 
 " Line numbers
-hi CursorLineNr ctermfg=NONE  ctermbg=NONE   cterm=bold
+hi CursorLineNr ctermfg=NONE  ctermbg=NONE   cterm=bold,underline
 hi LineNr       ctermfg=7
 
 " Status line
@@ -44,23 +44,23 @@ hi StatusLineNC ctermfg=8 cterm=NONE
 
 " Modes
 hi ModeInsert ctermfg=0  ctermbg=3 cterm=bold
-hi ModeVisual ctermfg=15 ctermbg=4 cterm=bold
+hi ModeVisual ctermfg=15 ctermbg=12 cterm=bold
 
 " Popup menus
 hi Pmenu      ctermfg=NONE ctermbg=NONE cterm=NONE
-hi PmenuSel   ctermfg=15   ctermbg=4    cterm=bold
+hi PmenuSel   ctermfg=12   ctermbg=NONE cterm=bold,reverse
 hi PmenuSbar  ctermfg=4    ctermbg=8
 hi PmenuThumb ctermfg=NONE ctermbg=7
 
 " Visual selection
-hi Visual ctermfg=4 ctermbg=NONE cterm=reverse
+hi Visual ctermfg=12 ctermbg=NONE cterm=reverse
 
 " Incremental search / highlight
 hi Search ctermfg=11 ctermbg=NONE cterm=reverse
 hi IncSearch ctermfg=11 ctermbg=NONE cterm=reverse
 
 " Bracket match (cursor.match)
-hi MatchParen ctermfg=3 ctermbg=NONE cterm=bold,reverse
+hi MatchParen ctermfg=NONE ctermbg=3 cterm=bold
 
 " Gutter/sign column
 hi SignColumn ctermfg=7 ctermbg=NONE
@@ -77,27 +77,27 @@ hi ErrorMsg   ctermfg=15 ctermbg=1  cterm=bold,italic
 " SYNTAX HIGHLIGHTING
 " =====================================
 hi Boolean      ctermfg=NONE
-hi Comment      ctermfg=7    cterm=italic
+hi Comment      ctermfg=8    cterm=italic
 hi Conditional  ctermfg=NONE
-hi Constant     ctermfg=3    cterm=bold
-hi Number       ctermfg=3    cterm=bold
+hi Constant     ctermfg=NONE cterm=italic
+hi Number       ctermfg=NONE cterm=italic
 hi Exception    ctermfg=NONE
-hi Function     ctermfg=NONE cterm=bold
-hi Identifier   ctermfg=NONE cterm=italic
-hi Include      ctermfg=NONE
-hi Keyword      ctermfg=4    cterm=bold
-hi Label        ctermfg=NONE
+hi Function     ctermfg=NONE
+hi Identifier   ctermfg=NONE
+hi Include      ctermfg=NONE cterm=italic
+hi Keyword      ctermfg=NONE
+hi Label        ctermfg=4    cterm=bold
 hi Macro        ctermfg=NONE cterm=italic
 hi Operator     ctermfg=NONE
 hi PreProc      ctermfg=NONE cterm=italic
 hi Repeat       ctermfg=NONE
 hi Special      ctermfg=NONE
-hi Statement    ctermfg=4
+hi Statement    ctermfg=NONE
 hi StorageClass ctermfg=NONE
-hi String       ctermfg=2
-hi Structure    ctermfg=6    cterm=bold
-hi Tag          ctermfg=4
-hi Type         ctermfg=6
+hi String       ctermfg=NONE
+hi Structure    ctermfg=NONE cterm=bold
+hi Tag          ctermfg=4    cterm=bold
+hi Type         ctermfg=NONE
 hi Whitespace   ctermfg=8
 
 hi Error ctermfg=1 ctermbg=NONE
@@ -107,14 +107,14 @@ hi Todo  ctermfg=2 ctermbg=NONE cterm=bold,italic
 " DIFF
 " =====================================
 hi DiffAdd    ctermfg=0  ctermbg=10 cterm=bold
-hi DiffChange ctermfg=0  ctermbg=12
+hi DiffChange ctermfg=0  ctermbg=12 cterm=bold,italic
 hi DiffDelete ctermfg=15 ctermbg=9  cterm=bold
 hi DiffText   ctermfg=0  ctermbg=14 cterm=bold,italic
 
 " Gutter-only diff markers
-hi diffAdded   ctermfg=2
+hi diffAdded   ctermfg=4
 hi diffRemoved ctermfg=1
-hi diffChanged ctermfg=6
+hi diffChanged ctermfg=3
 
 " =====================================
 " DIAGNOSTICS (Neovim-only undercurl)
@@ -122,6 +122,6 @@ hi diffChanged ctermfg=6
 if has("nvim")
   hi DiagnosticUnderlineError cterm=undercurl ctermfg=1
   hi DiagnosticUnderlineWarn  cterm=undercurl ctermfg=11
-  hi DiagnosticUnderlineInfo  cterm=undercurl ctermfg=14
-  hi DiagnosticUnderlineHint  cterm=undercurl ctermfg=15
+  hi DiagnosticUnderlineInfo  cterm=undercurl ctermfg=4
+  hi DiagnosticUnderlineHint  cterm=undercurl ctermfg=8
 endif

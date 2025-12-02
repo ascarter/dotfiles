@@ -16,14 +16,16 @@
 "ui.cursor.match" = { fg = "default", bg = "yellow", modifiers = ["bold"] }
 "ui.cursor.select" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
 
-"ui.cursorline.primary" = { underline = { color = "light-gray", style = "dotted" } }
+"ui.cursorline.primary" = { underline = { color = "light-blue", style = "line" } }
 "ui.cursorcolumn.primary" = { fg = "light-gray", bg = "default", modifiers = ["reversed"] }
 
 "ui.gutter" = { bg = "default" }
 "ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
 
 "ui.linenr" = { modifiers = ["dim"] }
-"ui.linenr.selected" = { modifiers = ["bold"] }
+"ui.linenr.selected" = { underline = { color = "light-blue", style = "line" }, modifiers = ["bold"] }
+
+"ui.selection" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 
 "ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
@@ -34,8 +36,6 @@
 "ui.statusline.normal" = { modifiers = ["bold"] }
 "ui.statusline.insert" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "light-blue", modifiers = ["bold"] }
-
-"ui.selection" = { fg = "default", bg = "light-blue" }
 
 "ui.menu.selected" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 "ui.menu.scroll" = { fg = "blue", bg = "light-gray" }
@@ -71,10 +71,12 @@ hint = "gray"
 # Match tree-sitter scopes
 comment = { modifiers = ["dim","italic"] }
 constant = { modifiers = ["italic"] }
-string = { modifiers = ["bold", "italic"] }
-function = { fg = "blue", modifiers = ["italic"] }
-tag = "blue"
+"function.special" = { modifiers = ["italic"] }
+label = { fg = "blue", modifiers = ["bold"] }
 namespace = { modifiers = ["bold"] }
+"string.regexp" = { modifiers = ["bold"] }
+"string.special" = { modifiers = ["bold"] }
+tag = { fg = "blue", modifiers = ["bold"] }
 
 # markup
 "markup.heading" = { modifiers = ["bold"] }
@@ -84,8 +86,8 @@ namespace = { modifiers = ["bold"] }
 "markup.strikethrough" = { modifiers = ["dim", "crossed_out"] }
 "markup.link" = { fg = "blue", modifiers = ["underline"] }
 "markup.quote" = { modifiers = ["italic"] }
-"markup.raw.block" = { modifiers = ["italic"] }
-"markup.raw.inline" = { modifiers = ["bold"] }
+"markup.raw.block" = { modifiers = ["dim"] }
+"markup.raw.inline" = { modifiers = ["dim"] }
 
 # diff
 "diff" = "default"
