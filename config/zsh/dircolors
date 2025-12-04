@@ -9,7 +9,7 @@ DIR 1
 LINK 3
 MULTIHARDLINK 3
 
-# Disable permission-based shouting (world-writable / sticky dirs)
+# Disable permission-based highlighting
 OTHER_WRITABLE 0
 STICKY 0
 STICKY_OTHER_WRITABLE 0
