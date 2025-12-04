@@ -16,9 +16,10 @@ fi
 
 # ls - Use uutils if installed
 if (( $+commands[uls] )); then
-  alias ls='uls --group-directories-first --color=never --human-readable'
+  alias ls='uls --group-directories-first --color=auto --human-readable'
   alias lc='ls -l -a --classify=auto'
 fi
+
 alias la='ls -a -l'
 alias ll='ls -l'
 alias l.='ls -d .*'

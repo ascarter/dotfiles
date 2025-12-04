@@ -1,0 +1,23 @@
+# Base
+NORMAL 0
+FILE 0
+
+# Directories: bold
+DIR 1
+
+# Symlinks: italics
+LINK 3
+MULTIHARDLINK 3
+
+# Disable permission-based shouting (world-writable / sticky dirs)
+OTHER_WRITABLE 0
+STICKY 0
+STICKY_OTHER_WRITABLE 0
+
+# Everything else neutral
+FIFO 0
+SOCK 0
+DOOR 0
+BLK 0
+CHR 0
+EXEC 0
