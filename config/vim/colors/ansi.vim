@@ -60,7 +60,7 @@ hi Search ctermfg=11 ctermbg=NONE cterm=reverse
 hi IncSearch ctermfg=11 ctermbg=NONE cterm=reverse
 
 " Bracket match (cursor.match)
-hi MatchParen ctermfg=NONE ctermbg=3 cterm=bold
+hi MatchParen ctermfg=NONE ctermbg=12 cterm=bold
 
 " Gutter/sign column
 hi SignColumn ctermfg=7 ctermbg=NONE

@@ -9,7 +9,7 @@
 	<key>DefaultTextColor</key>
 	<string>hsla(0.667, 0.034, 0.114, 1.000)</string>
 	<key>DelimiterMatchHighlight</key>
-	<string>hsla(0.101, 0.584, 1.000, 0.800)</string>
+	<string>hsla(0.624, 0.273, 0.911, 0.701)</string>
 	<key>DifferenceHighlightColor</key>
 	<string>hsla(0.618, 0.446, 0.766, 0.500)</string>
 	<key>InsertionPointLineHighlightColor</key>
