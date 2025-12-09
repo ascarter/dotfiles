@@ -5,7 +5,7 @@
 	<key>BBEditColorSchemeName</key>
 	<string>Source Dark</string>
 	<key>BackgroundColor</key>
-	<string>hsla(0.667, 0.034, 0.114, 1.000)</string>
+	<string>hsla(0.668, 0.043, 0.180, 1.000)</string>
 	<key>DefaultTextColor</key>
 	<string>hsla(0.667, 0.238, 0.959, 1.000)</string>
 	<key>DelimiterMatchHighlight</key>

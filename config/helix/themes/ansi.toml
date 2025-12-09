@@ -11,10 +11,7 @@
 # UI
 # -------------------
 
-"ui.cursor" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
-"ui.cursor.insert" = { fg = "default", bg = "default", modifiers = ["reversed"] }
-"ui.cursor.match" = { fg = "default", bg = "light-blue", modifiers = ["bold"] }
-"ui.cursor.select" = { fg = "blue", bg = "default", modifiers = ["reversed"] }
+"ui.cursor" = { modifiers = ["reversed" ] }
 
 "ui.cursorline.primary" = { underline = { color = "light-blue", style = "line" } }
 "ui.cursorcolumn.primary" = { fg = "light-gray", bg = "default", modifiers = ["reversed"] }
@@ -23,9 +20,9 @@
 "ui.gutter.selected" = { bg = "default", modifiers = ["bold"] }
 
 "ui.linenr" = { modifiers = ["dim"] }
-"ui.linenr.selected" = { underline = { color = "light-blue", style = "line" }, modifiers = ["bold"] }
+"ui.linenr.selected" = { modifiers = ["bold"] }
 
-"ui.selection" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
+"ui.selection" = { bg = "light-blue" }
 
 "ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }

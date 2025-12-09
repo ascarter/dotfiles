@@ -35,7 +35,7 @@ hi CursorLine   ctermfg=NONE ctermbg=NONE cterm=NONE
 hi CursorColumn ctermfg=NONE ctermbg=NONE cterm=NONE
 
 " Line numbers
-hi CursorLineNr ctermfg=NONE  ctermbg=NONE   cterm=bold,underline
+hi CursorLineNr ctermfg=NONE  ctermbg=NONE   cterm=bold
 hi LineNr       ctermfg=7
 
 " Status line
@@ -53,7 +53,7 @@ hi PmenuSbar  ctermfg=4    ctermbg=8
 hi PmenuThumb ctermfg=NONE ctermbg=7
 
 " Visual selection
-hi Visual ctermfg=12 ctermbg=NONE cterm=reverse
+hi Visual ctermfg=NONE ctermbg=12 cterm=NONE
 
 " Incremental search / highlight
 hi Search ctermfg=11 ctermbg=NONE cterm=reverse
