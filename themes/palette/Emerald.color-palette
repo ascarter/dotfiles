@@ -1,0 +1,149 @@
+{
+  "colors" : [
+    {
+      "components" : [
+        0,
+        0,
+        0
+      ],
+      "name" : "Dark Base"
+    },
+    {
+      "components" : [
+        0.008,
+        0.013,
+        0.016
+      ],
+      "name" : "Dark Background"
+    },
+    {
+      "components" : [
+        0.0137,
+        0.0212,
+        0.0262
+      ],
+      "name" : "Dark Panel"
+    },
+    {
+      "components" : [
+        0.0423,
+        0.0723,
+        0.0865
+      ],
+      "name" : "Dark Card"
+    },
+    {
+      "components" : [
+        0.0802,
+        0.1301,
+        0.1529
+      ],
+      "name" : "Dark Raised"
+    },
+    {
+      "components" : [
+        0.8308,
+        0.8632,
+        0.8714
+      ],
+      "name" : "Dark Text"
+    },
+    {
+      "components" : [
+        0.402,
+        0.4621,
+        0.491
+      ],
+      "name" : "Dark Secondary"
+    },
+    {
+      "components" : [
+        1,
+        1,
+        1
+      ],
+      "name" : "Light Base"
+    },
+    {
+      "components" : [
+        0.9131,
+        0.9387,
+        0.9216
+      ],
+      "name" : "Light Background"
+    },
+    {
+      "components" : [
+        0.8308,
+        0.8796,
+        0.8469
+      ],
+      "name" : "Light Panel"
+    },
+    {
+      "components" : [
+        0.6308,
+        0.7454,
+        0.7011
+      ],
+      "name" : "Light Card"
+    },
+    {
+      "components" : [
+        0.552,
+        0.6654,
+        0.624
+      ],
+      "name" : "Light Raised"
+    },
+    {
+      "components" : [
+        0.0103,
+        0.0123,
+        0.011
+      ],
+      "name" : "Light Text"
+    },
+    {
+      "components" : [
+        0.1046,
+        0.1274,
+        0.1144
+      ],
+      "name" : "Light Secondary"
+    },
+    {
+      "components" : [
+        0.0232,
+        0.1981,
+        0.8632
+      ],
+      "name" : "Interactive"
+    },
+    {
+      "components" : [
+        0.855,
+        0.552,
+        0.063
+      ],
+      "name" : "Accent"
+    },
+    {
+      "components" : [
+        0.6724,
+        0.3763,
+        0.0437
+      ],
+      "name" : "Warning"
+    },
+    {
+      "components" : [
+        0.6795,
+        0.0887,
+        0.0887
+      ],
+      "name" : "Error"
+    }
+  ],
+  "name" : "Emerald"
+}

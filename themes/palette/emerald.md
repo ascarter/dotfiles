@@ -3,20 +3,20 @@
 | Name             | Color         | Value   |
 | ---------------- | ------------- | ------- |
 | Dark Base        | black         | #000000 |
-| Dark Background  | dark gray     | #0F0F0F |
-| Dark Surface     | dark gray     | #1A1A1A |
-| Dark Card        | dark gray     | #242424 |
-| Dark Raised      | dark gray     | #2E2E2E |
-| Dark Text        | light gray    | #F0F0F0 |
-| Dark Secondary   | gray          | #B2B2B2 |
+| Dark Background  | dark gray     | #161E22 |
+| Dark Panel       | dark gray     | #1F282D |
+| Dark Card        | dark gray     | #3A4C53 |
+| Dark Raised      | dark gray     | #50656D |
+| Dark Text        | light gray    | #EBEFF0 |
+| Dark Secondary   | gray          | #AAB5BA |
 | Light Base       | white         | #FFFFFF |
-| Light Background | light gray    | #F5F5F5 |
-| Light Surface    | light gray    | #EBEBEB |
-| Light Card       | light gray    | #E0E0E0 |
-| Light Raised     | gray          | #D1D1D1 |
-| Light Text       | dark gray     | #141414 |
-| Light Secondary  | dark gray     | #595959 |
-| Interactive      | cyan blue     | #2A72E5 |
-| Accent           | yellow orange | #E2C15A |
-| Warning          | yellow orange | #C8961A |
-| Error            | red           | #D64545 |
+| Light Background | light gray    | #F5F8F6 |
+| Light Panel      | light gray    | #EBF1ED |
+| Light Card       | light gray    | #D0E0DA |
+| Light Raised     | gray          | #B6C9C2 |
+| Light Text       | dark gray     | #1A1D1B |
+| Light Secondary  | dark gray     | #5B645F |
+| Interactive      | cyan blue     | #2A7BEF |
+| Accent           | yellow orange | #EEC447 |
+| Warning          | yellow orange | #D6A53B |
+| Error            | red           | #D75454 |
