@@ -1,0 +1,177 @@
+{
+  "$schema": "https://zed.dev/schema/themes/v0.2.0.json",
+  "name": "Emerald",
+  "author": "Andrew Carter <ascarter@icloud.com>",
+  "themes": [
+    {
+      "name": "Emerald Light",
+      "appearance": "light",
+      "style": {
+        "background": "#EBEBEB",
+        "foreground": "#141414",
+        "accent": "#E2C15A",
+        "editor.active_line_background": "#E0E0E0",
+        "editor.active_line_number": "#000000",
+        "editor.background": "#F5F5F5",
+        "editor.gutter.background": "#F5F5F5",
+        "search.match_background": "#E2C15A40",
+        "created": "#2A72E5",
+        "deleted": "#D64545",
+        "error": "#D64545",
+        "hidden": "#595959",
+        "info": "#141414",
+        "info.background": "#D1D1D1",
+        "modified": "#C8961A",
+        "warning": "#C8961A",
+        "text.accent": "#2A72E5",
+        "vim.normal.background": "#F5F5F5",
+        "vim.insert.background": "#2A72E540",
+        "vim.replace.background": "#2A72E540",
+        "vim.visual.background": "#D1D1D1",
+        "vim.helix_normal.background": "#F5F5F5",
+        "vim.helix_select.background": "#D1D1D1",
+        "syntax": {
+          "comment": {
+            "color": "#595959",
+            "font_style": "italic"
+          },
+          "constant": {
+            "font_style": "italic"
+          },
+          "emphasis": {
+            "font_weight": 400
+          },
+          "emphasis.strong": {
+            "font_weight": 700
+          },
+          "function": {
+            "font_weight": 600
+          },
+          "link_text": {
+            "color": "#2A72E5"
+          },
+          "link_uri": {
+            "color": "#2A72E5"
+          },
+          "namespace": {
+            "font_weight": 600
+          },
+          "preproc": {
+            "color": "#595959",
+            "font_style": "italic"
+          },
+          "punctuation.list_marker": {
+            "font_weight": 600
+          },
+          "string.regex": {
+            "font_weight": 600
+          },
+          "string.special": {
+            "font_weight": 600
+          },
+          "tag": {
+            "color": "#2A72E5",
+            "font_weight": 600
+          },
+          "text.literal": {
+            "font_style": "italic"
+          },
+          "title": {
+            "font_weight": 600
+          }
+        },
+        "players": [
+          {
+            "cursor": "#2A72E5",
+            "selection": "#D1D1D1A6"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Emerald Dark",
+      "appearance": "dark",
+      "style": {
+        "background": "#0F0F0F",
+        "foreground": "#F0F0F0",
+        "accent": "#E2C15A",
+        "editor.active_line_background": "#242424",
+        "editor.active_line_number": "#FFFFFF",
+        "editor.background": "#242424",
+        "editor.gutter.background": "#242424",
+        "search.match_background": "#E2C15A40",
+        "created": "#2A72E5",
+        "deleted": "#D64545",
+        "error": "#D64545",
+        "hidden": "#595959",
+        "info": "#141414",
+        "info.background": "#2E2E2E",
+        "modified": "#C8961A",
+        "warning": "#C8961A",
+        "text.accent": "#2A72E5",
+        "vim.normal.background": "#0F0F0F",
+        "vim.insert.background": "#2A72E5A6",
+        "vim.replace.background": "#2A72E5A6",
+        "vim.visual.background": "#2E2E2E",
+        "vim.helix_normal.background": "#0F0F0F",
+        "vim.helix_select.background": "#2E2E2E",
+        "syntax": {
+          "comment": {
+            "color": "#B2B2B2",
+            "font_style": "italic"
+          },
+          "constant": {
+            "font_style": "italic"
+          },
+          "emphasis": {
+            "font_weight": 400
+          },
+          "emphasis.strong": {
+            "font_weight": 700
+          },
+          "function": {
+            "font_weight": 600
+          },
+          "link_text": {
+            "color": "#2A72E5"
+          },
+          "link_uri": {
+            "color": "#2A72E5"
+          },
+          "namespace": {
+            "font_weight": 600
+          },
+          "preproc": {
+            "color": "#B2B2B2",
+            "font_style": "italic"
+          },
+          "punctuation.list_marker": {
+            "font_weight": 600
+          },
+          "string.regex": {
+            "font_weight": 600
+          },
+          "string.special": {
+            "font_weight": 600
+          },
+          "tag": {
+            "color": "#2A72E5",
+            "font_weight": 600
+          },
+          "text.literal": {
+            "font_style": "italic"
+          },
+          "title": {
+            "font_weight": 600
+          }
+        },
+        "players": [
+          {
+            "cursor": "#2A72E5",
+            "selection": "#2E2E2E"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -27,8 +27,8 @@
   },
   "theme": {
     "mode": "system",
-    "light": "Source Light",
-    "dark": "Source Dark"
+    "light": "Emerald Light",
+    "dark": "Emerald Dark"
   },
   "ui_font_family": ".SystemUIFont",
   "ui_font_size": 14.0,
