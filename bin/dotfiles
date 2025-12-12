@@ -95,6 +95,7 @@ Commands:
   uninstall   Uninstall dotfiles
   status      Show status of dotfiles
   update      Update dotfiles repository
+  edit        Edit dotfiles repository using $EDITOR
 
 Options:
   -v          Enable verbose output
@@ -303,7 +304,7 @@ cmd_init() {
 
   # Check if zsh initialized
   zshenv="$HOME/.zshenv"
-  if [ ! -f "${zshenv}" ] || ! grep -qE '"\$\(.*\/dotfiles env\)"' "${zshenv}"; then
+  if [ ! -f "${zshenv}" ] || ! grep -qE 'eval "\$\([^"]*bin/dotfiles env\)"' "${zshenv}"; then
     # Append bootstrap lines
     cat >>"${zshenv}" <<EOF
 # dotfiles environment
@@ -364,12 +365,16 @@ cmd_update() {
   success "dotfiles updated"
 }
 
+cmd_edit() {
+  "$EDITOR" "$DOTFILES_HOME"
+}
+
 main() {
   cmd="$1"
   shift
 
   case "$cmd" in
-  env | init | sync | unlink | uninstall | status | update)
+  env | init | sync | unlink | uninstall | status | update | edit)
     cmd_$cmd "$@"
     ;;
   help)

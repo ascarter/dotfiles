@@ -1,11 +1,5 @@
-if ! (( $+commands[zed] )); then
-  if (( $+commands[zed-preview] )); then
-    alias zed=zed-preview
-  fi
-fi
-
 if (( $+commands[zed] )); then
-  alias dfedit="EDITOR=zed dev edit"
+  alias dfedit="EDITOR=zed dotfiles edit"
 fi
 
 alias dfcd='cd ${DOTFILES_HOME}'

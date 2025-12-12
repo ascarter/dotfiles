@@ -28,8 +28,38 @@ prompt_source_setup() {
     typeset -g root_symbol="#"
   fi
 
-  # Initialize PROMPT variable
+  # Update terminal/tab title on each prompt render
+  function _title_ssh() {
+    if [[ -n $SSH_CONNECTION ]]; then
+      print -Pn "%n@%m:"
+    fi
+  }
+
+  function _title_preexec() {
+    local cmd="${1%% *}"
+    local rest="${1#"$cmd"}"
+    print -Pn "\e]0;"
+    _title_ssh
+    print -Pn "${cmd}${rest}\a"
+  }
+
+  function _title_precmd() {
+    print -Pn "\e]0;"
+    _title_ssh
+    print -Pn "${PWD/#$HOME/~}\a"
+  }
+
   PROMPT=
+
+  # Set up title updating
+  case "$TERM_PROGRAM" in
+    ghostty|zed)
+      ;;
+    *)
+      precmd_functions+=(_title_precmd)
+      preexec_functions+=(_title_preexec)
+      ;;
+  esac
 
   # User and host for SSH sessions
   if [[ -n $SSH_CONNECTION ]]; then
