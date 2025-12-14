@@ -22,7 +22,7 @@
 "ui.linenr" = { modifiers = ["dim"] }
 "ui.linenr.selected" = { modifiers = ["bold"] }
 
-"ui.selection" = { bg = "light-blue" }
+"ui.selection" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }
 
 "ui.debug.breakpoint" = { fg = "red", modifiers = ["bold"] }
 "ui.debug.active" = { fg = "yellow", modifiers = ["bold"] }
@@ -31,7 +31,7 @@
 "ui.statusline.separator" = { modifiers = ["dim"] }
 "ui.statusline.inactive" = { bg = "default", modifiers = ["dim"] }
 "ui.statusline.normal" = { modifiers = ["bold"] }
-"ui.statusline.insert" = { fg = "black", bg = "yellow", modifiers = ["bold"] }
+"ui.statusline.insert" = { fg = "black", bg = "light-yellow", modifiers = ["bold"] }
 "ui.statusline.select" = { fg = "white", bg = "light-blue", modifiers = ["bold"] }
 
 "ui.menu.selected" = { fg = "light-blue", bg = "default", modifiers = ["reversed"] }

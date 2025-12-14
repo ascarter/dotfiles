@@ -43,7 +43,7 @@ hi StatusLine   ctermfg=NONE   ctermbg=NONE   cterm=bold
 hi StatusLineNC ctermfg=8 cterm=NONE
 
 " Modes
-hi ModeInsert ctermfg=0  ctermbg=3 cterm=bold
+hi ModeInsert ctermfg=NONE  ctermbg=11 cterm=bold
 hi ModeVisual ctermfg=15 ctermbg=12 cterm=bold
 
 " Popup menus
@@ -53,7 +53,7 @@ hi PmenuSbar  ctermfg=4    ctermbg=8
 hi PmenuThumb ctermfg=NONE ctermbg=7
 
 " Visual selection
-hi Visual ctermfg=NONE ctermbg=12 cterm=NONE
+hi Visual ctermfg=12 ctermbg=NONE cterm=reverse
 
 " Incremental search / highlight
 hi Search ctermfg=11 ctermbg=NONE cterm=reverse

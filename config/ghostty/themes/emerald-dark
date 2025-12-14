@@ -1,0 +1,24 @@
+# Emerald Dark
+# 1.0
+background = "#212121"
+foreground = "#FFFFFF"
+cursor-color = "#FFFFFF"
+selection-background = "#005E7D"
+selection-foreground = "#FFFFFF"
+
+palette = 0=#000000
+palette = 1=#DC3127
+palette = 2=#4A8231
+palette = 3=#D58103
+palette = 4=#005E7D
+palette = 5=#6B3FA0
+palette = 6=#0B6B75
+palette = 7=#CBCBCB
+palette = 8=#494949
+palette = 9=#F05A4F
+palette = 10=#52C133
+palette = 11=#FFAC00
+palette = 12=#4294FF
+palette = 13=#8E63D6
+palette = 14=#1A8C98
+palette = 15=#FFFFFF

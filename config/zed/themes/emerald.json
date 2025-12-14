@@ -7,37 +7,74 @@
       "name": "Emerald Light",
       "appearance": "light",
       "style": {
-        "background": "#EBF1ED",
-        "foreground": "#1A1D1B",
-        "accent": "#EEC447",
-        "editor.active_line_background": "#D0E0DA",
+        "background": "#FFFFFF",
+        "foreground": "#000000",
+        "accent": "#4294FF",
+        "editor.active_line_background": "#ECECEC",
         "editor.active_line_number": "#000000",
-        "editor.background": "#F5F8F6",
-        "editor.gutter.background": "#F5F8F6",
-        "search.match_background": "#EEC44740",
-        "created": "#2A7BEF",
-        "deleted": "#D75454",
-        "error": "#D75454",
-        "hidden": "#5B645F",
-        "info": "#1A1D1B",
-        "info.background": "#B6C9C2A6",
-        "modified": "#D6A53B",
-        "warning": "#D6A53B",
-        "text.accent": "#2A7BEF",
-        "version_control.added": "#2A7BEFA6",
-        "version_control.deleted": "#B6C9C2",
-        "version_control.modified": "#EEC447A6",
-        "version_control.conflict_marker.ours": "#B6C9C2A6",
-        "version_control.conflict_marker.theirs": "#EEC447A6",
-        "vim.normal.background": "#F5F8F6",
-        "vim.insert.background": "#2A7BEF40",
-        "vim.replace.background": "#2A7BEF40",
-        "vim.visual.background": "#B6C9C2",
-        "vim.helix_normal.background": "#F5F8F6",
-        "vim.helix_select.background": "#B6C9C2",
+        "editor.background": "#FAFAFA",
+        "editor.gutter.background": "#FAFAFA",
+        "search.match_background": "#FFAC0040",
+        "terminal.background": "#FAFAFA",
+        "terminal.foreground": "#000000",
+        "terminal.ansi.black": "#000000",
+        "terminal.ansi.red": "#DC3127",
+        "terminal.ansi.green": "#4A8231",
+        "terminal.ansi.yellow": "#D58103",
+        "terminal.ansi.blue": "#005E7D",
+        "terminal.ansi.magenta": "#6B3FA0",
+        "terminal.ansi.cyan": "#0B6B75",
+        "terminal.ansi.white": "#CBCBCB",
+        "terminal.ansi.bright_black": "#494949",
+        "terminal.ansi.bright_red": "#F05A4F",
+        "terminal.ansi.bright_green": "#52C133",
+        "terminal.ansi.bright_yellow": "#FFAC00",
+        "terminal.ansi.bright_blue": "#4294FF",
+        "terminal.ansi.bright_magenta": "#8E63D6",
+        "terminal.ansi.bright_cyan": "#1A8C98",
+        "terminal.ansi.bright_white": "#FFFFFF",
+        "conflict": "#FFAC00",
+        "created": "#4294FF",
+        "deleted": "#F05A4F",
+        "error": "#F05A4F",
+        "hidden": "#636363",
+        "info": "#4294FF",
+        "info.background": "#005E7D40",
+        "modified": "#FFAC00",
+        "text": "#000000",
+        "text.accent": "#4294FF",
+        "text.disabled": "#8E8E8E",
+        "text.muted": "#494949",
+        "text.placeholder": "#8E8E8E",
+        "warning": "#FFAC00",
+        "warning.background": "#D5810340",
+        "status_bar.background": "#ECECEC",
+        "title_bar.background": "#ECECEC",
+        "tab_bar.background": "#FAFAFA",
+        "tab.inactive_background": "#CBCBCB33",
+        "version_control.added": "#4294FF",
+        "version_control.deleted": "#F05A4F",
+        "version_control.modified": "#FFAC00",
+        "version_control.conflict_marker.ours": "#FFAC00",
+        "version_control.conflict_marker.theirs": "#CBCBCB",
+        "version_control.word_added": "#FFAC0040",
+        "version_control.word_deleted": "#F05A4F40",
+        "vim.normal.background": "#ECECEC",
+        "vim.insert.background": "#FFAC00",
+        "vim.replace.background": "#FFAC00",
+        "vim.visual.background": "#4294FFA3",
+        "vim.helix_normal.background": "#ECECEC",
+        "vim.helix_select.background": "#4294FFA3",
+        "players": [
+          {
+            "cursor": "#4294FF",
+            "background": "#4294FF",
+            "selection": "#4294FF3D"
+          }
+        ],
         "syntax": {
           "comment": {
-            "color": "#5B645F",
+            "color": "#494949",
             "font_style": "italic"
           },
           "constant": {
@@ -53,16 +90,16 @@
             "font_weight": 600
           },
           "link_text": {
-            "color": "#2A7BEF"
+            "color": "#4294FF"
           },
           "link_uri": {
-            "color": "#2A7BEF"
+            "color": "#4294FF"
           },
           "namespace": {
             "font_weight": 600
           },
           "preproc": {
-            "color": "#5B645F",
+            "color": "#494949",
             "font_style": "italic"
           },
           "punctuation.list_marker": {
@@ -75,7 +112,7 @@
             "font_weight": 600
           },
           "tag": {
-            "color": "#2A7BEF",
+            "color": "#4294FF",
             "font_weight": 600
           },
           "text.literal": {
@@ -84,50 +121,81 @@
           "title": {
             "font_weight": 600
           }
-        },
-        "players": [
-          {
-            "cursor": "#2A7BEF",
-            "selection": "#B6C9C2A6"
-          }
-        ]
+        }
       }
     },
     {
       "name": "Emerald Dark",
       "appearance": "dark",
       "style": {
-        "background": "#161E22",
-        "foreground": "#EBEFF0",
-        "accent": "#EEC447",
-        "editor.active_line_background": "#3A4C53",
+        "background": "#000000",
+        "foreground": "#FFFFFF",
+        "accent": "#4294FF",
+        "editor.active_line_background": "#494949",
         "editor.active_line_number": "#FFFFFF",
-        "editor.background": "#1F282D",
-        "editor.gutter.background": "#1F282D",
-        "search.match_background": "#EEC44740",
-        "created": "#2A7BEF",
-        "deleted": "#D75454",
-        "error": "#D75454",
-        "hidden": "#5B645F",
-        "info": "#1A1D1B",
-        "info.background": "#50656DA4",
-        "modified": "#D6A53B",
-        "warning": "#D6A53B",
-        "text.accent": "#2A7BEF",
-        "version_control.added": "#2A7BEF",
-        "version_control.deleted": "#50656D",
-        "version_control.modified": "#EEC447",
-        "version_control.conflict_marker.ours": "#EEC447",
-        "version_control.conflict_marker.theirs": "#50656D",
-        "vim.normal.background": "#161E22",
-        "vim.insert.background": "#2A7BEFA6",
-        "vim.replace.background": "#2A7BEFA6",
-        "vim.visual.background": "#50656D",
-        "vim.helix_normal.background": "#161E22",
-        "vim.helix_select.background": "#50656D",
+        "editor.background": "#151515",
+        "editor.gutter.background": "#151515",
+        "search.match_background": "#FFAC0040",
+        "terminal.background": "#151515",
+        "terminal.foreground": "#FFFFFF",
+        "terminal.ansi.black": "#000000",
+        "terminal.ansi.red": "#DC3127",
+        "terminal.ansi.green": "#4A8231",
+        "terminal.ansi.yellow": "#D58103",
+        "terminal.ansi.blue": "#005E7D",
+        "terminal.ansi.magenta": "#6B3FA0",
+        "terminal.ansi.cyan": "#0B6B75",
+        "terminal.ansi.white": "#CBCBCB",
+        "terminal.ansi.bright_black": "#494949",
+        "terminal.ansi.bright_red": "#F05A4F",
+        "terminal.ansi.bright_green": "#52C133",
+        "terminal.ansi.bright_yellow": "#FFAC00",
+        "terminal.ansi.bright_blue": "#4294FF",
+        "terminal.ansi.bright_magenta": "#8E63D6",
+        "terminal.ansi.bright_cyan": "#1A8C98",
+        "terminal.ansi.bright_white": "#FFFFFF",
+        "conflict": "#FFAC00",
+        "created": "#4294FF",
+        "deleted": "#F05A4F",
+        "error": "#F05A4F",
+        "hidden": "#494949",
+        "info": "#4294FF",
+        "info.background": "#005E7D40",
+        "modified": "#FFAC00",
+        "text": "#FFFFFF",
+        "text.accent": "#4294FF",
+        "text.disabled": "#8E8E8E",
+        "text.muted": "#CBCBCB",
+        "text.placeholder": "#8E8E8E",
+        "warning": "#FFAC00",
+        "warning.background": "#D5810340",
+        "status_bar.background": "#212121",
+        "title_bar.background": "#212121",
+        "tab_bar.background": "#151515",
+        "tab.active_background": "#CBCBCB33",
+        "version_control.added": "#4294FF",
+        "version_control.deleted": "#F05A4F",
+        "version_control.modified": "#FFAC00",
+        "version_control.conflict_marker.ours": "#FFAC00",
+        "version_control.conflict_marker.theirs": "#CBCBCB",
+        "version_control.word_added": "#FFAC0040",
+        "version_control.word_deleted": "#F05A4F40",
+        "vim.normal.background": "#212121",
+        "vim.insert.background": "#FFAC0099",
+        "vim.replace.background": "#FFAC0099",
+        "vim.visual.background": "#4294FF99",
+        "vim.helix_normal.background": "#212121",
+        "vim.helix_select.background": "#4294FFA3",
+        "players": [
+          {
+            "cursor": "#4294FF",
+            "background": "#4294FF",
+            "selection": "#4294FF66"
+          }
+        ],
         "syntax": {
           "comment": {
-            "color": "#AAB5BA",
+            "color": "#CBCBCB",
             "font_style": "italic"
           },
           "constant": {
@@ -143,16 +211,16 @@
             "font_weight": 600
           },
           "link_text": {
-            "color": "#2A7BEF"
+            "color": "#4294FF"
           },
           "link_uri": {
-            "color": "#2A7BEF"
+            "color": "#4294FF"
           },
           "namespace": {
             "font_weight": 600
           },
           "preproc": {
-            "color": "#AAB5BA",
+            "color": "#CBCBCB",
             "font_style": "italic"
           },
           "punctuation.list_marker": {
@@ -165,7 +233,7 @@
             "font_weight": 600
           },
           "tag": {
-            "color": "#2A7BEF",
+            "color": "#4294FF",
             "font_weight": 600
           },
           "text.literal": {
@@ -174,13 +242,7 @@
           "title": {
             "font_weight": 600
           }
-        },
-        "players": [
-          {
-            "cursor": "#2A7BEF",
-            "selection": "#50656D"
-          }
-        ]
+        }
       }
     }
   ]
