@@ -1,9 +1,9 @@
 # Alpental Dark
 # 1.0
-background = "#212121"
+background = "#151515"
 foreground = "#FFFFFF"
 cursor-color = "#FFFFFF"
-selection-background = "#005E7D"
+selection-background = "#4294FF"
 selection-foreground = "#FFFFFF"
 
 palette = 0=#000000

@@ -1,9 +1,9 @@
 # Alpental Light
 # 1.0
-background = "#F2F2F2"
+background = "#FAFAFA"
 foreground = "#000000"
 cursor-color = "#000000"
-selection-background = "#005E7D"
+selection-background = "#4294FF"
 selection-foreground = "#000000"
 
 palette = 0=#000000
