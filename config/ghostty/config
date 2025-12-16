@@ -1,5 +1,5 @@
 font-family = "Berkeley Mono"
-theme = light:emerald-light,dark:emerald-dark
+theme = light:alpental-light,dark:alpental-dark
 background-opacity = 0.95
 background-blur-radius = 20
 window-padding-x = 12

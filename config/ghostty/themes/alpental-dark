@@ -1,10 +1,10 @@
-# Emerald Light
+# Alpental Dark
 # 1.0
-background = "#F2F2F2"
-foreground = "#000000"
-cursor-color = "#000000"
+background = "#212121"
+foreground = "#FFFFFF"
+cursor-color = "#FFFFFF"
 selection-background = "#005E7D"
-selection-foreground = "#000000"
+selection-foreground = "#FFFFFF"
 
 palette = 0=#000000
 palette = 1=#DC3127
