@@ -20,6 +20,7 @@ brew "yq"
 
 # Developer tools
 brew "golang"
+brew "just"
 brew "rustup"
 
 # Editors
