@@ -19,6 +19,7 @@ brew "uutils-findutils"
 brew "yq"
 
 # Developer tools
+brew "fnm"
 brew "golang"
 brew "just"
 brew "rustup"
