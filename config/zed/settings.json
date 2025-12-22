@@ -10,25 +10,25 @@
   "show_wrap_guides": true,
   "git_panel": {
     "collapse_untracked_diff": true,
-    "status_style": "icon"
+    "status_style": "icon",
   },
   "title_bar": {},
   "file_finder": {
-    "file_icons": false
+    "file_icons": false,
   },
   "current_line_highlight": "all",
   "buffer_line_height": "comfortable",
   "icon_theme": "Zed (Default)",
   "terminal": {
-    "blinking": "on"
+    "blinking": "on",
   },
   "sticky_scroll": {
-    "enabled": true
+    "enabled": true,
   },
   "theme": {
     "mode": "system",
-    "light": "Emerald Light",
-    "dark": "Emerald Dark"
+    "light": "Alpental Light",
+    "dark": "Alpental Dark",
   },
   "ui_font_family": ".SystemUIFont",
   "ui_font_size": 14.0,
@@ -39,29 +39,29 @@
   "show_edit_predictions": true,
   "edit_predictions": {
     "mode": "eager",
-    "enabled_in_text_threads": true
+    "enabled_in_text_threads": true,
   },
   "always_treat_brackets_as_autoclosed": true,
   "indent_guides": {
-    "enabled": false
+    "enabled": false,
   },
   "wrap_guides": [80],
   "tabs": {
     "git_status": false,
     "close_position": "left",
-    "file_icons": false
+    "file_icons": false,
   },
   "helix_mode": true,
   "vim": {
     "default_mode": "normal",
     "toggle_relative_line_numbers": true,
-    "use_smartcase_find": true
+    "use_smartcase_find": true,
   },
   "git": {
     "hunk_style": "staged_hollow",
     "inline_blame": {
-      "enabled": false
-    }
+      "enabled": false,
+    },
   },
   "project_panel": {
     "indent_size": 12.0,
@@ -72,20 +72,21 @@
     "entry_spacing": "standard",
     "auto_fold_dirs": false,
     "indent_guides": {
-      "show": "always"
-    }
+      "show": "always",
+    },
   },
   "outline_panel": {
     "indent_size": 11.0,
     "auto_fold_dirs": false,
     "indent_guides": {
-      "show": "always"
-    }
+      "show": "always",
+    },
   },
   "journal": {
-    "hour_format": "hour24"
+    "hour_format": "hour24",
   },
   "auto_install_extensions": {
+    "alpental-theme": true,
     "docker-compose": true,
     "dockerfile": true,
     "liquid": true,
@@ -100,27 +101,27 @@
     "sql": true,
     "swift": true,
     "toml": true,
-    "zig": true
+    "zig": true,
   },
   "context_servers": {
     "mcp-server-context7": {
       "enabled": true,
       "settings": {
-        "context7_api_key": ""
-      }
+        "context7_api_key": "",
+      },
     },
     "container-use-mcp": {
       "enabled": true,
       "settings": {
-        "cu_path": "container-use"
-      }
+        "cu_path": "container-use",
+      },
     },
     "homebrew-mcp-server": {
       "enabled": true,
       "command": "/opt/homebrew/bin/brew",
       "args": ["mcp-server"],
-      "env": {}
-    }
+      "env": {},
+    },
   },
   "agent": {
     "profiles": {
@@ -128,7 +129,7 @@
         "name": "Container Use",
         "tools": {
           "thinking": true,
-          "fetch": false
+          "fetch": false,
         },
         "enable_all_context_servers": false,
         "context_servers": {
@@ -140,11 +141,11 @@
               "environment_run_cmd": true,
               "environment_open": true,
               "environment_file_write": true,
-              "environment_file_read": true
-            }
-          }
-        }
-      }
+              "environment_file_read": true,
+            },
+          },
+        },
+      },
     },
     "use_modifier_to_send": true,
     "play_sound_when_agent_done": true,
@@ -152,11 +153,11 @@
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
-      "model": "gpt-5.2"
-    }
+      "model": "gpt-5.2",
+    },
   },
   "features": {
-    "edit_prediction_provider": "copilot"
+    "edit_prediction_provider": "copilot",
   },
   "languages": {
     "Liquid": {
@@ -164,19 +165,19 @@
         "allowed": true,
         "plugins": [
           "@shopify/prettier-plugin-liquid",
-          "prettier-plugin-tailwindcss"
-        ]
+          "prettier-plugin-tailwindcss",
+        ],
       },
       "language_servers": [
         "vscode-html-services",
         "tailwindcss-language-server",
-        "..."
+        "...",
       ],
       "formatter": "language_server",
-      "format_on_save": "on"
+      "format_on_save": "on",
     },
     "Markdown": {
-      "soft_wrap": "editor_width"
+      "soft_wrap": "editor_width",
     },
     "Ruby": {
       "language_servers": [
@@ -184,24 +185,24 @@
         "standardrb",
         "tailwindcss-language-server",
         "!solargraph",
-        "!rubocop"
+        "!rubocop",
       ],
       "formatter": "language_server",
-      "format_on_save": "on"
+      "format_on_save": "on",
     },
     "Rust": {
       "format_on_save": "on",
-      "wrap_guides": [100]
+      "wrap_guides": [100],
     },
     "Shell Script": {
       "format_on_save": "off",
       "formatter": {
         "external": {
           "command": "shfmt",
-          "arguments": ["--filename", "{buffer_path}"]
-        }
-      }
-    }
+          "arguments": ["--filename", "{buffer_path}"],
+        },
+      },
+    },
   },
   "lsp": {
     "ruby-lsp": {
@@ -211,42 +212,42 @@
         "linters": ["standard"],
         "enabledFeatures": {
           "diagnostics": false,
-          "formatting": true
+          "formatting": true,
         },
         "featuresConfiguration": {
           "inlayHint": {
             "implicitHashValue": true,
-            "implicitRescue": true
-          }
-        }
-      }
+            "implicitRescue": true,
+          },
+        },
+      },
     },
     "standardrb": {
       "initialization_options": {
         "enabledFeatures": {
           "diagnostics": true,
-          "formatting": false
-        }
-      }
+          "formatting": false,
+        },
+      },
     },
     "tailwindcss-language-server": {
       "settings": {
         "includedLanguages": {
           "erb": "html",
-          "ruby": "html"
+          "ruby": "html",
         },
         "experimental": {
-          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
-        }
-      }
-    }
+          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"],
+        },
+      },
+    },
   },
   "profiles": {
     "Presentation": {
       "buffer_font_size": 20,
       "ui_font_size": 18,
-      "theme": "Source Light",
-      "redact_private_values": true
-    }
-  }
+      "theme": "Alpental Light",
+      "redact_private_values": true,
+    },
+  },
 }
