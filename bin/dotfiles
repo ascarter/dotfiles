@@ -96,6 +96,7 @@ Commands:
   status      Show status of dotfiles
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
+  script      Run a script (list available scripts if no name given)
 
 Options:
   -v          Enable verbose output
@@ -340,6 +341,20 @@ cmd_sync() {
   (sync link) && log "sync" "ok"
 }
 
+cmd_script() {
+  script_name="${1:-}"
+
+  if [ -z "$script_name" ]; then
+    find "$DOTFILES_SCRIPTS_DIR/host" -type f -name "*.sh" | sed "s|^$DOTFILES_SCRIPTS_DIR/host/||;s|\.sh$||" | sort | while read -r script; do
+      log "$script"
+    done
+    exit 0
+  fi
+
+  shift
+  run_script "$script_name" "$@"
+}
+
 cmd_status() {
   (sync status) && log "status" "ok"
 }
@@ -374,7 +389,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | sync | unlink | uninstall | status | update | edit)
+  env | init | sync | script | unlink | uninstall | status | update | edit)
     cmd_$cmd "$@"
     ;;
   help)
