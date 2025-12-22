@@ -23,6 +23,7 @@ brew "fnm"
 brew "golang"
 brew "just"
 brew "rustup"
+brew "rv"
 
 # Editors
 brew "helix"

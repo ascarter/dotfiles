@@ -19,7 +19,7 @@ if ! [ -d "${HOMEBREW_PREFIX}" ]; then
   echo "Installing homebrew to ${HOMEBREW_PREFIX}"
   env ${HOMEBREW_INTERACTIVE} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
-  echo "Homebrew installed to ${HOMEBREW_PREFIX}"
+  echo "Homebrew installed: ${HOMEBREW_PREFIX}"
 fi
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
