@@ -2,6 +2,11 @@
 # Completion configuration
 # =====================================
 
+# Add homebrew completions directory
+if [[ -d $HOMEBREW_PREFIX/share/zsh/site-functions ]]; then
+  fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+fi
+
 # Add XDG completions directory
 if [[ -d ${XDG_STATE_HOME}/zsh/completions ]]; then
   fpath=("${XDG_STATE_HOME}"/zsh/completions $fpath)
