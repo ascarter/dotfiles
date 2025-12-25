@@ -11,7 +11,7 @@ case "$(uname -s)" in
     ;;
   Linux)
     HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
-    HOMEBREW_INTERACTIVE="NONINTERACTIVE=1"
+    HOMEBREW_INTERACTIVE=""
     ;;
 esac
 
