@@ -45,6 +45,11 @@ configure_user() {
   # Get full name from system
   fullname=$(get_fullname)
 
+  # Login gh cli
+  if ! gh auth status 2>/dev/null; then
+    gh auth login
+  fi
+
   # GitHub username from gh CLI
   ghuser=$(gh api user --jq '.login' 2>/dev/null || true)
   if [ -z "$ghuser" ]; then
@@ -157,6 +162,13 @@ configure_lfs() {
 }
 
 main() {
+  # Enable homebrew if installed
+  if [[ -d /opt/homebrew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  fi
+
   # Require GitHub CLI to be logged in
   if ! command -v gh >/dev/null 2>&1; then
     "GitHub CLI (gh) is not installed"
