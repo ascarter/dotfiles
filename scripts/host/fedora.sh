@@ -20,30 +20,17 @@ fi
 
 echo "Provisioning Fedora host ($VARIANT_ID)"
 
-# Update firmware
-if command -v fwupdmgr >/dev/null 2>&1; then
-  "Updating firmware..."
-  sudo fwupdmgr refresh --force
-  sudo fwupdmgr update
-fi
-
 case "$VARIANT_ID" in
 silverblue | cosmic-atomic)
   echo "Fedora Atomic variant detected"
 
-  # Add Tailscale RPM repository
-  # curl -fsSL https://pkgs.tailscale.com/stable/fedora/tailscale.repo | sudo tee /etc/yum.repos.d/tailscale.repo
-
   rpm-ostree upgrade
 
   # Install rpm overlays
-  rpm-ostree install --idempotent tailscale zsh
+  rpm-ostree install --idempotent zsh
 
   # Set zsh as default shell
   # chsh -s /bin/zsh "$USER"
-
-  # Tailscale enable and start on reboot via systemd
-  # sudo systemctl enable --now tailscaled
 
   case "${XDG_CURRENT_DESKTOP:-}" in
   COSMIC)
