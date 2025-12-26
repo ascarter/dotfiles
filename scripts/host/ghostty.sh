@@ -46,7 +46,7 @@ case "$(uname -s)" in
     sed -i '/^TryExec=/d' "$DESKTOP_DST"
 
     # Force Exec= for the main entry
-    sed -i "s|^Exec=.*$|Exec=${GHOSTTY_APP} --gtk-single-instance=true|g" "$DESKTOP_DST"
+    sed -i "s|^Exec=.*$|Exec=${GHOSTTY_APP} --font-size=10|g" "$DESKTOP_DST"
 
     rm -rf "${EXTRACT_DIR}"
 
