@@ -145,6 +145,19 @@ platform_id() {
   esac
 }
 
+change_shell() {
+  case "$(uname -s)" in
+  Darwin)
+    # Default is zsh
+    ;;
+  Linux)
+    if ! getent passwd "$(whoami)" | grep -qE ':/bin/zsh$'; then
+      chsh --shell /bin/zsh
+    fi
+    ;;
+  esac
+}
+
 run_script() {
   script_name="$1"
   shift
@@ -318,6 +331,8 @@ EOF
   run_script $(platform_id)
   run_script "homebrew"
   run_script "gitconfig"
+
+  change_shell
 
   success "Initialized dotfiles for zsh"
 }
