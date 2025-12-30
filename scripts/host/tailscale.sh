@@ -4,6 +4,11 @@
 
 set -eu
 
+abort() {
+  printf "%s\n" "$*" >&2
+  exit 1
+}
+
 case "$(uname -s)" in
   Darwin)
     if command -v tailscale >/dev/null 2>&1; then
@@ -54,15 +59,15 @@ case "$(uname -s)" in
           fi
           ;;
         *)
-          echo "Unsupported Linux distribution ${ID}"
+          abort "Unsupported Linux distribution: ${ID}"
           ;;
       esac
     else
-      echo "Unsupported Linux distribution"
+      abort "Unsupported Linux distribution"
     fi
     ;;
   *)
-    echo "unknown"
+    abort "Unsupported OS: $(uname -s)"
     ;;
 esac
 
