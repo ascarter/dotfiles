@@ -24,6 +24,7 @@ brew "golang"
 brew "just"
 brew "rustup"
 brew "rv"
+brew "uv"
 
 # Editors
 brew "helix"
