@@ -33,7 +33,7 @@ get_release() {
   category=$2
   identifier=$3
 
-  # Pick "latest stable" entry from Proton's JSON.
+  # Pick latest entry from Proton's JSON.
   # Proton version manifests (contain latest URLs + SHA512)
   # Pick latest Stable release by semantic version, then select matching identifier
   # Extract URL + SHA512 in one jq run as tab-separated fields.
@@ -50,7 +50,7 @@ get_release() {
     | map(select(.CategoryName == $category))
     | max_by(semver_key)
     | .File
-    | map(select(.Identifier == $id))
+    | map(select(.Identifier | contains($id)))
     | first
     | select(. != null)
     | [.Url, .Sha512CheckSum]
@@ -116,21 +116,16 @@ proton_rpm() {
     done
   }
 
-  rpm_app_install() {
-    manifest_url="$1"
-
-    category="Stable"
-    identifier=".rpm (Fedora/RHEL)"
-
-    tsv=$(get_release "$manifest_url" "$category" "$identifier") || abort "Failed to get release info from $manifest_url"
-    rpm_url=$(echo "$tsv" | cut -f1)
-    sha512=$(echo "$tsv" | cut -f2)
-    rpm_file="${CACHE_DIR}/$(basename "$rpm_url")"
+  rpm_download() {
+    rpm_url="$1"
+    sha512="$2"
+    rpm_file="$3"
 
     # If the RPM is already present and matches the expected SHA512, reuse it.
     if [ -f "$rpm_file" ]; then
       if sha512_verify_file "$rpm_file" "$sha512"; then
         echo "Using cached RPM: $rpm_file"
+        return
       else
         # Invalidate bad cache package
         echo "Checksum mismatch" >&2
@@ -139,13 +134,32 @@ proton_rpm() {
     fi
 
     if ! [ -f "$rpm_file" ]; then
-      curl -fsSL "$rpm_url" -o "$rpm_file"
+      curl -fsSL "$rpm_url" -o "$rpm_file" || return 1
       if ! sha512_verify_file "$rpm_file" "$sha512"; then
         echo "Checksum mismatch" >&2
         cache_rm "$rpm_file"
         return 1
       fi
     fi
+ }
+
+  rpm_release_install() {
+    manifest_url="$1"
+    category="${2:-Stable}"
+    identifier=".rpm"
+
+    tsv=$(get_release "$manifest_url" "$category" "$identifier") || abort "Failed to get release info from $manifest_url"
+    rpm_url=$(echo "$tsv" | cut -f1)
+    sha512=$(echo "$tsv" | cut -f2)
+    rpm_app_install "$rpm_url" "$sha512"
+  }
+
+  rpm_app_install() {
+    rpm_url="$1"
+    sha512="${2:-}"
+    rpm_file="${CACHE_DIR}/$(basename "$rpm_url")"
+
+    rpm_download "$rpm_url" "$sha512" "$rpm_file" || abort "Failed to download or verify RPM from $rpm_url"
 
     # Get NEVR from the RPM payload
     pkg_name="$(rpm -qp --queryformat '%{NAME}\n' "$rpm_file")"
@@ -174,10 +188,10 @@ proton_rpm() {
   rpm_install proton-vpn-gnome-desktop
   rpm_install proton-vpn-cli
 
-  rpm_app_install "https://proton.me/download/authenticator/linux/version.json"
-  rpm_app_install "https://proton.me/download/mail/linux/version.json"
-  rpm_app_install "https://proton.me/download/PassDesktop/linux/x64/version.json"
-
+  rpm_release_install "https://proton.me/download/authenticator/linux/version.json"
+  rpm_release_install "https://proton.me/download/mail/linux/version.json"
+  rpm_release_install "https://proton.me/download/PassDesktop/linux/x64/version.json"
+  rpm_app_install "https://proton.me/download/bridge/protonmail-bridge-3.21.2-1.x86_64.rpm" "e802d0a9630d4aaf2f32de1e0d5b350728476340746b6735fa4ea166595c7a688e3025497c3c20dda1b556bd6045f129275539601828091fbb43766a91bbeba4"
   update_icons
 }
 
