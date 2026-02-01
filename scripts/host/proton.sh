@@ -175,6 +175,13 @@ proton_rpm() {
       return 0
     fi
 
+    # Ensure we don't have a previous version requested before installing the new RPM.
+    case "$VARIANT_ID" in
+      silverblue | cosmic-atomic)
+        rpm-ostree uninstall --idempotent "$pkg_name" >/dev/null 2>&1 || true
+        ;;
+    esac
+
     rpm_install "$rpm_file"
   }
 
