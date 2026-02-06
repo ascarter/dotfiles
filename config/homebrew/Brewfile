@@ -39,6 +39,7 @@ if OS.mac?
   cask_args adopt: true
   cask "bbedit"
   cask "chatgpt"
+  cask "codex-app"
   cask "github"
   cask "ghostty"
   cask "hhkb"
@@ -57,8 +58,8 @@ if OS.mac?
   cask "yubico-authenticator"
 
   # My extras
-  tap "ascarter/extras"
-  brew "ascarter/extras/sk-libfido2"
+  # tap "ascarter/extras"
+  # brew "ascarter/extras/sk-libfido2"
 
   # 3rd party utilities
   tap "teamookla/speedtest"
