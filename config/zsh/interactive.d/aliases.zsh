@@ -9,8 +9,8 @@ if [[ -d ~/Developer ]]; then
 fi
 
 # ls - Use uutils if installed
-if (( $+commands[uls] )); then
-  alias ls='uls --group-directories-first --color=auto --human-readable'
+if (( $+commands[uu-ls] )); then
+  alias ls='uu-ls --group-directories-first --color=auto --human-readable'
   alias lc='ls -l -a --classify=auto'
 fi
 
