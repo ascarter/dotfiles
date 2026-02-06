@@ -1,14 +1,18 @@
 # Set SSH key provider for FIDO2
-if [[ -f /usr/local/lib/sk-libfido2.dylib ]]; then
-  export SSH_SK_PROVIDER=/usr/local/lib/sk-libfido2.dylib
+if [[ -f /usr/lib/ssh-keychain.dylib ]]; then
+  export SSH_SK_PROVIDER=/usr/lib/ssh-keychain.dylib
 fi
 
-if (( $+commands[ssh-askpass] )); then
-  export SSH_ASKPASS=ssh-askpass
-  export DISPLAY=:0
-fi
+# if [[ -f /usr/local/lib/sk-libfido2.dylib ]]; then
+#   export SSH_SK_PROVIDER=/usr/local/lib/sk-libfido2.dylib
+# fi
 
-if [[ -n ${SSH_CONNECTION} ]]; then
-  export PINENTRY_USER_DATA=USE_CURSES=1
-  export GPG_TTY=$(tty)
-fi
+# if (( $+commands[ssh-askpass] )); then
+#   export SSH_ASKPASS=ssh-askpass
+#   export DISPLAY=:0
+# fi
+
+# if [[ -n ${SSH_CONNECTION} ]]; then
+#   export PINENTRY_USER_DATA=USE_CURSES=1
+#   export GPG_TTY=$(tty)
+# fi
