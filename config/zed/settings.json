@@ -7,6 +7,17 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "agent_servers": {
+    "opencode": {
+      "type": "registry",
+    },
+    "github-copilot": {
+      "type": "registry",
+    },
+  },
+  "which_key": {
+    "enabled": true,
+  },
   "show_wrap_guides": true,
   "git_panel": {
     "tree_view": true,
@@ -35,10 +46,10 @@
   "ui_font_size": 14.0,
   "buffer_font_family": "Berkeley Mono",
   "buffer_font_size": 13.0,
-  "active_pane_modifiers": { "border_size": 0.5, "inactive_opacity": 0.7 },
   "show_completions_on_input": false,
   "show_edit_predictions": true,
   "edit_predictions": {
+    "provider": "copilot",
     "mode": "eager",
     "enabled_in_text_threads": true,
   },
@@ -48,7 +59,7 @@
   },
   "wrap_guides": [80],
   "tabs": {
-    "git_status": false,
+    "git_status": true,
     "close_position": "left",
     "file_icons": false,
   },
@@ -65,20 +76,21 @@
     },
   },
   "project_panel": {
+    "hide_hidden": false,
+    "bold_folder_labels": true,
     "indent_size": 12.0,
     "folder_icons": false,
     "hide_root": true,
-    "git_status": false,
+    "git_status": true,
     "file_icons": false,
     "entry_spacing": "standard",
-    "auto_fold_dirs": false,
+    "auto_fold_dirs": true,
     "indent_guides": {
       "show": "always",
     },
   },
   "outline_panel": {
     "indent_size": 11.0,
-    "auto_fold_dirs": false,
     "indent_guides": {
       "show": "always",
     },
@@ -121,9 +133,6 @@
       "provider": "copilot_chat",
       "model": "gpt-5.2",
     },
-  },
-  "features": {
-    "edit_prediction_provider": "copilot",
   },
   "languages": {
     "Liquid": {
