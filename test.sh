@@ -17,11 +17,11 @@ if [ -d "${TEST_HOME}" ]; then
   find "${TEST_HOME}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 else
   echo "Creating testuser directory..."
-  mkdir -p "${TEST_HOME}"
+  install -d "${TEST_HOME}"
 fi
 
 # Create TEST_DOTFILES_HOME
-mkdir -p "${TEST_DOTFILES_HOME}"
+install -d "${TEST_DOTFILES_HOME}"
 
 # Overlay local working tree changes using rsync
 if ! command -v rsync >/dev/null 2>&1; then

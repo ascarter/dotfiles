@@ -18,7 +18,7 @@ echo "DOTFILES_HOME: ${DOTFILES_HOME}"
 # Clone dotfiles
 if [ ! -d "${DOTFILES_HOME}" ]; then
   echo "Clone dotfiles -> ${DOTFILES_HOME}"
-  mkdir -p $(dirname "${DOTFILES_HOME}")
+  install -d "$(dirname "${DOTFILES_HOME}")"
   git clone https://github.com/ascarter/dotfiles.git ${DOTFILES_HOME}
 fi
 

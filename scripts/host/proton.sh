@@ -104,7 +104,7 @@ proton_rpm() {
     user_scalable_icon_dir="${user_icon_dir}/scalable/apps"
 
     # Fix up pixmaps icons
-    mkdir -p "$user_scalable_icon_dir"
+    install -d "$user_scalable_icon_dir"
     for icon in /usr/share/pixmaps/proton-*.png; do
       icon_name=$(basename "$icon" .png)
       user_icon_file="${user_scalable_icon_dir}/${icon_name}.svg"
@@ -112,7 +112,7 @@ proton_rpm() {
         continue
       fi
       echo "Installing icon: ${icon_name}"
-      cp "${icon}" "${user_icon_file}"
+      install -m 0644 "${icon}" "${user_icon_file}"
     done
   }
 

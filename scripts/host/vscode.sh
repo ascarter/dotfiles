@@ -52,9 +52,9 @@ case "$(uname -s)" in
     }
     trap cleanup EXIT INT TERM
 
-    mkdir -p "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
-    mkdir -p "${XDG_BIN_HOME}" || abort "Failed to create bin directory: ${XDG_BIN_HOME}"
-    mkdir -p "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
+    install -d "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
+    install -d "${XDG_BIN_HOME}" || abort "Failed to create bin directory: ${XDG_BIN_HOME}"
+    install -d "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
 
     echo "Resolving Visual Studio Code download metadata..."
     SHA_JSON_PATH="${DOWNLOAD_DIR}/sha.json"
@@ -102,7 +102,7 @@ case "$(uname -s)" in
     [ -x "${TOP_DIR}/bin/code" ] || abort "Extracted package missing 'bin/code' CLI launcher"
 
     rm -rf "${VSCODE_DIR}"
-    mkdir -p "${VSCODE_DIR}" || abort "Failed to create install directory: ${VSCODE_DIR}"
+    install -d "${VSCODE_DIR}" || abort "Failed to create install directory: ${VSCODE_DIR}"
     cp -a "${TOP_DIR}/." "${VSCODE_DIR}/" || abort "Failed to install Visual Studio Code"
 
     ln -sfn "${VSCODE_BIN_TARGET}" "${VSCODE_BIN}" || abort "Failed to link code CLI"
