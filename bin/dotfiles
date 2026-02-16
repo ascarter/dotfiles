@@ -90,6 +90,7 @@ Usage:
 
 Commands:
   init        Initialize dotfiles
+  shell       Configure zsh and shell bootstrap for dotfiles
   env         Export configuration for environment
   sync        Synchronize config
   uninstall   Uninstall dotfiles
@@ -145,14 +146,33 @@ platform_id() {
   esac
 }
 
-change_shell() {
+cmd_shell() {
+  : "${XDG_DATA_HOME:=$HOME/.local/share}"
+  : "${DOTFILES_HOME:=${XDG_DATA_HOME}/dotfiles}"
+
+  zshenv="$HOME/.zshenv"
+  bootstrap_line="eval \"\$(${DOTFILES_HOME}/bin/dotfiles env)\""
+
+  if [ ! -f "${zshenv}" ] || ! grep -qE 'eval "\$\([^"]*bin/dotfiles env\)"' "${zshenv}"; then
+    cat >>"${zshenv}" <<EOF
+# dotfiles environment
+${bootstrap_line}
+EOF
+  fi
+
   case "$(uname -s)" in
   Darwin)
-    # Default is zsh
+    # Default shell is typically zsh on modern macOS.
     ;;
   Linux)
-    if ! getent passwd "$(whoami)" | grep -qE ':/bin/zsh$'; then
-      chsh --shell /bin/zsh
+    zsh_path="$(command -v zsh || true)"
+    [ -n "$zsh_path" ] || {
+      warn "shell" "zsh not found; skipping login shell change"
+      return 0
+    }
+
+    if ! getent passwd "$(whoami)" | grep -qE ":${zsh_path}$"; then
+      chsh --shell "$zsh_path"
     fi
     ;;
   esac
@@ -323,23 +343,12 @@ cmd_init() {
     [ -d "$dir" ] || mkdir -p "$dir"
   done
 
-  # Check if zsh initialized
-  zshenv="$HOME/.zshenv"
-  if [ ! -f "${zshenv}" ] || ! grep -qE 'eval "\$\([^"]*bin/dotfiles env\)"' "${zshenv}"; then
-    # Append bootstrap lines
-    cat >>"${zshenv}" <<EOF
-# dotfiles environment
-eval "\$(${DOTFILES_HOME}/bin/dotfiles env)"
-EOF
-  fi
-
+  cmd_shell
   cmd_sync
 
   run_script "host/os/$(platform_id)"
   run_script "host/pkg/homebrew"
   run_script "host/config/gitconfig"
-
-  change_shell
 
   success "Initialized dotfiles for zsh"
 }
@@ -411,7 +420,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | sync | script | unlink | uninstall | status | update | edit)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit)
     cmd_$cmd "$@"
     ;;
   help)

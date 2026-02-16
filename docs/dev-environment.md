@@ -23,8 +23,9 @@ Use this sequence as the default rebuild flow:
 2. Bootstrap dotfiles with `install.sh` (curl + execute)
 3. Run host OS provisioning (baseline OS state)
 4. Run package-manager baseline provisioning (where applicable)
-5. Run meta scripts (or individual scripts) for tools/apps
-6. Authenticate credentials and verify environment
+5. Run shell bootstrap with `dotfiles shell`
+6. Run meta scripts (or individual scripts) for tools/apps
+7. Authenticate credentials and verify environment
 
 This lifecycle should be mirrored across Linux and macOS, even if implementation details differ.
 
@@ -374,13 +375,14 @@ Recommended PATH intent:
 
 1. Ensure `git` exists
 2. Bootstrap dotfiles
-3. Run `dotfiles init` and `dotfiles sync`
-4. Run host provisioning scripts (platform-specific)
-5. Install/verify host-native integration tools (`git-credential-manager`, etc.)
-6. Run meta scripts (`baseline`, then `devtools`, then `apps` as needed)
-7. Restart shell and validate PATH + binary resolution
-8. Authenticate tools (`gh`, copilot/codex/claude, etc.)
-9. Validate IDE/LSP behavior on representative projects
+3. Run `dotfiles init`
+4. Run `dotfiles shell` (safe re-run; canonical shell bootstrap)
+5. Run host provisioning scripts (platform-specific)
+6. Install/verify host-native integration tools (`git-credential-manager`, etc.)
+7. Run meta scripts (`baseline`, then `devtools`, then `apps` as needed)
+8. Restart shell and validate PATH + binary resolution
+9. Authenticate tools (`gh`, copilot/codex/claude, etc.)
+10. Validate IDE/LSP behavior on representative projects
 
 ---
 
@@ -398,7 +400,8 @@ Use this checklist for Linux/macOS rebuilds.
 
 - [ ] Clone/install dotfiles
 - [ ] Run `dotfiles init`
-- [ ] Run `dotfiles sync`
+- [ ] Run `dotfiles shell`
+- [ ] Run `dotfiles sync` (optional explicit verification run)
 - [ ] Re-open shell/session
 
 ## Host setup
@@ -413,6 +416,12 @@ Use this checklist for Linux/macOS rebuilds.
 - [ ] Run `baseline` meta script
 - [ ] Run `devtools` meta script
 - [ ] Run `apps` meta script (optional)
+
+## Toolbox bootstrap (per new toolbox)
+
+- [ ] Run `dotfiles script host/config/toolbox-init <container-name>`
+- [ ] Use `--no-packages` if container-local package baseline should be skipped
+- [ ] Confirm toolbox bootstrap runs only `dotfiles shell` + `dotfiles sync` (no host provisioning)
 
 ## Layered/container setup (if used)
 
@@ -459,11 +468,11 @@ uv --version
 
 1. Create new directories (`scripts/host/os`, `scripts/host/pkg`, `scripts/host/config`, `scripts/tools`, `scripts/meta`)
 2. Move existing scripts to new homes
-3. Add compatibility wrappers at old paths (or dispatch aliases in `dotfiles script`)
+3. (Completed) Remove compatibility wrappers after command-path migration
 4. Introduce meta scripts (`baseline`, `devtools`, `apps`, `all`)
-5. Update `dotfiles init` to run only baseline-safe phases
-6. Document each script’s tier and phase ownership
-7. Remove wrappers once migration window is complete
+5. Keep `dotfiles shell` as the canonical shell bootstrap path
+6. Use toolbox bootstrap script (`host/config/toolbox-init`) instead of host provisioning in containers
+7. Document each script’s tier and phase ownership
 
 ---
 
@@ -472,12 +481,13 @@ uv --version
 1. Add `dotfiles doctor` for binary/path/tier validation
 2. Normalize scripts to one shell style (`sh`-portable by default, `bash` only when required)
 3. Enforce idempotence and clear non-interactive behavior
-4. Split Brewfile sections into:
+4. Document and test `dotfiles shell` behavior on host + toolbox
+5. Split Brewfile sections into:
    - host integration
    - universal CLI baseline
    - apps/casks
-5. Add toolbox base image definition in-repo for reproducibility
-6. Add CI checks for script linting and policy drift
+6. Add toolbox base image definition in-repo for reproducibility
+7. Add CI checks for script linting and policy drift
 
 ---
 

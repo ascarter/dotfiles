@@ -315,6 +315,18 @@ When refactoring scripts:
 - Version manager init scripts should be loaded from shell modules under `config/zsh/interactive.d/`
 - Do not hardcode non-XDG paths unless platform constraints require it
 
+### Canonical shell bootstrap command
+
+Use `dotfiles shell` as the canonical shell bootstrap primitive.
+
+`dotfiles shell` is responsible for:
+
+1. Ensuring `~/.zshenv` bootstraps dotfiles environment (`dotfiles env`)
+2. Setting the login shell to detected `zsh` path where applicable
+3. Remaining safe to re-run (idempotent intent)
+
+`dotfiles init` should call `dotfiles shell` and must not duplicate shell bootstrap logic.
+
 ---
 
 ## Agent Operating Rules
@@ -329,6 +341,7 @@ When making changes in this repo:
 6. **Align Linux + macOS behavior** whenever feasible
 7. **Minimize privilege escalation**; use user-local installs by default
 8. **Keep script taxonomy coherent** (no new flat-mix regressions)
+9. **Use `dotfiles shell` as the single shell bootstrap path** (no duplicated shell wiring in helper scripts)
 
 ---
 
@@ -343,6 +356,8 @@ Before merging provisioning/tooling changes, verify:
 - [ ] Linux and macOS behavior is documented
 - [ ] Script fits taxonomy (`host/os`, `host/pkg`, `host/config`, `tools`, `meta`)
 - [ ] Meta profile behavior is documented (if affected)
+- [ ] Shell bootstrap changes go through `dotfiles shell`
+- [ ] Toolbox bootstrap avoids host provisioning and uses `dotfiles shell` + `dotfiles sync`
 - [ ] Rebuild path from clean machine is still valid
 - [ ] README/install flow remains accurate
 

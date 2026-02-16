@@ -27,10 +27,8 @@ silverblue | cosmic-atomic)
   rpm-ostree upgrade
 
   # Install rpm overlays
+  rpm-ostree install --idempotent git
   rpm-ostree install --idempotent zsh
-
-  # Set zsh as default shell
-  # chsh -s /bin/zsh "$USER"
 
   case "${XDG_CURRENT_DESKTOP:-}" in
   COSMIC)
