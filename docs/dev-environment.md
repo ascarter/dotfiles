@@ -26,7 +26,7 @@ Use this sequence as the default rebuild flow:
 3. Run host OS provisioning (baseline OS state)
 4. Run package-manager baseline provisioning (where applicable)
 5. Run shell bootstrap with `dotfiles shell`
-6. Run tool scripts directly (meta scripts can be added later as orchestration profiles)
+6. Run tool scripts directly (or use root convenience scripts such as `scripts/developer.sh`)
 7. Authenticate credentials and verify environment
 
 This lifecycle should be mirrored across Linux and macOS, even if implementation details differ.
@@ -89,8 +89,8 @@ Use for isolated project dependencies and heavyweight/specialized system package
 
 The current `scripts/host` directory mixes multiple concerns:
 
-- **OS bootstrap**: `fedora.sh`, `macos.sh`
-- **package manager bootstrap**: `homebrew.sh`
+- **OS bootstrap**: `fedora/init.sh`, `macos/init.sh`
+- **package manager bootstrap**: `macos/homebrew.sh`
 - **tool/app installers**: `ghostty.sh`, `tailscale.sh`, `proton.sh`, `speedtest.sh`, `vscode.sh`, `zed.sh`
 - **host configuration generator**: `gitconfig.sh`
 
@@ -106,7 +106,7 @@ The current `scripts/host` directory mixes multiple concerns:
 - `dotfiles init` currently executes only a subset of scripts
 - Script style is inconsistent (`sh` vs `bash`, non-portable conditionals in some files)
 - Some scripts should be grouped by phase and capability, not by historical placement
-- No formal meta script orchestration for “baseline” vs “devtools” vs “apps”
+- Orchestration is still lightweight; convenience scripts should live at `scripts/*.sh`
 
 ---
 
@@ -115,22 +115,17 @@ The current `scripts/host` directory mixes multiple concerns:
 Refactor to a phase-oriented structure:
 
 - `scripts/host/os/`
-  - `fedora.sh`
-  - `macos.sh`
-- `scripts/host/pkg/`
-  - `homebrew.sh`
-  - future host package-layer scripts (`rpm-ostree-baseline.sh`, etc.)
+  - `fedora/init.sh`
+  - `macos/init.sh`
+  - `macos/homebrew.sh`
 - `scripts/host/config/`
   - `gitconfig.sh`
   - future machine-local configuration generators
 - `scripts/tools/`
   - `ghostty.sh`, `tailscale.sh`, `proton.sh`, `speedtest.sh`, `vscode.sh`, `zed.sh`
   - future developer CLI installers
-- `scripts/meta/`
-  - `baseline.sh`
-  - `devtools.sh`
-  - `apps.sh`
-  - `all.sh`
+- `scripts/`
+  - convenience scripts (for example, `developer.sh`)
 
 This gives both granular and bundled execution modes.
 
@@ -138,28 +133,28 @@ This gives both granular and bundled execution modes.
 
 ## Script Orchestration Pattern
 
-## Baseline meta script
+## Baseline convenience script
 
-`baseline.sh` should orchestrate:
+Root-level convenience scripts (for example, `scripts/developer.sh`) should orchestrate:
 
-1. Host OS baseline (`scripts/host/os/<platform>.sh`)
-2. Host package manager/bootstrap (`scripts/host/pkg/*`)
+1. Host OS baseline (`scripts/host/os/<platform>/init.sh`)
+2. Host package manager/bootstrap where applicable (`scripts/host/os/macos/homebrew.sh`)
 3. Baseline host requirements by capability:
    - terminal (`ghostty`) on Linux baseline hosts
    - secure network (`tailscale`) on Linux baseline hosts
 4. Host configuration (`scripts/host/config/gitconfig.sh`)
 
-## Devtools meta script
+## Devtools convenience script
 
-`devtools.sh` should install/update development tools (CLI + language managers), favoring user-local/XDG placement.
+`scripts/developer.sh` (or other root convenience scripts) should install/update development tools (CLI + language managers), favoring user-local/XDG placement.
 
-## Apps meta script
+## Apps convenience script
 
-`apps.sh` should install optional GUI/workflow applications.
+Optional root convenience scripts should install GUI/workflow applications.
 
-## All meta script
+## All-in-one convenience script
 
-`all.sh` can run: `baseline -> devtools -> apps`, with flags to skip phases.
+A root convenience script can run: `baseline -> devtools -> apps`, with flags to skip phases.
 
 ---
 
@@ -396,7 +391,7 @@ Recommended PATH intent:
 6. Install/verify Git credential tools:
    - required: `gh` (GitHub)
    - conditional: `git-credential-manager` (Azure DevOps/non-GitHub hosts; currently macOS work)
-7. Run meta scripts (`baseline`, then `devtools`, then `apps` as needed)
+7. Run convenience scripts as needed (for example `dotfiles script developer`)
 8. Restart shell and validate PATH + binary resolution
 9. Authenticate tools (`gh`, copilot/codex/claude, etc.)
 10. Validate IDE/LSP behavior on representative projects
@@ -431,9 +426,7 @@ Use this checklist for Linux/macOS rebuilds.
 
 ## Baseline/devtools/apps
 
-- [ ] Run `baseline` meta script
-- [ ] Run `devtools` meta script
-- [ ] Run `apps` meta script (optional)
+- [ ] Run convenience scripts from `scripts/` as needed (for example `developer`)
 
 ## Toolbox bootstrap (per new toolbox)
 
@@ -484,10 +477,10 @@ uv --version
 
 ## Migration Plan for Script Refactor (No-Break Approach)
 
-1. Create new directories (`scripts/host/os`, `scripts/host/pkg`, `scripts/host/config`, `scripts/tools`, `scripts/meta`)
+1. Create/update directories (`scripts/host/os/<os>`, `scripts/host/config`, `scripts/tools`, `scripts/`)
 2. Move existing scripts to new homes
 3. (Completed) Remove compatibility wrappers after command-path migration
-4. Introduce meta scripts (`baseline`, `devtools`, `apps`, `all`)
+4. Introduce root convenience scripts (`developer`, optional `baseline`/`apps`)
 5. Keep `dotfiles shell` as the canonical shell bootstrap path
 6. Use toolbox bootstrap script (`host/config/toolbox-init`) instead of host provisioning in containers
 7. Document each script’s tier and phase ownership

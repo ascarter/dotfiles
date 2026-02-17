@@ -346,8 +346,11 @@ cmd_init() {
   cmd_shell
   cmd_sync
 
-  run_script "host/os/$(platform_id)"
-  run_script "host/pkg/homebrew"
+  platform="$(platform_id)"
+  run_script "host/os/${platform}/init"
+  if [ "$platform" = "macos" ]; then
+    run_script "host/os/macos/homebrew"
+  fi
   run_script "host/config/gitconfig"
 
   success "Initialized dotfiles for zsh"

@@ -32,14 +32,14 @@ This backlog tracks implementation progress for development tools across Linux a
 The following baseline platform work is complete:
 
 - Script taxonomy refactor is in place:
-  - `scripts/host/os/`
-  - `scripts/host/pkg/`
+  - `scripts/host/os/<os>/`
   - `scripts/host/config/`
   - `scripts/tools/`
+  - `scripts/*.sh` (convenience orchestration scripts)
 - `dotfiles script` now resolves script paths recursively relative to `scripts/`
 - `dotfiles init` uses canonical script paths:
-  - `host/os/<platform>`
-  - `host/pkg/homebrew`
+  - `host/os/<platform>/init`
+  - `host/os/macos/homebrew` (macOS only)
   - `host/config/gitconfig`
 - `dotfiles shell` command added as the single shell bootstrap entrypoint:
   - ensures `~/.zshenv` dotfiles env bootstrap line
@@ -60,7 +60,7 @@ The following baseline platform work is complete:
 
 | Tool / Capability | Status | Target Tier | Platform Scope | Install Source/Method | Script Path (planned/current) | Acceptance Checks |
 |---|---|---|---|---|---|---|
-| `git` | in-progress | host | linux, macos | OS package manager / host provisioning | current: `scripts/host/os/fedora.sh`, `scripts/host/os/macos.sh` | `command -v git`; clone/pull works |
+| `git` | in-progress | host | linux, macos | OS package manager / host provisioning | current: `scripts/host/os/fedora/init.sh`, `scripts/host/os/macos/init.sh` | `command -v git`; clone/pull works |
 | `gh` | todo | local-xdg (optional host/layered) | linux, macos | package/binary installer | planned: `scripts/tools/gh.sh` | `gh --version`; `gh auth status`; `gh auth setup-git` works |
 | `git-credential-manager` | blocked | host (conditional) | macos (work), optional linux | Homebrew on macOS when needed | deferred (no script planned currently) | optional: `command -v git-credential-manager` on macOS work hosts when enabled |
 | `helix` (`hx`) | todo | local-xdg (optional layered) | linux, macos | binary/package | planned: `scripts/tools/helix.sh` | `hx --version`; reads config from `$XDG_CONFIG_HOME/helix` |
@@ -171,7 +171,7 @@ After each tool/script implementation:
 
 ## Notes
 
-- Meta scripts (`scripts/meta/*`) remain deferred by plan.
+- Convenience orchestration scripts should live at `scripts/*.sh` (for example `scripts/developer.sh`).
 - `dotfiles shell` is now the canonical shell bootstrap primitive.
 - `toolbox-init` should continue to call `dotfiles shell` and `dotfiles sync` only (no host provisioning).
 - If a tool shifts tier, update both this file and `AGENTS.md`.

@@ -15,11 +15,10 @@ Conflict rule:
 ## Project Structure & Module Organization
 - `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `sync`, `status`, `script`).
 - `config/`: source-of-truth configs synced into `$XDG_CONFIG_HOME`.
-- `scripts/host/os/`: host OS baseline provisioning.
-- `scripts/host/pkg/`: host package backend/bootstrap.
+- `scripts/host/os/<os>/`: host OS baseline provisioning (`init.sh`) and OS-local helpers.
 - `scripts/host/config/`: host config synthesis.
 - `scripts/tools/`: one installer per capability (`gh`, `tailscale`, `vscode`, `zed`, etc.).
-- `scripts/meta/`: reserved for profile orchestrators; currently deferred.
+- `scripts/*.sh`: convenience orchestration scripts (for example, `scripts/developer.sh`).
 
 ## Build, Test, and Development Commands
 - `./install.sh`: bootstrap repository to `$XDG_DATA_HOME/dotfiles`.
