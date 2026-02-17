@@ -60,7 +60,7 @@ The following baseline platform work is complete:
 |---|---|---|---|---|---|---|
 | `git` | in-progress | host | linux, macos | OS package manager / host provisioning | current: `scripts/host/os/fedora.sh`, `scripts/host/os/macos.sh` | `command -v git`; clone/pull works |
 | `gh` | todo | local-xdg (optional host/layered) | linux, macos | package/binary installer | planned: `scripts/tools/gh.sh` | `gh --version`; `gh auth status`; `gh auth setup-git` works |
-| `git-credential-manager` | in-progress | host (conditional) | macos (work), optional linux | native package/vendor install | planned: `scripts/host/config/git-credential-manager.sh` | `command -v git-credential-manager` (where required); Azure DevOps HTTPS auth/token flow works |
+| `git-credential-manager` | blocked | host (conditional) | macos (work), optional linux | Homebrew on macOS when needed | deferred (no script planned currently) | optional: `command -v git-credential-manager` on macOS work hosts when enabled |
 | `helix` (`hx`) | todo | local-xdg (optional layered) | linux, macos | binary/package | planned: `scripts/tools/helix.sh` | `hx --version`; reads config from `$XDG_CONFIG_HOME/helix` |
 | `ripgrep` (`rg`) | blocked | layered | linux (+ macos fallback) | image/base package manager | image definition / host pkg policy | `rg --version`; available in host + toolbox |
 | `serie` | todo | local-xdg | linux, macos | package/binary | planned: `scripts/tools/serie.sh` | `serie --version` |
@@ -89,12 +89,12 @@ The following baseline platform work is complete:
 
 ## P0 — Git and Shell Foundation (Current Focus)
 
-1. Document and validate conditional `git-credential-manager` usage (required for macOS work/Azure DevOps, optional for personal Linux)
-2. Harden `gitconfig` auth/signing workflow for deterministic runs
-3. Validate `gh` + git helper integration across host and toolbox
-4. Validate `dotfiles shell` behavior in:
+1. Harden `gitconfig` auth/signing workflow for deterministic runs
+2. Validate `gh` + git helper integration across host and toolbox
+3. Validate `dotfiles shell` behavior in:
    - host login sessions
    - toolbox bootstrap sessions
+4. Keep `git-credential-manager` deferred from Linux implementation backlog; use macOS Homebrew only when required
 
 ## P1 — Language & Runtime Managers
 
@@ -132,7 +132,7 @@ The following baseline platform work is complete:
 | Canonical `rv` source and purpose | `rv` integration | you | tbd | Confirm exact runtime manager role |
 | Canonical package/source for `open code` | installer script | you | tbd | Resolve naming/package ambiguity |
 | Layered baseline package list finalization | `rg`, `jq`, `yq`, `just`, optional `gh` | you | tbd | Needed before image automation |
-| `git-credential-manager` scope decision | host credential policy | you | tbd | Keep conditional: required for macOS work/Azure DevOps, optional for personal Linux |
+| `git-credential-manager` Linux implementation decision | host credential policy | done (deferred) | n/a | Deferred from backlog; use Homebrew on macOS work hosts as needed; revisit only if Linux need emerges |
 | macOS policy for Homebrew vs local-xdg per tool | consistency strategy | you | tbd | Can remain capability-based |
 | AI CLI auth workflow policy | copilot/codex/claude/open | you | tbd | interactive vs scripted guidance |
 
@@ -141,17 +141,16 @@ The following baseline platform work is complete:
 ## Script Work Queue (Planned)
 
 1. `scripts/tools/gh.sh`
-2. `scripts/host/config/git-credential-manager.sh` (conditional path; prioritize macOS work setup)
-3. `scripts/tools/fnm.sh`
-4. `scripts/tools/rustup.sh`
-5. `scripts/tools/uv.sh`
-6. `scripts/tools/go.sh`
-7. `scripts/tools/copilot-cli.sh`
-8. `scripts/tools/codex.sh`
-9. `scripts/tools/claude-code.sh`
-10. `scripts/tools/open-code.sh`
-11. `scripts/tools/speedtest.sh` (rewrite)
-12. `scripts/tools/zed.sh` (harden)
+2. `scripts/tools/fnm.sh`
+3. `scripts/tools/rustup.sh`
+4. `scripts/tools/uv.sh`
+5. `scripts/tools/go.sh`
+6. `scripts/tools/copilot-cli.sh`
+7. `scripts/tools/codex.sh`
+8. `scripts/tools/claude-code.sh`
+9. `scripts/tools/open-code.sh`
+10. `scripts/tools/speedtest.sh` (rewrite)
+11. `scripts/tools/zed.sh` (harden)
 
 ---
 

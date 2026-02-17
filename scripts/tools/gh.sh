@@ -3,8 +3,7 @@
 # GitHub CLI installation script
 #
 # Linux (Fedora):
-# - Installs GitHub CLI using the official GitHub CLI repository.
-# - Handles mutable Fedora and Fedora Atomic variants.
+# - Installs GitHub CLI using shared Fedora host helper scripts.
 #
 # macOS:
 # - GitHub CLI is expected to be managed by Brewfile.
@@ -18,8 +17,8 @@ abort() {
 }
 
 if command -v gh >/dev/null 2>&1; then
-    echo "GitHub CLI is already installed."
-    exit 0
+  echo "GitHub CLI is already installed."
+  exit 0
 fi
 
 case "$(uname -s)" in
@@ -33,22 +32,11 @@ case "$(uname -s)" in
 
     case "${ID:-}" in
       fedora)
-        GH_REPO_URL="https://cli.github.com/packages/rpm/gh-cli.repo"
-        GH_REPO_PATH="/etc/yum.repos.d/github-cli.repo"
-        if [ ! -f "$GH_REPO_PATH" ]; then
-          curl -fsSL "$GH_REPO_URL" | sudo tee "$GH_REPO_PATH"
-        fi
+        dotfiles script host/os/fedora/repo \
+          "https://cli.github.com/packages/rpm/gh-cli.repo" \
+          "/etc/yum.repos.d/github-cli.repo"
 
-        case "${VARIANT_ID}" in
-          silverblue|cosmic-atomic)
-            rpm-ostree refresh-md
-            rpm-ostree install --idempotent gh
-            ;;
-          *)
-            sudo dnf makecache --refresh
-            sudo dnf install -y gh
-            ;;
-        esac
+        dotfiles script host/os/fedora/pkg install gh
         ;;
       *)
         abort "Unsupported Linux distribution: ${ID:-unknown}"
