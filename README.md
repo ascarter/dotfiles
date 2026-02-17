@@ -1,6 +1,12 @@
 # dotfiles
 My developer workspace profile
 
+## Contributing
+
+- Start with `AGENTS.md` for repository guidelines.
+- Use `docs/dev-environment.md` for implementation details and rebuild flow.
+- Track tool work in `docs/tools-backlog.md`.
+
 ## Installation
 
 ### Quick Install (Recommended)

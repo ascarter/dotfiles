@@ -1,8 +1,10 @@
 # Tooling Implementation Backlog
 
+Read `AGENTS.md` first. This file tracks implementation status and decisions that support that guide.
+
 This backlog tracks implementation progress for development tools across Linux and macOS, aligned with:
 
-- `AGENTS.md` (tiering + script taxonomy policy)
+- `AGENTS.md` (contributor guide and repository guardrails)
 - `docs/dev-environment.md` (lifecycle + provisioning model)
 
 ---

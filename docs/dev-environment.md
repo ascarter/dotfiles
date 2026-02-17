@@ -1,6 +1,8 @@
 # Development Environment Implementation Guide
 
-This document defines the practical implementation of the tiered environment policy from `AGENTS.md`, including concrete install patterns, script taxonomy, command examples, and a rebuild checklist.
+Read `AGENTS.md` first. This document is supporting detail and should remain aligned with it.
+
+This document defines the detailed implementation model aligned with `AGENTS.md` (the concise contributor guide), including concrete install patterns, script taxonomy, command examples, and a rebuild checklist.
 
 ---
 
@@ -24,7 +26,7 @@ Use this sequence as the default rebuild flow:
 3. Run host OS provisioning (baseline OS state)
 4. Run package-manager baseline provisioning (where applicable)
 5. Run shell bootstrap with `dotfiles shell`
-6. Run meta scripts (or individual scripts) for tools/apps
+6. Run tool scripts directly (meta scripts can be added later as orchestration profiles)
 7. Authenticate credentials and verify environment
 
 This lifecycle should be mirrored across Linux and macOS, even if implementation details differ.
