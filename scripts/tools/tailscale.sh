@@ -9,62 +9,61 @@ abort() {
   exit 1
 }
 
+if command -v tailscale >/dev/null 2>&1; then
+  echo "Tailscale is already installed."
+  exit 0
+fi
+
 case "$(uname -s)" in
   Darwin)
-    if command -v tailscale >/dev/null 2>&1; then
-      echo "Tailscale is already installed."
-    else
-      echo "Use Homebrew to install Tailscale on macOS"
-      brew install --cask tailscale-app
-    fi
+    echo "Use Homebrew to install Tailscale on macOS"
+    echo "brew install --cask tailscale-app"
     ;;
   Linux)
-    if [ -f /etc/os-release ]; then
-      . /etc/os-release
-      case "${ID}" in
-        ubuntu | debian) ;;
-        fedora)
-          echo "Fedora ${VARIANT_ID} detected"
+    [ -f /etc/os-release ] || abort "Unsupported Linux distribution (missing /etc/os-release)"
+    . /etc/os-release
 
-          if command -v tailscale >/dev/null 2>&1; then
-            echo "Tailscale is already installed."
+    case "${ID}" in
+      fedora)
+        echo "Fedora ${VARIANT_ID} detected"
 
-            # Verify that tailscale is enabled
-            if ! tailscale status; then
-              systemctl enable --now tailscaled
-              sudo tailscale up --accept-routes=true --ssh
-            fi
-          else
-            TAILSCALE_URL=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-            TAILSCALE_REPO_PATH=/etc/yum.repos.d/tailscale.repo
-            if [ ! -f "${TAILSCALE_REPO_PATH}" ]; then
-              curl -fsSL "${TAILSCALE_URL}" | sudo tee ${TAILSCALE_REPO_PATH}
-            fi
+        if command -v tailscale >/dev/null 2>&1; then
+          echo "Tailscale is already installed."
 
-            case "${VARIANT_ID}" in
-              silverblue | cosmic-atomic)
-                rpm-ostree refresh-md
-                rpm-ostree install tailscale
-                ;;
-              *)
-                sudo dnf install -y tailscale
-                ;;
-            esac
-
-            echo "Reboot to complete the installation."
-            echo "After reboot, run the following or rerun this script:"
-            echo ""
-            echo "systemctl enable --now tailscaled"
-            echo "sudo tailscale up --accept-routes=true --ssh"
+          # Verify that tailscale is enabled
+          if ! tailscale status; then
+            systemctl enable --now tailscaled
+            sudo tailscale up --accept-routes=true --ssh
           fi
-          ;;
-        *)
-          abort "Unsupported Linux distribution: ${ID}"
-          ;;
-      esac
-    else
-      abort "Unsupported Linux distribution"
-    fi
+        else
+          TAILSCALE_URL=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+          TAILSCALE_REPO_PATH=/etc/yum.repos.d/tailscale.repo
+          if [ ! -f "${TAILSCALE_REPO_PATH}" ]; then
+            curl -fsSL "${TAILSCALE_URL}" | sudo tee ${TAILSCALE_REPO_PATH}
+          fi
+
+          case "${VARIANT_ID}" in
+            silverblue | cosmic-atomic)
+              rpm-ostree refresh-md
+              rpm-ostree install tailscale
+              ;;
+            *)
+              sudo dnf makecache --refresh
+              sudo dnf install -y tailscale
+              ;;
+          esac
+
+          echo "Reboot to complete the installation."
+          echo "After reboot, run the following or rerun this script:"
+          echo ""
+          echo "systemctl enable --now tailscaled"
+          echo "sudo tailscale up --accept-routes=true --ssh"
+        fi
+        ;;
+      *)
+        abort "Unsupported Linux distribution: ${ID:-unknown}"
+        ;;
+    esac
     ;;
   *)
     abort "Unsupported OS: $(uname -s)"

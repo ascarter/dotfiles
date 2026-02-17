@@ -43,7 +43,11 @@ Typical host responsibilities:
 - shell/runtime basics (`zsh`, core utilities)
 - container/toolbox runtime
 - credential/keychain integration
-- `git-credential-manager` (preferred host-native integration)
+
+Credential strategy:
+
+- `gh` is required for GitHub authentication flows
+- `git-credential-manager` is conditional and only required for non-GitHub hosts (currently Azure DevOps on macOS work environments)
 
 ## Tier 2: Layered Base (toolbox/container image)
 
@@ -218,7 +222,12 @@ Install/ensure on host:
 - `git`
 - `zsh`
 - toolbox/container runtime
-- `git-credential-manager` (native package/source recommended)
+- `gh` (required baseline credential helper for GitHub)
+
+Conditional host credential helper:
+
+- `git-credential-manager` (native package/source recommended) only where non-GitHub hosts are required
+- current requirement: macOS work environments for Azure DevOps
 
 For Fedora Atomic/Workstation, keep host package overlays small and focused on integration/runtime.
 
@@ -299,9 +308,13 @@ Because there is no direct toolbox equivalent by default, split responsibilities
 Install (host-level):
 
 - `git`
-- `git-credential-manager`
+- `gh`
 - shell/runtime essentials
 - keychain-integrated dependencies
+
+Conditional on work/non-GitHub requirements:
+
+- `git-credential-manager` (currently needed for Azure DevOps on macOS)
 
 ## 2) Package manager baseline
 
@@ -378,7 +391,9 @@ Recommended PATH intent:
 3. Run `dotfiles init`
 4. Run `dotfiles shell` (safe re-run; canonical shell bootstrap)
 5. Run host provisioning scripts (platform-specific)
-6. Install/verify host-native integration tools (`git-credential-manager`, etc.)
+6. Install/verify Git credential tools:
+   - required: `gh` (GitHub)
+   - conditional: `git-credential-manager` (Azure DevOps/non-GitHub hosts; currently macOS work)
 7. Run meta scripts (`baseline`, then `devtools`, then `apps` as needed)
 8. Restart shell and validate PATH + binary resolution
 9. Authenticate tools (`gh`, copilot/codex/claude, etc.)
@@ -408,7 +423,8 @@ Use this checklist for Linux/macOS rebuilds.
 
 - [ ] Run host OS provisioning script for platform
 - [ ] Run package manager baseline script(s)
-- [ ] Install/verify `git-credential-manager`
+- [ ] Install/verify `gh`
+- [ ] Install/verify `git-credential-manager` only where required (currently macOS work for Azure DevOps)
 - [ ] Verify shell default and XDG env exports
 
 ## Baseline/devtools/apps
@@ -488,6 +504,17 @@ uv --version
    - apps/casks
 6. Add toolbox base image definition in-repo for reproducibility
 7. Add CI checks for script linting and policy drift
+
+---
+
+## Git Credential Routing Policy
+
+Default routing:
+
+- GitHub remotes use `gh` credential integration (`gh auth setup-git`)
+- `git-credential-manager` is configured only when present and needed for non-GitHub hosts (currently Azure DevOps on macOS work setups)
+
+This allows personal Linux environments to remain simpler while still supporting work credential flows on macOS.
 
 ---
 

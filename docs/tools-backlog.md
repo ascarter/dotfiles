@@ -60,7 +60,7 @@ The following baseline platform work is complete:
 |---|---|---|---|---|---|---|
 | `git` | in-progress | host | linux, macos | OS package manager / host provisioning | current: `scripts/host/os/fedora.sh`, `scripts/host/os/macos.sh` | `command -v git`; clone/pull works |
 | `gh` | todo | local-xdg (optional host/layered) | linux, macos | package/binary installer | planned: `scripts/tools/gh.sh` | `gh --version`; `gh auth status`; `gh auth setup-git` works |
-| `git-credential-manager` | todo | host | linux, macos | native package/vendor install | planned: `scripts/host/config/git-credential-manager.sh` | `command -v git-credential-manager`; git HTTPS auth/token flow works |
+| `git-credential-manager` | in-progress | host (conditional) | macos (work), optional linux | native package/vendor install | planned: `scripts/host/config/git-credential-manager.sh` | `command -v git-credential-manager` (where required); Azure DevOps HTTPS auth/token flow works |
 | `helix` (`hx`) | todo | local-xdg (optional layered) | linux, macos | binary/package | planned: `scripts/tools/helix.sh` | `hx --version`; reads config from `$XDG_CONFIG_HOME/helix` |
 | `ripgrep` (`rg`) | blocked | layered | linux (+ macos fallback) | image/base package manager | image definition / host pkg policy | `rg --version`; available in host + toolbox |
 | `serie` | todo | local-xdg | linux, macos | package/binary | planned: `scripts/tools/serie.sh` | `serie --version` |
@@ -89,7 +89,7 @@ The following baseline platform work is complete:
 
 ## P0 — Git and Shell Foundation (Current Focus)
 
-1. Implement `git-credential-manager` host install script
+1. Document and validate conditional `git-credential-manager` usage (required for macOS work/Azure DevOps, optional for personal Linux)
 2. Harden `gitconfig` auth/signing workflow for deterministic runs
 3. Validate `gh` + git helper integration across host and toolbox
 4. Validate `dotfiles shell` behavior in:
@@ -132,6 +132,7 @@ The following baseline platform work is complete:
 | Canonical `rv` source and purpose | `rv` integration | you | tbd | Confirm exact runtime manager role |
 | Canonical package/source for `open code` | installer script | you | tbd | Resolve naming/package ambiguity |
 | Layered baseline package list finalization | `rg`, `jq`, `yq`, `just`, optional `gh` | you | tbd | Needed before image automation |
+| `git-credential-manager` scope decision | host credential policy | you | tbd | Keep conditional: required for macOS work/Azure DevOps, optional for personal Linux |
 | macOS policy for Homebrew vs local-xdg per tool | consistency strategy | you | tbd | Can remain capability-based |
 | AI CLI auth workflow policy | copilot/codex/claude/open | you | tbd | interactive vs scripted guidance |
 
@@ -139,8 +140,8 @@ The following baseline platform work is complete:
 
 ## Script Work Queue (Planned)
 
-1. `scripts/host/config/git-credential-manager.sh`
-2. `scripts/tools/gh.sh`
+1. `scripts/tools/gh.sh`
+2. `scripts/host/config/git-credential-manager.sh` (conditional path; prioritize macOS work setup)
 3. `scripts/tools/fnm.sh`
 4. `scripts/tools/rustup.sh`
 5. `scripts/tools/uv.sh`

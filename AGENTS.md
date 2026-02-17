@@ -59,7 +59,7 @@ Install here when the tool needs deep OS integration, credential store access, o
 - Credential/keychain integration layers
 
 **Preferred host-native tools**
-- `git-credential-manager` (OS keychain/credential store integration)
+- `git-credential-manager` (OS keychain/credential store integration; conditional by host/workflow needs)
 
 ---
 
@@ -267,6 +267,17 @@ All scripts must:
 - If Bash is required, declare `#!/usr/bin/env bash` and keep usage intentional
 - Do not use Bash-only syntax in `sh` scripts
 
+### Script style preference (simple over abstract)
+
+For tool scripts (for example under `scripts/tools/`), prefer straightforward step-by-step scripts over heavy abstraction.
+
+- Keep scripts easy to scan top-to-bottom
+- Use minimal helper functions (for example `abort`) and avoid function-heavy decomposition unless it clearly improves readability
+- Do not introduce defensive complexity that is unnecessary for controlled environments
+- Prefer explicit, linear steps for repo setup, metadata refresh, and install actions
+- Optimize for maintainability by making behavior obvious at a glance
+- When in doubt, choose the simpler script structure
+
 ---
 
 ## Refactor Policy and Migration Strategy
@@ -342,6 +353,9 @@ When making changes in this repo:
 7. **Minimize privilege escalation**; use user-local installs by default
 8. **Keep script taxonomy coherent** (no new flat-mix regressions)
 9. **Use `dotfiles shell` as the single shell bootstrap path** (no duplicated shell wiring in helper scripts)
+10. **Treat `git-credential-manager` as conditional**: required only on hosts/workflows that need non-GitHub credential flows (for GitHub-only, prefer `gh auth setup-git`)
+11. **Keep tool scripts straightforward**: avoid unnecessary abstraction and favor simple, linear install logic
+12. **Honor the `checkpoint` procedure** exactly when the user requests “Checkpoint” or “checkpoint”
 
 ---
 
@@ -358,8 +372,30 @@ Before merging provisioning/tooling changes, verify:
 - [ ] Meta profile behavior is documented (if affected)
 - [ ] Shell bootstrap changes go through `dotfiles shell`
 - [ ] Toolbox bootstrap avoids host provisioning and uses `dotfiles shell` + `dotfiles sync`
+- [ ] Git credential policy is explicit (`gh` required baseline; `git-credential-manager` conditional by host/workflow)
+- [ ] Tool scripts remain straightforward and traceable (minimal abstraction)
 - [ ] Rebuild path from clean machine is still valid
 - [ ] README/install flow remains accurate
+
+---
+
+## Checkpoint Procedure
+
+When the user says **“Checkpoint”** or **“checkpoint”**, perform all of the following:
+
+1. Ensure the repository is in a clean state target:
+   - review current changes
+   - stage/prepare intended changes
+   - avoid leaving partial undocumented edits
+2. Update key documentation to reflect current reality:
+   - `AGENTS.md`
+   - `docs/dev-environment.md`
+   - `docs/tools-backlog.md`
+3. Create a commit with:
+   - an accurate summary of what changed
+   - enough detail for future traceability
+
+This procedure is mandatory unless the user explicitly overrides part of it.
 
 ---
 
