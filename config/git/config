@@ -50,14 +50,8 @@
 [merge]
 	gui = auto
 
-[difftool "vscode"]
-	cmd = code --wait --diff $LOCAL $REMOTE
-
-[mergetool "vscode"]
-	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
-
 [difftool "zed"]
-  cmd = zed --wait --diff $LOCAL $REMOTE
+  cmd = zed --wait --new --diff $LOCAL $REMOTE
 
 [alias]
 	aliases = !git config --get-regexp alias | cut -c 7-
