@@ -137,7 +137,7 @@
     "default_profile": "write",
     "default_model": {
       "provider": "copilot_chat",
-      "model": "gpt-5.3-codex",
+      "model": "claude-opus-4.6",
     },
   },
   "languages": {
