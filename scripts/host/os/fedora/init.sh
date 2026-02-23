@@ -30,6 +30,9 @@ silverblue | cosmic-atomic)
   rpm-ostree install --idempotent git
   rpm-ostree install --idempotent neovim
   rpm-ostree install --idempotent zsh
+  rpm-ostree install --idempotent bolt
+  rpm-ostree install --idempotent solaar
+  rpm-ostree install --idempotent steam-devices
 
   case "${XDG_CURRENT_DESKTOP:-}" in
   COSMIC)
