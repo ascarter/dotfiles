@@ -12,6 +12,9 @@
   "completion_menu_scrollbar": "auto",
   "toolbar": {},
   "agent_servers": {
+    "github-copilot-cli": {
+      "type": "registry"
+    },
     "opencode": {
       "type": "registry",
     },
@@ -63,7 +66,7 @@
     "close_position": "left",
     "file_icons": false,
   },
-  "helix_mode": true,
+  "vim_mode": true,
   "vim": {
     "default_mode": "normal",
     "toggle_relative_line_numbers": true,
