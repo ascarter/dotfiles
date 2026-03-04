@@ -27,7 +27,7 @@ brew "rv"
 brew "uv"
 
 # Editors
-brew "helix"
+brew "neovim"
 
 if OS.mac?
   brew "gnupg"

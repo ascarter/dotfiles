@@ -5,7 +5,7 @@
 # Enable Emacs editing mode
 bindkey -e
 
-# Edit command line in $EDITOR (Helix/Zed)
+# Edit command line in $EDITOR
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^X^E' edit-command-line        # Ctrl-X Ctrl-E to open current line in $EDITOR

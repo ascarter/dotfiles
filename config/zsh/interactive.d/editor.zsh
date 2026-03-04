@@ -1,6 +1,6 @@
 # Editor preference
-if (( $+commands[hx] )); then
-  export EDITOR="hx"
+if ((+commands[nvim] )); then
+  export EDITOR="nvim"
 elif (( $+commands[vim] )); then
   export EDITOR="vim"
 else
