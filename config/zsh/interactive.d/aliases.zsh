@@ -27,6 +27,17 @@ if (( $+commands[rustup] )); then
   alias rustbook="rustup doc --book"
 fi
 
+# Obsidian
+case $(uname) in
+Darwin)
+  if [[ -d /Applications/Obsidian.app ]]; then
+    alias obsidian="/Applications/Obsidian.app/Contents/MacOS/Obsidian"
+  fi
+  ;;
+Linux)
+  # TODO: Add Linux support for Obsidian (AppImage or Flatpak)
+  ;;
+esac
 # Platform specific aliases
 case $(uname) in
 Darwin)
