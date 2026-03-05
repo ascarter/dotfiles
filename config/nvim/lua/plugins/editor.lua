@@ -19,6 +19,7 @@ return {
         { "<leader>d", group = "debug" },
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
+        { "<leader>s", group = "search" },
         { "g",         group = "goto" },
         { "]",         group = "next" },
         { "[",         group = "prev" },
