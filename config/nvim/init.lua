@@ -92,6 +92,21 @@ end
 opt.statusline = "%!v:lua.statusline()"
 
 -- =============================================================================
+-- Diagnostics
+-- =============================================================================
+vim.diagnostic.config({
+  virtual_text     = { prefix = "●" },
+  signs            = true,
+  underline        = true,
+  update_in_insert = false,
+  severity_sort    = true,
+  float = {
+    border = "rounded",
+    source = true,
+  },
+})
+
+-- =============================================================================
 -- Autocommands
 -- =============================================================================
 local augroup = vim.api.nvim_create_augroup("NumberToggle", { clear = true })
@@ -113,6 +128,51 @@ vim.api.nvim_create_autocmd("BufReadPost", {
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
   end,
+})
+
+-- LSP customizations (activate when a language server attaches)
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+    -- Enable built-in LSP completion
+    if client and client.supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+    end
+
+    -- Use fzf-lua for references (nicer UI than default quickfix)
+    local ok, fzf = pcall(require, "fzf-lua")
+    if ok then
+      vim.keymap.set("n", "grr", fzf.lsp_references, { buffer = bufnr, silent = true, desc = "References" })
+    end
+
+    -- Format with leader key
+    vim.keymap.set({ "n", "v" }, "<leader>cf", function()
+      vim.lsp.buf.format({ async = true })
+    end, { buffer = bufnr, silent = true, desc = "Format" })
+
+    -- Inlay hints (<leader>ci to toggle)
+    if client and client.supports_method("textDocument/inlayHint") then
+      vim.keymap.set("n", "<leader>ci", function()
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
+      end, { buffer = bufnr, silent = true, desc = "Toggle inlay hints" })
+    end
+  end,
+})
+
+-- LSP server-specific configuration
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      runtime   = { version = "LuaJIT" },
+      workspace = {
+        checkThirdParty = false,
+        library = { vim.env.VIMRUNTIME },
+      },
+      telemetry = { enable = false },
+    },
+  },
 })
 
 -- =============================================================================
