@@ -1,4 +1,18 @@
 -- =============================================================================
+-- Bootstrap lazy.nvim
+-- =============================================================================
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- =============================================================================
 -- Options
 -- =============================================================================
 local opt            = vim.opt
@@ -45,27 +59,27 @@ opt.showmode   = false
 opt.ruler      = false
 
 local mode_map = {
-  n       = { hl = "ModeNormal",   text = "NORMAL" },
-  i       = { hl = "ModeInsert",   text = "INSERT" },
-  v       = { hl = "ModeVisual",   text = "VISUAL" },
-  V       = { hl = "ModeVisual",   text = "V·LINE" },
-  ["\22"] = { hl = "ModeVisual",   text = "V·BLOCK" }, -- <C-v>
-  s       = { hl = "ModeVisual",   text = "SELECT" },
-  S       = { hl = "ModeVisual",   text = "S·LINE" },
-  ["\19"] = { hl = "ModeVisual",   text = "S·BLOCK" }, -- <C-s>
-  R       = { hl = "ModeReplace",  text = "REPLACE" },
-  c       = { hl = "ModeCommand",  text = "COMMAND" },
-  r       = { hl = "ModeNormal",   text = "PROMPT" },
+  n       = { hl = "ModeNormal", text = "NORMAL" },
+  i       = { hl = "ModeInsert", text = "INSERT" },
+  v       = { hl = "ModeVisual", text = "VISUAL" },
+  V       = { hl = "ModeVisual", text = "V·LINE" },
+  ["\22"] = { hl = "ModeVisual", text = "V·BLOCK" }, -- <C-v>
+  s       = { hl = "ModeVisual", text = "SELECT" },
+  S       = { hl = "ModeVisual", text = "S·LINE" },
+  ["\19"] = { hl = "ModeVisual", text = "S·BLOCK" }, -- <C-s>
+  R       = { hl = "ModeReplace", text = "REPLACE" },
+  c       = { hl = "ModeCommand", text = "COMMAND" },
+  r       = { hl = "ModeNormal", text = "PROMPT" },
   t       = { hl = "ModeTerminal", text = "TERMINAL" },
-  ["!"]   = { hl = "ModeNormal",   text = "SHELL" },
-  no      = { hl = "ModeNormal",   text = "OPERATOR" },
+  ["!"]   = { hl = "ModeNormal", text = "SHELL" },
+  no      = { hl = "ModeNormal", text = "OPERATOR" },
   nt      = { hl = "ModeTerminal", text = "N·TERM" },
 }
 
 function _G.statusline()
-  local m    = mode_map[vim.fn.mode()] or { hl = "ModeNormal", text = vim.fn.mode() }
-  local mode = ("%%#%s# %s %%*"):format(m.hl, m.text)
-  local left = " %f %m%r"
+  local m     = mode_map[vim.fn.mode()] or { hl = "ModeNormal", text = vim.fn.mode() }
+  local mode  = ("%%#%s# %s %%*"):format(m.hl, m.text)
+  local left  = " %f %m%r"
   local right = "%l:%c  " .. mode .. "  " .. vim.bo.filetype .. " "
   return left .. "%=" .. right
 end
@@ -124,3 +138,13 @@ map("n", "<S-l>", "<cmd>bnext<CR>")
 -- Colorscheme
 -- =============================================================================
 vim.cmd.colorscheme("ansi")
+
+-- =============================================================================
+-- Plugins (lazy.nvim)
+-- =============================================================================
+require("lazy").setup({
+  spec             = { { import = "plugins" } },
+  defaults         = { lazy = true },
+  rocks            = { enabled = false },
+  change_detection = { notify = false },
+})
