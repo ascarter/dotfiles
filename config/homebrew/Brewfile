@@ -24,6 +24,7 @@ brew "golang"
 brew "just"
 brew "rustup"
 brew "rv"
+brew "tree-sitter-cli"
 brew "uv"
 
 # Editors

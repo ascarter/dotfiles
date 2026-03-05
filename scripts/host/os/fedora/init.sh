@@ -28,6 +28,7 @@ silverblue | cosmic-atomic)
 
   # Install rpm overlays
   rpm-ostree install --idempotent git
+  rpm-ostree install --idempotent neovim
   rpm-ostree install --idempotent zsh
 
   case "${XDG_CURRENT_DESKTOP:-}" in

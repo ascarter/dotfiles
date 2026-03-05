@@ -29,6 +29,11 @@ opt.scrolloff        = 10
 opt.signcolumn       = "yes"
 opt.breakindent      = true
 
+-- Folding (treesitter-based)
+opt.foldmethod       = "expr"
+opt.foldexpr         = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel        = 99
+
 -- Search
 opt.ignorecase       = true
 opt.smartcase        = true

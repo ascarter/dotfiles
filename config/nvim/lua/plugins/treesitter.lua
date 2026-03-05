@@ -5,7 +5,7 @@ return {
   config = function()
     require("nvim-treesitter").setup({})
 
-    -- Install parsers for common languages
+    -- Install parsers for common languages (no-op if already installed)
     require("nvim-treesitter").install({
       "bash", "c", "css", "dockerfile", "go", "gomod", "html",
       "javascript", "json", "lua", "markdown", "python", "ruby",
