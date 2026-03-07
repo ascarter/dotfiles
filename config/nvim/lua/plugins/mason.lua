@@ -1,20 +1,26 @@
 return {
-  -- Mason: portable language server installer
+  -- Mason: portable tool installer (LSP servers, DAP adapters)
   {
     "mason-org/mason.nvim",
     lazy = false,
     opts = {
       ui = { border = "rounded" },
+      ensure_installed = {
+        -- DAP adapters
+        "codelldb",
+        "delve",
+      },
     },
   },
 
-  -- lspconfig: server configuration definitions
+  -- Server configuration definitions required by mason-lspconfig
   {
     "neovim/nvim-lspconfig",
     lazy = false,
   },
 
-  -- Bridge mason <-> nvim LSP (auto-enables installed servers)
+  -- Bridge Mason <-> nvim LSP built-in client
+  -- automatic_enable = true calls vim.lsp.enable() for every installed server
   {
     "mason-org/mason-lspconfig.nvim",
     lazy = false,
