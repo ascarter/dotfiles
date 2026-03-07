@@ -33,9 +33,9 @@ return {
       winopts = {
         border  = "rounded",
         preview = {
-          border   = "rounded",
-          layout   = "vertical",
-          vertical = "up:40%",
+          border       = "rounded",
+          layout       = "flex",
+          flip_columns = 120,
         },
       },
       keymap = {

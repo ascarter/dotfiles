@@ -21,6 +21,10 @@ local opt            = vim.opt
 vim.g.mapleader      = " "
 vim.g.maplocalleader = " "
 
+-- Disable netrw (replaced by fzf-lua file picker)
+vim.g.loaded_netrw       = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Interface
 opt.number           = true
 opt.relativenumber   = true
@@ -52,6 +56,9 @@ opt.pumheight        = 10
 -- Files
 opt.undofile         = true
 opt.swapfile         = false
+
+-- Suppress intro screen
+opt.shortmess:append("I")
 
 -- Misc
 opt.confirm          = true
@@ -119,6 +126,14 @@ vim.api.nvim_create_autocmd("InsertLeave", {
   callback = function() vim.wo.relativenumber = true end,
 })
 
+-- Open help in a vertical split
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "help",
+  callback = function()
+    vim.cmd("wincmd L")
+  end,
+})
+
 -- Restore cursor position when reopening a file
 vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function()
@@ -126,6 +141,31 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     local lcount = vim.api.nvim_buf_line_count(0)
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
+})
+
+-- Open file picker on startup (no args or directory arg)
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    local arg = vim.fn.argv(0)
+    if vim.fn.argc() == 0 or vim.fn.isdirectory(arg) == 1 then
+      if vim.fn.isdirectory(arg) == 1 then
+        vim.cmd.cd(arg)
+      end
+      vim.schedule(function() require("fzf-lua").files() end)
+    end
+  end,
+})
+
+-- Redirect :edit <directory> to fzf file picker
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = function(args)
+    if vim.fn.isdirectory(vim.api.nvim_buf_get_name(args.buf)) == 1 then
+      vim.schedule(function()
+        vim.cmd("bwipeout " .. args.buf)
+        require("fzf-lua").files()
+      end)
     end
   end,
 })
