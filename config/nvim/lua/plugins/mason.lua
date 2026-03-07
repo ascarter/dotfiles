@@ -63,7 +63,6 @@ return {
         "codelldb",
         "delve",
       },
-      automatic_installation = true,
     },
   },
 }
