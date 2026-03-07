@@ -13,7 +13,7 @@
   "toolbar": {},
   "agent_servers": {
     "github-copilot-cli": {
-      "type": "registry"
+      "type": "registry",
     },
     "opencode": {
       "type": "registry",
