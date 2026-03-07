@@ -126,6 +126,11 @@ vim.api.nvim_create_autocmd("InsertLeave", {
   callback = function() vim.wo.relativenumber = true end,
 })
 
+-- Briefly highlight yanked text
+vim.api.nvim_create_autocmd("TextYankPost", {
+  callback = function() vim.hl.on_yank({ timeout = 300 }) end,
+})
+
 -- Open help in a vertical split
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "help",
@@ -201,20 +206,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- LSP server-specific configuration
-vim.lsp.config("lua_ls", {
-  settings = {
-    Lua = {
-      runtime   = { version = "LuaJIT" },
-      workspace = {
-        checkThirdParty = false,
-        library = { vim.env.VIMRUNTIME },
-      },
-      telemetry = { enable = false },
-    },
-  },
-})
-
 -- =============================================================================
 -- Keymaps
 -- =============================================================================
@@ -238,6 +229,7 @@ map("n", "<C-l>", "<C-w>l")
 -- Buffer navigation
 map("n", "<S-h>", "<cmd>bprev<CR>")
 map("n", "<S-l>", "<cmd>bnext<CR>")
+map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 
 -- =============================================================================
 -- Plugins (lazy.nvim)

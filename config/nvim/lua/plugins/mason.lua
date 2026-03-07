@@ -5,11 +5,6 @@ return {
     lazy = false,
     opts = {
       ui = { border = "rounded" },
-      ensure_installed = {
-        -- DAP adapters
-        "codelldb",
-        "delve",
-      },
     },
   },
 
@@ -17,6 +12,20 @@ return {
   {
     "neovim/nvim-lspconfig",
     lazy = false,
+    config = function()
+      vim.lsp.config("lua_ls", {
+        settings = {
+          Lua = {
+            runtime   = { version = "LuaJIT" },
+            workspace = {
+              checkThirdParty = false,
+              library = { vim.env.VIMRUNTIME },
+            },
+            telemetry = { enable = false },
+          },
+        },
+      })
+    end,
   },
 
   -- Bridge Mason <-> nvim LSP built-in client
@@ -38,6 +47,23 @@ return {
         "taplo",
       },
       automatic_enable = true,
+    },
+  },
+
+  -- Bridge Mason <-> nvim-dap (auto-install and configure DAP adapters)
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    lazy = false,
+    dependencies = {
+      "mason-org/mason.nvim",
+      "mfussenegger/nvim-dap",
+    },
+    opts = {
+      ensure_installed = {
+        "codelldb",
+        "delve",
+      },
+      automatic_installation = true,
     },
   },
 }
