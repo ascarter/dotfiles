@@ -62,7 +62,6 @@ opt.shortmess:append("I")
 
 -- Misc
 opt.confirm          = true
-vim.schedule(function() opt.clipboard = "unnamedplus" end)
 
 -- =============================================================================
 -- Statusline
@@ -128,7 +127,7 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 
 -- Briefly highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
-  callback = function() vim.hl.on_yank({ timeout = 300 }) end,
+  callback = function() vim.hl.on_yank({ timeout = 200 }) end,
 })
 
 -- Open help in a vertical split
@@ -230,6 +229,13 @@ map("n", "<C-l>", "<C-w>l")
 map("n", "<S-h>", "<cmd>bprev<CR>")
 map("n", "<S-l>", "<cmd>bnext<CR>")
 map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
+
+-- Clipboard: "On Yank" behavior (matches Zed setting)
+-- y/Y/p/P use system clipboard; d/x/c stay in vim registers
+map({ "n", "v" }, "y", '"+y')
+map("n",          "Y", '"+Y')
+map({ "n", "v" }, "p", '"+p')
+map({ "n", "v" }, "P", '"+P')
 
 -- =============================================================================
 -- Plugins (lazy.nvim)

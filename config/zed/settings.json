@@ -68,6 +68,7 @@
   },
   "vim_mode": true,
   "vim": {
+    "use_system_clipboard": "on_yank",
     "default_mode": "normal",
     "toggle_relative_line_numbers": true,
     "use_smartcase_find": true,
