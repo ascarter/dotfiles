@@ -6,6 +6,7 @@ mouse-hide-while-typing = true
 focus-follows-mouse = true
 cursor-style-blink = true
 shell-integration-features = ssh-terminfo,ssh-env
+gtk-titlebar-style = tabs
 
 # Show quick terminal with alt+`
 keybind = global:alt+super+grave_accent=toggle_quick_terminal
