@@ -99,6 +99,7 @@ Commands:
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
   script      Run a script (list available scripts if no name given)
+  tool        Manage tools (install|update|status [<toolname>])
 
 Options:
   -v          Enable verbose output
@@ -419,12 +420,44 @@ cmd_edit() {
   "$EDITOR" "$DOTFILES_HOME"
 }
 
+cmd_tool() {
+  local op="${1:-install}"
+  local target="${2:-}"
+
+  # Preflight: gh must be installed (needed by lib/tool.sh for GitHub releases)
+  command -v gh >/dev/null 2>&1 || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  # Preflight: DOTFILES_HOME must be set
+  [[ -n "${DOTFILES_HOME:-}" ]] || abort "DOTFILES_HOME is not set"
+
+  local tools_dir="${DOTFILES_HOME}/tools"
+  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+
+  if [[ -n "$target" ]]; then
+    local script="${tools_dir}/${target}.sh"
+    [[ -f "$script" ]] || abort "Unknown tool: $target"
+    vlog "tool" "$op $target"
+    bash "$script"
+  else
+    local failed=0
+    while IFS= read -r script; do
+      local tool_name
+      tool_name="$(basename "$script" .sh)"
+      vlog "tool" "$op $tool_name"
+      bash "$script" || {
+        warn "$tool_name" "installation failed"
+        failed=1
+      }
+    done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
+    return $failed
+  fi
+}
+
 main() {
   cmd="$1"
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit | tool)
     cmd_$cmd "$@"
     ;;
   help)
