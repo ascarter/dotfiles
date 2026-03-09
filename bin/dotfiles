@@ -99,7 +99,7 @@ Commands:
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
   script      Run a script (list available scripts if no name given)
-  tool        Manage tools (install|update|status [<toolname>])
+  tool        Manage tools (install|uninstall|clean [<toolname>])
 
 Options:
   -v          Enable verbose output
@@ -426,32 +426,111 @@ cmd_tool() {
   local op="${1:-install}"
   local target="${2:-}"
 
-  # Preflight: gh must be installed (needed by lib/tool.sh for GitHub releases)
-  command -v gh >/dev/null 2>&1 || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
   # Preflight: DOTFILES_HOME must be set
   [[ -n "${DOTFILES_HOME:-}" ]] || abort "DOTFILES_HOME is not set"
 
   local tools_dir="${DOTFILES_HOME}/tools"
-  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
 
-  if [[ -n "$target" ]]; then
-    local script="${tools_dir}/${target}.sh"
-    [[ -f "$script" ]] || abort "Unknown tool: $target"
-    vlog "tool" "$op $target"
-    bash "$script"
-  else
-    local failed=0
-    while IFS= read -r script; do
-      local tool_name
-      tool_name="$(basename "$script" .sh)"
-      vlog "tool" "$op $tool_name"
-      bash "$script" || {
-        warn "$tool_name" "installation failed"
-        failed=1
-      }
-    done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
-    return $failed
-  fi
+  # Prune broken symlinks under a directory (used after uninstall)
+  _prune_symlinks() {
+    local dir="$1"
+    [[ -d "$dir" ]] || return 0
+    find "$dir" -maxdepth 3 -type l | while IFS= read -r link; do
+      if [[ ! -e "$link" ]]; then
+        rm -f "$link"
+        log "prune" "$link"
+      fi
+    done
+  }
+
+  case "$op" in
+    install)
+      # Preflight: gh required for GitHub release downloads
+      command -v gh >/dev/null 2>&1 || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+      [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+
+      if [[ -n "$target" ]]; then
+        local script="${tools_dir}/${target}.sh"
+        [[ -f "$script" ]] || abort "Unknown tool: $target"
+        vlog "tool" "install $target"
+        bash "$script"
+      else
+        local failed=0
+        while IFS= read -r script; do
+          local tool_name
+          tool_name="$(basename "$script" .sh)"
+          vlog "tool" "install $tool_name"
+          bash "$script" || {
+            warn "$tool_name" "installation failed"
+            failed=1
+          }
+        done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
+        return $failed
+      fi
+      ;;
+
+    uninstall)
+      # Source lib/tool.sh for TOOLS_HOME, TOOLS_STATE, TOOLS_BIN, TOOLS_SHARE
+      source "${DOTFILES_HOME}/lib/tool.sh"
+
+      if [[ -n "$target" ]]; then
+        # Find the versioned install tree for this tool (TOOLS_HOME/<owner>/<repo>/)
+        local install_dir
+        install_dir="$(find "$TOOLS_HOME" -mindepth 2 -maxdepth 2 -type d -name "$target" 2>/dev/null | head -n1)"
+        if [[ -z "$install_dir" ]]; then
+          abort "$target is not installed under $TOOLS_HOME (only tools installed via tool_gh_install can be uninstalled this way)"
+        fi
+        rm -rf "$install_dir"
+        log "uninstall" "$target ($install_dir)"
+        # Remove matching state file(s): state key ends with _<target>
+        find "$TOOLS_STATE" -maxdepth 1 -type f -name "*_${target}" -delete
+      else
+        # Uninstall all: remove every owner dir under TOOLS_HOME except bin/ and share/
+        local removed=0
+        while IFS= read -r d; do
+          rm -rf "$d"
+          log "uninstall" "$d"
+          removed=1
+        done < <(find "$TOOLS_HOME" -mindepth 1 -maxdepth 1 -type d \
+                   ! -name "bin" ! -name "share")
+        # Clear all state files
+        find "$TOOLS_STATE" -maxdepth 1 -type f -delete
+        [[ "$removed" -eq 1 ]] || log "uninstall" "nothing installed"
+      fi
+      _prune_symlinks "$TOOLS_BIN"
+      _prune_symlinks "$TOOLS_SHARE"
+      log "uninstall" "done"
+      ;;
+
+    clean)
+      # Source lib/tool.sh for TOOLS_CACHE
+      source "${DOTFILES_HOME}/lib/tool.sh"
+
+      if [[ -n "$target" ]]; then
+        local cache_dir
+        cache_dir="$(find "$TOOLS_CACHE" -mindepth 2 -maxdepth 2 -type d -name "$target" 2>/dev/null | head -n1)"
+        if [[ -z "$cache_dir" ]]; then
+          log "clean" "no cache for $target"
+        else
+          rm -rf "$cache_dir"
+          log "clean" "$target ($cache_dir)"
+        fi
+      else
+        if [[ -d "$TOOLS_CACHE" ]] && [[ -n "$(ls -A "$TOOLS_CACHE")" ]]; then
+          find "$TOOLS_CACHE" -mindepth 1 -maxdepth 1 -type d | while IFS= read -r d; do
+            rm -rf "$d"
+            log "clean" "$d"
+          done
+        else
+          log "clean" "cache already empty"
+        fi
+      fi
+      ;;
+
+    *)
+      abort "Unknown tool operation: $op (use install, uninstall, or clean)"
+      ;;
+  esac
 }
 
 main() {
