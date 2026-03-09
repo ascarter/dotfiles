@@ -69,11 +69,12 @@ install() {
 
       case "${ID:-}" in
         fedora)
-          dotfiles script host/os/fedora/repo \
+          : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+          bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
             "https://pkgs.tailscale.com/stable/fedora/tailscale.repo" \
             "/etc/yum.repos.d/tailscale.repo"
 
-          dotfiles script host/os/fedora/pkg install tailscale
+          bash "${DOTFILES_HOME}/host/os/fedora/pkg.sh" install tailscale
           echo "Tailscale package installed."
           ;;
         *)

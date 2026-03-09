@@ -32,11 +32,12 @@ case "$(uname -s)" in
 
     case "${ID:-}" in
       fedora)
-        dotfiles script host/os/fedora/repo \
+        : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+        bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
           "https://cli.github.com/packages/rpm/gh-cli.repo" \
           "/etc/yum.repos.d/github-cli.repo"
 
-        dotfiles script host/os/fedora/pkg install gh
+        bash "${DOTFILES_HOME}/host/os/fedora/pkg.sh" install gh
         ;;
       *)
         abort "Unsupported Linux distribution: ${ID:-unknown}"

@@ -12,6 +12,7 @@ QUIET=0
 
 DOTFILES_HOME=$(realpath $(dirname $(realpath "$0"))/..)
 DOTFILES_SCRIPTS_DIR="${DOTFILES_HOME}/scripts"
+DOTFILES_HOST_DIR="${DOTFILES_HOME}/host"
 
 # ANSI strings
 if [[ -t 1 ]]; then
@@ -347,11 +348,11 @@ cmd_init() {
   cmd_sync
 
   platform="$(platform_id)"
-  run_script "host/os/${platform}/init"
+  ensure bash "${DOTFILES_HOST_DIR}/os/${platform}/init.sh"
   if [ "$platform" = "macos" ]; then
-    run_script "host/os/macos/homebrew"
+    ensure bash "${DOTFILES_HOST_DIR}/os/macos/homebrew.sh"
   fi
-  run_script "host/config/gitconfig"
+  ensure bash "${DOTFILES_HOST_DIR}/config/gitconfig.sh"
 
   success "Initialized dotfiles for zsh"
 }
