@@ -470,31 +470,25 @@ cmd_tool() {
       ;;
 
     uninstall)
-      # Source lib/tool.sh for TOOLS_HOME, TOOLS_STATE, TOOLS_BIN, TOOLS_SHARE
+      # Source lib/tool.sh for TOOLS_CELLAR, TOOLS_STATE, TOOLS_BIN, TOOLS_SHARE
       source "${DOTFILES_HOME}/lib/tool.sh"
 
       if [[ -n "$target" ]]; then
-        # Find the versioned install tree for this tool (TOOLS_HOME/<owner>/<repo>/)
-        local install_dir
-        install_dir="$(find "$TOOLS_HOME" -mindepth 2 -maxdepth 2 -type d -name "$target" 2>/dev/null | head -n1)"
-        if [[ -z "$install_dir" ]]; then
-          abort "$target is not installed under $TOOLS_HOME (only tools installed via tool_gh_install can be uninstalled this way)"
+        local install_dir="${TOOLS_CELLAR}/${target}"
+        if [[ ! -d "$install_dir" ]]; then
+          abort "$target is not installed in cellar (only tools installed via tool_gh_install can be uninstalled this way)"
         fi
         rm -rf "$install_dir"
-        log "uninstall" "$target ($install_dir)"
-        # Remove matching state file(s): state key ends with _<target>
-        find "$TOOLS_STATE" -maxdepth 1 -type f -name "*_${target}" -delete
+        log "uninstall" "$target"
+        rm -f "${TOOLS_STATE}/${target}"
       else
-        # Uninstall all: remove every owner dir under TOOLS_HOME except bin/ and share/
         local removed=0
         while IFS= read -r d; do
           rm -rf "$d"
-          log "uninstall" "$d"
+          log "uninstall" "$(basename "$d")"
           removed=1
-        done < <(find "$TOOLS_HOME" -mindepth 1 -maxdepth 1 -type d \
-                   ! -name "bin" ! -name "share")
-        # Clear all state files
-        find "$TOOLS_STATE" -maxdepth 1 -type f -delete
+        done < <(find "$TOOLS_CELLAR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+        find "$TOOLS_STATE" -maxdepth 1 -type f -delete 2>/dev/null || true
         [[ "$removed" -eq 1 ]] || log "uninstall" "nothing installed"
       fi
       _prune_symlinks "$TOOLS_BIN"
@@ -507,23 +501,21 @@ cmd_tool() {
       source "${DOTFILES_HOME}/lib/tool.sh"
 
       if [[ -n "$target" ]]; then
-        local cache_dir
-        cache_dir="$(find "$TOOLS_CACHE" -mindepth 2 -maxdepth 2 -type d -name "$target" 2>/dev/null | head -n1)"
-        if [[ -z "$cache_dir" ]]; then
+        local cache_dir="${TOOLS_CACHE}/${target}"
+        if [[ ! -d "$cache_dir" ]]; then
           log "clean" "no cache for $target"
         else
           rm -rf "$cache_dir"
-          log "clean" "$target ($cache_dir)"
+          log "clean" "$target"
         fi
       else
-        if [[ -d "$TOOLS_CACHE" ]] && [[ -n "$(ls -A "$TOOLS_CACHE")" ]]; then
-          find "$TOOLS_CACHE" -mindepth 1 -maxdepth 1 -type d | while IFS= read -r d; do
-            rm -rf "$d"
-            log "clean" "$d"
-          done
-        else
-          log "clean" "cache already empty"
-        fi
+        local cleaned=0
+        while IFS= read -r d; do
+          rm -rf "$d"
+          log "clean" "$(basename "$d")"
+          cleaned=1
+        done < <(find "$TOOLS_CACHE" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+        [[ "$cleaned" -eq 1 ]] || log "clean" "cache already empty"
       fi
       ;;
 

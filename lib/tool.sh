@@ -14,7 +14,22 @@
 : "${XDG_BIN_HOME:=$HOME/.local/bin}"
 
 # Tool storage layout
+#
+# TOOLS_HOME/
+#   bin/          symlink farm for binaries
+#   share/        symlink farm for man pages and completions
+#   cellar/       versioned installs, keyed by tool name
+#     <name>/
+#       <tag>/    extracted assets
+#
+# TOOLS_CACHE/    downloaded archives, keyed by tool name
+#   <name>/
+#
+# TOOLS_STATE/    installed version receipts
+#   <name>        one file per tool, contains the installed tag
+#
 TOOLS_HOME="${XDG_DATA_HOME}/tools"
+TOOLS_CELLAR="${TOOLS_HOME}/cellar"
 TOOLS_CACHE="${XDG_CACHE_HOME}/tools"
 TOOLS_STATE="${XDG_STATE_HOME}/tools"
 TOOLS_BIN="${TOOLS_HOME}/bin"
@@ -40,7 +55,7 @@ TOOLS_PLATFORM="$(_tool_detect_platform)"
 export TOOLS_PLATFORM
 
 # Ensure required directories exist
-mkdir -p "${TOOLS_HOME}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${TOOLS_SHARE}"
+mkdir -p "${TOOLS_CELLAR}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${TOOLS_SHARE}"
 
 # tool_latest_tag <owner/repo>
 # Prints the latest release tag for the given repo.
@@ -50,11 +65,11 @@ tool_latest_tag() {
 }
 
 # tool_installed_tag <owner/repo>
-# Reads the state file for owner/repo. Prints tag or "none".
+# Reads the state file for the tool. Prints tag or "none".
 tool_installed_tag() {
   local repo="$1"
-  local state_key="${repo//\//_}"
-  local state_file="${TOOLS_STATE}/${state_key}"
+  local name="${repo##*/}"
+  local state_file="${TOOLS_STATE}/${name}"
   if [[ -f "$state_file" ]]; then
     cat "$state_file"
   else
@@ -66,7 +81,7 @@ tool_installed_tag() {
 #
 # Downloads and extracts a GitHub release asset.
 # After completion, sets:
-#   TOOLS_INSTALL_DIR  — versioned install directory
+#   TOOLS_INSTALL_DIR  — versioned install directory (TOOLS_CELLAR/<name>/<tag>/)
 #   TOOLS_INSTALL_TAG  — resolved tag
 #
 # Handles:
@@ -80,10 +95,8 @@ tool_gh_install() {
   local repo="$1"
   local asset_glob="$2"
   local tag="${3:-}"
-  local owner="${repo%%/*}"
   local name="${repo##*/}"
-  local state_key="${repo//\//_}"
-  local state_file="${TOOLS_STATE}/${state_key}"
+  local state_file="${TOOLS_STATE}/${name}"
 
   # Resolve tag if not provided
   if [[ -z "$tag" ]]; then
@@ -95,7 +108,7 @@ tool_gh_install() {
     return 1
   fi
 
-  TOOLS_INSTALL_DIR="${TOOLS_HOME}/${owner}/${name}/${tag}"
+  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${tag}"
   TOOLS_INSTALL_TAG="$tag"
   export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG
 
@@ -103,11 +116,11 @@ tool_gh_install() {
   local installed_tag
   installed_tag="$(tool_installed_tag "$repo")"
   if [[ "$installed_tag" == "$tag" && -d "$TOOLS_INSTALL_DIR" ]]; then
-    printf '%s already at %s\n' "$repo" "$tag"
+    printf '%s already at %s\n' "$name" "$tag"
     return 0
   fi
 
-  local cache_dir="${TOOLS_CACHE}/${owner}/${name}"
+  local cache_dir="${TOOLS_CACHE}/${name}"
   mkdir -p "$cache_dir" "$TOOLS_INSTALL_DIR"
 
   # Download asset
@@ -135,10 +148,9 @@ tool_gh_install() {
   elif [[ "$filename" == *.zip ]]; then
     unzip -q -o "$asset_file" -d "$TOOLS_INSTALL_DIR" || { printf 'tool_gh_install: unzip extraction failed\n' >&2; return 1; }
   elif [[ "$filename" == *.gz ]]; then
-    # Non-tar gzip: decompress to a binary named after the repo
-    local out_name="${name}"
-    gunzip -c "$asset_file" > "${TOOLS_INSTALL_DIR}/${out_name}" || { printf 'tool_gh_install: gunzip failed\n' >&2; return 1; }
-    chmod +x "${TOOLS_INSTALL_DIR}/${out_name}"
+    # Non-tar gzip: decompress to a binary named after the tool
+    gunzip -c "$asset_file" > "${TOOLS_INSTALL_DIR}/${name}" || { printf 'tool_gh_install: gunzip failed\n' >&2; return 1; }
+    chmod +x "${TOOLS_INSTALL_DIR}/${name}"
   else
     # Plain binary: copy and make executable
     cp "$asset_file" "${TOOLS_INSTALL_DIR}/${filename}" || { printf 'tool_gh_install: copy failed\n' >&2; return 1; }
@@ -153,7 +165,7 @@ tool_gh_install() {
 
   # Record installed tag
   printf '%s\n' "$tag" > "$state_file"
-  printf 'Installed %s %s -> %s\n' "$repo" "$tag" "$TOOLS_INSTALL_DIR"
+  printf 'Installed %s %s -> %s\n' "$name" "$tag" "$TOOLS_INSTALL_DIR"
 }
 
 # tool_link <src> <dst>
