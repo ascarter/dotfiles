@@ -12,28 +12,32 @@
 : "${XDG_CACHE_HOME:=$HOME/.cache}"
 : "${XDG_STATE_HOME:=$HOME/.local/state}"
 : "${XDG_BIN_HOME:=$HOME/.local/bin}"
+: "${XDG_OPT_HOME:=$HOME/.local/opt}"
+: "${XDG_OPT_BIN:=$XDG_OPT_HOME/bin}"
+: "${XDG_OPT_SHARE:=$XDG_OPT_HOME/share}"
+export XDG_OPT_HOME XDG_OPT_BIN XDG_OPT_SHARE
 
 # Tool storage layout
 #
-# TOOLS_HOME/
-#   bin/          symlink farm for binaries
-#   share/        symlink farm for man pages and completions
-#   cellar/       versioned installs, keyed by tool name
+# XDG_OPT_HOME (~/.local/opt)
+#   bin/          (XDG_OPT_BIN)  symlink farm for binaries
+#   share/        (XDG_OPT_SHARE) symlink farm for man pages and completions
+#   cellar/       (TOOLS_CELLAR)  versioned installs, keyed by tool name
 #     <name>/
 #       <tag>/    extracted assets
 #
-# TOOLS_CACHE/    downloaded archives, keyed by tool name
+# XDG_CACHE_HOME/tools/  (TOOLS_CACHE)  downloaded archives, keyed by tool name
 #   <name>/
 #
-# TOOLS_STATE/    installed version receipts
+# XDG_STATE_HOME/tools/  (TOOLS_STATE)  installed version receipts
 #   <name>        one file per tool, contains the installed tag
 #
-TOOLS_HOME="${XDG_DATA_HOME}/tools"
-TOOLS_CELLAR="${TOOLS_HOME}/cellar"
+TOOLS_CELLAR="${XDG_OPT_HOME}/cellar"
 TOOLS_CACHE="${XDG_CACHE_HOME}/tools"
 TOOLS_STATE="${XDG_STATE_HOME}/tools"
-TOOLS_BIN="${TOOLS_HOME}/bin"
-TOOLS_SHARE="${TOOLS_HOME}/share"
+# Convenience aliases used by tool scripts
+TOOLS_BIN="${XDG_OPT_BIN}"
+TOOLS_SHARE="${XDG_OPT_SHARE}"
 
 # Detect platform: <arch>-<os>
 # Produces: aarch64-darwin, x86_64-darwin, aarch64-linux, x86_64-linux
@@ -170,14 +174,14 @@ tool_gh_install() {
 
 # tool_link <src> <dst>
 #
-# Creates a symlink: TOOLS_HOME/<dst> -> TOOLS_INSTALL_DIR/<src>
+# Creates a symlink: XDG_OPT_HOME/<dst> -> TOOLS_INSTALL_DIR/<src>
 # src is relative to TOOLS_INSTALL_DIR.
-# dst is relative to TOOLS_HOME.
+# dst is relative to XDG_OPT_HOME (e.g. "bin/rg", "share/man/man1/rg.1").
 tool_link() {
   local src="$1"
   local dst="$2"
   local src_path="${TOOLS_INSTALL_DIR}/${src}"
-  local dst_path="${TOOLS_HOME}/${dst}"
+  local dst_path="${XDG_OPT_HOME}/${dst}"
 
   mkdir -p "$(dirname "$dst_path")"
   ln -sf "$src_path" "$dst_path"

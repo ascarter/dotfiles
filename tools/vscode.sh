@@ -36,7 +36,7 @@ case "$(uname -s)" in
     esac
 
     VSCODE_SHA_INDEX_URL="https://code.visualstudio.com/sha"
-    VSCODE_DIR="${TOOLS_HOME}/vscode"
+    VSCODE_DIR="${XDG_OPT_HOME}/vscode"
     VSCODE_BIN="${TOOLS_BIN}/code"
     VSCODE_BIN_TARGET="${VSCODE_DIR}/bin/code"
     VSCODE_GUI_BIN="${VSCODE_DIR}/code"

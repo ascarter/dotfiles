@@ -15,7 +15,7 @@ Conflict rule:
 ## Project Structure & Module Organization
 - `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `sync`, `status`, `script`, `tool`).
 - `config/`: source-of-truth configs synced into `$XDG_CONFIG_HOME`.
-- `lib/tool.sh`: sourced library for tool installer scripts; sets XDG env, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`.
+- `lib/tool.sh`: sourced library for tool installer scripts; declares `XDG_OPT_*` vars, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`.
 - `tools/`: flat directory of installer scripts, one per tool capability. Each sources `lib/tool.sh`.
 - `host/os/<os>/`: host OS baseline provisioning (`init.sh`) and OS-local helpers.
 - `host/config/`: host config synthesis (`gitconfig.sh`, `toolbox-init.sh`).
@@ -32,20 +32,38 @@ All scripts in `tools/` are self-contained tool installers. Four patterns coexis
 
 Every tool script starts with `command -v <tool>` to skip silently if already installed by any means (Homebrew, rpm-ostree, etc.).
 
-## Tool Storage Layout (XDG)
+## XDG_OPT_* Convention
+
+`dotfiles` declares three XDG-style variables as a first-class peer of the standard XDG dirs.
+They are exported by `cmd_env` and set with fallbacks by `lib/tool.sh`:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `XDG_OPT_HOME` | `~/.local/opt` | Root for opt-managed tool installations |
+| `XDG_OPT_BIN` | `$XDG_OPT_HOME/bin` | Symlink farm for binaries (on PATH) |
+| `XDG_OPT_SHARE` | `$XDG_OPT_HOME/share` | Symlink farm for man pages and completions (on MANPATH) |
+
+`XDG_OPT_BIN` is prepended to `PATH`; `XDG_OPT_SHARE/man` is prepended to `MANPATH`.
+
+## Tool Storage Layout
 
 ```
-$XDG_DATA_HOME/tools/           # TOOLS_HOME
-  bin/                          # symlink farm for binaries
-  share/                        # symlink farm for man pages, completions
-  <owner>/<repo>/<tag>/         # versioned extracted assets
+~/.local/opt/                   XDG_OPT_HOME
+  bin/                          XDG_OPT_BIN   — symlinks to installed binaries
+  share/                        XDG_OPT_SHARE — symlinks to man pages, completions
+  cellar/                       TOOLS_CELLAR  — versioned extracted assets
+    <name>/
+      <tag>/
 
-$XDG_CACHE_HOME/tools/          # TOOLS_CACHE
-  <owner>/<repo>/               # downloaded archives
+~/.cache/tools/                 TOOLS_CACHE   — downloaded archives
+  <name>/
 
-$XDG_STATE_HOME/tools/          # TOOLS_STATE
-  <owner>_<repo>                # installed version record (one file per tool)
+~/.local/state/tools/           TOOLS_STATE   — installed version receipts
+  <name>                        one file per tool, contains the installed tag
 ```
+
+`XDG_OPT_HOME` is self-contained: `rm -rf ~/.local/opt` removes all opt-managed tools
+and their symlinks. Cache and state are separate and survive an uninstall.
 
 ## Build, Test, and Development Commands
 - `./install.sh`: bootstrap repository to `$XDG_DATA_HOME/dotfiles`.
@@ -54,6 +72,8 @@ $XDG_STATE_HOME/tools/          # TOOLS_STATE
 - `bin/dotfiles sync`: symlink `config/` into `$XDG_CONFIG_HOME`.
 - `bin/dotfiles tool install`: install all tools in `tools/` (requires `gh` to be installed first).
 - `bin/dotfiles tool install <name>`: install a single tool by name.
+- `bin/dotfiles tool uninstall [<name>]`: remove installed tool(s); preserves cache.
+- `bin/dotfiles tool clean [<name>]`: clear downloaded archives from cache.
 - `bin/dotfiles script tools/gh`: run a specific installer script directly.
 - `./test.sh`: smoke test install/sync in `.testuser/`.
 
@@ -64,6 +84,7 @@ $XDG_STATE_HOME/tools/          # TOOLS_STATE
 - Follow `.editorconfig` (2 spaces, UTF-8, LF, trailing newline).
 - Name scripts by capability, not installer backend.
 - Tool scripts self-locate via: `: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"`
+- Use `XDG_OPT_*` vars for opt-space paths; use standard `XDG_*` vars for everything else.
 
 ## Testing Guidelines
 - No unit test suite currently; validation is command/script based.
@@ -76,6 +97,6 @@ $XDG_STATE_HOME/tools/          # TOOLS_STATE
 - PRs should include changed behavior, impacted platforms, and validation commands run.
 
 ## Security & Configuration Tips
-- Prefer XDG paths (`$XDG_CONFIG_HOME`, `$XDG_DATA_HOME`, `$XDG_BIN_HOME`).
-- Keep host installs for OS-integrated needs; prefer user-local installs otherwise.
+- Prefer XDG paths. For opt-managed tools use `$XDG_OPT_HOME`/`$XDG_OPT_BIN`/`$XDG_OPT_SHARE`.
+- Keep host installs for OS-integrated needs; prefer opt-space installs otherwise.
 - `gh` must be installed before running `dotfiles tool install` (it is used by `lib/tool.sh` for GitHub releases).

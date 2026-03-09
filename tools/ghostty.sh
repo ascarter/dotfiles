@@ -20,7 +20,7 @@ case "$(uname -s)" in
     ARCH="$(uname -m)"
 
     GHOSTTY_URL="https://github.com/pkgforge-dev/ghostty-appimage/releases/download/v${VERSION}/Ghostty-${VERSION}-${ARCH}.AppImage"
-    GHOSTTY_APP_DIR="${TOOLS_HOME}/ghostty"
+    GHOSTTY_APP_DIR="${XDG_OPT_HOME}/ghostty"
     GHOSTTY_APP="${GHOSTTY_APP_DIR}/Ghostty-${VERSION}-${ARCH}.AppImage"
     GHOSTTY_BIN="${TOOLS_BIN}/ghostty"
 

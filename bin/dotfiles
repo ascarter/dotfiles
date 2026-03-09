@@ -339,8 +339,9 @@ cmd_init() {
   : "${XDG_DATA_HOME:=$HOME/.local/share}"
   : "${XDG_STATE_HOME:=$HOME/.local/state}"
   : "${XDG_CACHE_HOME:=$HOME/.cache}"
+  : "${XDG_OPT_HOME:=$HOME/.local/opt}"
 
-  for dir in "$XDG_BIN_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"; do
+  for dir in "$XDG_BIN_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_OPT_HOME"; do
     vlog "xdg" "ensuring $dir exists"
     [ -d "$dir" ] || mkdir -p "$dir"
   done
@@ -366,12 +367,15 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_OPT_HOME="${XDG_OPT_HOME:-$HOME/.local/opt}"
+export XDG_OPT_BIN="${XDG_OPT_BIN:-$XDG_OPT_HOME/bin}"
+export XDG_OPT_SHARE="${XDG_OPT_SHARE:-$XDG_OPT_HOME/share}"
 export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
 export DOTFILES_HOME="${DOTFILES_HOME:-$XDG_DATA_HOME/dotfiles}"
 typeset -U path
-path=("$XDG_BIN_HOME" "$XDG_DATA_HOME/tools/bin" "$DOTFILES_HOME/bin" $path)
+path=("$XDG_BIN_HOME" "$XDG_OPT_BIN" "$DOTFILES_HOME/bin" $path)
 typeset -U manpath
-manpath=("$XDG_DATA_HOME/tools/share/man" $manpath)
+manpath=("$XDG_OPT_SHARE/man" $manpath)
 EOF
 }
 
