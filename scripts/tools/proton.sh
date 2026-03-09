@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Proton Mail / Pass / Authenticator installation script for Fedora Silverblue
 # Layers Proton RPMs via rpm-ostree

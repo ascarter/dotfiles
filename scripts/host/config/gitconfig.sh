@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Generate machine-specific git configuration at ~/.gitconfig
 #

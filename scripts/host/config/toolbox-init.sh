@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Initialize a toolbox container for dotfiles use.
 #
