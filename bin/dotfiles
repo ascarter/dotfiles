@@ -99,7 +99,7 @@ Commands:
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
   script      Run a script (list available scripts if no name given)
-  tool        Manage tools (install|uninstall|clean [<toolname>])
+  tool        Manage tools (install|uninstall|clean|status [<toolname>])
 
 Options:
   -v          Enable verbose output
@@ -397,8 +397,45 @@ cmd_script() {
   run_script "$script_name" "$@"
 }
 
+_print_tool_table() {
+  source "${DOTFILES_HOME}/lib/tool.sh"
+
+  local -a names tags
+  while IFS= read -r f; do
+    names+=("$(basename "$f")")
+    tags+=("$(cat "$f")")
+  done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+
+  if [[ ${#names[@]} -eq 0 ]]; then
+    printf "  no tools installed\n"
+    return 0
+  fi
+
+  # Compute column widths (minimum = header label length)
+  local w_name=4 w_tag=3
+  for i in "${!names[@]}"; do
+    [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
+    [[ ${#tags[$i]}  -gt $w_tag  ]] && w_tag=${#tags[$i]}
+  done
+
+  local sep_name sep_tag
+  sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
+  sep_tag="$(printf '─%.0s' $(seq 1 $w_tag))"
+
+  printf "  ${tty_bold}%-${w_name}s  %s${tty_reset}\n" "TOOL" "TAG"
+  printf "  %-${w_name}s  %s\n" "$sep_name" "$sep_tag"
+  for i in "${!names[@]}"; do
+    printf "  %-${w_name}s  %s\n" "${names[$i]}" "${tags[$i]}"
+  done
+
+  local count=${#names[@]}
+  printf "\n  %d tool%s installed\n" "$count" "$([[ $count -eq 1 ]] && printf '' || printf 's')"
+}
+
 cmd_status() {
   (sync status) && log "status" "ok"
+  printf "\n${tty_bold}tools${tty_reset}\n"
+  _print_tool_table
 }
 
 cmd_uninstall() {
@@ -523,8 +560,12 @@ cmd_tool() {
       fi
       ;;
 
+    status)
+      _print_tool_table
+      ;;
+
     *)
-      abort "Unknown tool operation: $op (use install, uninstall, or clean)"
+      abort "Unknown tool operation: $op (use install, uninstall, clean, or status)"
       ;;
   esac
 }
