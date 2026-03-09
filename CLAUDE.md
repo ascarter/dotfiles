@@ -16,10 +16,17 @@ bin/dotfiles shell                  # Wire ~/.zshenv to dotfiles env
 bin/dotfiles sync                   # Symlink config/ into $XDG_CONFIG_HOME
 bin/dotfiles status                 # Show symlink/state drift
 bin/dotfiles update                 # Pull latest and re-sync
+bin/dotfiles tool install           # Install all tools (requires gh installed first)
+bin/dotfiles tool install <name>    # Install a single tool by name
 bin/dotfiles script tools/gh        # Run a specific script from scripts/
 
 # Testing
 ./test.sh                           # Smoke test install/sync in .testuser/ (requires rsync)
+
+# Syntax checking
+bash -n bin/dotfiles
+bash -n lib/tool.sh
+find tools/ host/ -name "*.sh" -exec bash -n {} \;
 
 # After editing a tool script
 bin/dotfiles status                 # Verify no drift
@@ -27,24 +34,33 @@ bin/dotfiles status                 # Verify no drift
 
 ## Architecture
 
-This repo manages a developer environment across macOS and Linux (Fedora/toolbox). The core mechanism is `bin/dotfiles`, a POSIX sh script with subcommands. `dotfiles sync` symlinks everything under `config/` into `$XDG_CONFIG_HOME` (default `~/.config`). The `env` subcommand is eval'd from `~/.zshenv` to export XDG variables and set PATH.
+This repo manages a developer environment across macOS and Linux (Fedora/toolbox). The core mechanism is `bin/dotfiles`, a bash script with subcommands. `dotfiles sync` symlinks everything under `config/` into `$XDG_CONFIG_HOME` (default `~/.config`). The `env` subcommand is eval'd from `~/.zshenv` to export XDG variables and set PATH.
 
-**Script organization by phase:**
-- `scripts/host/os/<platform>/` — OS baseline provisioning (`init.sh`, `homebrew.sh`)
-- `scripts/host/config/` — host config generators (`gitconfig.sh`, `toolbox-init.sh`)
-- `scripts/tools/` — one installer per tool capability (`gh.sh`, `zed.sh`, etc.)
+**Directory layout:**
+- `lib/tool.sh` — sourced library; sets up XDG-based tool storage (`TOOLS_HOME`, `TOOLS_CACHE`, `TOOLS_STATE`, `TOOLS_BIN`, `TOOLS_SHARE`) and provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`
+- `tools/` — flat directory of tool installer scripts, one per tool; each sources `lib/tool.sh`
+- `host/os/<platform>/` — OS baseline provisioning (`init.sh`, `homebrew.sh`)
+- `host/config/` — host config generators (`gitconfig.sh`, `toolbox-init.sh`)
 - `scripts/*.sh` — orchestration convenience scripts (`developer.sh`)
 
 **Tier model for tool placement:**
 - Host: OS-integrated tools (`git`, `zsh`, credential helpers)
 - Layered/container image: stable CLI baseline (`rg`, `jq`, `yq`, `just`)
-- User-local XDG (`$XDG_DATA_HOME`, `$XDG_BIN_HOME`): version managers and dev tools (`fnm`, `rustup`, `uv`, `helix`, `claude code`, etc.)
+- User-local XDG (`$XDG_DATA_HOME/tools/`, `$XDG_BIN_HOME`): version managers and dev tools (`fnm`, `rustup`, `uv`, `helix`, `claude code`, etc.)
 - Per-project/toolbox: isolated project deps
+
+**DOTFILES_HOME self-location pattern** (used in every tool script):
+```bash
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
+```
 
 ## Coding Style
 
-- Default shell is POSIX `sh` with `set -eu`; use Bash only when required
+- All scripts use `#!/usr/bin/env bash` with `set -eu`
+- `lib/tool.sh` has no shebang (sourced) and no `set -e` internally
 - Scripts must be linear, explicit, idempotent, and re-runnable
+- Every tool script checks `command -v <tool>` at the top; skip silently if already installed
 - Name scripts by capability, not installer backend
 - Follow `.editorconfig`: 2-space indent, UTF-8, LF line endings, trailing newline
 - Prefer XDG paths (`$XDG_CONFIG_HOME`, `$XDG_DATA_HOME`, `$XDG_BIN_HOME`) over hardcoded paths

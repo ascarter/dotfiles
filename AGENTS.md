@@ -13,26 +13,57 @@ Conflict rule:
 - `.github/copilot-instructions.md`: thin pointer for coding assistants back to this file.
 
 ## Project Structure & Module Organization
-- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `sync`, `status`, `script`).
+- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `sync`, `status`, `script`, `tool`).
 - `config/`: source-of-truth configs synced into `$XDG_CONFIG_HOME`.
-- `scripts/host/os/<os>/`: host OS baseline provisioning (`init.sh`) and OS-local helpers.
-- `scripts/host/config/`: host config synthesis.
-- `scripts/tools/`: one installer per capability (`gh`, `tailscale`, `vscode`, `zed`, etc.).
+- `lib/tool.sh`: sourced library for tool installer scripts; sets XDG env, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`.
+- `tools/`: flat directory of installer scripts, one per tool capability. Each sources `lib/tool.sh`.
+- `host/os/<os>/`: host OS baseline provisioning (`init.sh`) and OS-local helpers.
+- `host/config/`: host config synthesis (`gitconfig.sh`, `toolbox-init.sh`).
 - `scripts/*.sh`: convenience orchestration scripts (for example, `scripts/developer.sh`).
+
+## Tool Script Categories
+
+All scripts in `tools/` are self-contained tool installers. Four patterns coexist:
+
+1. **GitHub release tools** — source `lib/tool.sh`, call `tool_gh_install`, call `tool_link` for each binary/manpage/completion. Example: `ripgrep.sh`, `just.sh`, `fzf.sh`, `jq.sh`, `yq.sh`, `serie.sh`, `tree-sitter.sh`.
+2. **Vendor curl installers** — source `lib/tool.sh` for environment, run `curl | sh`. Example: `zed.sh`, `claude.sh`.
+3. **AppImage / custom URL tools** — source `lib/tool.sh`, download and place manually, may include desktop integration. Example: `ghostty.sh`.
+4. **Service/package manager tools** — source `lib/tool.sh`, branch on OS/distro, call package manager. Example: `tailscale.sh`, `speedtest.sh`, `gh.sh`.
+
+Every tool script starts with `command -v <tool>` to skip silently if already installed by any means (Homebrew, rpm-ostree, etc.).
+
+## Tool Storage Layout (XDG)
+
+```
+$XDG_DATA_HOME/tools/           # TOOLS_HOME
+  bin/                          # symlink farm for binaries
+  share/                        # symlink farm for man pages, completions
+  <owner>/<repo>/<tag>/         # versioned extracted assets
+
+$XDG_CACHE_HOME/tools/          # TOOLS_CACHE
+  <owner>/<repo>/               # downloaded archives
+
+$XDG_STATE_HOME/tools/          # TOOLS_STATE
+  <owner>_<repo>                # installed version record (one file per tool)
+```
 
 ## Build, Test, and Development Commands
 - `./install.sh`: bootstrap repository to `$XDG_DATA_HOME/dotfiles`.
 - `bin/dotfiles init`: run initial platform bootstrap flow.
 - `bin/dotfiles shell`: wire `~/.zshenv` to `dotfiles env`.
 - `bin/dotfiles sync`: symlink `config/` into `$XDG_CONFIG_HOME`.
-- `bin/dotfiles script tools/gh`: run a specific installer script.
+- `bin/dotfiles tool install`: install all tools in `tools/` (requires `gh` to be installed first).
+- `bin/dotfiles tool install <name>`: install a single tool by name.
+- `bin/dotfiles script tools/gh`: run a specific installer script directly.
 - `./test.sh`: smoke test install/sync in `.testuser/`.
 
 ## Coding Style & Naming Conventions
-- Default shell: POSIX `sh` with `set -eu`; use Bash only when required.
+- Default shell: `#!/usr/bin/env bash` with `set -eu` for all scripts.
+- `lib/tool.sh` has no shebang (sourced, not executed) and does not use `set -e` internally.
 - Keep scripts linear, explicit, idempotent, and re-runnable.
 - Follow `.editorconfig` (2 spaces, UTF-8, LF, trailing newline).
 - Name scripts by capability, not installer backend.
+- Tool scripts self-locate via: `: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"`
 
 ## Testing Guidelines
 - No unit test suite currently; validation is command/script based.
@@ -47,3 +78,4 @@ Conflict rule:
 ## Security & Configuration Tips
 - Prefer XDG paths (`$XDG_CONFIG_HOME`, `$XDG_DATA_HOME`, `$XDG_BIN_HOME`).
 - Keep host installs for OS-integrated needs; prefer user-local installs otherwise.
+- `gh` must be installed before running `dotfiles tool install` (it is used by `lib/tool.sh` for GitHub releases).
