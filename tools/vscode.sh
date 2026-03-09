@@ -3,23 +3,25 @@
 # Visual Studio Code editor
 
 set -eu
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
 
 abort() {
   printf '%s\n' "$1" >&2
   exit 1
 }
 
+if command -v code >/dev/null 2>&1; then
+  echo "Visual Studio Code already installed: $(command -v code)"
+  exit 0
+fi
+
 case "$(uname -s)" in
   Darwin)
-    echo "Use Homebrew to install Visual Studio Code on macOS"
-    echo "brew install --cask visual-studio-code"
-    exit 0
+    echo "Visual Studio Code not found. Run: brew install --cask visual-studio-code"
+    exit 1
     ;;
   Linux)
-    : "${XDG_DATA_HOME:="$HOME/.local/share"}"
-    : "${XDG_BIN_HOME:="$HOME/.local/bin"}"
-    : "${XDG_CACHE_HOME:="$HOME/.cache"}"
-
     ARCH="$(uname -m)"
     case "$ARCH" in
       x86_64|amd64)
@@ -34,13 +36,13 @@ case "$(uname -s)" in
     esac
 
     VSCODE_SHA_INDEX_URL="https://code.visualstudio.com/sha"
-    VSCODE_DIR="${XDG_DATA_HOME}/vscode"
-    VSCODE_BIN="${XDG_BIN_HOME}/code"
+    VSCODE_DIR="${TOOLS_HOME}/vscode"
+    VSCODE_BIN="${TOOLS_BIN}/code"
     VSCODE_BIN_TARGET="${VSCODE_DIR}/bin/code"
     VSCODE_GUI_BIN="${VSCODE_DIR}/code"
     VSCODE_DESKTOP_DIR="${XDG_DATA_HOME}/applications"
     VSCODE_DESKTOP_FILE="${VSCODE_DESKTOP_DIR}/code.desktop"
-    DOWNLOAD_DIR="${XDG_CACHE_HOME}/vscode"
+    DOWNLOAD_DIR="${TOOLS_CACHE}/vscode"
     ARCHIVE_PATH="${DOWNLOAD_DIR}/code-stable-${VSCODE_OS}.tar.gz"
     SHA_PATH="${ARCHIVE_PATH}.sha256"
     STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/vscode-install.XXXXXXXX")"
@@ -53,7 +55,7 @@ case "$(uname -s)" in
     trap cleanup EXIT INT TERM
 
     install -d "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
-    install -d "${XDG_BIN_HOME}" || abort "Failed to create bin directory: ${XDG_BIN_HOME}"
+    install -d "${TOOLS_BIN}" || abort "Failed to create bin directory: ${TOOLS_BIN}"
     install -d "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
 
     echo "Resolving Visual Studio Code download metadata..."

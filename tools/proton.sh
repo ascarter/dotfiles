@@ -8,6 +8,8 @@
 # 3. https://proton.me/support/linux-pass-desktop
 
 set -eu
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
 
 abort() {
   printf "%s\n" "$*" >&2
@@ -60,7 +62,7 @@ get_release() {
 }
 
 proton_rpm() {
-  CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/proton-rpms"
+  CACHE_DIR="${TOOLS_CACHE}/proton-rpms"
   mkdir -p "$CACHE_DIR"
 
   for cmd in curl jq sha512sum rpm rpm-ostree; do
@@ -100,7 +102,7 @@ proton_rpm() {
   }
 
   update_icons() {
-    user_icon_dir="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor"
+    user_icon_dir="${XDG_DATA_HOME}/icons/hicolor"
     user_scalable_icon_dir="${user_icon_dir}/scalable/apps"
 
     # Fix up pixmaps icons
@@ -141,7 +143,7 @@ proton_rpm() {
         return 1
       fi
     fi
- }
+  }
 
   rpm_release_install() {
     manifest_url="$1"

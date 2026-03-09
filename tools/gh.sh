@@ -10,6 +10,8 @@
 # - This script provides guidance and verification only.
 
 set -eu
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
 
 abort() {
   printf "%s\n" "$*" >&2
@@ -17,14 +19,14 @@ abort() {
 }
 
 if command -v gh >/dev/null 2>&1; then
-  echo "GitHub CLI is already installed."
+  echo "GitHub CLI already installed: $(command -v gh)"
   exit 0
 fi
 
 case "$(uname -s)" in
   Darwin)
-    echo "Use Homebrew to install GitHub CLI on macOS"
-    echo "brew install gh"
+    echo "gh not found. Run: brew install gh"
+    exit 1
     ;;
   Linux)
     [ -f /etc/os-release ] || abort "Unsupported Linux distribution (missing /etc/os-release)"
@@ -32,7 +34,6 @@ case "$(uname -s)" in
 
     case "${ID:-}" in
       fedora)
-        : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
         bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
           "https://cli.github.com/packages/rpm/gh-cli.repo" \
           "/etc/yum.repos.d/github-cli.repo"

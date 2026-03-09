@@ -13,6 +13,8 @@
 # - Tailscale is expected to be managed by Homebrew cask.
 
 set -eu
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
 
 abort() {
   printf "%s\n" "$*" >&2
@@ -53,14 +55,14 @@ OS="$(uname -s)"
 
 install() {
   if command -v tailscale >/dev/null 2>&1; then
-    echo "Tailscale is already installed."
+    echo "Tailscale already installed: $(command -v tailscale)"
     return 0
   fi
 
   case "$OS" in
     Darwin)
-      echo "Use Homebrew to install Tailscale on macOS:"
-      echo "  brew install --cask tailscale-app"
+      echo "tailscale not found. Run: brew install --cask tailscale-app"
+      exit 1
       ;;
 
     Linux)
@@ -69,7 +71,6 @@ install() {
 
       case "${ID:-}" in
         fedora)
-          : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
           bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
             "https://pkgs.tailscale.com/stable/fedora/tailscale.repo" \
             "/etc/yum.repos.d/tailscale.repo"

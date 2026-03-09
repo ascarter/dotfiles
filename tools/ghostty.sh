@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+source "${DOTFILES_HOME}/lib/tool.sh"
 
 abort() { printf '%s\n' "$1" >&2; exit 1; }
 
+if command -v ghostty >/dev/null 2>&1; then
+  echo "ghostty already installed: $(command -v ghostty)"
+  exit 0
+fi
+
 case "$(uname -s)" in
   Darwin)
-    echo "Use Homebrew to install Ghostty on macOS"
-    echo "brew install --cask ghostty"
-    exit 0
+    echo "ghostty not found. Run: brew install --cask ghostty"
+    exit 1
     ;;
   Linux)
-    XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-    XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
-
     VERSION="1.2.3"
     ARCH="$(uname -m)"
 
     GHOSTTY_URL="https://github.com/pkgforge-dev/ghostty-appimage/releases/download/v${VERSION}/Ghostty-${VERSION}-${ARCH}.AppImage"
-    GHOSTTY_APP_DIR="${XDG_DATA_HOME}/ghostty"
+    GHOSTTY_APP_DIR="${TOOLS_HOME}/ghostty"
     GHOSTTY_APP="${GHOSTTY_APP_DIR}/Ghostty-${VERSION}-${ARCH}.AppImage"
-    GHOSTTY_BIN="${XDG_BIN_HOME}/ghostty"
+    GHOSTTY_BIN="${TOOLS_BIN}/ghostty"
 
     APP_DIR="${XDG_DATA_HOME}/applications"
     ICON_DIR="${XDG_DATA_HOME}/icons/hicolor/256x256/apps"
@@ -29,9 +32,9 @@ case "$(uname -s)" in
     ASSET_STAMP="${META_DIR}/desktop-assets.stamp"
     ASSET_ID="${VERSION}-${ARCH}"
 
-    install -d "$GHOSTTY_APP_DIR" "$XDG_BIN_HOME" "$APP_DIR" "$ICON_DIR" "$META_DIR"
+    install -d "$GHOSTTY_APP_DIR" "$TOOLS_BIN" "$APP_DIR" "$ICON_DIR" "$META_DIR"
 
-    # Download only if missing (simple “locked” behavior)
+    # Download only if missing (simple "locked" behavior)
     if [[ ! -f "$GHOSTTY_APP" ]]; then
       tmp_app="$(mktemp "${GHOSTTY_APP}.tmp.XXXXXXXX")" || abort "Failed to create temp file for Ghostty download"
       curl -fsSL -o "$tmp_app" "$GHOSTTY_URL" || abort "Failed to download Ghostty AppImage"
@@ -71,7 +74,7 @@ case "$(uname -s)" in
       printf '%s\n' "$ASSET_ID" > "$ASSET_STAMP"
     fi
 
-    # Best-effort cache updates (don’t fail the install if absent)
+    # Best-effort cache updates (don't fail the install if absent)
     command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APP_DIR" || true
     command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -f -t "${XDG_DATA_HOME}/icons/hicolor" || true
 
