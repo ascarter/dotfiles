@@ -43,7 +43,7 @@ This repo manages a developer environment across macOS and Linux (Fedora/toolbox
 **Directory layout:**
 - `lib/opt.sh` — sourced installer library; declares `XDG_OPT_*` vars and provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`
 - `tools/` — flat directory of tool installer scripts, one per tool; each sources `lib/opt.sh`
-- `host/os/<platform>.sh` — OS baseline provisioning; one file per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`)
+- `host/<platform>.sh` — OS baseline provisioning; one file per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`)
 - `scripts/*.sh` — orchestration convenience scripts (`developer.sh`)
 
 **XDG_OPT_* convention:**

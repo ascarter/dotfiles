@@ -109,12 +109,12 @@ cmd_host() {
   init)
     env_override="${1:-}"
     if [ -n "$env_override" ]; then
-      host_script="${DOTFILES_HOST_DIR}/os/${env_override}.sh"
+      host_script="${DOTFILES_HOST_DIR}/${env_override}.sh"
       [ -f "$host_script" ] || abort "Unknown host environment: ${env_override}"
       ensure bash "$host_script"
     else
       detected="$(_detect_host_env)"
-      host_script="${DOTFILES_HOST_DIR}/os/${detected}.sh"
+      host_script="${DOTFILES_HOST_DIR}/${detected}.sh"
       [ -f "$host_script" ] || abort "No provisioning script found for: ${detected}"
       ensure bash "$host_script"
     fi
