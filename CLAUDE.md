@@ -11,7 +11,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```sh
 # Bootstrap and lifecycle
 ./install.sh                        # Bootstrap repo to $XDG_DATA_HOME/dotfiles
-bin/dotfiles init                   # Full platform bootstrap (XDG dirs, shell, sync, OS init)
+bin/dotfiles init                   # Dotfiles environment setup (XDG dirs, shell, sync)
+bin/dotfiles host init              # OS provisioning — auto-detects macos|fedora|toolbox
+bin/dotfiles host gitconfig         # Generate machine-specific ~/.gitconfig
 bin/dotfiles shell                  # Wire ~/.zshenv to dotfiles env
 bin/dotfiles sync                   # Symlink config/ into $XDG_CONFIG_HOME
 bin/dotfiles status                 # Show symlink/state drift
@@ -39,10 +41,10 @@ bin/dotfiles status                 # Verify no drift
 This repo manages a developer environment across macOS and Linux (Fedora/toolbox). The core mechanism is `bin/dotfiles`, a bash script with subcommands. `dotfiles sync` symlinks everything under `config/` into `$XDG_CONFIG_HOME` (default `~/.config`). The `env` subcommand is eval'd from `~/.zshenv` to export XDG variables and set PATH.
 
 **Directory layout:**
-- `lib/tool.sh` — sourced library; declares `XDG_OPT_*` vars and provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`
-- `tools/` — flat directory of tool installer scripts, one per tool; each sources `lib/tool.sh`
-- `host/os/<platform>/` — OS baseline provisioning (`init.sh`, `homebrew.sh`)
-- `host/config/` — host config generators (`gitconfig.sh`, `toolbox-init.sh`)
+- `lib/opt.sh` — sourced installer library; declares `XDG_OPT_*` vars and provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`
+- `tools/` — flat directory of tool installer scripts, one per tool; each sources `lib/opt.sh`
+- `host/os/<platform>.sh` — OS baseline provisioning; one file per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`)
+- `host/config/` — host config generators (`gitconfig.sh`)
 - `scripts/*.sh` — orchestration convenience scripts (`developer.sh`)
 
 **XDG_OPT_* convention:**
@@ -65,16 +67,17 @@ Inside `XDG_OPT_HOME`, versioned installs live under `cellar/<name>/<tag>/` (TOO
 - `XDG_BIN_HOME` (~/.local/bin): tools with their own installers (zed, claude, fnm, rustup, uv)
 - Per-project/toolbox: isolated project deps
 
-**DOTFILES_HOME self-location pattern** (used in every tool script):
+**DOTFILES_HOME self-location pattern** (used in every tool and host script):
 ```bash
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/tool.sh"
+source "${DOTFILES_HOME}/lib/opt.sh"   # tool scripts
+source "${DOTFILES_HOME}/lib/core.sh"  # host scripts
 ```
 
 ## Coding Style
 
 - All scripts use `#!/usr/bin/env bash` with `set -eu`
-- `lib/tool.sh` has no shebang (sourced) and no `set -e` internally
+- `lib/opt.sh` has no shebang (sourced) and no `set -e` internally
 - Scripts must be linear, explicit, idempotent, and re-runnable
 - Every tool script checks `command -v <tool>` at the top; skip silently if already installed
 - Name scripts by capability, not installer backend

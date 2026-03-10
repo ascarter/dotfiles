@@ -3,7 +3,7 @@
 # Fedora host provisioning script
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../../.." && pwd)}"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
 source "${DOTFILES_HOME}/lib/core.sh"
 
 [ "$(uname -s)" = "Linux" ] || abort "Fedora Linux only"
