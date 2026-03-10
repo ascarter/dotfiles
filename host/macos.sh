@@ -6,7 +6,7 @@
 # preferences, installs Homebrew, and runs brew bundle --global.
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/core.sh"
 
 [ "$(uname -s)" = "Darwin" ] || abort "macOS only"

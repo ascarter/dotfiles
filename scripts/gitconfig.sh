@@ -12,7 +12,7 @@
 # Machine-independent settings (aliases, colors, etc.) are in $XDG_CONFIG_HOME/git/config
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/core.sh"
 
 GIT_CONFIG_FILE="${HOME}/.gitconfig"

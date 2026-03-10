@@ -137,7 +137,10 @@ dotfiles tool clean
 ## Usage
 
 ```sh
-dotfiles init                   # Full bootstrap: XDG dirs, shell, sync, OS provisioning
+dotfiles init                   # XDG dirs, shell wiring, sync
+dotfiles host init              # OS provisioning (auto-detects macos|fedora|toolbox)
+dotfiles host status            # Show host environment info
+dotfiles gitconfig              # Generate machine-specific ~/.gitconfig
 dotfiles sync                   # Symlink config/ into ~/.config
 dotfiles status                 # Show symlink drift
 dotfiles update                 # Pull latest and re-sync
@@ -156,6 +159,5 @@ dotfiles script <name>          # Run a script from scripts/
 
 - Start with `AGENTS.md` for repository guidelines and conventions.
 - See `docs/dev-environment.md` for implementation details and rebuild flow.
-- Track tool work in `docs/tools-backlog.md`.
 
 [xdg]: https://specifications.freedesktop.org/basedir-spec/latest/

@@ -10,7 +10,7 @@
 #   bash host/os/toolbox.sh            # run directly
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/core.sh"
 
 [ -f /run/.toolboxenv ] || abort "Not running inside a toolbox container"

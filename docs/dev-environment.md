@@ -2,7 +2,8 @@
 
 Read `AGENTS.md` first. This document is supporting detail and should remain aligned with it.
 
-This document defines the detailed implementation model aligned with `AGENTS.md` (the concise contributor guide), including concrete install patterns, script taxonomy, command examples, and a rebuild checklist.
+This document defines the detailed implementation model: tier philosophy, install patterns,
+script taxonomy, and a rebuild checklist.
 
 ---
 
@@ -22,157 +23,78 @@ This document defines the detailed implementation model aligned with `AGENTS.md`
 Use this sequence as the default rebuild flow:
 
 1. Install OS from scratch
-2. Bootstrap dotfiles with `install.sh` (curl + execute)
-3. Run host OS provisioning (baseline OS state)
-4. Run package-manager baseline provisioning (where applicable)
-5. Run shell bootstrap with `dotfiles shell`
-6. Run tool scripts directly (or use root convenience scripts such as `scripts/developer.sh`)
-7. Authenticate credentials and verify environment
+2. Bootstrap dotfiles: `install.sh` (or manual clone + `./install.sh`)
+3. Run `dotfiles init` (XDG dirs, shell wiring, sync)
+4. Run `dotfiles host init` (OS baseline provisioning — reboots may be required on Fedora Atomic)
+5. Run `dotfiles gitconfig` (machine-specific git identity and credentials)
+6. Install tools: `dotfiles tool install` (requires `gh`)
+7. Run convenience scripts as needed (e.g. `dotfiles script developer`)
+8. Authenticate credentials and verify environment
 
-This lifecycle should be mirrored across Linux and macOS, even if implementation details differ.
+This lifecycle applies across Linux and macOS, with platform-specific details handled inside
+`host/<platform>.sh`.
 
 ---
 
-## Tier Model (Implementation)
+## Tier Model
 
-## Tier 1: Host (OS-level)
+### Tier 1: Host (OS-level)
 
-Use host installs for tools that require OS integration, credential stores, shell/session fundamentals, and container runtime support.
+Use host installs for tools that require OS integration, credential stores,
+shell/session fundamentals, and container runtime support.
 
 Typical host responsibilities:
-
 - `git` (bootstrap prerequisite)
 - shell/runtime basics (`zsh`, core utilities)
 - container/toolbox runtime
 - credential/keychain integration
 
 Credential strategy:
-
 - `gh` is required for GitHub authentication flows
-- `git-credential-manager` is conditional and only required for non-GitHub hosts (currently Azure DevOps on macOS work environments)
+- `git-credential-manager` is conditional and only required for non-GitHub hosts
+  (currently Azure DevOps on macOS work environments)
 
-## Tier 2: Layered Base (toolbox/container image)
+### Tier 2: Layered Base (toolbox/container image)
 
 Use for stable, universal command-line tools needed in every container:
+- `ripgrep`, `jq`, `yq`, `just`, `git` (and optional `gh`)
 
-- `ripgrep`
-- `jq`
-- `yq`
-- `just`
-- `git` (if base image doesn’t already include it)
-- optional `gh`
+### Tier 3: User-local (`XDG_OPT_HOME` + `XDG_BIN_HOME`)
 
-## Tier 3: User-local (`XDG_DATA_HOME` + `XDG_BIN_HOME`)
+Use for version managers and frequently updated developer tools:
 
-Use for version managers and frequently updated developer tools shared across host and toolbox:
+- **`XDG_OPT_HOME` (opt-managed)**: GitHub release tools installed by `dotfiles tool install`
+  (`ripgrep`, `jq`, `yq`, `just`, `fzf`, `serie`, `tree-sitter`, etc.)
+- **`XDG_BIN_HOME`**: tools with their own installers
+  (`fnm`, `rustup`, `uv`, `rv`, `go`, `claude`, `zed`, `codex`)
 
-- `fnm`
-- `rustup`
-- `uv`
-- `rv`
-- user-managed `go`
-- `helix`
-- `serie`
-- `codex`
-- `copilot-cli`
-- `claude code`
-- `open code`
-- optional `gh`
-
-## Tier 4: Per-toolbox / Per-project
+### Tier 4: Per-toolbox / Per-project
 
 Use for isolated project dependencies and heavyweight/specialized system packages.
 
 ---
 
-## Current Script Tree Analysis (`scripts/host`)
+## Tool Placement Matrix
 
-The current `scripts/host` directory mixes multiple concerns:
-
-- **OS bootstrap**: `fedora/init.sh`, `macos/init.sh`
-- **package manager bootstrap**: `macos/homebrew.sh`
-- **tool/app installers**: `ghostty.sh`, `tailscale.sh`, `proton.sh`, `speedtest.sh`, `vscode.sh`, `zed.sh`
-- **host configuration generator**: `gitconfig.sh`
-
-### What works well
-
-- There is already platform branching for Linux/macOS
-- Several scripts aim for idempotent behavior
-- Some tools are already installed in user-local/XDG locations (good portability trend)
-
-### What needs improvement
-
-- Flat structure obscures lifecycle intent
-- `dotfiles init` currently executes only a subset of scripts
-- Script style is inconsistent (`sh` vs `bash`, non-portable conditionals in some files)
-- Some scripts should be grouped by phase and capability, not by historical placement
-- Orchestration is still lightweight; convenience scripts should live at `scripts/*.sh`
-
----
-
-## Recommended Script Tree Organization
-
-Refactor to a phase-oriented structure:
-
-- `scripts/host/os/`
-  - `fedora/init.sh`
-  - `macos/init.sh`
-  - `macos/homebrew.sh`
-- `scripts/host/config/`
-  - `gitconfig.sh`
-  - future machine-local configuration generators
-- `scripts/tools/`
-  - `ghostty.sh`, `tailscale.sh`, `proton.sh`, `speedtest.sh`, `vscode.sh`, `zed.sh`
-  - future developer CLI installers
-- `scripts/`
-  - convenience scripts (for example, `developer.sh`)
-
-This gives both granular and bundled execution modes.
-
----
-
-## Script Orchestration Pattern
-
-## Baseline convenience script
-
-Root-level convenience scripts (for example, `scripts/developer.sh`) should orchestrate:
-
-1. Host OS baseline (`scripts/host/os/<platform>/init.sh`)
-2. Host package manager/bootstrap where applicable (`scripts/host/os/macos/homebrew.sh`)
-3. Baseline host requirements by capability:
-   - terminal (`ghostty`) on Linux baseline hosts
-   - secure network (`tailscale`) on Linux baseline hosts
-4. Host configuration (`scripts/host/config/gitconfig.sh`)
-
-## Devtools convenience script
-
-`scripts/developer.sh` (or other root convenience scripts) should install/update development tools (CLI + language managers), favoring user-local/XDG placement.
-
-## Apps convenience script
-
-Optional root convenience scripts should install GUI/workflow applications.
-
-## All-in-one convenience script
-
-A root convenience script can run: `baseline -> devtools -> apps`, with flags to skip phases.
-
----
-
-## Baseline Capability Policy (Linux vs macOS)
-
-Treat capabilities as baseline requirements, not installer-specific requirements.
-
-### Example: `ghostty`
-
-- Linux: baseline requirement can be fulfilled by local AppImage install or host package
-- macOS: fulfilled via Homebrew cask (`ghostty`)
-
-### Example: `tailscale`
-
-- Linux: baseline requirement via host package/layer and service enablement
-- macOS: fulfilled via Homebrew cask (`tailscale-app`)
-
-This keeps the policy consistent while allowing platform-specific implementation backends.
+| Tool | Host | Layered | Opt-managed | XDG_BIN_HOME | Project |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `gh` | optional | optional | — | optional | optional |
+| `git-credential-manager` | yes | no | — | no | no |
+| `ripgrep` | optional | yes | yes | — | optional |
+| `jq` | optional | yes | yes | — | optional |
+| `yq` | optional | yes | yes | — | optional |
+| `just` | optional | yes | yes | — | optional |
+| `fzf` | optional | — | yes | — | optional |
+| `serie` | optional | — | yes | — | optional |
+| `tree-sitter` | optional | — | yes | — | optional |
+| `fnm` | no | no | — | yes | optional |
+| `rustup` | no | no | — | yes | optional |
+| `uv` | no | no | — | yes | optional |
+| `rv` | no | no | — | yes | optional |
+| `go` | optional | no | — | yes | optional |
+| `claude` | no | no | — | yes | optional |
+| `zed` | no | no | — | yes | optional |
+| `codex` | no | no | — | yes | optional |
 
 ---
 
@@ -185,338 +107,161 @@ Expected defaults (if not overridden):
 - `XDG_DATA_HOME="$HOME/.local/share"`
 - `XDG_STATE_HOME="$HOME/.local/state"`
 - `XDG_CACHE_HOME="$HOME/.cache"`
-
-Recommended local tools layout:
-
-- `$XDG_DATA_HOME/dev-tools/` (optional umbrella directory)
-- `$XDG_DATA_HOME/fnm/`
-- `$XDG_DATA_HOME/rustup/`
-- `$XDG_DATA_HOME/cargo/`
-- `$XDG_DATA_HOME/go/` (if managing Go in user space)
-- `$XDG_BIN_HOME/` for shims/symlinks/binaries on PATH
+- `XDG_OPT_HOME="$HOME/.local/opt"`
 
 ---
 
-## Linux Implementation (Fedora + Toolbox Style)
+## Linux Implementation (Fedora + Toolbox)
 
-## 1) Host bootstrap
+### 1) Bootstrap
 
-```/dev/null/shell.sh#L1-1
+```sh
 sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
-```
-
-Then:
-
-```/dev/null/shell.sh#L1-2
 dotfiles init
-dotfiles sync
+dotfiles host init        # rpm-ostree on Atomic variants; reboot required before next step
+dotfiles gitconfig
 ```
 
-## 2) Host-native install targets
+### 2) Host-native install targets
 
 Install/ensure on host:
-
-- `git`
-- `zsh`
-- toolbox/container runtime
+- `git`, `zsh`, toolbox/container runtime
 - `gh` (required baseline credential helper for GitHub)
+- `git-credential-manager` (conditional; only where non-GitHub hosts are required)
 
-Conditional host credential helper:
+For Fedora Atomic/Workstation, keep host package overlays minimal and focused on
+OS integration and runtime.
 
-- `git-credential-manager` (native package/source recommended) only where non-GitHub hosts are required
-- current requirement: macOS work environments for Azure DevOps
+### 3) Layered toolbox baseline
 
-For Fedora Atomic/Workstation, keep host package overlays small and focused on integration/runtime.
+Create/maintain a base image with: `ripgrep`, `jq`, `yq`, `just`, `git` (and optional `gh`).
 
-## 3) Layered toolbox baseline
+### 4) Toolbox initialization
 
-Create/maintain a base image that includes:
+Inside a toolbox container, run the same dotfiles bootstrap:
 
-- `ripgrep`, `jq`, `yq`, `just`, `git` (and optional `gh`)
-
-Example intent:
-
-```/dev/null/shell.sh#L1-2
-# inside image build context
-dnf install -y ripgrep jq yq just git
+```sh
+dotfiles init
+dotfiles host init        # auto-detected as toolbox via /run/.toolboxenv
 ```
 
-Keep language version managers out of this layer by default.
+### 5) User-local toolchain
 
-## 4) User-local toolchain
-
-Install local tools into XDG-managed directories where possible.
-
-### fnm
-
-- Install fnm binary in a user-local location
-- Keep `FNM_DIR="$XDG_DATA_HOME/fnm"`
-- Use shell integration from zsh config
-
-### Rust
-
-- Keep:
-  - `RUSTUP_HOME="$XDG_DATA_HOME/rustup"`
-  - `CARGO_HOME="$XDG_DATA_HOME/cargo"`
-- Install via rustup and use cargo binaries from `$CARGO_HOME/bin`
-
-### Go
-
-- Keep:
-  - `GOPATH="$XDG_DATA_HOME/go"`
-  - `GOBIN="$XDG_BIN_HOME"`
-  - `GOCACHE="$XDG_CACHE_HOME/go-build"`
-- Use user-managed Go install and ensure PATH precedence
-
-### Python tooling
-
-- Keep `uv` and related Python CLIs user-local
-- Prefer project virtual environments for dependencies
-
-### Additional CLIs
-
-Install these user-local and expose via `$XDG_BIN_HOME`:
-
-- `codex`
-- `copilot-cli`
-- `claude code`
-- `open code`
-- `serie`
-- optional `gh`
-
-## 5) Toolbox path sharing
-
-Ensure toolbox sessions can access:
-
-- `$XDG_DATA_HOME`
-- `$XDG_BIN_HOME`
-- `$XDG_DATA_HOME/dotfiles`
-
-Ensure PATH order prefers user-local shims/binaries before system fallbacks.
+Use XDG-managed directories for language version managers:
+- `RUSTUP_HOME="$XDG_DATA_HOME/rustup"`, `CARGO_HOME="$XDG_DATA_HOME/cargo"`
+- `GOPATH="$XDG_DATA_HOME/go"`, `GOBIN="$XDG_BIN_HOME"`, `GOCACHE="$XDG_CACHE_HOME/go-build"`
+- `FNM_DIR="$XDG_DATA_HOME/fnm"`
 
 ---
 
 ## macOS Implementation
 
-Because there is no direct toolbox equivalent by default, split responsibilities between host-native and user-local.
+### 1) Bootstrap
 
-## 1) Host-native essentials
+```sh
+sh -c "$(curl -sSL https://raw.githubusercontent.com/ascarter/dotfiles/main/install.sh)"
+dotfiles init
+dotfiles host init        # installs Xcode CLT, Homebrew, runs brew bundle --global
+dotfiles gitconfig
+```
 
-Install (host-level):
+### 2) Package manager baseline
 
-- `git`
-- `gh`
-- shell/runtime essentials
-- keychain-integrated dependencies
-
-Conditional on work/non-GitHub requirements:
-
-- `git-credential-manager` (currently needed for Azure DevOps on macOS)
-
-## 2) Package manager baseline
-
-Use Brewfile for broad baseline provisioning where appropriate:
-
+`dotfiles host init` runs `brew bundle --global` which covers:
 - universal CLI baseline
 - platform apps/casks
 - optional host-level convenience tools
 
-## 3) User-local parity with Linux
+### 3) User-local parity with Linux
 
-Use same XDG local patterns for:
-
-- `fnm`
-- `rustup`
-- `uv`
-- `rv`
-- user-managed `go`
-- `helix`
-- `codex`
-- `copilot-cli`
-- `claude code`
-- `open code`
-- `serie`
-
-Keep shell init semantics aligned with Linux so behavior is predictable.
-
----
-
-## Tool Placement Matrix (Operational)
-
-| Tool | Host | Layered | Local XDG | Project/Toolbox |
-|---|---:|---:|---:|---:|
-| `gh` | optional | optional | recommended | optional |
-| `git-credential-manager` | yes | no | no | no |
-| `helix` | optional | optional | yes | no |
-| `ripgrep` | optional | yes | optional | optional |
-| `serie` | optional | optional | yes | optional |
-| `jq` | optional | yes | optional | optional |
-| `yq` | optional | yes | optional | optional |
-| `fnm` | no | no | yes | optional |
-| `go` | optional | no | yes | optional |
-| `just` | optional | yes | optional | optional |
-| `rustup` | no | no | yes | optional |
-| `rv` | no | no | yes | optional |
-| `uv` | no | no | yes | optional |
-| `copilot-cli` | no | no | yes | optional |
-| `codex` | no | no | yes | optional |
-| `claude code` | no | no | yes | optional |
-| `open code` | no | no | yes | optional |
+Use the same XDG local patterns for `fnm`, `rustup`, `uv`, `rv`, `go`, and developer CLIs.
 
 ---
 
 ## PATH and Shell Conventions
 
-- Keep `XDG_BIN_HOME` early in PATH
-- Keep dotfiles `bin` in PATH
-- Initialize version managers from `config/zsh/interactive.d/`
-- Avoid hardcoded non-XDG paths unless forced by platform constraints
+Recommended PATH order:
+1. `$XDG_OPT_BIN` — opt-managed symlinks
+2. `$XDG_BIN_HOME` — self-installed tools
+3. `$DOTFILES_HOME/bin` — dotfiles CLI
+4. manager-managed bin dirs (if not already linked)
+5. system paths
 
-Recommended PATH intent:
-
-1. `$XDG_BIN_HOME`
-2. `$DOTFILES_HOME/bin`
-3. manager-managed bin dirs (if not already linked into `XDG_BIN_HOME`)
-4. system paths
-
----
-
-## Practical Install Order (Fresh Machine)
-
-1. Ensure `git` exists
-2. Bootstrap dotfiles
-3. Run `dotfiles init`
-4. Run `dotfiles shell` (safe re-run; canonical shell bootstrap)
-5. Run host provisioning scripts (platform-specific)
-6. Install/verify Git credential tools:
-   - required: `gh` (GitHub)
-   - conditional: `git-credential-manager` (Azure DevOps/non-GitHub hosts; currently macOS work)
-7. Run convenience scripts as needed (for example `dotfiles script developer`)
-8. Restart shell and validate PATH + binary resolution
-9. Authenticate tools (`gh`, copilot/codex/claude, etc.)
-10. Validate IDE/LSP behavior on representative projects
+Shell initialization for version managers lives in `config/zsh/interactive.d/`.
 
 ---
 
 ## Rebuild Checklist (From Zero)
 
-Use this checklist for Linux/macOS rebuilds.
-
-## Pre-flight
-
+### Pre-flight
 - [ ] Backup SSH keys, GPG/Yubi configuration, and tokens
 - [ ] Confirm network access and required org auth
 - [ ] Confirm `git` available
 
-## Bootstrap
-
-- [ ] Clone/install dotfiles
-- [ ] Run `dotfiles init`
-- [ ] Run `dotfiles shell`
-- [ ] Run `dotfiles sync` (optional explicit verification run)
+### Bootstrap
+- [ ] Clone/install dotfiles (`install.sh`)
+- [ ] `dotfiles init`
 - [ ] Re-open shell/session
 
-## Host setup
-
-- [ ] Run host OS provisioning script for platform
-- [ ] Run package manager baseline script(s)
-- [ ] Install/verify `gh`
-- [ ] Install/verify `git-credential-manager` only where required (currently macOS work for Azure DevOps)
+### Host setup
+- [ ] `dotfiles host init`
+- [ ] Reboot if on Fedora Atomic (rpm-ostree changes require restart)
+- [ ] Verify `gh` available; `dotfiles gitconfig`
 - [ ] Verify shell default and XDG env exports
 
-## Baseline/devtools/apps
+### Tools
+- [ ] `dotfiles tool install`
+- [ ] Run convenience scripts from `scripts/` as needed
 
-- [ ] Run convenience scripts from `scripts/` as needed (for example `developer`)
+### Toolbox bootstrap (per new container)
+- [ ] Inside the container: `dotfiles init && dotfiles host init`
+- [ ] Confirm toolbox env detected (`dotfiles host status`)
 
-## Toolbox bootstrap (per new toolbox)
-
-- [ ] Run `dotfiles script host/config/toolbox-init <container-name>`
-- [ ] Use `--no-packages` if container-local package baseline should be skipped
-- [ ] Confirm toolbox bootstrap runs only `dotfiles shell` + `dotfiles sync` (no host provisioning)
-
-## Layered/container setup (if used)
-
-- [ ] Build/update toolbox base image
-- [ ] Ensure baseline tools available (`rg`, `jq`, `yq`, `just`, `git`)
-- [ ] Verify user-local dirs are visible in toolbox sessions
-
-## Validation
-
+### Validation
 - [ ] `dotfiles status` shows expected linked config
-- [ ] `which`/`command -v` resolves to intended tier
-- [ ] IDEs (Zed/VS Code/Helix) detect toolchains and LSPs
+- [ ] `dotfiles host status` shows correct environment
+- [ ] `command -v` resolves tools to intended tier
+- [ ] IDEs detect toolchains and LSPs
 - [ ] Authenticated workflows succeed (`gh`, git credentials, AI CLIs)
 
-## Post-check
-
+### Post-check
 - [ ] Commit platform-specific adjustments back to dotfiles
 - [ ] Update `AGENTS.md` if tier decisions changed
-- [ ] Record exceptions and rationale
 
 ---
 
-## Validation Commands (Suggested)
+## Validation Commands
 
-```/dev/null/shell.sh#L1-4
+```sh
 dotfiles status
-command -v git gh jq yq rg just fnm go rustup uv rv hx
-echo "$XDG_BIN_HOME"
-echo "$XDG_DATA_HOME"
+dotfiles host status
+command -v git gh jq yq rg just fnm rustup uv
+echo "$XDG_BIN_HOME $XDG_OPT_BIN"
 ```
 
-```/dev/null/shell.sh#L1-6
-fnm --version
-node --version
-rustup show
-cargo --version
+```sh
+fnm --version && node --version
+rustup show && cargo --version
 go version
 uv --version
 ```
 
 ---
 
-## Migration Plan for Script Refactor (No-Break Approach)
-
-1. Create/update directories (`scripts/host/os/<os>`, `scripts/host/config`, `scripts/tools`, `scripts/`)
-2. Move existing scripts to new homes
-3. (Completed) Remove compatibility wrappers after command-path migration
-4. Introduce root convenience scripts (`developer`, optional `baseline`/`apps`)
-5. Keep `dotfiles shell` as the canonical shell bootstrap path
-6. Use toolbox bootstrap script (`host/config/toolbox-init`) instead of host provisioning in containers
-7. Document each script’s tier and phase ownership
-
----
-
-## Next Recommended Enhancements
-
-1. Add `dotfiles doctor` for binary/path/tier validation
-2. Normalize scripts to one shell style (`sh`-portable by default, `bash` only when required)
-3. Enforce idempotence and clear non-interactive behavior
-4. Document and test `dotfiles shell` behavior on host + toolbox
-5. Split Brewfile sections into:
-   - host integration
-   - universal CLI baseline
-   - apps/casks
-6. Add toolbox base image definition in-repo for reproducibility
-7. Add CI checks for script linting and policy drift
-
----
-
 ## Git Credential Routing Policy
 
-Default routing:
+- GitHub remotes: `gh` credential integration (`gh auth setup-git`)
+- Non-GitHub hosts (Azure DevOps): `git-credential-manager` — configured only when present
+  and needed; currently required on macOS work setups
 
-- GitHub remotes use `gh` credential integration (`gh auth setup-git`)
-- `git-credential-manager` is configured only when present and needed for non-GitHub hosts (currently Azure DevOps on macOS work setups)
-
-This allows personal Linux environments to remain simpler while still supporting work credential flows on macOS.
+This allows personal Linux environments to remain simpler while supporting work
+credential flows on macOS.
 
 ---
 
 ## Exception Policy
 
 If a tool must be installed in a non-default tier:
-
 - record reason (security/vendor/performance/compatibility)
 - record affected platforms
 - record rollback path
