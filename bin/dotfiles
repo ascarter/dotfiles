@@ -27,7 +27,7 @@ Usage:
   dotfiles [options] <command>
 
 Commands:
-  init        Initialize dotfiles
+  init        Bootstrap dotfiles environment (XDG dirs, shell, sync)
   shell       Configure zsh and shell bootstrap for dotfiles
   env         Export configuration for environment
   sync        Synchronize config
@@ -35,8 +35,9 @@ Commands:
   status      Show status of dotfiles
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
-  script      Run a script (list available scripts if no name given)
+  host        Host provisioning (init|gitconfig|status)
   tool        Manage tools (install|uninstall|clean|status [<toolname>])
+  script      Run a script (list available scripts if no name given)
 
 Options:
   -v          Enable verbose output
@@ -88,14 +89,63 @@ cmd_init() {
   cmd_shell
   cmd_sync
 
-  platform="$(platform_id)"
-  ensure bash "${DOTFILES_HOST_DIR}/os/${platform}/init.sh"
-  if [ "$platform" = "macos" ]; then
-    ensure bash "${DOTFILES_HOST_DIR}/os/macos/homebrew.sh"
-  fi
-  ensure bash "${DOTFILES_HOST_DIR}/config/gitconfig.sh"
+  success "Initialized dotfiles environment"
+}
 
-  success "Initialized dotfiles for zsh"
+_detect_host_env() {
+  if [ -f /run/.toolboxenv ]; then
+    echo "toolbox"
+    return
+  fi
+  platform_id
+}
+
+cmd_host() {
+  subcommand="${1:-}"
+  shift || true
+
+  case "$subcommand" in
+  init)
+    env_override="${1:-}"
+    if [ -n "$env_override" ]; then
+      host_script="${DOTFILES_HOST_DIR}/os/${env_override}.sh"
+      [ -f "$host_script" ] || abort "Unknown host environment: ${env_override}"
+      ensure bash "$host_script"
+    else
+      detected="$(_detect_host_env)"
+      host_script="${DOTFILES_HOST_DIR}/os/${detected}.sh"
+      [ -f "$host_script" ] || abort "No provisioning script found for: ${detected}"
+      ensure bash "$host_script"
+    fi
+    ;;
+  gitconfig)
+    ensure bash "${DOTFILES_HOST_DIR}/config/gitconfig.sh" "$@"
+    ;;
+  status)
+    detected="$(_detect_host_env)"
+    log "env"      "${detected}"
+    log "hostname" "$(hostname)"
+    log "os"       "$(uname -srm)"
+    if [ -f /etc/os-release ]; then
+      . /etc/os-release
+      log "distro"   "${PRETTY_NAME:-${ID:-unknown}}"
+    fi
+    log "shell"    "${SHELL:-unknown}"
+    log "user"     "$(whoami)"
+    ;;
+  "")
+    cat <<'EOF'
+Usage:
+  dotfiles host init [<env>]   Provision host OS (auto-detect or specify: macos|fedora|toolbox)
+  dotfiles host gitconfig      Generate machine-specific ~/.gitconfig
+  dotfiles host status         Show host environment info
+EOF
+    exit 1
+    ;;
+  *)
+    abort "Unknown host subcommand: ${subcommand}"
+    ;;
+  esac
 }
 
 cmd_env() {
@@ -215,7 +265,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit | tool)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit | tool | host)
     cmd_$cmd "$@"
     ;;
   help)
