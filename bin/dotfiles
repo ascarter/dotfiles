@@ -35,7 +35,8 @@ Commands:
   status      Show status of dotfiles
   update      Update dotfiles repository
   edit        Edit dotfiles repository using $EDITOR
-  host        Host provisioning (init|gitconfig|status)
+  host        Host provisioning (init|status)
+  gitconfig   Generate machine-specific ~/.gitconfig
   tool        Manage tools (install|uninstall|clean|status [<toolname>])
   script      Run a script (list available scripts if no name given)
 
@@ -118,9 +119,6 @@ cmd_host() {
       ensure bash "$host_script"
     fi
     ;;
-  gitconfig)
-    ensure bash "${DOTFILES_HOST_DIR}/config/gitconfig.sh" "$@"
-    ;;
   status)
     detected="$(_detect_host_env)"
     log "env"      "${detected}"
@@ -137,7 +135,6 @@ cmd_host() {
     cat <<'EOF'
 Usage:
   dotfiles host init [<env>]   Provision host OS (auto-detect or specify: macos|fedora|toolbox)
-  dotfiles host gitconfig      Generate machine-specific ~/.gitconfig
   dotfiles host status         Show host environment info
 EOF
     exit 1
@@ -255,6 +252,10 @@ cmd_edit() {
   "$EDITOR" "$DOTFILES_HOME"
 }
 
+cmd_gitconfig() {
+  ensure bash "${DOTFILES_SCRIPTS_DIR}/gitconfig.sh" "$@"
+}
+
 cmd_tool() {
   source "${DOTFILES_LIB_DIR}/tool.sh"
   _tool_cmd "$@"
@@ -265,7 +266,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit | tool | host)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | gitconfig)
     cmd_$cmd "$@"
     ;;
   help)

@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./install.sh                        # Bootstrap repo to $XDG_DATA_HOME/dotfiles
 bin/dotfiles init                   # Dotfiles environment setup (XDG dirs, shell, sync)
 bin/dotfiles host init              # OS provisioning — auto-detects macos|fedora|toolbox
-bin/dotfiles host gitconfig         # Generate machine-specific ~/.gitconfig
+bin/dotfiles gitconfig              # Generate machine-specific ~/.gitconfig
 bin/dotfiles shell                  # Wire ~/.zshenv to dotfiles env
 bin/dotfiles sync                   # Symlink config/ into $XDG_CONFIG_HOME
 bin/dotfiles status                 # Show symlink/state drift
@@ -44,7 +44,6 @@ This repo manages a developer environment across macOS and Linux (Fedora/toolbox
 - `lib/opt.sh` — sourced installer library; declares `XDG_OPT_*` vars and provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`
 - `tools/` — flat directory of tool installer scripts, one per tool; each sources `lib/opt.sh`
 - `host/os/<platform>.sh` — OS baseline provisioning; one file per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`)
-- `host/config/` — host config generators (`gitconfig.sh`)
 - `scripts/*.sh` — orchestration convenience scripts (`developer.sh`)
 
 **XDG_OPT_* convention:**
