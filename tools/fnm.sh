@@ -4,7 +4,7 @@ set -eu
 source "${DOTFILES_HOME}/lib/opt.sh"
 
 if command -v fnm >/dev/null 2>&1; then
-  echo "fnm already installed: $(command -v rustup)"
+  echo "fnm already installed: $(command -v fnm)"
   exit 0
 fi
 
