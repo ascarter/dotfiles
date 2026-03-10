@@ -11,11 +11,6 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
-
 sha512_verify_file() {
   file="$1"
   expected_sha512="$2"
@@ -205,6 +200,14 @@ proton_rpm() {
 }
 
 case "$(uname -s)" in
+  Darwin)
+    log "proton" "Proton apps are managed via Homebrew casks on macOS"
+    log "proton" "Run: brew bundle --global"
+    log "proton" "Or install individually:"
+    for cask in proton-drive proton-mail proton-mail-bridge proton-pass protonvpn; do
+      log "proton" "  brew install --cask ${cask}"
+    done
+    ;;
   Linux)
     if [ -f /etc/os-release ]; then
       . /etc/os-release
