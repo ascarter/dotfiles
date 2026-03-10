@@ -29,7 +29,7 @@ _print_tool_table() {
   local filter="${1:-}"
   source "${DOTFILES_HOME}/lib/opt.sh"
 
-  local -a names tags
+  local -a names=() tags=()
   while IFS= read -r f; do
     local name tag
     name="$(basename "$f")"
