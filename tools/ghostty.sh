@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/tool.sh"
+source "${DOTFILES_HOME}/lib/opt.sh"
 
 abort() { printf '%s\n' "$1" >&2; exit 1; }
 

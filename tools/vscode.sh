@@ -4,7 +4,7 @@
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/tool.sh"
+source "${DOTFILES_HOME}/lib/opt.sh"
 
 abort() {
   printf '%s\n' "$1" >&2

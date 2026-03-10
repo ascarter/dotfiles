@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/tool.sh"
+source "${DOTFILES_HOME}/lib/opt.sh"
 
 if command -v tree-sitter >/dev/null 2>&1; then
   echo "tree-sitter already installed: $(command -v tree-sitter)"

@@ -1,188 +1,174 @@
-# lib/tool.sh — sourced library for tool installer scripts
+# lib/tool.sh — tool subcommand implementation for bin/dotfiles
 #
-# Source this file from tool scripts in tools/:
-#   : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-#   source "${DOTFILES_HOME}/lib/tool.sh"
+# Sourced on demand by cmd_tool and cmd_status in bin/dotfiles.
+# Inherits log/warn/abort/vlog/error and tty_* variables from the caller.
 #
 # No shebang — this file is sourced, not executed.
-# Does not use set -e internally; callers may set it.
 
-# XDG base dirs with ~/.local fallbacks
-: "${XDG_DATA_HOME:=$HOME/.local/share}"
-: "${XDG_CACHE_HOME:=$HOME/.cache}"
-: "${XDG_STATE_HOME:=$HOME/.local/state}"
-: "${XDG_BIN_HOME:=$HOME/.local/bin}"
-: "${XDG_OPT_HOME:=$HOME/.local/opt}"
-: "${XDG_OPT_BIN:=$XDG_OPT_HOME/bin}"
-: "${XDG_OPT_SHARE:=$XDG_OPT_HOME/share}"
-export XDG_OPT_HOME XDG_OPT_BIN XDG_OPT_SHARE
+# Idempotent guard
+[[ -n "${_DOTFILES_TOOL_LOADED:-}" ]] && return 0
+_DOTFILES_TOOL_LOADED=1
 
-# Tool storage layout
-#
-# XDG_OPT_HOME (~/.local/opt)
-#   bin/          (XDG_OPT_BIN)  symlink farm for binaries
-#   share/        (XDG_OPT_SHARE) symlink farm for man pages and completions
-#   cellar/       (TOOLS_CELLAR)  versioned installs, keyed by tool name
-#     <name>/
-#       <tag>/    extracted assets
-#
-# XDG_CACHE_HOME/tools/  (TOOLS_CACHE)  downloaded archives, keyed by tool name
-#   <name>/
-#
-# XDG_STATE_HOME/tools/  (TOOLS_STATE)  installed version receipts
-#   <name>        one file per tool, contains the installed tag
-#
-TOOLS_CELLAR="${XDG_OPT_HOME}/cellar"
-TOOLS_CACHE="${XDG_CACHE_HOME}/tools"
-TOOLS_STATE="${XDG_STATE_HOME}/tools"
-# Convenience aliases used by tool scripts
-TOOLS_BIN="${XDG_OPT_BIN}"
-TOOLS_SHARE="${XDG_OPT_SHARE}"
-
-# Detect platform: <arch>-<os>
-# Produces: aarch64-darwin, x86_64-darwin, aarch64-linux, x86_64-linux
-_tool_detect_platform() {
-  local arch os
-  arch="$(uname -m)"
-  case "$(uname -s)" in
-    Darwin) os="darwin" ;;
-    Linux)  os="linux"  ;;
-    *)      os="unknown" ;;
-  esac
-  case "$arch" in
-    arm64) arch="aarch64" ;;
-  esac
-  printf '%s-%s\n' "$arch" "$os"
+# _tool_prune_symlinks <dir>
+# Remove broken symlinks under <dir> (up to 3 levels deep).
+_tool_prune_symlinks() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return 0
+  find "$dir" -maxdepth 3 -type l | while IFS= read -r link; do
+    if [[ ! -e "$link" ]]; then
+      rm -f "$link"
+      log "prune" "$link"
+    fi
+  done
 }
 
-TOOLS_PLATFORM="$(_tool_detect_platform)"
-export TOOLS_PLATFORM
+# _print_tool_table [<name>]
+# Print a table of installed tools and their tags.
+# If <name> is given, show only that tool.
+_print_tool_table() {
+  local filter="${1:-}"
+  source "${DOTFILES_HOME}/lib/opt.sh"
 
-# Ensure required directories exist
-mkdir -p "${TOOLS_CELLAR}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${TOOLS_SHARE}"
+  local -a names tags
+  while IFS= read -r f; do
+    local name tag
+    name="$(basename "$f")"
+    tag="$(cat "$f")"
+    [[ -n "$filter" && "$name" != "$filter" ]] && continue
+    names+=("$name")
+    tags+=("$tag")
+  done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
 
-# tool_latest_tag <owner/repo>
-# Prints the latest release tag for the given repo.
-tool_latest_tag() {
-  local repo="$1"
-  gh release list --repo "$repo" --limit 1 --json tagName --jq '.[0].tagName'
-}
-
-# tool_installed_tag <owner/repo>
-# Reads the state file for the tool. Prints tag or "none".
-tool_installed_tag() {
-  local repo="$1"
-  local name="${repo##*/}"
-  local state_file="${TOOLS_STATE}/${name}"
-  if [[ -f "$state_file" ]]; then
-    cat "$state_file"
-  else
-    printf 'none\n'
-  fi
-}
-
-# tool_gh_install <owner/repo> <asset-glob> [tag]
-#
-# Downloads and extracts a GitHub release asset.
-# After completion, sets:
-#   TOOLS_INSTALL_DIR  — versioned install directory (TOOLS_CELLAR/<name>/<tag>/)
-#   TOOLS_INSTALL_TAG  — resolved tag
-#
-# Handles:
-#   .tar.gz  — tar -xzf to versioned dir
-#   .zip     — unzip to versioned dir
-#   .gz      — gunzip to plain binary in versioned dir (non-tar)
-#   <no ext> — copy binary + chmod +x
-#
-# On macOS, strips quarantine attribute after extraction.
-tool_gh_install() {
-  local repo="$1"
-  local asset_glob="$2"
-  local tag="${3:-}"
-  local name="${repo##*/}"
-  local state_file="${TOOLS_STATE}/${name}"
-
-  # Resolve tag if not provided
-  if [[ -z "$tag" ]]; then
-    tag="$(tool_latest_tag "$repo")" || { printf 'tool_gh_install: failed to resolve tag for %s\n' "$repo" >&2; return 1; }
-  fi
-
-  if [[ -z "$tag" ]]; then
-    printf 'tool_gh_install: could not determine tag for %s\n' "$repo" >&2
-    return 1
-  fi
-
-  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${tag}"
-  TOOLS_INSTALL_TAG="$tag"
-  export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG
-
-  # Skip if already installed at this tag
-  local installed_tag
-  installed_tag="$(tool_installed_tag "$repo")"
-  if [[ "$installed_tag" == "$tag" && -d "$TOOLS_INSTALL_DIR" ]]; then
-    printf '%s already at %s\n' "$name" "$tag"
+  if [[ ${#names[@]} -eq 0 ]]; then
+    [[ -n "$filter" ]] \
+      && printf "  %s is not installed\n" "$filter" \
+      || printf "  no tools installed\n"
     return 0
   fi
 
-  local cache_dir="${TOOLS_CACHE}/${name}"
-  mkdir -p "$cache_dir" "$TOOLS_INSTALL_DIR"
+  # Compute column widths (minimum = header label length)
+  local w_name=4 w_tag=3
+  for i in "${!names[@]}"; do
+    [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
+    [[ ${#tags[$i]}  -gt $w_tag  ]] && w_tag=${#tags[$i]}
+  done
 
-  # Download asset
-  printf 'Downloading %s %s ...\n' "$repo" "$tag"
-  gh release download "$tag" \
-    --repo "$repo" \
-    --pattern "$asset_glob" \
-    --dir "$cache_dir" \
-    --clobber || { printf 'tool_gh_install: download failed for %s %s\n' "$repo" "$tag" >&2; return 1; }
+  local sep_name sep_tag
+  sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
+  sep_tag="$(printf '─%.0s' $(seq 1 $w_tag))"
 
-  # Find the downloaded file
-  local asset_file
-  asset_file="$(find "$cache_dir" -maxdepth 1 -name "$asset_glob" | head -n1)"
-  if [[ -z "$asset_file" ]]; then
-    printf 'tool_gh_install: no asset matching %s found in %s\n' "$asset_glob" "$cache_dir" >&2
-    return 1
+  printf "  ${tty_bold}%-${w_name}s  %s${tty_reset}\n" "TOOL" "TAG"
+  printf "  %-${w_name}s  %s\n" "$sep_name" "$sep_tag"
+  for i in "${!names[@]}"; do
+    printf "  %-${w_name}s  %s\n" "${names[$i]}" "${tags[$i]}"
+  done
+
+  # Count footer only when showing all tools
+  if [[ -z "$filter" ]]; then
+    local count=${#names[@]}
+    printf "\n  %d tool%s installed\n" "$count" "$([[ $count -eq 1 ]] && printf '' || printf 's')"
   fi
-
-  # Extract based on format
-  local filename
-  filename="$(basename "$asset_file")"
-
-  if [[ "$filename" == *.tar.gz || "$filename" == *.tgz ]]; then
-    tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR" || { printf 'tool_gh_install: tar extraction failed\n' >&2; return 1; }
-  elif [[ "$filename" == *.zip ]]; then
-    unzip -q -o "$asset_file" -d "$TOOLS_INSTALL_DIR" || { printf 'tool_gh_install: unzip extraction failed\n' >&2; return 1; }
-  elif [[ "$filename" == *.gz ]]; then
-    # Non-tar gzip: decompress to a binary named after the tool
-    gunzip -c "$asset_file" > "${TOOLS_INSTALL_DIR}/${name}" || { printf 'tool_gh_install: gunzip failed\n' >&2; return 1; }
-    chmod +x "${TOOLS_INSTALL_DIR}/${name}"
-  else
-    # Plain binary: copy and make executable
-    cp "$asset_file" "${TOOLS_INSTALL_DIR}/${filename}" || { printf 'tool_gh_install: copy failed\n' >&2; return 1; }
-    chmod +x "${TOOLS_INSTALL_DIR}/${filename}"
-  fi
-
-  # Strip quarantine on macOS (unsigned binaries from GitHub releases)
-  if [[ "$(uname -s)" == Darwin ]]; then
-    printf 'Stripping quarantine attribute: %s\n' "$TOOLS_INSTALL_DIR"
-    xattr -dr com.apple.quarantine "$TOOLS_INSTALL_DIR" 2>/dev/null || true
-  fi
-
-  # Record installed tag
-  printf '%s\n' "$tag" > "$state_file"
-  printf 'Installed %s %s -> %s\n' "$name" "$tag" "$TOOLS_INSTALL_DIR"
 }
 
-# tool_link <src> <dst>
-#
-# Creates a symlink: XDG_OPT_HOME/<dst> -> TOOLS_INSTALL_DIR/<src>
-# src is relative to TOOLS_INSTALL_DIR.
-# dst is relative to XDG_OPT_HOME (e.g. "bin/rg", "share/man/man1/rg.1").
-tool_link() {
-  local src="$1"
-  local dst="$2"
-  local src_path="${TOOLS_INSTALL_DIR}/${src}"
-  local dst_path="${XDG_OPT_HOME}/${dst}"
+# _tool_install [<name>]
+_tool_install() {
+  local target="${1:-}"
+  local tools_dir="${DOTFILES_HOME}/tools"
 
-  mkdir -p "$(dirname "$dst_path")"
-  ln -sf "$src_path" "$dst_path"
+  command -v gh >/dev/null 2>&1 \
+    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+
+  if [[ -n "$target" ]]; then
+    local script="${tools_dir}/${target}.sh"
+    [[ -f "$script" ]] || abort "Unknown tool: $target"
+    vlog "tool" "install $target"
+    bash "$script"
+  else
+    local failed=0
+    while IFS= read -r script; do
+      local tool_name
+      tool_name="$(basename "$script" .sh)"
+      vlog "tool" "install $tool_name"
+      bash "$script" || {
+        warn "$tool_name" "installation failed"
+        failed=1
+      }
+    done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
+    return $failed
+  fi
+}
+
+# _tool_uninstall [<name>]
+_tool_uninstall() {
+  local target="${1:-}"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  if [[ -n "$target" ]]; then
+    local install_dir="${TOOLS_CELLAR}/${target}"
+    if [[ ! -d "$install_dir" ]]; then
+      abort "$target is not installed in cellar (only tools installed via tool_gh_install can be uninstalled this way)"
+    fi
+    rm -rf "$install_dir"
+    log "uninstall" "$target"
+    rm -f "${TOOLS_STATE}/${target}"
+  else
+    local removed=0
+    while IFS= read -r d; do
+      rm -rf "$d"
+      log "uninstall" "$(basename "$d")"
+      removed=1
+    done < <(find "$TOOLS_CELLAR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+    find "$TOOLS_STATE" -maxdepth 1 -type f -delete 2>/dev/null || true
+    [[ "$removed" -eq 1 ]] || log "uninstall" "nothing installed"
+  fi
+  _tool_prune_symlinks "$TOOLS_BIN"
+  _tool_prune_symlinks "$TOOLS_SHARE"
+  log "uninstall" "done"
+}
+
+# _tool_clean [<name>]
+_tool_clean() {
+  local target="${1:-}"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  if [[ -n "$target" ]]; then
+    local cache_dir="${TOOLS_CACHE}/${target}"
+    if [[ ! -d "$cache_dir" ]]; then
+      log "clean" "no cache for $target"
+    else
+      rm -rf "$cache_dir"
+      log "clean" "$target"
+    fi
+  else
+    local cleaned=0
+    while IFS= read -r d; do
+      rm -rf "$d"
+      log "clean" "$(basename "$d")"
+      cleaned=1
+    done < <(find "$TOOLS_CACHE" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+    [[ "$cleaned" -eq 1 ]] || log "clean" "cache already empty"
+  fi
+}
+
+# _tool_cmd <op> [<name>]
+# Main dispatcher — called by cmd_tool in bin/dotfiles.
+_tool_cmd() {
+  local op="${1:-}"
+  local target="${2:-}"
+
+  [[ -n "${DOTFILES_HOME:-}" ]] || abort "DOTFILES_HOME is not set"
+
+  case "$op" in
+    install)   _tool_install   "$target" ;;
+    uninstall) _tool_uninstall "$target" ;;
+    clean)     _tool_clean     "$target" ;;
+    status)    _print_tool_table "$target" ;;
+    "")
+      abort "usage: dotfiles tool <install|uninstall|clean|status> [<toolname>]"
+      ;;
+    *)
+      abort "unknown tool operation: $op (use install, uninstall, clean, or status)"
+      ;;
+  esac
 }
