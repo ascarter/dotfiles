@@ -3,26 +3,21 @@
 # Fedora host provisioning script
 
 set -eu
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../../.." && pwd)}"
+source "${DOTFILES_HOME}/lib/core.sh"
 
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
+[ "$(uname -s)" = "Linux" ] || abort "Fedora Linux only"
 
-# Verify Linux
-[ "$(uname -s)" == "Linux" ] || abort "Fedora Linux only"
+[ -f /etc/os-release ] || abort "Unsupported Linux distribution (missing /etc/os-release)"
+. /etc/os-release
 
-if [ -f /etc/os-release ]; then
-  . /etc/os-release
-fi
+[ "${ID:-}" = "fedora" ] || abort "Fedora Linux only"
 
-[ "$ID" == "fedora" ] || abort "Fedora Linux only"
-
-echo "Provisioning Fedora host ($VARIANT_ID)"
+log "init" "Provisioning Fedora host ($VARIANT_ID)"
 
 case "$VARIANT_ID" in
 silverblue | cosmic-atomic)
-  echo "Fedora Atomic variant detected"
+  log "init" "Fedora Atomic variant detected"
 
   rpm-ostree upgrade
 
@@ -51,23 +46,23 @@ silverblue | cosmic-atomic)
   ;;
 
 server)
-  echo "Fedora Server detected"
+  log "init" "Fedora Server detected"
   sudo dnf install -y dnf-plugins-core curl git
   sudo dnf upgrade -y
   ;;
 
 workstation | wsl)
-  echo "Fedora Workstation/WSL detected"
+  log "init" "Fedora Workstation/WSL detected"
   sudo dnf install -y dnf-plugins-core @development-tools curl git zsh
   sudo dnf upgrade -y
   ;;
 
 *)
-  echo "Fedora $VARIANT_ID not fully supported"
+  warn "init" "Fedora $VARIANT_ID not fully supported"
   sudo dnf install -y curl git
   sudo dnf upgrade -y
   ;;
 esac
 
-echo "Fedora provisioning complete"
-echo "Run 'systemctl reboot' to restart"
+log "init" "Fedora provisioning complete"
+log "init" "Run 'systemctl reboot' to restart"

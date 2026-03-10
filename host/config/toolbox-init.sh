@@ -16,11 +16,8 @@
 #   dotfiles script host/config/toolbox-init rust --no-packages
 
 set -eu
-
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+source "${DOTFILES_HOME}/lib/core.sh"
 
 usage() {
   cat <<'EOF'
@@ -67,20 +64,17 @@ main() {
   require_cmd toolbox
   require_cmd podman
 
-  # Verify toolbox container exists
   if ! podman container exists "$CONTAINER"; then
     abort "Toolbox container not found: $CONTAINER"
   fi
 
-  echo "Initializing toolbox container: $CONTAINER"
+  log "toolbox" "Initializing container: $CONTAINER"
 
-  # Optional package baseline (container-local only)
   if [ "$INSTALL_PACKAGES" -eq 1 ]; then
-    echo "Ensuring container-local packages: git zsh curl"
+    log "toolbox" "Ensuring container-local packages: git zsh curl"
     run_in_toolbox "$CONTAINER" sh -lc '
       set -eu
       if command -v dnf >/dev/null 2>&1; then
-        # Keep this minimal and idempotent for Fedora-based toolboxes.
         sudo dnf install -y git zsh curl
       else
         echo "dnf not found; skipping package install baseline" >&2
@@ -88,7 +82,6 @@ main() {
     '
   fi
 
-  # Ensure dotfiles path/env and run shell+sync bootstrap.
   run_in_toolbox "$CONTAINER" sh -lc '
     set -eu
 
@@ -110,7 +103,7 @@ main() {
     echo "git: $(command -v git || true)"
   '
 
-  echo "Done: toolbox '$CONTAINER' is initialized for dotfiles usage."
+  log "toolbox" "Done: '$CONTAINER' is initialized"
 }
 
 main "$@"

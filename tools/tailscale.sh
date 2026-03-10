@@ -7,7 +7,7 @@
 #   enable:            enable/start tailscaled and run tailscale up
 #
 # Linux (Fedora):
-# - Uses shared Fedora host helper scripts for repo/package management.
+# - Uses shared Fedora lib helper scripts for repo/package management.
 #
 # macOS:
 # - Tailscale is expected to be managed by Homebrew cask.
@@ -15,11 +15,6 @@
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
-
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
 
 usage() {
   cat <<'EOF'
@@ -55,13 +50,13 @@ OS="$(uname -s)"
 
 install() {
   if command -v tailscale >/dev/null 2>&1; then
-    echo "Tailscale already installed: $(command -v tailscale)"
+    log "tailscale" "already installed: $(command -v tailscale)"
     return 0
   fi
 
   case "$OS" in
     Darwin)
-      echo "tailscale not found. Run: brew install --cask tailscale-app"
+      log "tailscale" "not found. Run: brew install --cask tailscale-app"
       exit 1
       ;;
 
@@ -71,12 +66,12 @@ install() {
 
       case "${ID:-}" in
         fedora)
-          bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
+          bash "${DOTFILES_HOME}/lib/os/fedora/repo.sh" \
             "https://pkgs.tailscale.com/stable/fedora/tailscale.repo" \
             "/etc/yum.repos.d/tailscale.repo"
 
-          bash "${DOTFILES_HOME}/host/os/fedora/pkg.sh" install tailscale
-          echo "Tailscale package installed."
+          bash "${DOTFILES_HOME}/lib/os/fedora/pkg.sh" install tailscale
+          log "tailscale" "package installed"
           ;;
         *)
           abort "Unsupported Linux distribution: ${ID:-unknown}"
@@ -95,15 +90,14 @@ enable() {
   fi
 
   if tailscale status >/dev/null 2>&1; then
-    echo "Tailscale is already connected."
+    log "tailscale" "already connected"
     return 0
   fi
 
   case "$OS" in
     Darwin)
-      echo "macOS enable/login is handled by the Tailscale app/CLI auth flow."
-      echo "Run:"
-      echo "  tailscale up --accept-routes=true --ssh"
+      log "tailscale" "macOS: login is handled by the Tailscale app/CLI auth flow"
+      log "tailscale" "Run: tailscale up --accept-routes=true --ssh"
       ;;
 
     Linux)

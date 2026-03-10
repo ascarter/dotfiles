@@ -3,7 +3,7 @@
 # GitHub CLI installation script
 #
 # Linux (Fedora):
-# - Installs GitHub CLI using shared Fedora host helper scripts.
+# - Installs GitHub CLI using shared Fedora lib helper scripts.
 #
 # macOS:
 # - GitHub CLI is expected to be managed by Brewfile.
@@ -13,19 +13,14 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
-
 if command -v gh >/dev/null 2>&1; then
-  echo "GitHub CLI already installed: $(command -v gh)"
+  log "gh" "already installed: $(command -v gh)"
   exit 0
 fi
 
 case "$(uname -s)" in
   Darwin)
-    echo "gh not found. Run: brew install gh"
+    log "gh" "not found. Run: brew install gh"
     exit 1
     ;;
   Linux)
@@ -34,11 +29,11 @@ case "$(uname -s)" in
 
     case "${ID:-}" in
       fedora)
-        bash "${DOTFILES_HOME}/host/os/fedora/repo.sh" \
+        bash "${DOTFILES_HOME}/lib/os/fedora/repo.sh" \
           "https://cli.github.com/packages/rpm/gh-cli.repo" \
           "/etc/yum.repos.d/github-cli.repo"
 
-        bash "${DOTFILES_HOME}/host/os/fedora/pkg.sh" install gh
+        bash "${DOTFILES_HOME}/lib/os/fedora/pkg.sh" install gh
         ;;
       *)
         abort "Unsupported Linux distribution: ${ID:-unknown}"
@@ -50,4 +45,4 @@ case "$(uname -s)" in
     ;;
 esac
 
-echo "GitHub CLI (gh) installed"
+log "gh" "installed"

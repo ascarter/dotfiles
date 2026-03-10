@@ -3,21 +3,18 @@
 # Fedora package helper script.
 #
 # Intended to be called via:
-#   dotfiles script host/os/fedora/pkg [install|remove|refresh] <package>
+#   bash "${DOTFILES_LIB_DIR}/os/fedora/pkg.sh" [install|remove|refresh] <package>
 
 set -eu
-
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../../.." && pwd)}"
+source "${DOTFILES_HOME}/lib/core.sh"
 
 usage() {
   cat <<'EOF'
 Usage:
-  dotfiles script host/os/fedora/pkg install <package>
-  dotfiles script host/os/fedora/pkg remove <package>
-  dotfiles script host/os/fedora/pkg refresh
+  bash "${DOTFILES_LIB_DIR}/os/fedora/pkg.sh" install <package>
+  bash "${DOTFILES_LIB_DIR}/os/fedora/pkg.sh" remove <package>
+  bash "${DOTFILES_LIB_DIR}/os/fedora/pkg.sh" refresh
 EOF
 }
 
@@ -44,13 +41,12 @@ case "$ACTION" in
 
     if [ "$is_atomic" -eq 1 ]; then
       require_cmd rpm-ostree
-      echo "Installing package via rpm-ostree: $PACKAGE"
+      log "pkg" "Installing via rpm-ostree: $PACKAGE"
       rpm-ostree refresh-md
       rpm-ostree install --idempotent "$PACKAGE"
     else
-      require_cmd sudo
       require_cmd dnf
-      echo "Installing package via dnf: $PACKAGE"
+      log "pkg" "Installing via dnf: $PACKAGE"
       sudo dnf makecache --refresh
       sudo dnf install -y "$PACKAGE"
     fi
@@ -60,24 +56,22 @@ case "$ACTION" in
 
     if [ "$is_atomic" -eq 1 ]; then
       require_cmd rpm-ostree
-      echo "Removing package via rpm-ostree: $PACKAGE"
+      log "pkg" "Removing via rpm-ostree: $PACKAGE"
       rpm-ostree uninstall --idempotent "$PACKAGE"
     else
-      require_cmd sudo
       require_cmd dnf
-      echo "Removing package via dnf: $PACKAGE"
+      log "pkg" "Removing via dnf: $PACKAGE"
       sudo dnf remove -y "$PACKAGE"
     fi
     ;;
   refresh)
     if [ "$is_atomic" -eq 1 ]; then
       require_cmd rpm-ostree
-      echo "Refreshing rpm-ostree metadata..."
+      log "pkg" "Refreshing rpm-ostree metadata"
       rpm-ostree refresh-md
     else
-      require_cmd sudo
       require_cmd dnf
-      echo "Refreshing dnf metadata..."
+      log "pkg" "Refreshing dnf metadata"
       sudo dnf makecache --refresh
     fi
     ;;
