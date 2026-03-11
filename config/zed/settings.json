@@ -12,6 +12,15 @@
   "completion_menu_scrollbar": "auto",
   "toolbar": {},
   "agent_servers": {
+    "gemini": {
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+    "claude-acp": {
+      "type": "registry",
+    },
     "github-copilot-cli": {
       "type": "registry",
     },
