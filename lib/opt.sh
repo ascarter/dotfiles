@@ -64,6 +64,23 @@ export TOOLS_PLATFORM
 # Ensure required directories exist
 mkdir -p "${TOOLS_CELLAR}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${TOOLS_SHARE}"
 
+# tool_check <cmd>
+#
+# Call at the top of a tool script to skip if the tool is already installed.
+# During upgrade (DOTFILES_TOOL_UPGRADE=1), always continues so the script
+# can re-evaluate versions.
+# Exits 0 (skip) if the command is found and this is not an upgrade.
+tool_check() {
+  local cmd="$1"
+  if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]]; then
+    return 0
+  fi
+  if command -v "$cmd" >/dev/null 2>&1; then
+    log "skip" "${cmd} already installed: $(command -v "$cmd")"
+    exit 0
+  fi
+}
+
 # tool_latest_tag <owner/repo>
 # Prints the latest release tag for the given repo.
 tool_latest_tag() {
@@ -96,8 +113,6 @@ tool_installed_tag() {
 #   .zip     — unzip to versioned dir
 #   .gz      — gunzip to plain binary in versioned dir (non-tar)
 #   <no ext> — copy binary + chmod +x
-#
-# On macOS, strips quarantine attribute after extraction.
 tool_gh_install() {
   local repo="$1"
   local asset_glob="$2"
@@ -164,15 +179,27 @@ tool_gh_install() {
     chmod +x "${TOOLS_INSTALL_DIR}/${filename}"
   fi
 
-  # Strip quarantine on macOS (unsigned binaries from GitHub releases)
-  if [[ "$(uname -s)" == Darwin ]]; then
-    log "quarantine" "stripping com.apple.quarantine: ${TOOLS_INSTALL_DIR}"
-    xattr -dr com.apple.quarantine "$TOOLS_INSTALL_DIR" 2>/dev/null || true
-  fi
-
   # Record installed tag
   printf '%s\n' "$tag" > "$state_file"
   log "install" "${name} ${tag} -> ${TOOLS_INSTALL_DIR}"
+}
+
+# tool_strip_quarantine <path>
+#
+# Strips com.apple.quarantine from an unsigned binary on macOS.
+# No-op on Linux or when the binary is already code-signed.
+tool_strip_quarantine() {
+  [[ "$(uname -s)" == Darwin ]] || return 0
+  local target="${1:-}"
+  [[ -n "$target" && -f "$target" ]] || { error "tool_strip_quarantine: path required"; return 1; }
+
+  if codesign -d "$target" >/dev/null 2>&1; then
+    log "quarantine" "already signed: ${target}"
+    return 0
+  fi
+
+  log "quarantine" "stripping com.apple.quarantine: ${target}"
+  xattr -dr com.apple.quarantine "$target" 2>/dev/null || true
 }
 
 # tool_link <src> <dst>

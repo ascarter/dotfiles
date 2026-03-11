@@ -37,7 +37,7 @@ Commands:
   edit        Edit dotfiles repository using $EDITOR
   host        Host provisioning (init|status)
   gitconfig   Generate machine-specific ~/.gitconfig
-  tool        Manage tools (install|uninstall|clean|status [<toolname>])
+  tool        Manage tools (install|uninstall|upgrade|clean|list|status [<toolname>])
   script      Run a script (list available scripts if no name given)
 
 Options:
@@ -219,9 +219,18 @@ cmd_script() {
 cmd_status() {
   source "${DOTFILES_LIB_DIR}/sync.sh"
   source "${DOTFILES_LIB_DIR}/tool.sh"
+  source "${DOTFILES_LIB_DIR}/opt.sh"
   (_sync status) && log "status" "ok"
   printf "\n${tty_bold}tools${tty_reset}\n"
-  _print_tool_table
+  local count=0
+  while IFS= read -r f; do
+    local name tag
+    name="$(basename "$f")"
+    tag="$(cat "$f")"
+    printf "  %-16s %s\n" "$name" "$tag"
+    count=$((count + 1))
+  done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+  [[ "$count" -gt 0 ]] || printf "  no tools installed\n"
 }
 
 cmd_uninstall() {

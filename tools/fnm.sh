@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v fnm >/dev/null 2>&1; then
-  echo "fnm already installed: $(command -v fnm)"
-  exit 0
-fi
+tool_check fnm
 
 curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 

@@ -13,10 +13,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v gh >/dev/null 2>&1; then
-  log "gh" "already installed: $(command -v gh)"
-  exit 0
-fi
+tool_check gh
 
 case "$(uname -s)" in
   Darwin)

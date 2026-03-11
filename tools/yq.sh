@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v yq >/dev/null 2>&1; then
-  echo "yq already installed: $(command -v yq)"
-  exit 0
-fi
+tool_check yq
 
 TOOL_REPO="mikefarah/yq"
 

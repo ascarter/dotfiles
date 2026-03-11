@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v jq >/dev/null 2>&1; then
-  echo "jq already installed: $(command -v jq)"
-  exit 0
-fi
+tool_check jq
 
 TOOL_REPO="jqlang/jq"
 

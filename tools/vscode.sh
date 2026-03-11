@@ -11,10 +11,7 @@ abort() {
   exit 1
 }
 
-if command -v code >/dev/null 2>&1; then
-  echo "Visual Studio Code already installed: $(command -v code)"
-  exit 0
-fi
+tool_check code
 
 case "$(uname -s)" in
   Darwin)

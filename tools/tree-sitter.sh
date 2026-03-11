@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v tree-sitter >/dev/null 2>&1; then
-  echo "tree-sitter already installed: $(command -v tree-sitter)"
-  exit 0
-fi
+tool_check tree-sitter
 
 TOOL_REPO="tree-sitter/tree-sitter"
 

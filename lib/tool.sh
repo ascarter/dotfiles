@@ -22,51 +22,47 @@ _tool_prune_symlinks() {
   done
 }
 
-# _print_tool_table [<name>]
-# Print a table of installed tools and their tags.
-# If <name> is given, show only that tool.
-_print_tool_table() {
-  local filter="${1:-}"
+# _tool_status
+# Show the state of the opt packaging infrastructure.
+_tool_status() {
   source "${DOTFILES_HOME}/lib/opt.sh"
+  local tools_dir="${DOTFILES_HOME}/tools"
 
-  local -a names=() tags=()
-  while IFS= read -r f; do
-    local name tag
-    name="$(basename "$f")"
-    tag="$(cat "$f")"
-    [[ -n "$filter" && "$name" != "$filter" ]] && continue
-    names+=("$name")
-    tags+=("$tag")
-  done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+  printf "  ${tty_bold}Paths${tty_reset}\n"
+  printf "  %-12s %s\n" "opt home:" "$XDG_OPT_HOME"
+  printf "  %-12s %s\n" "bin:" "$XDG_OPT_BIN"
+  printf "  %-12s %s\n" "share:" "$XDG_OPT_SHARE"
+  printf "  %-12s %s\n" "cellar:" "$TOOLS_CELLAR"
+  printf "  %-12s %s\n" "cache:" "$TOOLS_CACHE"
+  printf "  %-12s %s\n" "state:" "$TOOLS_STATE"
 
-  if [[ ${#names[@]} -eq 0 ]]; then
-    [[ -n "$filter" ]] \
-      && printf "  %s is not installed\n" "$filter" \
-      || printf "  no tools installed\n"
-    return 0
+  local scripts=0 installed=0 external=0
+  if [[ -d "$tools_dir" ]]; then
+    scripts="$(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+  if [[ -d "$TOOLS_STATE" ]]; then
+    installed="$(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+  if [[ -d "$tools_dir" ]]; then
+    while IFS= read -r script; do
+      local name cmd
+      name="$(basename "$script" .sh)"
+      cmd="$(_tool_cmd_name "$script")"
+      if [[ ! -f "${TOOLS_STATE}/${name}" ]] && command -v "$cmd" >/dev/null 2>&1; then
+        external=$((external + 1))
+      fi
+    done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
   fi
 
-  # Compute column widths (minimum = header label length)
-  local w_name=4 w_tag=3
-  for i in "${!names[@]}"; do
-    [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
-    [[ ${#tags[$i]}  -gt $w_tag  ]] && w_tag=${#tags[$i]}
-  done
+  printf "\n  ${tty_bold}Summary${tty_reset}\n"
+  printf "  %-12s %s\n" "available:" "$scripts"
+  printf "  %-12s %s\n" "installed:" "$installed"
+  printf "  %-12s %s\n" "external:" "$external"
 
-  local sep_name sep_tag
-  sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
-  sep_tag="$(printf '─%.0s' $(seq 1 $w_tag))"
-
-  printf "  ${tty_bold}%-${w_name}s  %s${tty_reset}\n" "TOOL" "TAG"
-  printf "  %-${w_name}s  %s\n" "$sep_name" "$sep_tag"
-  for i in "${!names[@]}"; do
-    printf "  %-${w_name}s  %s\n" "${names[$i]}" "${tags[$i]}"
-  done
-
-  # Count footer only when showing all tools
-  if [[ -z "$filter" ]]; then
-    local count=${#names[@]}
-    printf "\n  %d tool%s installed\n" "$count" "$([[ $count -eq 1 ]] && printf '' || printf 's')"
+  if [[ -d "$XDG_OPT_HOME" ]]; then
+    local size
+    size="$(du -sh "$XDG_OPT_HOME" 2>/dev/null | cut -f1 | tr -d ' ')"
+    printf "  %-12s %s\n" "disk:" "$size"
   fi
 }
 
@@ -151,6 +147,107 @@ _tool_clean() {
   fi
 }
 
+# _tool_upgrade [<name>]
+# Upgrade installed tools to latest version.
+# Skips tools already at the latest version via tool_gh_install's tag check.
+# Sets DOTFILES_TOOL_UPGRADE=1 so scripts bypass the command -v early exit.
+_tool_upgrade() {
+  local target="${1:-}"
+  local tools_dir="${DOTFILES_HOME}/tools"
+
+  command -v gh >/dev/null 2>&1 \
+    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  if [[ -n "$target" ]]; then
+    local state_file="${TOOLS_STATE}/${target}"
+    [[ -f "$state_file" ]] || abort "$target is not installed (nothing to upgrade)"
+    local script="${tools_dir}/${target}.sh"
+    [[ -f "$script" ]] || abort "Unknown tool: $target"
+    vlog "tool" "upgrade $target"
+    DOTFILES_TOOL_UPGRADE=1 bash "$script"
+  else
+    local failed=0
+    while IFS= read -r state_file; do
+      local tool_name
+      tool_name="$(basename "$state_file")"
+      local script="${tools_dir}/${tool_name}.sh"
+      if [[ ! -f "$script" ]]; then
+        vlog "tool" "skip $tool_name (no install script)"
+        continue
+      fi
+      vlog "tool" "upgrade $tool_name"
+      DOTFILES_TOOL_UPGRADE=1 bash "$script" || {
+        warn "$tool_name" "upgrade failed"
+        failed=1
+      }
+    done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+    return $failed
+  fi
+}
+
+# _tool_cmd_name <script>
+# Extract the command name from a tool script's tool_check call.
+# Falls back to the script basename if no tool_check is found.
+_tool_cmd_name() {
+  local script="$1"
+  local cmd
+  cmd="$(grep -m1 'tool_check ' "$script" 2>/dev/null | awk '{print $2}')"
+  if [[ -n "$cmd" ]]; then
+    printf '%s' "$cmd"
+  else
+    printf '%s' "$(basename "$script" .sh)"
+  fi
+}
+
+# _tool_list
+# List available tool scripts and their install status.
+_tool_list() {
+  local tools_dir="${DOTFILES_HOME}/tools"
+  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  local -a names=() statuses=()
+  while IFS= read -r script; do
+    local name cmd
+    name="$(basename "$script" .sh)"
+    cmd="$(_tool_cmd_name "$script")"
+    names+=("$name")
+    if [[ -f "${TOOLS_STATE}/${name}" ]]; then
+      statuses+=("$(cat "${TOOLS_STATE}/${name}")")
+    elif command -v "$cmd" >/dev/null 2>&1; then
+      statuses+=("$(command -v "$cmd")")
+    else
+      statuses+=("—")
+    fi
+  done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+
+  if [[ ${#names[@]} -eq 0 ]]; then
+    printf "  no tool scripts found\n"
+    return 0
+  fi
+
+  # Compute column widths
+  local w_name=4 w_status=6
+  for i in "${!names[@]}"; do
+    [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
+    [[ ${#statuses[$i]} -gt $w_status ]] && w_status=${#statuses[$i]}
+  done
+
+  local sep_name sep_status
+  sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
+  sep_status="$(printf '─%.0s' $(seq 1 $w_status))"
+
+  printf "  ${tty_bold}%-${w_name}s  %s${tty_reset}\n" "TOOL" "STATUS"
+  printf "  %-${w_name}s  %s\n" "$sep_name" "$sep_status"
+  for i in "${!names[@]}"; do
+    printf "  %-${w_name}s  %s\n" "${names[$i]}" "${statuses[$i]}"
+  done
+
+  printf "\n  %d tool%s available\n" "${#names[@]}" "$([[ ${#names[@]} -eq 1 ]] && printf '' || printf 's')"
+}
+
 # _tool_cmd <op> [<name>]
 # Main dispatcher — called by cmd_tool in bin/dotfiles.
 _tool_cmd() {
@@ -162,13 +259,15 @@ _tool_cmd() {
   case "$op" in
     install)   _tool_install   "$target" ;;
     uninstall) _tool_uninstall "$target" ;;
+    upgrade)   _tool_upgrade   "$target" ;;
     clean)     _tool_clean     "$target" ;;
-    status)    _print_tool_table "$target" ;;
+    list)      _tool_list ;;
+    status)    _tool_status ;;
     "")
-      abort "usage: dotfiles tool <install|uninstall|clean|status> [<toolname>]"
+      abort "usage: dotfiles tool <install|uninstall|upgrade|clean|list|status> [<toolname>]"
       ;;
     *)
-      abort "unknown tool operation: $op (use install, uninstall, clean, or status)"
+      abort "unknown tool operation: $op (use install, uninstall, upgrade, clean, list, or status)"
       ;;
   esac
 }

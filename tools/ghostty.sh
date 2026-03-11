@@ -5,10 +5,7 @@ source "${DOTFILES_HOME}/lib/opt.sh"
 
 abort() { printf '%s\n' "$1" >&2; exit 1; }
 
-if command -v ghostty >/dev/null 2>&1; then
-  echo "ghostty already installed: $(command -v ghostty)"
-  exit 0
-fi
+tool_check ghostty
 
 case "$(uname -s)" in
   Darwin)

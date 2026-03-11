@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v serie >/dev/null 2>&1; then
-  echo "serie already installed: $(command -v serie)"
-  exit 0
-fi
+tool_check serie
 
 TOOL_REPO="lusingander/serie"
 

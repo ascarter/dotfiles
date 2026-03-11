@@ -3,10 +3,7 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
-if command -v go >/dev/null 2>&1; then
-  echo "go already installed: $(command -v go)"
-  exit 0
-fi
+tool_check go
 
 # Requires curl and jq
 command -v curl >/dev/null 2>&1 || { echo "curl is required" >&2; exit 1; }
