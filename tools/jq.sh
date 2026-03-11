@@ -1,24 +1,13 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
+# jq — JSON processor (assets are plain binaries)
+TOOL_CMD=jq
+TOOL_REPO=jqlang/jq
+TOOL_ASSET_MACOS_ARM64="jq-macos-arm64"
+TOOL_ASSET_MACOS_AMD64="jq-macos-amd64"
+TOOL_ASSET_LINUX_ARM64="jq-linux-arm64"
+TOOL_ASSET_LINUX_AMD64="jq-linux-amd64"
 
-tool_check jq
-
-TOOL_REPO="jqlang/jq"
-
-# jq assets are plain binaries (no archive)
-case "$TOOLS_PLATFORM" in
-  aarch64-darwin)  ASSET="jq-macos-arm64" ;;
-  x86_64-darwin)   ASSET="jq-macos-amd64" ;;
-  aarch64-linux)   ASSET="jq-linux-arm64" ;;
-  x86_64-linux)    ASSET="jq-linux-amd64" ;;
-  *) echo "Unsupported platform: $TOOLS_PLATFORM" >&2; exit 1 ;;
-esac
-
-tool_gh_install "$TOOL_REPO" "$ASSET"
-
-# Plain binary was copied as the asset filename; link it as 'jq'
-ln -sf "${TOOLS_INSTALL_DIR}/${ASSET}" "${TOOLS_BIN}/jq"
-
-echo "jq installed: ${TOOLS_BIN}/jq"
+tool_post_install() {
+  local asset
+  asset="$(find "$TOOLS_INSTALL_DIR" -maxdepth 1 -type f | head -n1)"
+  ln -sf "$asset" "${XDG_OPT_BIN}/jq"
+}

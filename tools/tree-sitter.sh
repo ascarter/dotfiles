@@ -1,25 +1,8 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
-
-tool_check tree-sitter
-
-TOOL_REPO="tree-sitter/tree-sitter"
-
-# tree-sitter assets are .gz compressed binaries (not tar.gz)
-# lib/tool.sh gunzip handler decompresses to a file named after the repo ("tree-sitter")
-case "$TOOLS_PLATFORM" in
-  aarch64-darwin)  ASSET="tree-sitter-macos-arm64.gz" ;;
-  x86_64-darwin)   ASSET="tree-sitter-macos-x64.gz" ;;
-  aarch64-linux)   ASSET="tree-sitter-linux-arm64.gz" ;;
-  x86_64-linux)    ASSET="tree-sitter-linux-x64.gz" ;;
-  *) echo "Unsupported platform: $TOOLS_PLATFORM" >&2; exit 1 ;;
-esac
-
-tool_gh_install "$TOOL_REPO" "$ASSET"
-
-# lib/tool.sh gunzip handler creates TOOLS_INSTALL_DIR/tree-sitter
-ln -sf "${TOOLS_INSTALL_DIR}/tree-sitter" "${TOOLS_BIN}/tree-sitter"
-
-echo "tree-sitter installed: ${TOOLS_BIN}/tree-sitter"
+# tree-sitter — parser generator (assets are .gz compressed binaries)
+TOOL_CMD=tree-sitter
+TOOL_REPO=tree-sitter/tree-sitter
+TOOL_ASSET_MACOS_ARM64="tree-sitter-macos-arm64.gz"
+TOOL_ASSET_MACOS_AMD64="tree-sitter-macos-x64.gz"
+TOOL_ASSET_LINUX_ARM64="tree-sitter-linux-arm64.gz"
+TOOL_ASSET_LINUX_AMD64="tree-sitter-linux-x64.gz"
+TOOL_LINKS=(tree-sitter)

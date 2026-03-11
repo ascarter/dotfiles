@@ -83,8 +83,8 @@ TOOL_LINKS=(bin/fzf)
 
 - [x] Design and implement the driver function in lib/opt.sh
 - [x] Convert one simple gh-release tool (fzf) as proof of concept
-- [ ] Convert remaining simple gh-release tools (serie, just)
-- [ ] Convert gh-release tools with custom linking (ripgrep, jq, yq, tree-sitter)
+- [x] Convert remaining simple gh-release tools (serie, just)
+- [x] Convert gh-release tools with custom linking (ripgrep, jq, yq, tree-sitter)
 - [ ] Convert curl-installer tools (rustup, uv, rv, claude, fnm, zed)
 - [ ] Convert platform-dispatch tools (gh, ghostty, vscode)
 - [ ] Convert custom-download tool (go)

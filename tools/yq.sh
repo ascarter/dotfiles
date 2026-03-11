@@ -1,24 +1,13 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
+# yq — YAML processor (assets are plain binaries)
+TOOL_CMD=yq
+TOOL_REPO=mikefarah/yq
+TOOL_ASSET_MACOS_ARM64="yq_darwin_arm64"
+TOOL_ASSET_MACOS_AMD64="yq_darwin_amd64"
+TOOL_ASSET_LINUX_ARM64="yq_linux_arm64"
+TOOL_ASSET_LINUX_AMD64="yq_linux_amd64"
 
-tool_check yq
-
-TOOL_REPO="mikefarah/yq"
-
-# yq assets are plain binaries (no archive)
-case "$TOOLS_PLATFORM" in
-  aarch64-darwin)  ASSET="yq_darwin_arm64" ;;
-  x86_64-darwin)   ASSET="yq_darwin_amd64" ;;
-  aarch64-linux)   ASSET="yq_linux_arm64" ;;
-  x86_64-linux)    ASSET="yq_linux_amd64" ;;
-  *) echo "Unsupported platform: $TOOLS_PLATFORM" >&2; exit 1 ;;
-esac
-
-tool_gh_install "$TOOL_REPO" "$ASSET"
-
-# Plain binary was copied as the asset filename; link it as 'yq'
-ln -sf "${TOOLS_INSTALL_DIR}/${ASSET}" "${TOOLS_BIN}/yq"
-
-echo "yq installed: ${TOOLS_BIN}/yq"
+tool_post_install() {
+  local asset
+  asset="$(find "$TOOLS_INSTALL_DIR" -maxdepth 1 -type f | head -n1)"
+  ln -sf "$asset" "${XDG_OPT_BIN}/yq"
+}

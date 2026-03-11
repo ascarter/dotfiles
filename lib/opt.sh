@@ -166,9 +166,22 @@ tool_gh_install() {
   filename="$(basename "$asset_file")"
 
   if [[ "$filename" == *.tar.gz || "$filename" == *.tgz ]]; then
-    tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR" || { error "tool_gh_install: tar extraction failed"; return 1; }
+    local strip_args=()
+    if [[ -n "${TOOL_STRIP_COMPONENTS:-}" ]]; then
+      strip_args=(--strip-components="$TOOL_STRIP_COMPONENTS")
+    fi
+    tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR" "${strip_args[@]}" || { error "tool_gh_install: tar extraction failed"; return 1; }
   elif [[ "$filename" == *.zip ]]; then
     unzip -q -o "$asset_file" -d "$TOOLS_INSTALL_DIR" || { error "tool_gh_install: unzip extraction failed"; return 1; }
+    # Strip leading directory components from zip if requested
+    if [[ -n "${TOOL_STRIP_COMPONENTS:-}" && "${TOOL_STRIP_COMPONENTS:-0}" -gt 0 ]]; then
+      local nested_dir
+      nested_dir="$(find "$TOOLS_INSTALL_DIR" -mindepth 1 -maxdepth 1 -type d | head -n1)"
+      if [[ -n "$nested_dir" ]]; then
+        mv "$nested_dir"/* "$TOOLS_INSTALL_DIR"/ 2>/dev/null || true
+        rmdir "$nested_dir" 2>/dev/null || true
+      fi
+    fi
   elif [[ "$filename" == *.gz ]]; then
     # Non-tar gzip: decompress to a binary named after the tool
     gunzip -c "$asset_file" > "${TOOLS_INSTALL_DIR}/${name}" || { error "tool_gh_install: gunzip failed"; return 1; }
@@ -238,6 +251,7 @@ tool_link() {
 #   TOOL_LINKS                   — array of symlink specs: "src:dst" or bare "name" (→ name:bin/name)
 #   TOOL_MAN_PAGES               — array of man page paths to link (relative to install dir)
 #   TOOL_COMPLETIONS             — array of completion file paths to link
+#   TOOL_STRIP_COMPONENTS        — strip N leading directory components during extraction (like tar --strip-components)
 #
 # Recipe hook functions (optional — override default behavior):
 #   tool_download         — default: tool_gh_install using TOOL_REPO + resolved asset
@@ -275,8 +289,9 @@ _tool_resolve_asset() {
 
 # _tool_default_post_install
 # Creates symlinks from TOOL_LINKS, TOOL_MAN_PAGES, and TOOL_COMPLETIONS arrays.
+# Errors if a declared path does not exist (indicates archive layout changed).
 _tool_default_post_install() {
-  local spec src dst
+  local spec src dst src_path
   for spec in "${TOOL_LINKS[@]:-}"; do
     [[ -n "$spec" ]] || continue
     if [[ "$spec" == *:* ]]; then
@@ -286,21 +301,27 @@ _tool_default_post_install() {
       src="$spec"
       dst="bin/${spec}"
     fi
+    src_path="${TOOLS_INSTALL_DIR}/${src}"
+    [[ -e "$src_path" ]] || { error "tool_post_install: expected path not found: ${src_path}"; return 1; }
     tool_link "$src" "$dst"
   done
 
-  local page
+  local page page_path
   for page in "${TOOL_MAN_PAGES[@]:-}"; do
     [[ -n "$page" ]] || continue
+    page_path="${TOOLS_INSTALL_DIR}/${page}"
+    [[ -e "$page_path" ]] || { error "tool_post_install: expected man page not found: ${page_path}"; return 1; }
     local basename_page
     basename_page="$(basename "$page")"
     local section="${basename_page##*.}"
     tool_link "$page" "share/man/man${section}/${basename_page}"
   done
 
-  local comp
+  local comp comp_path
   for comp in "${TOOL_COMPLETIONS[@]:-}"; do
     [[ -n "$comp" ]] || continue
+    comp_path="${TOOLS_INSTALL_DIR}/${comp}"
+    [[ -e "$comp_path" ]] || { error "tool_post_install: expected completion not found: ${comp_path}"; return 1; }
     local basename_comp
     basename_comp="$(basename "$comp")"
     tool_link "$comp" "share/completions/${basename_comp}"
@@ -324,6 +345,7 @@ tool_run_recipe() {
 
   # Reset recipe state
   unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_STRIP_COMPONENTS
   unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset -f tool_download tool_post_install tool_platform_check 2>/dev/null

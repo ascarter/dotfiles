@@ -1,22 +1,8 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
-
-tool_check serie
-
-TOOL_REPO="lusingander/serie"
-
-case "$TOOLS_PLATFORM" in
-  aarch64-darwin)  ASSET="serie-*-aarch64-apple-darwin.tar.gz" ;;
-  x86_64-darwin)   ASSET="serie-*-x86_64-apple-darwin.tar.gz" ;;
-  aarch64-linux)   ASSET="serie-*-aarch64-unknown-linux-gnu.tar.gz" ;;
-  x86_64-linux)    ASSET="serie-*-x86_64-unknown-linux-gnu.tar.gz" ;;
-  *) echo "Unsupported platform: $TOOLS_PLATFORM" >&2; exit 1 ;;
-esac
-
-tool_gh_install "$TOOL_REPO" "$ASSET"
-
-tool_link "serie" "bin/serie"
-
-echo "serie installed: ${TOOLS_BIN}/serie"
+# serie — git commit graph in terminal
+TOOL_CMD=serie
+TOOL_REPO=lusingander/serie
+TOOL_ASSET_MACOS_ARM64="serie-*-aarch64-apple-darwin.tar.gz"
+TOOL_ASSET_MACOS_AMD64="serie-*-x86_64-apple-darwin.tar.gz"
+TOOL_ASSET_LINUX_ARM64="serie-*-aarch64-unknown-linux-gnu.tar.gz"
+TOOL_ASSET_LINUX_AMD64="serie-*-x86_64-unknown-linux-gnu.tar.gz"
+TOOL_LINKS=(serie)
