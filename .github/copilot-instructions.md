@@ -13,3 +13,10 @@ Use `AGENTS.md` as the single source of contributor and repository policy contex
 
 ## Scope
 This file is intentionally minimal to avoid duplicated guidance and drift. All architecture, style, lifecycle, and policy details should be maintained in `AGENTS.md` and its linked supporting documents.
+
+## Rules
+
+* Always refer to `AGENTS.md` for any questions about how to contribute or maintain the repository.
+* Do not add instructions here that are not already covered in `AGENTS.md` or its linked documents.
+* If you find a gap in the instructions or policies, update `AGENTS.md` first, then link to the new or updated section from this file if necessary.
+* You may stage commits but do not commit without confirmation from user.
