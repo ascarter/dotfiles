@@ -1,14 +1,12 @@
 #autoload
 prompt_source_help() {
   cat <<-EOF
-Source prompt with optional git support.
+Source prompt with git branch display.
 EOF
 }
 
 prompt_source_setup() {
   emulate -L zsh
-  local -a opt_git
-  zparseopts -git=opt_git
 
   prompt_opts=(cr percent subst)
 
@@ -67,18 +65,16 @@ prompt_source_setup() {
   fi
 
   # Working directory
-  PROMPT='%B%2~%b'
+  PROMPT+='%B%2~%b'
 
-  # Optional git branch info
-  if (( $#opt_git )); then
-    autoload -Uz vcs_info add-zsh-hook
-    add-zsh-hook precmd vcs_info
-    zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:git:*' formats '%b'
-    zstyle ':vcs_info:git*:*' actionformats '%b|%a'
-    zstyle ':vcs_info:*' check-for-changes false
-    PROMPT+='${vcs_info_msg_0_:+ "%F{7}$vcs_info_msg_0_%f"}'
-  fi
+  # Git branch info (near-zero cost with check-for-changes off)
+  autoload -Uz vcs_info add-zsh-hook
+  add-zsh-hook precmd vcs_info
+  zstyle ':vcs_info:*' enable git
+  zstyle ':vcs_info:git:*' formats '%b'
+  zstyle ':vcs_info:git*:*' actionformats '%b|%a'
+  zstyle ':vcs_info:*' check-for-changes false
+  PROMPT+='${vcs_info_msg_0_:+ "%F{7}$vcs_info_msg_0_%f"}'
 
   # Prompt symbol
   PROMPT+=' %(!.%F{red}${root_symbol}%f.${prompt_symbol}) '
