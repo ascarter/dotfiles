@@ -166,11 +166,7 @@ tool_gh_install() {
   filename="$(basename "$asset_file")"
 
   if [[ "$filename" == *.tar.gz || "$filename" == *.tgz ]]; then
-    local strip_args=()
-    if [[ -n "${TOOL_STRIP_COMPONENTS:-}" ]]; then
-      strip_args=(--strip-components="$TOOL_STRIP_COMPONENTS")
-    fi
-    tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR" "${strip_args[@]}" || { error "tool_gh_install: tar extraction failed"; return 1; }
+    tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR" --strip-components="${TOOL_STRIP_COMPONENTS:-0}" || { error "tool_gh_install: tar extraction failed"; return 1; }
   elif [[ "$filename" == *.zip ]]; then
     unzip -q -o "$asset_file" -d "$TOOLS_INSTALL_DIR" || { error "tool_gh_install: unzip extraction failed"; return 1; }
     # Strip leading directory components from zip if requested
