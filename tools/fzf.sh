@@ -1,22 +1,8 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
-
-tool_check fzf
-
-TOOL_REPO="junegunn/fzf"
-
-case "$TOOLS_PLATFORM" in
-  aarch64-darwin)  ASSET="fzf-*-darwin_arm64.tar.gz" ;;
-  x86_64-darwin)   ASSET="fzf-*-darwin_amd64.tar.gz" ;;
-  aarch64-linux)   ASSET="fzf-*-linux_arm64.tar.gz" ;;
-  x86_64-linux)    ASSET="fzf-*-linux_amd64.tar.gz" ;;
-  *) echo "Unsupported platform: $TOOLS_PLATFORM" >&2; exit 1 ;;
-esac
-
-tool_gh_install "$TOOL_REPO" "$ASSET"
-
-tool_link "fzf" "bin/fzf"
-
-echo "fzf installed: ${TOOLS_BIN}/fzf"
+# fzf — command-line fuzzy finder
+TOOL_CMD=fzf
+TOOL_REPO=junegunn/fzf
+TOOL_ASSET_MACOS_ARM64="fzf-*-darwin_arm64.tar.gz"
+TOOL_ASSET_MACOS_AMD64="fzf-*-darwin_amd64.tar.gz"
+TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
+TOOL_ASSET_LINUX_AMD64="fzf-*-linux_amd64.tar.gz"
+TOOL_LINKS=(fzf)

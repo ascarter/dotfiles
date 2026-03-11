@@ -74,22 +74,34 @@ _tool_install() {
   command -v gh >/dev/null 2>&1 \
     || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+  source "${DOTFILES_HOME}/lib/opt.sh"
 
   if [[ -n "$target" ]]; then
     local script="${tools_dir}/${target}.sh"
     [[ -f "$script" ]] || abort "Unknown tool: $target"
     vlog "tool" "install $target"
-    bash "$script"
+    if tool_is_recipe "$script"; then
+      tool_run_recipe "$script"
+    else
+      bash "$script"
+    fi
   else
     local failed=0
     while IFS= read -r script; do
       local tool_name
       tool_name="$(basename "$script" .sh)"
       vlog "tool" "install $tool_name"
-      bash "$script" || {
-        warn "$tool_name" "installation failed"
-        failed=1
-      }
+      if tool_is_recipe "$script"; then
+        tool_run_recipe "$script" || {
+          warn "$tool_name" "installation failed"
+          failed=1
+        }
+      else
+        bash "$script" || {
+          warn "$tool_name" "installation failed"
+          failed=1
+        }
+      fi
     done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
     return $failed
   fi
@@ -160,13 +172,19 @@ _tool_upgrade() {
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
   source "${DOTFILES_HOME}/lib/opt.sh"
 
+  export DOTFILES_TOOL_UPGRADE=1
+
   if [[ -n "$target" ]]; then
     local state_file="${TOOLS_STATE}/${target}"
     [[ -f "$state_file" ]] || abort "$target is not installed (nothing to upgrade)"
     local script="${tools_dir}/${target}.sh"
     [[ -f "$script" ]] || abort "Unknown tool: $target"
     vlog "tool" "upgrade $target"
-    DOTFILES_TOOL_UPGRADE=1 bash "$script"
+    if tool_is_recipe "$script"; then
+      tool_run_recipe "$script"
+    else
+      bash "$script"
+    fi
   else
     local failed=0
     while IFS= read -r state_file; do
@@ -178,21 +196,38 @@ _tool_upgrade() {
         continue
       fi
       vlog "tool" "upgrade $tool_name"
-      DOTFILES_TOOL_UPGRADE=1 bash "$script" || {
-        warn "$tool_name" "upgrade failed"
-        failed=1
-      }
+      if tool_is_recipe "$script"; then
+        tool_run_recipe "$script" || {
+          warn "$tool_name" "upgrade failed"
+          failed=1
+        }
+      else
+        bash "$script" || {
+          warn "$tool_name" "upgrade failed"
+          failed=1
+        }
+      fi
     done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
     return $failed
   fi
 }
 
 # _tool_cmd_name <script>
-# Extract the command name from a tool script's tool_check call.
-# Falls back to the script basename if no tool_check is found.
+# Extract the command name from a tool script.
+# Checks for declarative TOOL_CMD= first, then tool_check call.
+# Falls back to the script basename if neither is found.
 _tool_cmd_name() {
   local script="$1"
   local cmd
+
+  # Declarative style: TOOL_CMD=<name>
+  cmd="$(grep -m1 '^TOOL_CMD=' "$script" 2>/dev/null | sed 's/^TOOL_CMD=//')"
+  if [[ -n "$cmd" ]]; then
+    printf '%s' "$cmd"
+    return 0
+  fi
+
+  # Imperative style: tool_check <name>
   cmd="$(grep -m1 'tool_check ' "$script" 2>/dev/null | awk '{print $2}')"
   if [[ -n "$cmd" ]]; then
     printf '%s' "$cmd"

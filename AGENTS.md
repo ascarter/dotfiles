@@ -17,21 +17,47 @@ Conflict rule:
 - `lib/core.sh`: sourced library; tty/logging functions (`log`, `warn`, `error`, `abort`, `ensure`, `success`).
 - `lib/sync.sh`: sourced library; `_sync` implementation for link/unlink/status modes.
 - `lib/tool.sh`: sourced library; `dotfiles tool` subcommand implementation (`_tool_cmd` and helpers).
-- `lib/opt.sh`: sourced installer library; declares `XDG_OPT_*` vars, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`.
+- `lib/opt.sh`: sourced installer library; declares `XDG_OPT_*` vars, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`, and the declarative tool driver (`tool_run_recipe`).
 - `lib/os/fedora/pkg.sh`: Fedora package management helper (dnf/rpm-ostree); called by tool scripts.
 - `lib/os/fedora/repo.sh`: Fedora repo management helper; called by tool scripts.
-- `tools/`: flat directory of installer scripts, one per tool capability. Each sources `lib/opt.sh`.
+- `tools/`: flat directory of tool recipes and installer scripts, one per tool capability.
 - `host/<platform>.sh`: OS baseline provisioning; one script per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`).
 - `scripts/*.sh`: convenience and orchestration scripts (e.g. `gitconfig.sh`, `developer.sh`).
 
 ## Tool Script Categories
 
-All scripts in `tools/` are self-contained tool installers. Four patterns coexist:
+Tools in `tools/` use one of two formats: **declarative recipes** (preferred) or **imperative scripts** (legacy). Both coexist; the driver auto-detects based on shebang presence.
 
-1. **GitHub release tools** — source `lib/opt.sh`, call `tool_gh_install`, call `tool_link` for each binary/manpage/completion. Example: `ripgrep.sh`, `just.sh`, `fzf.sh`, `jq.sh`, `yq.sh`, `serie.sh`, `tree-sitter.sh`.
-2. **Vendor curl installers** — source `lib/opt.sh` for environment, run `curl | sh`. Example: `zed.sh`, `claude.sh`.
-3. **AppImage / custom URL tools** — source `lib/opt.sh`, download and place manually, may include desktop integration. Example: `ghostty.sh`.
-4. **Service/package manager tools** — source `lib/opt.sh`, branch on OS/distro, call package manager. Example: `tailscale.sh`, `speedtest.sh`, `gh.sh`.
+### Declarative recipes (no shebang — preferred for new tools)
+
+Pure config files sourced by `tool_run_recipe` in `lib/opt.sh`. The driver handles the
+full lifecycle: check → platform_check → download → post_install → log.
+
+```bash
+# tools/fzf.sh — pure config, no logic needed
+TOOL_CMD=fzf
+TOOL_REPO=junegunn/fzf
+TOOL_ASSET_MACOS_ARM64="fzf-*-darwin_arm64.tar.gz"
+TOOL_ASSET_MACOS_AMD64="fzf-*-darwin_amd64.tar.gz"
+TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
+TOOL_ASSET_LINUX_AMD64="fzf-*-linux_amd64.tar.gz"
+TOOL_LINKS=(fzf)
+```
+
+Recipe variables: `TOOL_CMD` (required), `TOOL_REPO`, `TOOL_ASSET_<PLATFORM>`,
+`TOOL_LINKS` (array, `src:dst` or bare `name`), `TOOL_MAN_PAGES`, `TOOL_COMPLETIONS`.
+
+Optional hook functions: `tool_download`, `tool_post_install`, `tool_platform_check`.
+
+### Imperative scripts (shebang present — legacy)
+
+Self-contained bash scripts that source `lib/opt.sh` and call functions directly.
+Four patterns coexist:
+
+1. **GitHub release tools** — call `tool_gh_install`, `tool_link`. Example: `ripgrep.sh`, `just.sh`, `serie.sh`.
+2. **Vendor curl installers** — run `curl | sh`. Example: `zed.sh`, `claude.sh`.
+3. **AppImage / custom URL tools** — download and place manually. Example: `ghostty.sh`.
+4. **Service/package manager tools** — branch on OS/distro, call package manager. Example: `tailscale.sh`, `gh.sh`.
 
 Every tool script starts with `command -v <tool>` to skip silently if already installed by any means (Homebrew, rpm-ostree, etc.).
 

@@ -216,3 +216,154 @@ tool_link() {
   mkdir -p "$(dirname "$dst_path")"
   ln -sf "$src_path" "$dst_path"
 }
+
+# ---------------------------------------------------------------------------
+# Declarative tool driver
+# ---------------------------------------------------------------------------
+#
+# Recipes are pure config files in tools/ (no shebang, no boilerplate).
+# The driver sources a recipe to load its variables and optional hooks,
+# then executes the standard install flow.
+#
+# Entry point (called from lib/tool.sh):
+#   tool_run_recipe <recipe-path>
+#
+# Recipe variables:
+#   TOOL_CMD                     — (required) binary name for command -v check
+#   TOOL_REPO                    — GitHub owner/repo (triggers gh-release flow)
+#   TOOL_ASSET_MACOS_ARM64       — asset glob for macOS ARM64
+#   TOOL_ASSET_MACOS_AMD64       — asset glob for macOS x86_64
+#   TOOL_ASSET_LINUX_ARM64       — asset glob for Linux ARM64
+#   TOOL_ASSET_LINUX_AMD64       — asset glob for Linux x86_64
+#   TOOL_LINKS                   — array of symlink specs: "src:dst" or bare "name" (→ name:bin/name)
+#   TOOL_MAN_PAGES               — array of man page paths to link (relative to install dir)
+#   TOOL_COMPLETIONS             — array of completion file paths to link
+#
+# Recipe hook functions (optional — override default behavior):
+#   tool_download         — default: tool_gh_install using TOOL_REPO + resolved asset
+#   tool_post_install     — default: create symlinks from TOOL_LINKS/TOOL_MAN_PAGES/TOOL_COMPLETIONS
+#   tool_platform_check   — default: allow all platforms
+#
+# Driver flow:
+#   1. Source recipe (sets vars, optionally defines hooks)
+#   2. tool_check $TOOL_CMD           — skip if already installed (unless upgrade)
+#   3. tool_platform_check            — bail with guidance if unsupported
+#   4. tool_download                  — default: tool_gh_install
+#   5. tool_post_install              — default: symlink TOOL_LINKS
+#   6. Log completion
+
+# Canonical platform key for asset resolution.
+# Maps TOOLS_PLATFORM (aarch64-darwin, etc.) to recipe-friendly names.
+_tool_platform_key() {
+  case "$TOOLS_PLATFORM" in
+    aarch64-darwin) printf 'MACOS_ARM64'  ;;
+    x86_64-darwin)  printf 'MACOS_AMD64'  ;;
+    aarch64-linux)  printf 'LINUX_ARM64'  ;;
+    x86_64-linux)   printf 'LINUX_AMD64'  ;;
+    *)              printf 'UNKNOWN'      ;;
+  esac
+}
+
+# _tool_resolve_asset
+# Resolves the asset glob for the current platform from TOOL_ASSET_* variables.
+_tool_resolve_asset() {
+  local key
+  key="$(_tool_platform_key)"
+  local var="TOOL_ASSET_${key}"
+  printf '%s' "${!var:-}"
+}
+
+# _tool_default_post_install
+# Creates symlinks from TOOL_LINKS, TOOL_MAN_PAGES, and TOOL_COMPLETIONS arrays.
+_tool_default_post_install() {
+  local spec src dst
+  for spec in "${TOOL_LINKS[@]:-}"; do
+    [[ -n "$spec" ]] || continue
+    if [[ "$spec" == *:* ]]; then
+      src="${spec%%:*}"
+      dst="${spec#*:}"
+    else
+      src="$spec"
+      dst="bin/${spec}"
+    fi
+    tool_link "$src" "$dst"
+  done
+
+  local page
+  for page in "${TOOL_MAN_PAGES[@]:-}"; do
+    [[ -n "$page" ]] || continue
+    local basename_page
+    basename_page="$(basename "$page")"
+    local section="${basename_page##*.}"
+    tool_link "$page" "share/man/man${section}/${basename_page}"
+  done
+
+  local comp
+  for comp in "${TOOL_COMPLETIONS[@]:-}"; do
+    [[ -n "$comp" ]] || continue
+    local basename_comp
+    basename_comp="$(basename "$comp")"
+    tool_link "$comp" "share/completions/${basename_comp}"
+  done
+}
+
+# tool_is_recipe <script>
+# Returns 0 if the file is a declarative recipe (no shebang), 1 if legacy.
+tool_is_recipe() {
+  local first_line
+  first_line="$(head -n1 "$1" 2>/dev/null)"
+  [[ "$first_line" != "#!"* ]]
+}
+
+# tool_run_recipe <recipe-path>
+# Sources a declarative recipe and executes the standard install flow.
+tool_run_recipe() {
+  local recipe="$1"
+
+  [[ -f "$recipe" ]] || { error "tool_run_recipe: not found: ${recipe}"; return 1; }
+
+  # Reset recipe state
+  unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
+  unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+  unset -f tool_download tool_post_install tool_platform_check 2>/dev/null
+
+  # Source the recipe — sets vars and optionally defines hooks
+  source "$recipe"
+
+  [[ -n "${TOOL_CMD:-}" ]] || { error "tool_run_recipe: TOOL_CMD not set in ${recipe}"; return 1; }
+
+  # 1. Skip if already installed (unless upgrading)
+  tool_check "$TOOL_CMD"
+
+  # 2. Platform check (hook or default pass-through)
+  if declare -f tool_platform_check >/dev/null 2>&1; then
+    tool_platform_check
+  fi
+
+  # 3. Download (hook or default gh-release)
+  if declare -f tool_download >/dev/null 2>&1; then
+    tool_download
+  elif [[ -n "${TOOL_REPO:-}" ]]; then
+    local asset
+    asset="$(_tool_resolve_asset)"
+    if [[ -z "$asset" ]]; then
+      error "tool_run_recipe: no asset for platform ${TOOLS_PLATFORM} in ${recipe}"
+      return 1
+    fi
+    tool_gh_install "$TOOL_REPO" "$asset"
+  else
+    error "tool_run_recipe: TOOL_REPO not set and no tool_download hook in ${recipe}"
+    return 1
+  fi
+
+  # 4. Post-install (hook or default symlinks)
+  if declare -f tool_post_install >/dev/null 2>&1; then
+    tool_post_install
+  else
+    _tool_default_post_install
+  fi
+
+  # 5. Log completion
+  log "ready" "${TOOL_CMD} installed: ${TOOLS_BIN}/${TOOL_CMD}"
+}
