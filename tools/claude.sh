@@ -1,10 +1,6 @@
-#!/usr/bin/env bash
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
+# claude — Claude Code CLI
+TOOL_CMD=claude
 
-tool_check claude
-
-curl -fsSL https://claude.ai/install.sh | bash
-
-echo "Claude Code installed."
+tool_download() {
+  curl -fsSL https://claude.ai/install.sh | bash
+}

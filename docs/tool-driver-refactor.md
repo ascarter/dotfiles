@@ -85,9 +85,9 @@ TOOL_LINKS=(bin/fzf)
 - [x] Convert one simple gh-release tool (fzf) as proof of concept
 - [x] Convert remaining simple gh-release tools (serie, just)
 - [x] Convert gh-release tools with custom linking (ripgrep, jq, yq, tree-sitter)
-- [ ] Convert curl-installer tools (rustup, uv, rv, claude, fnm, zed)
-- [ ] Convert platform-dispatch tools (gh, ghostty, vscode)
-- [ ] Convert custom-download tool (go)
+- [x] Convert curl-installer tools (rustup, uv, rv, claude, fnm, zed)
+- [x] Convert platform-dispatch tools (gh; ghostty and vscode remain legacy — too complex)
+- [x] Convert custom-download tool (go)
 - [ ] Verify `dotfiles tool install/upgrade/list/status` all work
 - [x] Update AGENTS.md tool script documentation
 
