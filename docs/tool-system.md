@@ -10,6 +10,7 @@ executed by a **driver** in `lib/opt.sh`, and orchestrated by `dotfiles tool` vi
 dotfiles tool install [<name>]     # Install all tools or a single tool
 dotfiles tool upgrade [<name>]     # Upgrade to latest version
 dotfiles tool uninstall [<name>]   # Remove from cellar; preserves cache
+dotfiles tool uninstall --force [<name>]  # Force removal even if cellar is missing
 dotfiles tool clean [<name>]       # Clear downloaded archives from cache
 dotfiles tool list                 # Show available tools and install status
 dotfiles tool status               # Show paths, counts, and disk usage
@@ -106,8 +107,11 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset | Custom APIs (go.dev), curl installers, package managers |
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
+| `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |
 
 ## Driver flow
+
+### Install
 
 ```
 1. Source recipe        — sets variables, optionally defines hook functions
@@ -117,6 +121,19 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 5. tool_post_install    — hook or default symlinks (errors on missing paths)
 6. Log completion
 ```
+
+### Uninstall
+
+```
+1. Source recipe        — load tool_uninstall hook if defined
+2. tool_uninstall       — hook runs before any file deletions
+3. Remove cellar dir    — delete TOOLS_CELLAR/<name>/
+4. Remove state file    — delete TOOLS_STATE/<name>
+5. Prune symlinks       — remove broken links from bin/ and share/
+```
+
+Use `--force` to skip the cellar existence check and continue past hook failures.
+Useful for cleaning up broken or partial installs.
 
 ## Recipe vs legacy detection
 

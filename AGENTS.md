@@ -98,6 +98,7 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles tool install`: install all tools in `tools/` (requires `gh` to be installed first).
 - `bin/dotfiles tool install <name>`: install a single tool by name.
 - `bin/dotfiles tool uninstall [<name>]`: remove installed tool(s); preserves cache.
+- `bin/dotfiles tool uninstall --force [<name>]`: force removal even if cellar is missing (for broken installs).
 - `bin/dotfiles tool clean [<name>]`: clear downloaded archives from cache.
 - `bin/dotfiles script <name>`: run a script from `scripts/` directly.
 - `./test.sh`: smoke test install/sync in `.testuser/`.

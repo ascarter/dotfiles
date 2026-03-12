@@ -107,20 +107,72 @@ _tool_install() {
   fi
 }
 
-# _tool_uninstall [<name>]
+# _tool_run_uninstall_hook <name> <force>
+# Source the tool recipe and call tool_uninstall hook if defined.
+# In force mode, hook failures warn instead of aborting.
+_tool_run_uninstall_hook() {
+  local name="$1"
+  local force="$2"
+  local tools_dir="${DOTFILES_HOME}/tools"
+  local script="${tools_dir}/${name}.sh"
+
+  [[ -f "$script" ]] || return 0
+
+  # Reset recipe state before sourcing
+  unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_STRIP_COMPONENTS
+  unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
+  unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+  unset -f tool_download tool_post_install tool_platform_check tool_uninstall 2>/dev/null
+
+  source "$script"
+
+  if declare -f tool_uninstall >/dev/null 2>&1; then
+    log "uninstall" "running hook for $name"
+    if [[ "$force" -eq 1 ]]; then
+      tool_uninstall || warn "$name" "uninstall hook failed (continuing with --force)"
+    else
+      tool_uninstall || { error "uninstall hook failed for $name"; return 1; }
+    fi
+  fi
+}
+
+# _tool_uninstall [--force] [<name>]
 _tool_uninstall() {
-  local target="${1:-}"
+  local force=0
+  local target=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force) force=1; shift ;;
+      *)       target="$1"; shift ;;
+    esac
+  done
+
   source "${DOTFILES_HOME}/lib/opt.sh"
 
   if [[ -n "$target" ]]; then
     local install_dir="${TOOLS_CELLAR}/${target}"
-    if [[ ! -d "$install_dir" ]]; then
-      abort "$target is not installed in cellar (only tools installed via tool_gh_install can be uninstalled this way)"
+    if [[ "$force" -eq 0 && ! -d "$install_dir" ]]; then
+      abort "$target is not installed in cellar (use --force to clean up broken installs)"
     fi
-    rm -rf "$install_dir"
-    log "uninstall" "$target"
+    _tool_run_uninstall_hook "$target" "$force"
+    if [[ -d "$install_dir" ]]; then
+      rm -rf "$install_dir"
+      log "uninstall" "$target"
+    fi
     rm -f "${TOOLS_STATE}/${target}"
   else
+    if [[ "$force" -eq 1 ]]; then
+      # Force-uninstall all: run hooks for every tool with a recipe
+      local tools_dir="${DOTFILES_HOME}/tools"
+      if [[ -d "$tools_dir" ]]; then
+        while IFS= read -r script; do
+          local name
+          name="$(basename "$script" .sh)"
+          _tool_run_uninstall_hook "$name" "$force"
+        done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+      fi
+    fi
     local removed=0
     while IFS= read -r d; do
       rm -rf "$d"
@@ -287,15 +339,15 @@ _tool_list() {
 # Main dispatcher — called by cmd_tool in bin/dotfiles.
 _tool_cmd() {
   local op="${1:-}"
-  local target="${2:-}"
+  shift 2>/dev/null || true
 
   [[ -n "${DOTFILES_HOME:-}" ]] || abort "DOTFILES_HOME is not set"
 
   case "$op" in
-    install)   _tool_install   "$target" ;;
-    uninstall) _tool_uninstall "$target" ;;
-    upgrade)   _tool_upgrade   "$target" ;;
-    clean)     _tool_clean     "$target" ;;
+    install)   _tool_install   "$@" ;;
+    uninstall) _tool_uninstall "$@" ;;
+    upgrade)   _tool_upgrade   "$@" ;;
+    clean)     _tool_clean     "$@" ;;
     list)      _tool_list ;;
     status)    _tool_status ;;
     "")
