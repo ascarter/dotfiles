@@ -36,7 +36,8 @@ tool_download() {
   export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG
 
   if [[ -f "$state_file" ]] && [[ "$(cat "$state_file")" == "$go_version" ]] && [[ -d "$TOOLS_INSTALL_DIR" ]]; then
-    log "skip" "go already at ${go_version}"
+    vlog "skip" "go at ${go_version}"
+    TOOLS_INSTALL_SKIPPED=1
     return 0
   fi
 

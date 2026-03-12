@@ -238,7 +238,7 @@ _tool_upgrade() {
       bash "$script"
     fi
   else
-    local failed=0
+    local failed=0 upgraded=0 up_to_date=0
     while IFS= read -r state_file; do
       local tool_name
       tool_name="$(basename "$state_file")"
@@ -248,6 +248,7 @@ _tool_upgrade() {
         continue
       fi
       vlog "tool" "upgrade $tool_name"
+      TOOLS_INSTALL_SKIPPED=0
       if tool_is_recipe "$script"; then
         tool_run_recipe "$script" || {
           warn "$tool_name" "upgrade failed"
@@ -259,7 +260,15 @@ _tool_upgrade() {
           failed=1
         }
       fi
+      if [[ "${TOOLS_INSTALL_SKIPPED:-0}" -eq 1 ]]; then
+        up_to_date=$((up_to_date + 1))
+      else
+        upgraded=$((upgraded + 1))
+      fi
     done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+    if [[ "$upgraded" -gt 0 ]]; then
+      log "upgrade" "$upgraded upgraded"
+    fi
     return $failed
   fi
 }

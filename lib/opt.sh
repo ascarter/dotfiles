@@ -138,7 +138,8 @@ tool_gh_install() {
   local installed_tag
   installed_tag="$(tool_installed_tag "$repo")"
   if [[ "$installed_tag" == "$tag" && -d "$TOOLS_INSTALL_DIR" ]]; then
-    log "skip" "${name} already at ${tag}"
+    vlog "skip" "${name} at ${tag}"
+    TOOLS_INSTALL_SKIPPED=1
     return 0
   fi
 
@@ -340,6 +341,7 @@ tool_run_recipe() {
   [[ -f "$recipe" ]] || { error "tool_run_recipe: not found: ${recipe}"; return 1; }
 
   # Reset recipe state
+  TOOLS_INSTALL_SKIPPED=0
   unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
   unset TOOL_STRIP_COMPONENTS
   unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
@@ -375,13 +377,18 @@ tool_run_recipe() {
     return 1
   fi
 
-  # 4. Post-install (hook or default symlinks)
+  # 4. Nothing to do if download determined we're already current
+  if [[ "${TOOLS_INSTALL_SKIPPED:-0}" -eq 1 ]]; then
+    return 0
+  fi
+
+  # 5. Post-install (hook or default symlinks)
   if declare -f tool_post_install >/dev/null 2>&1; then
     tool_post_install
   else
     _tool_default_post_install
   fi
 
-  # 5. Log completion
+  # 6. Log completion
   log "ready" "${TOOL_CMD} installed: ${TOOLS_BIN}/${TOOL_CMD}"
 }
