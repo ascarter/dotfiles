@@ -7,4 +7,4 @@ TOOL_ASSET_LINUX_ARM64="just-*-aarch64-unknown-linux-musl.tar.gz"
 TOOL_ASSET_LINUX_AMD64="just-*-x86_64-unknown-linux-musl.tar.gz"
 TOOL_LINKS=(just)
 TOOL_MAN_PAGES=(just.1)
-TOOL_COMPLETIONS=(just.bash just.zsh)
+TOOL_COMPLETIONS=(completions/just.zsh)
