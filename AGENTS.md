@@ -9,6 +9,7 @@ Conflict rule:
 ## Documentation Map
 - `README.md`: install/bootstrap quick start.
 - `docs/dev-environment.md`: detailed lifecycle, tier model, and implementation patterns.
+- `docs/tool-driver-refactor.md`: declarative tool driver design and recipe reference.
 - `.github/copilot-instructions.md`: thin pointer for coding assistants back to this file.
 
 ## Project Structure & Module Organization
@@ -45,21 +46,18 @@ TOOL_LINKS=(fzf)
 ```
 
 Recipe variables: `TOOL_CMD` (required), `TOOL_REPO`, `TOOL_ASSET_<PLATFORM>`,
-`TOOL_LINKS` (array, `src:dst` or bare `name`), `TOOL_MAN_PAGES`, `TOOL_COMPLETIONS`.
+`TOOL_LINKS` (array, `src:dst` or bare `name`), `TOOL_MAN_PAGES`, `TOOL_COMPLETIONS`,
+`TOOL_STRIP_COMPONENTS`.
 
 Optional hook functions: `tool_download`, `tool_post_install`, `tool_platform_check`.
+See `docs/tool-driver-refactor.md` for full reference.
 
 ### Imperative scripts (shebang present — legacy)
 
 Self-contained bash scripts that source `lib/opt.sh` and call functions directly.
-Four patterns coexist:
+Used for tools with complex platform-specific logic (desktop integration, AppImage extraction).
 
-1. **GitHub release tools** — call `tool_gh_install`, `tool_link`. Example: `ripgrep.sh`, `just.sh`, `serie.sh`.
-2. **Vendor curl installers** — run `curl | sh`. Example: `zed.sh`, `claude.sh`.
-3. **AppImage / custom URL tools** — download and place manually. Example: `ghostty.sh`.
-4. **Service/package manager tools** — branch on OS/distro, call package manager. Example: `tailscale.sh`, `gh.sh`.
-
-Every tool script starts with `command -v <tool>` to skip silently if already installed by any means (Homebrew, rpm-ostree, etc.).
+Examples: `ghostty.sh`, `vscode.sh`.
 
 ## XDG_OPT_* Convention
 
