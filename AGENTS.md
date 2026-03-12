@@ -9,7 +9,7 @@ Conflict rule:
 ## Documentation Map
 - `README.md`: install/bootstrap quick start.
 - `docs/dev-environment.md`: detailed lifecycle, tier model, and implementation patterns.
-- `docs/tool-driver-refactor.md`: declarative tool driver design and recipe reference.
+- `docs/tool-system.md`: tool system reference — recipe format, config variables, hooks, driver flow.
 - `.github/copilot-instructions.md`: thin pointer for coding assistants back to this file.
 
 ## Project Structure & Module Organization
@@ -27,12 +27,15 @@ Conflict rule:
 
 ## Tool Script Categories
 
-Tools in `tools/` use one of two formats: **declarative recipes** (preferred) or **imperative scripts** (legacy). Both coexist; the driver auto-detects based on shebang presence.
+Tools in `tools/` use one of two formats: **declarative recipes** (preferred) or
+**imperative scripts** (legacy). The driver auto-detects based on shebang presence.
+See `docs/tool-system.md` for the full reference on writing recipes, config variables,
+hooks, and driver flow.
 
-### Declarative recipes (no shebang — preferred for new tools)
+**Keep `docs/tool-system.md` up to date when changing the tool system** — it is the
+canonical reference for recipe format, config variables, hooks, and driver behavior.
 
-Pure config files sourced by `tool_run_recipe` in `lib/opt.sh`. The driver handles the
-full lifecycle: check → platform_check → download → post_install → log.
+### Quick recipe example
 
 ```bash
 # tools/fzf.sh — pure config, no logic needed
@@ -44,13 +47,6 @@ TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
 TOOL_ASSET_LINUX_AMD64="fzf-*-linux_amd64.tar.gz"
 TOOL_LINKS=(fzf)
 ```
-
-Recipe variables: `TOOL_CMD` (required), `TOOL_REPO`, `TOOL_ASSET_<PLATFORM>`,
-`TOOL_LINKS` (array, `src:dst` or bare `name`), `TOOL_MAN_PAGES`, `TOOL_COMPLETIONS`,
-`TOOL_STRIP_COMPONENTS`.
-
-Optional hook functions: `tool_download`, `tool_post_install`, `tool_platform_check`.
-See `docs/tool-driver-refactor.md` for full reference.
 
 ### Imperative scripts (shebang present — legacy)
 
