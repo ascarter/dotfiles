@@ -20,3 +20,5 @@ This file is intentionally minimal to avoid duplicated guidance and drift. All a
 * Do not add instructions here that are not already covered in `AGENTS.md` or its linked documents.
 * If you find a gap in the instructions or policies, update `AGENTS.md` first, then link to the new or updated section from this file if necessary.
 * You may stage commits but do not commit without confirmation from user.
+* Use subagents as much as possible to keep context windows small and focused.
+* Always ask for clarification if you are unsure about any instruction or policy.
