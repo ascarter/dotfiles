@@ -43,7 +43,7 @@ TOOLS_BIN="${XDG_OPT_BIN}"
 TOOLS_SHARE="${XDG_OPT_SHARE}"
 
 # Detect platform: <arch>-<os>
-# Produces: aarch64-darwin, x86_64-darwin, aarch64-linux, x86_64-linux
+# Produces: aarch64-darwin, aarch64-linux, x86_64-linux
 _tool_detect_platform() {
   local arch os
   arch="$(uname -m)"
@@ -242,7 +242,6 @@ tool_link() {
 #   TOOL_CMD                     — (required) binary name for command -v check
 #   TOOL_REPO                    — GitHub owner/repo (triggers gh-release flow)
 #   TOOL_ASSET_MACOS_ARM64       — asset glob for macOS ARM64
-#   TOOL_ASSET_MACOS_AMD64       — asset glob for macOS x86_64
 #   TOOL_ASSET_LINUX_ARM64       — asset glob for Linux ARM64
 #   TOOL_ASSET_LINUX_AMD64       — asset glob for Linux x86_64
 #   TOOL_LINKS                   — array of symlink specs: "src:dst" or bare "name" (→ name:bin/name)
@@ -254,6 +253,7 @@ tool_link() {
 #   tool_download         — default: tool_gh_install using TOOL_REPO + resolved asset
 #   tool_post_install     — default: create symlinks from TOOL_LINKS/TOOL_MAN_PAGES/TOOL_COMPLETIONS
 #   tool_platform_check   — default: allow all platforms
+#   tool_upgrade          — default: re-run tool_download (use for tools with self-update commands)
 #
 # Driver flow:
 #   1. Source recipe (sets vars, optionally defines hooks)
@@ -268,7 +268,6 @@ tool_link() {
 _tool_platform_key() {
   case "$TOOLS_PLATFORM" in
     aarch64-darwin) printf 'MACOS_ARM64'  ;;
-    x86_64-darwin)  printf 'MACOS_AMD64'  ;;
     aarch64-linux)  printf 'LINUX_ARM64'  ;;
     x86_64-linux)   printf 'LINUX_AMD64'  ;;
     *)              printf 'UNKNOWN'      ;;
@@ -344,9 +343,9 @@ tool_run_recipe() {
   TOOLS_INSTALL_SKIPPED=0
   unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
   unset TOOL_STRIP_COMPONENTS
-  unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
+  unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
-  unset -f tool_download tool_post_install tool_platform_check 2>/dev/null
+  unset -f tool_download tool_post_install tool_platform_check tool_upgrade 2>/dev/null
 
   # Source the recipe — sets vars and optionally defines hooks
   source "$recipe"
@@ -361,7 +360,13 @@ tool_run_recipe() {
     tool_platform_check
   fi
 
-  # 3. Download (hook or default gh-release)
+  # 3. If upgrading and a tool_upgrade hook exists, use it instead of the normal flow
+  if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]] && declare -f tool_upgrade >/dev/null 2>&1; then
+    tool_upgrade
+    return $?
+  fi
+
+  # 4. Download (hook or default gh-release)
   if declare -f tool_download >/dev/null 2>&1; then
     tool_download
   elif [[ -n "${TOOL_REPO:-}" ]]; then

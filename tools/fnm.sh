@@ -1,11 +1,7 @@
 # fnm — fast Node manager
 TOOL_CMD=fnm
-
-tool_download() {
-  curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
-}
-
-tool_post_install() {
-  mkdir -p "${XDG_BIN_HOME}"
-  ln -sf "${FNM_DIR}/fnm" "${XDG_BIN_HOME}/fnm"
-}
+TOOL_REPO=Schniz/fnm
+TOOL_ASSET_MACOS_ARM64="fnm-macos.zip"
+TOOL_ASSET_LINUX_ARM64="fnm-arm64.zip"
+TOOL_ASSET_LINUX_AMD64="fnm-linux.zip"
+TOOL_LINKS=(fnm)

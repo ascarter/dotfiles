@@ -8,7 +8,6 @@ tool_download() {
   local go_os go_arch
   case "$TOOLS_PLATFORM" in
     aarch64-darwin) go_os="darwin"; go_arch="arm64"  ;;
-    x86_64-darwin)  go_os="darwin"; go_arch="amd64"  ;;
     aarch64-linux)  go_os="linux";  go_arch="arm64"  ;;
     x86_64-linux)   go_os="linux";  go_arch="amd64"  ;;
     *) error "Unsupported platform: $TOOLS_PLATFORM"; return 1 ;;

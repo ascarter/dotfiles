@@ -29,7 +29,6 @@ the install flow.
 TOOL_CMD=fzf
 TOOL_REPO=junegunn/fzf
 TOOL_ASSET_MACOS_ARM64="fzf-*-darwin_arm64.tar.gz"
-TOOL_ASSET_MACOS_AMD64="fzf-*-darwin_amd64.tar.gz"
 TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
 TOOL_ASSET_LINUX_AMD64="fzf-*-linux_amd64.tar.gz"
 TOOL_LINKS=(fzf)
@@ -42,7 +41,6 @@ TOOL_LINKS=(fzf)
 TOOL_CMD=rg
 TOOL_REPO=BurntSushi/ripgrep
 TOOL_ASSET_MACOS_ARM64="ripgrep-*-aarch64-apple-darwin.tar.gz"
-TOOL_ASSET_MACOS_AMD64="ripgrep-*-x86_64-apple-darwin.tar.gz"
 TOOL_ASSET_LINUX_ARM64="ripgrep-*-aarch64-unknown-linux-gnu.tar.gz"
 TOOL_ASSET_LINUX_AMD64="ripgrep-*-x86_64-unknown-linux-gnu.tar.gz"
 TOOL_STRIP_COMPONENTS=1
@@ -90,7 +88,6 @@ tool_download() {
 | `TOOL_CMD` | yes | Binary name for `command -v` check |
 | `TOOL_REPO` | no | GitHub `owner/repo` (triggers gh-release flow) |
 | `TOOL_ASSET_MACOS_ARM64` | if TOOL_REPO | Asset glob for macOS ARM64 |
-| `TOOL_ASSET_MACOS_AMD64` | if TOOL_REPO | Asset glob for macOS x86_64 |
 | `TOOL_ASSET_LINUX_ARM64` | if TOOL_REPO | Asset glob for Linux ARM64 |
 | `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 |
 | `TOOL_STRIP_COMPONENTS` | no | Strip N leading directory components during tar extraction (default: 0) |
@@ -108,6 +105,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
 | `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |
+| `tool_upgrade` | Re-run install flow | Tools with self-update commands (e.g. `uv self update`) |
 
 ## Driver flow
 

@@ -121,7 +121,7 @@ _tool_run_uninstall_hook() {
   # Reset recipe state before sourcing
   unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
   unset TOOL_STRIP_COMPONENTS
-  unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_MACOS_AMD64
+  unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset -f tool_download tool_post_install tool_platform_check tool_uninstall 2>/dev/null
 
@@ -227,10 +227,13 @@ _tool_upgrade() {
   export DOTFILES_TOOL_UPGRADE=1
 
   if [[ -n "$target" ]]; then
-    local state_file="${TOOLS_STATE}/${target}"
-    [[ -f "$state_file" ]] || abort "$target is not installed (nothing to upgrade)"
     local script="${tools_dir}/${target}.sh"
     [[ -f "$script" ]] || abort "Unknown tool: $target"
+    local cmd
+    cmd="$(_tool_cmd_name "$script")"
+    if [[ ! -f "${TOOLS_STATE}/${target}" ]] && ! command -v "$cmd" >/dev/null 2>&1; then
+      abort "$target is not installed (nothing to upgrade)"
+    fi
     vlog "tool" "upgrade $target"
     if tool_is_recipe "$script"; then
       tool_run_recipe "$script"
@@ -239,12 +242,12 @@ _tool_upgrade() {
     fi
   else
     local failed=0 upgraded=0 up_to_date=0
-    while IFS= read -r state_file; do
-      local tool_name
-      tool_name="$(basename "$state_file")"
-      local script="${tools_dir}/${tool_name}.sh"
-      if [[ ! -f "$script" ]]; then
-        vlog "tool" "skip $tool_name (no install script)"
+    while IFS= read -r script; do
+      local tool_name cmd
+      tool_name="$(basename "$script" .sh)"
+      cmd="$(_tool_cmd_name "$script")"
+      # Skip tools that are neither tracked in state nor available on PATH
+      if [[ ! -f "${TOOLS_STATE}/${tool_name}" ]] && ! command -v "$cmd" >/dev/null 2>&1; then
         continue
       fi
       vlog "tool" "upgrade $tool_name"
@@ -265,7 +268,7 @@ _tool_upgrade() {
       else
         upgraded=$((upgraded + 1))
       fi
-    done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
+    done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
     if [[ "$upgraded" -gt 0 ]]; then
       log "upgrade" "$upgraded upgraded"
     fi
