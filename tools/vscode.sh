@@ -1,119 +1,105 @@
-#!/usr/bin/env bash
+# Visual Studio Code (brew on macOS, tarball on Linux)
 
-# Visual Studio Code editor
+TOOL_CMD=code
 
-set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
-
-abort() {
-  printf '%s\n' "$1" >&2
-  exit 1
+tool_platform_check() {
+  case "$(uname -s)" in
+    Darwin) log "vscode" "not found. Run: brew install --cask visual-studio-code"; exit 1 ;;
+    Linux)  ;;
+    *)      error "Unsupported OS: $(uname -s)"; return 1 ;;
+  esac
 }
 
-tool_check code
+tool_download() {
+  command -v jq >/dev/null 2>&1 || { error "jq is required for VS Code metadata"; return 1; }
 
-case "$(uname -s)" in
-  Darwin)
-    echo "Visual Studio Code not found. Run: brew install --cask visual-studio-code"
-    exit 1
-    ;;
-  Linux)
-    ARCH="$(uname -m)"
-    case "$ARCH" in
-      x86_64|amd64)
-        VSCODE_OS="linux-x64"
-        ;;
-      aarch64|arm64)
-        VSCODE_OS="linux-arm64"
-        ;;
-      *)
-        abort "Unsupported architecture for Visual Studio Code: $ARCH"
-        ;;
-    esac
+  local arch vscode_os
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64|amd64)  vscode_os="linux-x64" ;;
+    aarch64|arm64) vscode_os="linux-arm64" ;;
+    *)             error "Unsupported architecture: $arch"; return 1 ;;
+  esac
 
-    VSCODE_SHA_INDEX_URL="https://code.visualstudio.com/sha"
-    VSCODE_DIR="${XDG_OPT_HOME}/vscode"
-    VSCODE_BIN="${TOOLS_BIN}/code"
-    VSCODE_BIN_TARGET="${VSCODE_DIR}/bin/code"
-    VSCODE_GUI_BIN="${VSCODE_DIR}/code"
-    VSCODE_DESKTOP_DIR="${XDG_DATA_HOME}/applications"
-    VSCODE_DESKTOP_FILE="${VSCODE_DESKTOP_DIR}/code.desktop"
-    DOWNLOAD_DIR="${TOOLS_CACHE}/vscode"
-    ARCHIVE_PATH="${DOWNLOAD_DIR}/code-stable-${VSCODE_OS}.tar.gz"
-    SHA_PATH="${ARCHIVE_PATH}.sha256"
-    STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/vscode-install.XXXXXXXX")"
+  local sha_json
+  sha_json="$(mktemp)"
 
-    command -v jq >/dev/null 2>&1 || abort "jq is required to resolve VS Code download metadata"
+  log "download" "resolving VS Code metadata..."
+  curl -fLso "$sha_json" "https://code.visualstudio.com/sha" \
+    || { rm -f "$sha_json"; error "Failed to fetch VS Code metadata"; return 1; }
 
-    cleanup() {
-      rm -rf "${STAGE_DIR}"
-    }
-    trap cleanup EXIT INT TERM
+  local url expected_sha
+  url="$(jq -r --arg os "$vscode_os" \
+    '.products[] | select(.build == "stable" and .platform.os == $os) | .url' \
+    "$sha_json" | head -n1)"
+  expected_sha="$(jq -r --arg os "$vscode_os" \
+    '.products[] | select(.build == "stable" and .platform.os == $os) | .sha256hash' \
+    "$sha_json" | head -n1)"
+  rm -f "$sha_json"
 
-    install -d "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
-    install -d "${TOOLS_BIN}" || abort "Failed to create bin directory: ${TOOLS_BIN}"
-    install -d "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
+  [[ -n "$url" && "$url" != "null" ]] || { error "Could not resolve VS Code URL for ${vscode_os}"; return 1; }
+  [[ -n "$expected_sha" && "$expected_sha" != "null" ]] || { error "Could not resolve VS Code SHA for ${vscode_os}"; return 1; }
 
-    echo "Resolving Visual Studio Code download metadata..."
-    SHA_JSON_PATH="${DOWNLOAD_DIR}/sha.json"
-    curl -fLso "${SHA_JSON_PATH}" "${VSCODE_SHA_INDEX_URL}" || abort "Failed to download VS Code SHA index"
+  # Use truncated SHA as pseudo-tag for cellar versioning
+  local name="vscode"
+  local short_sha="${expected_sha:0:12}"
+  local state_file="${TOOLS_STATE}/${name}"
+  local installed_sha
+  installed_sha="$(cat "$state_file" 2>/dev/null || echo none)"
 
-    VSCODE_URL="$(
-      jq -r --arg os "${VSCODE_OS}" '
-        .products[]
-        | select(.build == "stable" and .platform.os == $os)
-        | .url
-      ' "${SHA_JSON_PATH}" | head -n1
-    )"
-    [ -n "${VSCODE_URL}" ] && [ "${VSCODE_URL}" != "null" ] || abort "Could not resolve stable VS Code URL for ${VSCODE_OS}"
+  if [[ "$installed_sha" == "$short_sha" && -d "${TOOLS_CELLAR}/${name}/${short_sha}" ]]; then
+    TOOLS_INSTALL_SKIPPED=1
+    vlog "skip" "vscode at ${short_sha}"
+    return 0
+  fi
 
-    EXPECTED_SHA="$(
-      jq -r --arg os "${VSCODE_OS}" '
-        .products[]
-        | select(.build == "stable" and .platform.os == $os)
-        | .sha256hash
-      ' "${SHA_JSON_PATH}" | head -n1
-    )"
-    [ -n "${EXPECTED_SHA}" ] && [ "${EXPECTED_SHA}" != "null" ] || abort "Could not resolve stable VS Code SHA256 for ${VSCODE_OS}"
+  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${short_sha}"
+  TOOLS_INSTALL_TAG="$short_sha"
+  mkdir -p "$TOOLS_INSTALL_DIR"
 
-    echo "Downloading Visual Studio Code tarball..."
-    curl -fLso "${ARCHIVE_PATH}" "${VSCODE_URL}" || abort "Failed to download Visual Studio Code archive"
+  log "download" "VS Code ${short_sha}"
+  local archive
+  archive="$(mktemp)"
+  curl -fLso "$archive" "$url" \
+    || { rm -f "$archive"; error "Failed to download VS Code"; return 1; }
 
-    printf '%s  %s\n' "${EXPECTED_SHA}" "${ARCHIVE_PATH}" > "${SHA_PATH}.check"
+  # Verify checksum
+  local actual_sha
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual_sha="$(sha256sum "$archive" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual_sha="$(shasum -a 256 "$archive" | awk '{print $1}')"
+  else
+    rm -f "$archive"; error "No SHA-256 tool found"; return 1
+  fi
+  [[ "$actual_sha" == "$expected_sha" ]] || { rm -f "$archive"; error "Checksum verification failed"; return 1; }
 
-    if command -v sha256sum >/dev/null 2>&1; then
-      sha256sum -c "${SHA_PATH}.check" >/dev/null 2>&1 || abort "Checksum verification failed"
-    elif command -v shasum >/dev/null 2>&1; then
-      ACTUAL_SHA="$(shasum -a 256 "${ARCHIVE_PATH}" | awk '{print $1}')"
-      [ "${ACTUAL_SHA}" = "${EXPECTED_SHA}" ] || abort "Checksum verification failed"
-    else
-      abort "No SHA-256 tool found (need sha256sum or shasum)"
-    fi
+  tar -xzf "$archive" -C "$TOOLS_INSTALL_DIR" --strip-components=1 \
+    || { rm -f "$archive"; error "Failed to extract archive"; return 1; }
+  rm -f "$archive"
 
-    echo "Extracting Visual Studio Code..."
-    tar -xzf "${ARCHIVE_PATH}" -C "${STAGE_DIR}" || abort "Failed to extract archive"
+  # Verify expected binaries exist
+  [[ -x "${TOOLS_INSTALL_DIR}/code" ]] || { error "Extracted package missing 'code' binary"; return 1; }
+  [[ -x "${TOOLS_INSTALL_DIR}/bin/code" ]] || { error "Extracted package missing 'bin/code' CLI launcher"; return 1; }
 
-    # Tarball contains one top-level dir (e.g., VSCode-linux-x64). Install contents directly into VSCODE_DIR.
-    TOP_DIR="$(find "${STAGE_DIR}" -mindepth 1 -maxdepth 1 -type d | head -n1)"
-    [ -n "${TOP_DIR}" ] || abort "Could not find extracted Visual Studio Code directory"
-    [ -x "${TOP_DIR}/code" ] || abort "Extracted package missing 'code' binary"
-    [ -x "${TOP_DIR}/bin/code" ] || abort "Extracted package missing 'bin/code' CLI launcher"
+  printf '%s\n' "$short_sha" > "$state_file"
+  log "install" "vscode ${short_sha} -> ${TOOLS_INSTALL_DIR}"
+}
 
-    rm -rf "${VSCODE_DIR}"
-    install -d "${VSCODE_DIR}" || abort "Failed to create install directory: ${VSCODE_DIR}"
-    cp -a "${TOP_DIR}/." "${VSCODE_DIR}/" || abort "Failed to install Visual Studio Code"
+tool_post_install() {
+  ln -sf "${TOOLS_INSTALL_DIR}/bin/code" "${TOOLS_BIN}/code"
 
-    ln -sfn "${VSCODE_BIN_TARGET}" "${VSCODE_BIN}" || abort "Failed to link code CLI"
-
-    cat > "${VSCODE_DESKTOP_FILE}" <<EOF
+  # Desktop entry (Linux only)
+  local app_dir="${XDG_DATA_HOME}/applications"
+  install -d "$app_dir"
+  cat > "${app_dir}/code.desktop" <<DESKTOP
 [Desktop Entry]
 Name=Visual Studio Code
 Comment=Code Editing. Redefined.
 GenericName=Text Editor
-Exec=${VSCODE_GUI_BIN} --unity-launch %F
-TryExec=${VSCODE_GUI_BIN}
-Icon=${VSCODE_DIR}/resources/app/resources/linux/code.png
+Exec=${TOOLS_INSTALL_DIR}/code --unity-launch %F
+TryExec=${TOOLS_INSTALL_DIR}/code
+Icon=${TOOLS_INSTALL_DIR}/resources/app/resources/linux/code.png
 StartupNotify=true
 StartupWMClass=Code
 Type=Application
@@ -123,16 +109,15 @@ Actions=new-empty-window;
 
 [Desktop Action new-empty-window]
 Name=New Empty Window
-Exec=${VSCODE_GUI_BIN} --new-window %F
-Icon=${VSCODE_DIR}/resources/app/resources/linux/code.png
-EOF
+Exec=${TOOLS_INSTALL_DIR}/code --new-window %F
+Icon=${TOOLS_INSTALL_DIR}/resources/app/resources/linux/code.png
+DESKTOP
 
-    echo "Visual Studio Code installed."
-    echo "  dir: ${VSCODE_DIR}"
-    echo "  cli: ${VSCODE_BIN} -> ${VSCODE_BIN_TARGET}"
-    echo "  desktop: ${VSCODE_DESKTOP_FILE}"
-    ;;
-  *)
-    abort "Unsupported operating system: $(uname -s)"
-    ;;
-esac
+  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$app_dir" || true
+}
+
+tool_uninstall() {
+  rm -f "${XDG_DATA_HOME}/applications/code.desktop"
+  command -v update-desktop-database >/dev/null 2>&1 \
+    && update-desktop-database "${XDG_DATA_HOME:-$HOME/.local/share}/applications" || true
+}

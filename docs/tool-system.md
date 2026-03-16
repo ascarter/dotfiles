@@ -141,8 +141,10 @@ The driver distinguishes recipes from legacy scripts by the first line:
 - **Has shebang** (`#!/...`) → legacy script (run as `bash "$script"`)
 
 Legacy scripts are self-contained bash scripts that source `lib/opt.sh` and call
-functions directly. Used for tools with complex platform-specific logic like
-desktop integration (ghostty, vscode).
+functions directly. Used only when hook functions cannot express the install flow.
+Tools with complex platform-specific logic (e.g. desktop integration, AppImage
+extraction) should use custom hooks (`tool_download`, `tool_post_install`,
+`tool_uninstall`) instead.
 
 ## Implementation
 

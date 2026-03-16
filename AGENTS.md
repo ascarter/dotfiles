@@ -50,9 +50,10 @@ TOOL_LINKS=(fzf)
 ### Imperative scripts (shebang present — legacy)
 
 Self-contained bash scripts that source `lib/opt.sh` and call functions directly.
-Used for tools with complex platform-specific logic (desktop integration, AppImage extraction).
+Used only when hook functions cannot express the install flow.
 
-Examples: `ghostty.sh`, `vscode.sh`.
+No imperative scripts exist today — `ghostty.sh` and `vscode.sh` were converted to
+recipes with custom hooks (`tool_download`, `tool_post_install`, `tool_uninstall`).
 
 ## XDG_OPT_* Convention
 
