@@ -81,6 +81,42 @@ tool_download() {
 }
 ```
 
+### AppImage example (Linux desktop app)
+
+```bash
+# tools/obsidian.sh — AppImage with desktop integration
+TOOL_CMD=obsidian
+TOOL_REPO=obsidianmd/obsidian-releases
+
+tool_platform_check() {
+  case "$(uname -s)" in
+    Darwin) log "obsidian" "not found. Run: brew install --cask obsidian"; exit 1 ;;
+    Linux)  ;;
+    *)      error "Unsupported OS: $(uname -s)"; return 1 ;;
+  esac
+}
+
+tool_download() {
+  local tag version
+  tag="$(tool_latest_tag "$TOOL_REPO")"
+  version="${tag#v}"
+  case "$(uname -m)" in
+    x86_64)        tool_gh_install "$TOOL_REPO" "Obsidian-${version}.AppImage" "$tag" ;;
+    aarch64|arm64) tool_gh_install "$TOOL_REPO" "Obsidian-${version}-arm64.AppImage" "$tag" ;;
+    *)             error "Unsupported architecture: $(uname -m)"; return 1 ;;
+  esac
+}
+
+tool_post_install() {
+  tool_appimage_link "Obsidian-*.AppImage"
+  tool_appimage_desktop "obsidian" "obsidian %u"
+}
+
+tool_uninstall() {
+  tool_appimage_uninstall_desktop "obsidian"
+}
+```
+
 ## Config variables
 
 | Variable | Required | Description |
@@ -106,6 +142,17 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
 | `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |
 | `tool_upgrade` | Re-run install flow | Tools with self-update commands (e.g. `uv self update`) |
+
+## AppImage helpers
+
+Shared helpers in `lib/opt.sh` for tools distributed as Linux AppImages.
+Use these in `tool_post_install` and `tool_uninstall` hooks.
+
+| Function | Description |
+|----------|-------------|
+| `tool_appimage_link <glob>` | Find AppImage matching glob in `TOOLS_INSTALL_DIR`, `chmod +x`, symlink to `TOOLS_BIN/$TOOL_CMD`. Sets `TOOL_APPIMAGE`. |
+| `tool_appimage_desktop <desktop_id> <exec_line>` | Extract AppImage, install `.desktop` file and icon to XDG dirs, normalize `Exec=` line. Requires `TOOL_APPIMAGE` (call `tool_appimage_link` first). |
+| `tool_appimage_uninstall_desktop <desktop_id> [icon_ext]` | Remove `.desktop` file and icon. `icon_ext` defaults to `png`. |
 
 ## Driver flow
 
