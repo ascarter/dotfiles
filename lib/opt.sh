@@ -282,7 +282,7 @@ tool_appimage_desktop() {
   local icon_file=""
   local ext
   for ext in png svg; do
-    icon_file="$(find "$root" -maxdepth 1 -name "${desktop_id}.${ext}" | head -n1)"
+    icon_file="$(find -L "$root" -maxdepth 1 -name "${desktop_id}.${ext}" | head -n1)"
     [[ -n "$icon_file" ]] && break
   done
   [[ -n "$icon_file" ]] || { rm -rf "$extract_dir"; error "Icon not found for ${desktop_id}"; return 1; }
