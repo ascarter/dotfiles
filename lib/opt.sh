@@ -82,10 +82,12 @@ tool_check() {
 }
 
 # tool_latest_tag <owner/repo>
-# Prints the latest release tag for the given repo.
+# Prints the latest stable (non-draft, non-prerelease) release tag for the given repo.
 tool_latest_tag() {
   local repo="$1"
-  gh release list --repo "$repo" --limit 1 --json tagName --jq '.[0].tagName'
+  gh release list --repo "$repo" --limit 100 \
+    --json tagName,isLatest,isPrerelease,isDraft \
+    --jq 'map(select((.isDraft | not) and (.isPrerelease | not))) | (map(select(.isLatest == true))[0].tagName // .[0].tagName // empty)'
 }
 
 # tool_installed_tag <owner/repo>
@@ -120,7 +122,7 @@ tool_gh_install() {
   local name="${repo##*/}"
   local state_file="${TOOLS_STATE}/${name}"
 
-  # Resolve tag if not provided
+  # Resolve tag if not provided. Default is the latest stable release.
   if [[ -z "$tag" ]]; then
     tag="$(tool_latest_tag "$repo")" || { error "tool_gh_install: failed to resolve tag for ${repo}"; return 1; }
   fi

@@ -122,7 +122,7 @@ tool_uninstall() {
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TOOL_CMD` | yes | Binary name for `command -v` check |
-| `TOOL_REPO` | no | GitHub `owner/repo` (triggers gh-release flow) |
+| `TOOL_REPO` | no | GitHub `owner/repo` (triggers gh-release flow using the latest non-draft, non-prerelease release by default) |
 | `TOOL_ASSET_MACOS_ARM64` | if TOOL_REPO | Asset glob for macOS ARM64 |
 | `TOOL_ASSET_LINUX_ARM64` | if TOOL_REPO | Asset glob for Linux ARM64 |
 | `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 |
@@ -137,7 +137,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 
 | Hook | Default | When to override |
 |------|---------|------------------|
-| `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset | Custom APIs (go.dev), curl installers, package managers |
+| `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset from the latest stable release | Custom APIs (go.dev), curl installers, package managers |
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
 | `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |

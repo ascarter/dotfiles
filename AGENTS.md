@@ -112,6 +112,7 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - Tool scripts self-locate via: `: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"`
 - Host scripts self-locate one level deeper: `$(dirname "$0")/..` from `host/`.
 - Use `XDG_OPT_*` vars for opt-space paths; use standard `XDG_*` vars for everything else.
+- macOS support in this repo targets Apple Silicon only; do not add or consider Intel Mac recipe support unless explicitly requested.
 
 ## Testing Guidelines
 - No unit test suite currently; validation is command/script based.
