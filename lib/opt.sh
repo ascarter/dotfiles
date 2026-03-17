@@ -344,6 +344,7 @@ tool_appimage_uninstall_desktop() {
 #   tool_download         — default: tool_gh_install using TOOL_REPO + resolved asset
 #   tool_post_install     — default: create symlinks from TOOL_LINKS/TOOL_MAN_PAGES/TOOL_COMPLETIONS
 #   tool_platform_check   — default: allow all platforms
+#   tool_externally_managed — default: false; when true and batch skip is enabled, recipe is skipped
 #   tool_upgrade          — default: re-run tool_download (use for tools with self-update commands)
 #
 # Driver flow:
@@ -415,6 +416,16 @@ _tool_default_post_install() {
   done
 }
 
+_tool_ready_path() {
+  local resolved
+  resolved="$(command -v "$TOOL_CMD" 2>/dev/null || true)"
+  if [[ -n "$resolved" ]]; then
+    printf '%s\n' "$resolved"
+  else
+    printf '%s\n' "${TOOLS_BIN}/${TOOL_CMD}"
+  fi
+}
+
 # tool_is_recipe <script>
 # Returns 0 if the file is a declarative recipe (no shebang), 1 if legacy.
 tool_is_recipe() {
@@ -432,16 +443,26 @@ tool_run_recipe() {
 
   # Reset recipe state
   TOOLS_INSTALL_SKIPPED=0
+  TOOLS_INSTALL_SKIPPED_REASON=""
   unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
   unset TOOL_STRIP_COMPONENTS
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
-  unset -f tool_download tool_post_install tool_platform_check tool_upgrade 2>/dev/null
+  unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
 
   # Source the recipe — sets vars and optionally defines hooks
   source "$recipe"
 
   [[ -n "${TOOL_CMD:-}" ]] || { error "tool_run_recipe: TOOL_CMD not set in ${recipe}"; return 1; }
+
+  if [[ -n "${DOTFILES_TOOL_SKIP_EXTERNAL:-}" ]] && declare -f tool_externally_managed >/dev/null 2>&1; then
+    if tool_externally_managed; then
+      TOOLS_INSTALL_SKIPPED=1
+      TOOLS_INSTALL_SKIPPED_REASON="external"
+      log "skip" "$(basename "$recipe" .sh) externally managed on $(uname -s)"
+      return 0
+    fi
+  fi
 
   # 1. Skip if already installed (unless upgrading)
   tool_check "$TOOL_CMD"
@@ -486,5 +507,5 @@ tool_run_recipe() {
   fi
 
   # 6. Log completion
-  log "ready" "${TOOL_CMD} installed: ${TOOLS_BIN}/${TOOL_CMD}"
+  log "ready" "${TOOL_CMD} installed: $(_tool_ready_path)"
 }

@@ -1,6 +1,10 @@
 # gh — GitHub CLI
 TOOL_CMD=gh
 
+tool_externally_managed() {
+  [[ "$(uname -s)" == Darwin ]]
+}
+
 tool_platform_check() {
   case "$(uname -s)" in
     Darwin)

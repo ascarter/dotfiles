@@ -140,8 +140,13 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset from the latest stable release | Custom APIs (go.dev), curl installers, package managers |
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
+| `tool_externally_managed` | False | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
 | `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |
 | `tool_upgrade` | Re-run install flow | Tools with self-update commands (e.g. `uv self update`) |
+
+The completion log reports the resolved command path from `command -v` when available,
+so self-managed installers can show their native location instead of always assuming
+`$XDG_OPT_BIN/<tool>`.
 
 ## AppImage helpers
 

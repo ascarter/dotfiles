@@ -3,6 +3,10 @@
 TOOL_CMD=obsidian
 TOOL_REPO=obsidianmd/obsidian-releases
 
+tool_externally_managed() {
+  [[ "$(uname -s)" == Darwin ]]
+}
+
 tool_platform_check() {
   case "$(uname -s)" in
     Darwin) log "obsidian" "not found. Run: brew install --cask obsidian"; exit 1 ;;

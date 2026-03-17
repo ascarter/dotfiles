@@ -87,6 +87,7 @@ _tool_install() {
     fi
   else
     local failed=0
+    export DOTFILES_TOOL_SKIP_EXTERNAL=1
     while IFS= read -r script; do
       local tool_name
       tool_name="$(basename "$script" .sh)"
@@ -103,6 +104,7 @@ _tool_install() {
         }
       fi
     done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" | sort)
+    unset DOTFILES_TOOL_SKIP_EXTERNAL
     return $failed
   fi
 }
@@ -123,7 +125,7 @@ _tool_run_uninstall_hook() {
   unset TOOL_STRIP_COMPONENTS
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
-  unset -f tool_download tool_post_install tool_platform_check tool_uninstall 2>/dev/null
+  unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
 
   source "$script"
 
@@ -241,7 +243,8 @@ _tool_upgrade() {
       bash "$script"
     fi
   else
-    local failed=0 upgraded=0 up_to_date=0
+    local failed=0 upgraded=0 up_to_date=0 skipped_external=0
+    export DOTFILES_TOOL_SKIP_EXTERNAL=1
     while IFS= read -r script; do
       local tool_name cmd
       tool_name="$(basename "$script" .sh)"
@@ -264,13 +267,21 @@ _tool_upgrade() {
         }
       fi
       if [[ "${TOOLS_INSTALL_SKIPPED:-0}" -eq 1 ]]; then
+        if [[ "${TOOLS_INSTALL_SKIPPED_REASON:-}" == "external" ]]; then
+          skipped_external=$((skipped_external + 1))
+          continue
+        fi
         up_to_date=$((up_to_date + 1))
       else
         upgraded=$((upgraded + 1))
       fi
     done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+    unset DOTFILES_TOOL_SKIP_EXTERNAL
     if [[ "$upgraded" -gt 0 ]]; then
       log "upgrade" "$upgraded upgraded"
+    fi
+    if [[ "$skipped_external" -gt 0 ]]; then
+      log "skip" "$skipped_external externally managed"
     fi
     return $failed
   fi

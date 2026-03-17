@@ -3,6 +3,10 @@
 TOOL_CMD=ghostty
 TOOL_REPO=pkgforge-dev/ghostty-appimage
 
+tool_externally_managed() {
+  [[ "$(uname -s)" == Darwin ]]
+}
+
 tool_platform_check() {
   case "$(uname -s)" in
     Darwin) log "ghostty" "not found. Run: brew install --cask ghostty"; exit 1 ;;
