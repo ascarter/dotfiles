@@ -19,7 +19,7 @@ echo "DOTFILES_HOME: ${DOTFILES_HOME}"
 if [ ! -d "${DOTFILES_HOME}" ]; then
   echo "Clone dotfiles -> ${DOTFILES_HOME}"
   install -d "$(dirname "${DOTFILES_HOME}")"
-  git clone https://github.com/ascarter/dotfiles.git ${DOTFILES_HOME}
+  git clone https://github.com/ascarter/dotfiles.git "${DOTFILES_HOME}"
 fi
 
 # Init dotfiles
