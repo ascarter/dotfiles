@@ -121,8 +121,8 @@ _tool_run_uninstall_hook() {
   [[ -f "$script" ]] || return 0
 
   # Reset recipe state before sourcing
-  unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
-  unset TOOL_STRIP_COMPONENTS
+  unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
@@ -311,27 +311,98 @@ _tool_cmd_name() {
   fi
 }
 
+# _tool_detect_version <cmd_path> [version_args]
+# Run the command with version args and extract a version string.
+# Default args: --version. Override with TOOL_VERSION_ARGS in recipes.
+_tool_detect_version() {
+  local cmd="$1"
+  local args="${2:---version}"
+  local output=""
+
+  output="$("$cmd" $args 2>&1 || true)"
+
+  # Extract first version-like pattern from output
+  local ver
+  ver="$(printf '%s' "$output" | grep -oE '(v?[0-9]+\.[0-9]+[.0-9a-zA-Z_-]*)' | head -n1)"
+  if [[ -n "$ver" ]]; then
+    printf '%s' "$ver"
+  else
+    printf '—'
+  fi
+}
+
 # _tool_list
-# List available tool scripts and their install status.
+# List available tool scripts with source type and version.
+# Respects global VERBOSE flag to show PATH column.
 _tool_list() {
+  local verbose="${VERBOSE:-0}"
+
   local tools_dir="${DOTFILES_HOME}/tools"
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
   source "${DOTFILES_HOME}/lib/opt.sh"
 
-  local -a names=() statuses=()
-  while IFS= read -r script; do
+  local -a scripts=()
+  while IFS= read -r s; do
+    scripts+=("$s")
+  done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+
+  local -a names=() sources=() versions=() paths=()
+  for script in "${scripts[@]}"; do
     local name cmd
     name="$(basename "$script" .sh)"
     cmd="$(_tool_cmd_name "$script")"
     names+=("$name")
-    if [[ -f "${TOOLS_STATE}/${name}" ]]; then
-      statuses+=("$(cat "${TOOLS_STATE}/${name}")")
-    elif command -v "$cmd" >/dev/null 2>&1; then
-      statuses+=("$(command -v "$cmd")")
+
+    # Source recipe to read all state at once
+    unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_STRIP_COMPONENTS
+    unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+    unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade 2>/dev/null
+    source "$script"
+
+    # Determine source type
+    local brew_name="${TOOL_BREW:-$name}"
+    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
+      sources+=("homebrew")
+    elif [[ -n "${TOOL_REPO:-}" ]]; then
+      sources+=("gh-release")
+    elif declare -f tool_download >/dev/null 2>&1; then
+      sources+=("self-install")
     else
-      statuses+=("—")
+      sources+=("unknown")
     fi
-  done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+
+    # Resolve command path: command -v first, then brew cask detection fallback
+    local cmd_path=""
+    if command -v "$cmd" >/dev/null 2>&1; then
+      cmd_path="$(command -v "$cmd")"
+    elif command -v brew >/dev/null 2>&1 && brew list "${brew_name}" &>/dev/null; then
+      # Installed via brew; try to find the binary inside a .app bundle
+      local app_path
+      app_path="$(brew list "${brew_name}" 2>/dev/null | grep '\.app$' | head -n1)"
+      if [[ -n "$app_path" ]]; then
+        local app_name macos_dir
+        app_name="$(basename "$app_path" .app)"
+        macos_dir="$(readlink -f "$app_path" 2>/dev/null || echo "$app_path")/Contents/MacOS"
+        if [[ -d "$macos_dir" ]]; then
+          if [[ -x "${macos_dir}/${cmd}" ]]; then
+            cmd_path="${macos_dir}/${cmd}"
+          elif [[ -x "${macos_dir}/${app_name}" ]]; then
+            cmd_path="${macos_dir}/${app_name}"
+          fi
+        fi
+      fi
+      [[ -z "$cmd_path" ]] && cmd_path="(brew)"
+    fi
+
+    # Detect version
+    if [[ -n "$cmd_path" && "$cmd_path" != "(brew)" ]]; then
+      versions+=("$(_tool_detect_version "$cmd_path" "${TOOL_VERSION_ARGS:-}")")
+    else
+      versions+=("—")
+    fi
+    paths+=("$cmd_path")
+  done
 
   if [[ ${#names[@]} -eq 0 ]]; then
     printf "  no tool scripts found\n"
@@ -339,21 +410,34 @@ _tool_list() {
   fi
 
   # Compute column widths
-  local w_name=4 w_status=6
+  local w_name=4 w_source=6 w_version=7 w_path=4
   for i in "${!names[@]}"; do
     [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
-    [[ ${#statuses[$i]} -gt $w_status ]] && w_status=${#statuses[$i]}
+    [[ ${#sources[$i]} -gt $w_source ]] && w_source=${#sources[$i]}
+    [[ ${#versions[$i]} -gt $w_version ]] && w_version=${#versions[$i]}
+    [[ ${#paths[$i]} -gt $w_path ]] && w_path=${#paths[$i]}
   done
 
-  local sep_name sep_status
+  local sep_name sep_source sep_version sep_path
   sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
-  sep_status="$(printf '─%.0s' $(seq 1 $w_status))"
+  sep_source="$(printf '─%.0s' $(seq 1 $w_source))"
+  sep_version="$(printf '─%.0s' $(seq 1 $w_version))"
+  sep_path="$(printf '─%.0s' $(seq 1 $w_path))"
 
-  printf "  ${tty_bold}%-${w_name}s  %s${tty_reset}\n" "TOOL" "STATUS"
-  printf "  %-${w_name}s  %s\n" "$sep_name" "$sep_status"
-  for i in "${!names[@]}"; do
-    printf "  %-${w_name}s  %s\n" "${names[$i]}" "${statuses[$i]}"
-  done
+  if [[ "$verbose" -eq 1 ]]; then
+    printf "  ${tty_bold}%-${w_name}s  %-${w_source}s  %-${w_version}s  %s${tty_reset}\n" "TOOL" "SOURCE" "VERSION" "PATH"
+    printf "  %-${w_name}s  %-${w_source}s  %-${w_version}s  %s\n" "$sep_name" "$sep_source" "$sep_version" "$sep_path"
+    for i in "${!names[@]}"; do
+      printf "  %-${w_name}s  %-${w_source}s  %-${w_version}s  %s\n" \
+        "${names[$i]}" "${sources[$i]}" "${versions[$i]}" "${paths[$i]}"
+    done
+  else
+    printf "  ${tty_bold}%-${w_name}s  %-${w_source}s  %s${tty_reset}\n" "TOOL" "SOURCE" "VERSION"
+    printf "  %-${w_name}s  %-${w_source}s  %s\n" "$sep_name" "$sep_source" "$sep_version"
+    for i in "${!names[@]}"; do
+      printf "  %-${w_name}s  %-${w_source}s  %s\n" "${names[$i]}" "${sources[$i]}" "${versions[$i]}"
+    done
+  fi
 
   printf "\n  %d tool%s available\n" "${#names[@]}" "$([[ ${#names[@]} -eq 1 ]] && printf '' || printf 's')"
 }

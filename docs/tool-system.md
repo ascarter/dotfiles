@@ -12,7 +12,8 @@ dotfiles tool upgrade [<name>]     # Upgrade to latest version
 dotfiles tool uninstall [<name>]   # Remove from cellar; preserves cache
 dotfiles tool uninstall --force [<name>]  # Force removal even if cellar is missing
 dotfiles tool clean [<name>]       # Clear downloaded archives from cache
-dotfiles tool list                 # Show available tools and install status
+dotfiles tool list                 # Show available tools, source type, and version
+dotfiles -v tool list              # Include command path in output
 dotfiles tool status               # Show paths, counts, and disk usage
 ```
 
@@ -127,6 +128,8 @@ tool_uninstall() {
 | `TOOL_ASSET_LINUX_ARM64` | if TOOL_REPO | Asset glob for Linux ARM64 |
 | `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 |
 | `TOOL_STRIP_COMPONENTS` | no | Strip N leading directory components during tar extraction (default: 0) |
+| `TOOL_VERSION_ARGS` | no | Args passed to the binary to get version output (default: `--version`) |
+| `TOOL_BREW` | no | Homebrew formula/cask name override when it differs from the tool name (e.g. `visual-studio-code` for vscode) |
 | `TOOL_LINKS` | no | Array of symlink specs: `src:dst` or bare `name` (→ `name:bin/name`) |
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
 | `TOOL_COMPLETIONS` | no | Array of completion files to link (relative to install dir) |

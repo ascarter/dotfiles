@@ -2,6 +2,7 @@
 
 TOOL_CMD=obsidian
 TOOL_REPO=obsidianmd/obsidian-releases
+TOOL_VERSION_ARGS=version
 
 tool_externally_managed() {
   [[ "$(uname -s)" == Darwin ]]

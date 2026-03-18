@@ -444,8 +444,8 @@ tool_run_recipe() {
   # Reset recipe state
   TOOLS_INSTALL_SKIPPED=0
   TOOLS_INSTALL_SKIPPED_REASON=""
-  unset TOOL_CMD TOOL_REPO TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
-  unset TOOL_STRIP_COMPONENTS
+  unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
