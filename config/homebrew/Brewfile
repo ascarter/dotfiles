@@ -6,26 +6,13 @@ brew "cmark-gfm"
 brew "eza"
 brew "gh"
 brew "htop"
-brew "jq"
 brew "nvtop"
-brew "ripgrep"
-brew "serie"
 brew "shellcheck"
 brew "shfmt"
 brew "sqlite"
 brew "uutils-coreutils"
 brew "uutils-diffutils"
 brew "uutils-findutils"
-brew "yq"
-
-# Developer tools
-brew "fnm"
-brew "golang"
-brew "just"
-brew "rustup"
-brew "rv"
-brew "tree-sitter-cli"
-brew "uv"
 
 # Editors
 brew "neovim"
@@ -40,11 +27,16 @@ if OS.mac?
   cask_args adopt: true
   cask "bbedit"
   cask "chatgpt"
+  cask "claude"
   cask "codex-app"
+  cask "discord"
   cask "github"
   cask "ghostty"
   cask "hhkb"
+  cask "logi-options+"
   cask "netnewswire"
+  cask "obs"
+  cask "obsidian"
   cask "proton-drive"
   cask "proton-mail"
   cask "proton-mail-bridge"
@@ -65,9 +57,4 @@ if OS.mac?
   # 3rd party utilities
   tap "teamookla/speedtest"
   brew "teamookla/speedtest/speedtest"
-
-  # tap "dagger/tap"
-  # cask "container-use"
-elsif OS.linux?
-  # ...
 end
