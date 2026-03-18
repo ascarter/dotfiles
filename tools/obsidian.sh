@@ -2,7 +2,8 @@
 
 TOOL_CMD=obsidian
 TOOL_REPO=obsidianmd/obsidian-releases
-TOOL_VERSION_ARGS=version
+# Obsidian requires the full GUI for version detection; skip it.
+tool_version() { echo "-"; }
 
 tool_externally_managed() {
   [[ "$(uname -s)" == Darwin ]]

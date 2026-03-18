@@ -393,12 +393,13 @@ _tool_detect_version() {
   if [[ -n "$ver" ]]; then
     printf '%s' "$ver"
   else
-    printf '—'
+    printf '-'
   fi
 }
 
 # _tool_list
-# List available tool scripts with source type and version.
+# List installed tools with source type and version.
+# Only shows tools managed by us (state file or binary in ~/.local/).
 # Respects global VERBOSE flag to show PATH column.
 _tool_list() {
   local verbose="${VERBOSE:-0}"
@@ -417,20 +418,44 @@ _tool_list() {
     local name cmd
     name="$(basename "$script" .sh)"
     cmd="$(_tool_cmd_name "$script")"
-    names+=("$name")
 
     # Source recipe to read all state at once
     unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
     unset TOOL_STRIP_COMPONENTS
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
-    unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade 2>/dev/null
+    unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade tool_version 2>/dev/null
     source "$script"
 
+    # Resolve command path — prefer our managed binary over system
+    local cmd_path=""
+    if [[ -x "${XDG_OPT_BIN}/${cmd}" ]]; then
+      cmd_path="${XDG_OPT_BIN}/${cmd}"
+    elif command -v "$cmd" >/dev/null 2>&1; then
+      cmd_path="$(command -v "$cmd")"
+    fi
+
+    # Classify: externally managed with no managed binary → skipped (verbose only)
+    local is_managed=0
+    if [[ -n "$cmd_path" ]]; then
+      case "$cmd_path" in
+        "$HOME/.local/"*) is_managed=1 ;;
+      esac
+    fi
+
+    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null && [[ "$is_managed" -eq 0 ]]; then
+      if [[ "$verbose" -eq 1 ]]; then
+        names+=("$name")
+        sources+=("skipped")
+        versions+=("-")
+        paths+=("-")
+      fi
+      continue
+    fi
+
+    names+=("$name")
+
     # Determine source type
-    local brew_name="${TOOL_BREW:-$name}"
-    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
-      sources+=("homebrew")
-    elif [[ -n "${TOOL_REPO:-}" ]]; then
+    if [[ -n "${TOOL_REPO:-}" ]]; then
       sources+=("gh-release")
     elif declare -f tool_download >/dev/null 2>&1; then
       sources+=("self-install")
@@ -438,40 +463,22 @@ _tool_list() {
       sources+=("unknown")
     fi
 
-    # Resolve command path: command -v first, then brew cask detection fallback
-    local cmd_path=""
-    if command -v "$cmd" >/dev/null 2>&1; then
-      cmd_path="$(command -v "$cmd")"
-    elif command -v brew >/dev/null 2>&1 && brew list "${brew_name}" &>/dev/null; then
-      # Installed via brew; try to find the binary inside a .app bundle
-      local app_path
-      app_path="$(brew list "${brew_name}" 2>/dev/null | grep '\.app$' | head -n1)"
-      if [[ -n "$app_path" ]]; then
-        local app_name macos_dir
-        app_name="$(basename "$app_path" .app)"
-        macos_dir="$(readlink -f "$app_path" 2>/dev/null || echo "$app_path")/Contents/MacOS"
-        if [[ -d "$macos_dir" ]]; then
-          if [[ -x "${macos_dir}/${cmd}" ]]; then
-            cmd_path="${macos_dir}/${cmd}"
-          elif [[ -x "${macos_dir}/${app_name}" ]]; then
-            cmd_path="${macos_dir}/${app_name}"
-          fi
-        fi
+    # Detect version only for installed tools
+    if [[ "$is_managed" -eq 1 ]]; then
+      if declare -f tool_version >/dev/null 2>&1; then
+        versions+=("$(tool_version "$cmd_path" 2>/dev/null || echo '-')")
+      else
+        versions+=("$(_tool_detect_version "$cmd_path" "${TOOL_VERSION_ARGS:-}")")
       fi
-      [[ -z "$cmd_path" ]] && cmd_path="(brew)"
-    fi
-
-    # Detect version
-    if [[ -n "$cmd_path" && "$cmd_path" != "(brew)" ]]; then
-      versions+=("$(_tool_detect_version "$cmd_path" "${TOOL_VERSION_ARGS:-}")")
+      paths+=("$cmd_path")
     else
-      versions+=("—")
+      versions+=("")
+      paths+=("-")
     fi
-    paths+=("$cmd_path")
   done
 
   if [[ ${#names[@]} -eq 0 ]]; then
-    printf "  no tool scripts found\n"
+    printf "  no tools installed\n"
     return 0
   fi
 
@@ -505,7 +512,13 @@ _tool_list() {
     done
   fi
 
-  printf "\n  %d tool%s available\n" "${#names[@]}" "$([[ ${#names[@]} -eq 1 ]] && printf '' || printf 's')"
+  # Count installed (non-empty version, non-skipped)
+  local installed=0
+  for i in "${!versions[@]}"; do
+    [[ -n "${versions[$i]}" && "${sources[$i]}" != "skipped" ]] && installed=$((installed + 1))
+  done
+
+  printf "\n  %d tool%s installed\n" "$installed" "$([[ $installed -eq 1 ]] && printf '' || printf 's')"
 }
 
 # _tool_cmd <op> [<name>]

@@ -66,19 +66,37 @@ mkdir -p "${TOOLS_CELLAR}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${T
 
 # tool_check <cmd>
 #
-# Call at the top of a tool script to skip if the tool is already installed.
-# During upgrade (DOTFILES_TOOL_UPGRADE=1), always continues so the script
-# can re-evaluate versions.
-# Exits 0 (skip) if the command is found and this is not an upgrade.
+# Guard for tool install. Determines whether to proceed, skip, or confirm.
+#   - Already in opt paths → skip (already managed by us)
+#   - Found elsewhere (system/brew) → warn and prompt to confirm shadow
+#   - Not found → proceed
+# During upgrade (DOTFILES_TOOL_UPGRADE=1), always continues — upgrades only
+# touch tools that were previously installed.
 tool_check() {
   local cmd="$1"
   if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]]; then
     return 0
   fi
   if command -v "$cmd" >/dev/null 2>&1; then
-    log "skip" "${cmd} already installed: $(command -v "$cmd")"
-    exit 0
+    local resolved
+    resolved="$(command -v "$cmd")"
+    # Already managed by us — skip
+    case "$resolved" in
+      "$HOME/.local/"*)
+        vlog "skip" "${cmd} already installed: ${resolved}"
+        TOOLS_INSTALL_SKIPPED=1
+        return 1
+        ;;
+    esac
+    # Found elsewhere (system or brew) — confirm before shadowing
+    log "$cmd" "found at ${resolved}"
+    if ! prompt "Install ${cmd} to opt (will shadow existing)?"; then
+      vlog "skip" "${cmd} install declined"
+      TOOLS_INSTALL_SKIPPED=1
+      return 1
+    fi
   fi
+  return 0
 }
 
 # tool_latest_tag <owner/repo>
@@ -465,7 +483,7 @@ tool_run_recipe() {
   fi
 
   # 1. Skip if already installed (unless upgrading)
-  tool_check "$TOOL_CMD"
+  tool_check "$TOOL_CMD" || return 0
 
   # 2. Platform check (hook or default pass-through)
   if declare -f tool_platform_check >/dev/null 2>&1; then

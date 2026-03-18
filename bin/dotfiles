@@ -159,7 +159,7 @@ export XDG_OPT_SHARE="${XDG_OPT_SHARE:-$XDG_OPT_HOME/share}"
 export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
 export DOTFILES_HOME="${DOTFILES_HOME:-$XDG_DATA_HOME/dotfiles}"
 typeset -U path
-path=("$XDG_BIN_HOME" "$XDG_OPT_BIN" "$DOTFILES_HOME/bin" $path)
+path=("$XDG_OPT_BIN" "$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
 typeset -U manpath
 manpath=("$XDG_OPT_SHARE/man" $manpath)
 EOF

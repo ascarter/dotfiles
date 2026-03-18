@@ -60,3 +60,10 @@ setopt APPEND_HISTORY INC_APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGN
 # =====================================
 
 load_zsh_modules "${ZDOTDIR}"/interactive.d
+
+# =====================================
+# Final PATH assertion
+# =====================================
+# Re-prepend managed paths so they shadow system and brew binaries
+# (profile.d and interactive.d modules may have prepended their own)
+path=("$XDG_OPT_BIN" "$XDG_BIN_HOME" $path)
