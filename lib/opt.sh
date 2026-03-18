@@ -459,7 +459,7 @@ tool_run_recipe() {
     if tool_externally_managed; then
       TOOLS_INSTALL_SKIPPED=1
       TOOLS_INSTALL_SKIPPED_REASON="external"
-      log "skip" "$(basename "$recipe" .sh) externally managed on $(uname -s)"
+      vlog "skip" "$(basename "$recipe" .sh) externally managed on $(uname -s)"
       return 0
     fi
   fi
@@ -474,6 +474,7 @@ tool_run_recipe() {
 
   # 3. If upgrading and a tool_upgrade hook exists, use it instead of the normal flow
   if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]] && declare -f tool_upgrade >/dev/null 2>&1; then
+    log "upgrade" "$TOOL_CMD"
     tool_upgrade
     return $?
   fi

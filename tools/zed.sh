@@ -1,13 +1,12 @@
 # zed — code editor
 TOOL_CMD=zed
 
-tool_download() {
-  curl -f https://zed.dev/install.sh | sh
+tool_externally_managed() {
+  return 0
 }
 
-tool_upgrade() {
-  TOOLS_INSTALL_SKIPPED=1
-  log "skip" "zed updates itself in-app"
+tool_download() {
+  curl -f https://zed.dev/install.sh | sh
 }
 
 tool_uninstall() {

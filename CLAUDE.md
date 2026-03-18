@@ -18,6 +18,7 @@ bin/dotfiles update                 # Pull latest and re-sync
 # Tools
 bin/dotfiles tool install           # Install all tools (requires gh first)
 bin/dotfiles tool install <name>    # Install one tool
+bin/dotfiles tool outdated          # Show tools with newer versions
 bin/dotfiles tool uninstall [name]  # Remove from cellar; keeps cache
 bin/dotfiles tool clean [name]      # Clear downloaded archives
 bin/dotfiles script <name>          # Run a script from scripts/

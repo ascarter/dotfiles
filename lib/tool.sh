@@ -243,7 +243,7 @@ _tool_upgrade() {
       bash "$script"
     fi
   else
-    local failed=0 upgraded=0 up_to_date=0 skipped_external=0
+    local failed=0
     export DOTFILES_TOOL_SKIP_EXTERNAL=1
     while IFS= read -r script; do
       local tool_name cmd
@@ -253,7 +253,6 @@ _tool_upgrade() {
       if [[ ! -f "${TOOLS_STATE}/${tool_name}" ]] && ! command -v "$cmd" >/dev/null 2>&1; then
         continue
       fi
-      vlog "tool" "upgrade $tool_name"
       TOOLS_INSTALL_SKIPPED=0
       if tool_is_recipe "$script"; then
         tool_run_recipe "$script" || {
@@ -267,24 +266,91 @@ _tool_upgrade() {
         }
       fi
       if [[ "${TOOLS_INSTALL_SKIPPED:-0}" -eq 1 ]]; then
-        if [[ "${TOOLS_INSTALL_SKIPPED_REASON:-}" == "external" ]]; then
-          skipped_external=$((skipped_external + 1))
-          continue
-        fi
-        up_to_date=$((up_to_date + 1))
-      else
-        upgraded=$((upgraded + 1))
+        continue
       fi
     done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
     unset DOTFILES_TOOL_SKIP_EXTERNAL
-    if [[ "$upgraded" -gt 0 ]]; then
-      log "upgrade" "$upgraded upgraded"
-    fi
-    if [[ "$skipped_external" -gt 0 ]]; then
-      log "skip" "$skipped_external externally managed"
-    fi
     return $failed
   fi
+}
+
+# _tool_outdated
+# Show tools that have a newer version available.
+# Only checks tools with TOOL_REPO (GitHub release tracking).
+# Self-update and externally managed tools are skipped.
+_tool_outdated() {
+  local tools_dir="${DOTFILES_HOME}/tools"
+
+  command -v gh >/dev/null 2>&1 \
+    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  local -a names=() installed=() latest=()
+  while IFS= read -r script; do
+    local name cmd
+    name="$(basename "$script" .sh)"
+    cmd="$(_tool_cmd_name "$script")"
+
+    # Reset recipe state
+    unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS
+    unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+    unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade tool_uninstall 2>/dev/null
+
+    source "$script"
+
+    # Skip tools without TOOL_REPO (self-managed, no tag tracking)
+    [[ -n "${TOOL_REPO:-}" ]] || continue
+
+    # Skip externally managed tools (unless verbose)
+    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
+      vlog "skip" "${name} externally managed"
+      continue
+    fi
+
+    # Skip if not installed
+    if [[ ! -f "${TOOLS_STATE}/${name}" ]] && ! command -v "$cmd" >/dev/null 2>&1; then
+      continue
+    fi
+
+    local cur_tag latest_tag
+    cur_tag="$(tool_installed_tag "$TOOL_REPO")"
+    latest_tag="$(tool_latest_tag "$TOOL_REPO" 2>/dev/null)" || { warn "$name" "failed to check latest version"; continue; }
+
+    [[ -n "$latest_tag" ]] || continue
+    [[ "$cur_tag" != "$latest_tag" ]] || continue
+
+    names+=("$name")
+    installed+=("$cur_tag")
+    latest+=("$latest_tag")
+  done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+
+  if [[ ${#names[@]} -eq 0 ]]; then
+    vlog "outdated" "all tools are up to date"
+    return 0
+  fi
+
+  # Compute column widths
+  local w_name=4 w_installed=9 w_latest=6
+  for i in "${!names[@]}"; do
+    [[ ${#names[$i]} -gt $w_name ]] && w_name=${#names[$i]}
+    [[ ${#installed[$i]} -gt $w_installed ]] && w_installed=${#installed[$i]}
+    [[ ${#latest[$i]} -gt $w_latest ]] && w_latest=${#latest[$i]}
+  done
+
+  local sep_name sep_installed sep_latest
+  sep_name="$(printf '─%.0s' $(seq 1 $w_name))"
+  sep_installed="$(printf '─%.0s' $(seq 1 $w_installed))"
+  sep_latest="$(printf '─%.0s' $(seq 1 $w_latest))"
+
+  printf "  ${tty_bold}%-${w_name}s  %-${w_installed}s  %s${tty_reset}\n" "TOOL" "INSTALLED" "LATEST"
+  printf "  %-${w_name}s  %-${w_installed}s  %s\n" "$sep_name" "$sep_installed" "$sep_latest"
+  for i in "${!names[@]}"; do
+    printf "  %-${w_name}s  %-${w_installed}s  %s\n" "${names[$i]}" "${installed[$i]}" "${latest[$i]}"
+  done
+
+  printf "\n  %d tool%s outdated\n" "${#names[@]}" "$([[ ${#names[@]} -eq 1 ]] && printf '' || printf 's')"
 }
 
 # _tool_cmd_name <script>
@@ -454,14 +520,15 @@ _tool_cmd() {
     install)   _tool_install   "$@" ;;
     uninstall) _tool_uninstall "$@" ;;
     upgrade)   _tool_upgrade   "$@" ;;
+    outdated)  _tool_outdated ;;
     clean)     _tool_clean     "$@" ;;
     list)      _tool_list ;;
     status)    _tool_status ;;
     "")
-      abort "usage: dotfiles tool <install|uninstall|upgrade|clean|list|status> [<toolname>]"
+      abort "usage: dotfiles tool <install|uninstall|upgrade|outdated|clean|list|status> [<toolname>]"
       ;;
     *)
-      abort "unknown tool operation: $op (use install, uninstall, upgrade, clean, list, or status)"
+      abort "unknown tool operation: $op (use install, uninstall, upgrade, outdated, clean, list, or status)"
       ;;
   esac
 }

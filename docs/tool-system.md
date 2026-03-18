@@ -9,6 +9,7 @@ executed by a **driver** in `lib/opt.sh`, and orchestrated by `dotfiles tool` vi
 ```sh
 dotfiles tool install [<name>]     # Install all tools or a single tool
 dotfiles tool upgrade [<name>]     # Upgrade to latest version
+dotfiles tool outdated             # Show tools with newer versions available
 dotfiles tool uninstall [<name>]   # Remove from cellar; preserves cache
 dotfiles tool uninstall --force [<name>]  # Force removal even if cellar is missing
 dotfiles tool clean [<name>]       # Clear downloaded archives from cache

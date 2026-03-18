@@ -147,6 +147,7 @@ dotfiles update                 # Pull latest and re-sync
 
 dotfiles tool install           # Install all tools
 dotfiles tool install <name>    # Install one tool
+dotfiles tool outdated          # Show tools with newer versions available
 dotfiles tool uninstall [name]  # Remove tool(s) from cellar; keeps cache
 dotfiles tool clean [name]      # Clear downloaded archives
 
