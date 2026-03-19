@@ -66,13 +66,42 @@ _tool_status() {
   fi
 }
 
+# _tool_bootstrap_gh
+# Auto-install gh via its curl-based recipe when gh is not found.
+# Returns 0 on success, 1 on failure.
+_tool_bootstrap_gh() {
+  local tools_dir="${DOTFILES_HOME}/tools"
+  local gh_script="${tools_dir}/gh.sh"
+  [[ -f "$gh_script" ]] || { error "gh recipe not found: ${gh_script}"; return 1; }
+
+  log "bootstrap" "installing gh (GitHub CLI) via curl"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+  tool_run_recipe "$gh_script" || { error "gh bootstrap failed"; return 1; }
+
+  # Ensure the freshly installed gh is on PATH for this session
+  export PATH="${XDG_OPT_BIN}:${PATH}"
+  if ! command -v gh >/dev/null 2>&1; then
+    error "gh not found after bootstrap install"
+    return 1
+  fi
+
+  log "bootstrap" "gh installed successfully"
+  log "hint" "run 'dotfiles gitconfig' to configure GitHub authentication and git identity"
+}
+
+# _tool_ensure_gh
+# Ensures gh is available, bootstrapping it if necessary.
+_tool_ensure_gh() {
+  command -v gh >/dev/null 2>&1 && return 0
+  _tool_bootstrap_gh
+}
+
 # _tool_install [<name>]
 _tool_install() {
   local target="${1:-}"
   local tools_dir="${DOTFILES_HOME}/tools"
 
-  command -v gh >/dev/null 2>&1 \
-    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  _tool_ensure_gh || abort "gh is required for tool management and could not be bootstrapped"
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
   source "${DOTFILES_HOME}/lib/opt.sh"
 
@@ -91,6 +120,8 @@ _tool_install() {
     while IFS= read -r script; do
       local tool_name
       tool_name="$(basename "$script" .sh)"
+      # Skip gh — already bootstrapped above
+      [[ "$tool_name" != "gh" ]] || continue
       vlog "tool" "install $tool_name"
       if tool_is_recipe "$script"; then
         tool_run_recipe "$script" || {
@@ -221,8 +252,7 @@ _tool_upgrade() {
   local target="${1:-}"
   local tools_dir="${DOTFILES_HOME}/tools"
 
-  command -v gh >/dev/null 2>&1 \
-    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  _tool_ensure_gh || abort "gh is required for tool management and could not be bootstrapped"
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
   source "${DOTFILES_HOME}/lib/opt.sh"
 
@@ -281,8 +311,7 @@ _tool_upgrade() {
 _tool_outdated() {
   local tools_dir="${DOTFILES_HOME}/tools"
 
-  command -v gh >/dev/null 2>&1 \
-    || abort "gh is required for tool management. Install via: dotfiles script tools/gh"
+  _tool_ensure_gh || abort "gh is required for tool management and could not be bootstrapped"
   [[ -d "$tools_dir" ]] || abort "tools directory not found: $tools_dir"
   source "${DOTFILES_HOME}/lib/opt.sh"
 

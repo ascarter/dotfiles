@@ -62,24 +62,27 @@ tool_download() {
 }
 ```
 
-### Platform dispatch example
+### Bootstrap recipe example (curl-based, no gh dependency)
 
 ```bash
-# tools/gh.sh
+# tools/gh.sh — self-bootstrapping via curl + GitHub REST API
 TOOL_CMD=gh
-
-tool_platform_check() {
-  case "$(uname -s)" in
-    Darwin) log "gh" "not found. Run: brew install gh"; exit 1 ;;
-  esac
-}
+TOOL_REPO=cli/cli
+TOOL_STRIP_COMPONENTS=1
+TOOL_LINKS=(bin/gh)
 
 tool_download() {
-  . /etc/os-release
-  case "${ID:-}" in
-    fedora) bash "${DOTFILES_HOME}/lib/os/fedora/pkg.sh" install gh ;;
-    *)      error "Unsupported: ${ID:-unknown}"; return 1 ;;
-  esac
+  local tag
+  tag="$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | \
+    sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+  # ... resolve asset, download via curl, extract to cellar
+}
+
+tool_post_install() {
+  tool_link "bin/gh" "bin/gh"
+  for page in "${TOOLS_INSTALL_DIR}"/share/man/man1/gh*.1; do
+    tool_link "share/man/man1/$(basename "$page")" "share/man/man1/$(basename "$page")"
+  done
 }
 ```
 
@@ -164,6 +167,19 @@ Use these in `tool_post_install` and `tool_uninstall` hooks.
 | `tool_appimage_uninstall_desktop <desktop_id> [icon_ext]` | Remove `.desktop` file and icon. `icon_ext` defaults to `png`. |
 
 ## Driver flow
+
+### Bootstrap
+
+When `dotfiles tool install` (or `upgrade`/`outdated`) runs and `gh` is not found
+on PATH, the driver auto-bootstraps `gh` first using its curl-based `tool_download`
+hook — no external dependency required. After bootstrap, a hint is printed:
+
+```
+[hint] run 'dotfiles gitconfig' to configure GitHub authentication and git identity
+```
+
+The `gh.sh` recipe uses `curl` + GitHub REST API for both initial install and
+upgrades, so it never depends on itself. All other tools then use `gh` normally.
 
 ### Install
 

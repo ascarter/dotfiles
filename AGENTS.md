@@ -95,7 +95,7 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles host status`: show detected host environment info.
 - `bin/dotfiles gitconfig`: generate machine-specific `~/.gitconfig`.
 - `bin/dotfiles sync`: symlink `config/` into `$XDG_CONFIG_HOME`.
-- `bin/dotfiles tool install`: install all tools in `tools/` (requires `gh` to be installed first).
+- `bin/dotfiles tool install`: install all tools in `tools/` (auto-bootstraps `gh` via curl if not already installed).
 - `bin/dotfiles tool install <name>`: install a single tool by name.
 - `bin/dotfiles tool uninstall [<name>]`: remove installed tool(s); preserves cache.
 - `bin/dotfiles tool uninstall --force [<name>]`: force removal even if cellar is missing (for broken installs).
@@ -128,4 +128,4 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 ## Security & Configuration Tips
 - Prefer XDG paths. For opt-managed tools use `$XDG_OPT_HOME`/`$XDG_OPT_BIN`/`$XDG_OPT_SHARE`.
 - Keep host installs for OS-integrated needs; prefer opt-space installs otherwise.
-- `gh` must be installed before running `dotfiles tool install` (used by `lib/opt.sh` for GitHub releases).
+- `gh` is self-managed via the tool system; it bootstraps itself using `curl` + GitHub REST API when not found. Run `dotfiles gitconfig` after initial install to authenticate.

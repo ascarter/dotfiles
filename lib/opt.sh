@@ -232,14 +232,15 @@ tool_strip_quarantine() {
   xattr -dr com.apple.quarantine "$target" 2>/dev/null || true
 }
 
-# tool_link <src> <dst>
+# tool_link <src> [dst]
 #
 # Creates a symlink: XDG_OPT_HOME/<dst> -> TOOLS_INSTALL_DIR/<src>
 # src is relative to TOOLS_INSTALL_DIR.
 # dst is relative to XDG_OPT_HOME (e.g. "bin/rg", "share/man/man1/rg.1").
+# If dst is omitted, defaults to src (mirrors the archive layout into opt).
 tool_link() {
   local src="$1"
-  local dst="$2"
+  local dst="${2:-$src}"
   local src_path="${TOOLS_INSTALL_DIR}/${src}"
   local dst_path="${XDG_OPT_HOME}/${dst}"
 
