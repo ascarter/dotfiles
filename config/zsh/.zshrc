@@ -56,6 +56,25 @@ SAVEHIST=10000
 setopt APPEND_HISTORY INC_APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS HIST_VERIFY
 
 # =====================================
+# Completion system
+# =====================================
+
+# Add homebrew completions directory
+if [[ -d $HOMEBREW_PREFIX/share/zsh/site-functions ]]; then
+  fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+fi
+
+# Add XDG completions directory
+if [[ -d ${XDG_STATE_HOME}/zsh/completions ]]; then
+  fpath=("${XDG_STATE_HOME}"/zsh/completions $fpath)
+fi
+
+# Enable advanced tab completion
+[[ -d ${XDG_CACHE_HOME}/zsh ]] || mkdir -p "${XDG_CACHE_HOME}"/zsh
+autoload -Uz compinit
+compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
+
+# =====================================
 # Load interactive modules
 # =====================================
 
