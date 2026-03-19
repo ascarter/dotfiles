@@ -25,6 +25,9 @@ vim.g.maplocalleader = " "
 vim.g.loaded_netrw       = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- Cursor
+opt.guicursor        = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
+
 -- Interface
 opt.number           = true
 opt.relativenumber   = true
@@ -32,6 +35,23 @@ opt.cursorline       = true
 opt.scrolloff        = 10
 opt.signcolumn       = "yes"
 opt.breakindent      = true
+
+-- Status column: bold line numbers for active line and visual selection
+function _G.statuscolumn()
+  local num = vim.v.relnum ~= 0 and vim.v.relnum or vim.v.lnum
+  local bold = vim.v.relnum == 0
+  if not bold then
+    local mode = vim.fn.mode()
+    if mode:find("[vV\22]") then
+      local v_start, v_end = vim.fn.line("v"), vim.fn.line(".")
+      if v_start > v_end then v_start, v_end = v_end, v_start end
+      bold = vim.v.lnum >= v_start and vim.v.lnum <= v_end
+    end
+  end
+  local hl = bold and "%#CursorLineNr#" or "%#LineNr#"
+  return "%s%=" .. hl .. num .. "%* "
+end
+opt.statuscolumn = "%!v:lua.statuscolumn()"
 
 -- Folding (treesitter-based)
 opt.foldmethod       = "expr"
