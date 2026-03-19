@@ -4,7 +4,7 @@ TOOL_CMD=code
 TOOL_BREW=visual-studio-code
 
 tool_externally_managed() {
-  [[ "$(uname -s)" == Darwin ]]
+  return 0
 }
 
 tool_platform_check() {
