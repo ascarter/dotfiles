@@ -21,28 +21,24 @@ silverblue | cosmic-atomic)
 
   rpm-ostree upgrade
 
-  # Install rpm overlays
-  rpm-ostree install --idempotent git
-  rpm-ostree install --idempotent neovim
-  rpm-ostree install --idempotent zsh
-  rpm-ostree install --idempotent bolt
-  rpm-ostree install --idempotent solaar
-  rpm-ostree install --idempotent steam-devices
+  overlay() { rpm-ostree install --idempotent "$@" || warn "overlay" "failed: $*"; }
+
+  overlay git
+  overlay neovim
+  overlay zsh
+  overlay bolt
+  overlay solaar
+  overlay steam-devices
 
   case "${XDG_CURRENT_DESKTOP:-}" in
   COSMIC)
     # Add cosmic specific overlays here if needed
     ;;
   GNOME)
-    rpm-ostree install --idempotent gnome-tweaks
+    overlay gnome-tweaks
     gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
     ;;
   esac
-
-  # Update flatpaks
-  if command -v flatpak >/dev/null 2>&1; then
-    flatpak update -y
-  fi
   ;;
 
 server)

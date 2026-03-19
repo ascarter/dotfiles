@@ -1,0 +1,9 @@
+# Flatpak applications to install from Flathub
+#
+# One application ID per line. Comments (#) and blank lines are ignored.
+# Find IDs: flatpak search <name> | https://flathub.org
+
+com.discordapp.Discord
+com.spotify.Client
+com.valvesoftware.Steam
+org.keepassxc.KeePassXC

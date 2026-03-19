@@ -38,6 +38,7 @@ Commands:
   host        Host provisioning (init|status)
   gitconfig   Generate machine-specific ~/.gitconfig
   tool        Manage tools (install|uninstall|upgrade|clean|list|status [<toolname>])
+  flatpak     Manage Flatpak apps (install|status)
   script      Run a script (list available scripts if no name given)
 
 Options:
@@ -270,12 +271,19 @@ cmd_tool() {
   _tool_cmd "$@"
 }
 
+cmd_flatpak() {
+  [[ "$(uname -s)" == "Linux" ]] || abort "flatpak subcommand is Linux only"
+  command -v flatpak >/dev/null 2>&1 || abort "flatpak not found on PATH"
+  source "${DOTFILES_LIB_DIR}/flatpak.sh"
+  _flatpak_cmd "$@"
+}
+
 main() {
   cmd="$1"
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | gitconfig)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | flatpak | gitconfig)
     cmd_$cmd "$@"
     ;;
   help)
