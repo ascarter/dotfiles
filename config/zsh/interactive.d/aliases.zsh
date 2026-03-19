@@ -38,6 +38,7 @@ Linux)
   # TODO: Add Linux support for Obsidian (AppImage or Flatpak)
   ;;
 esac
+
 # Platform specific aliases
 case $(uname) in
 Darwin)
@@ -68,6 +69,11 @@ Darwin)
   # Proxyman
   if [[ -d /Applications/Proxyman.app ]]; then
     alias proxyman-cli="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+  fi
+
+  # Proton Mail Bridge
+  if [[ -d /Applications/Proton\ Mail\ Bridge.app ]]; then
+    alias protonmail-bridge="/Applications/Proton\ Mail\ Bridge.app/Contents/MacOS/Proton\ Mail\ Bridge"
   fi
   ;;
 Linux)
