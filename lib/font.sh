@@ -42,9 +42,10 @@ font_cache_refresh() {
 
 # font_install_files <cellar-dir> [font-glob]
 #
-# Finds TTF files matching the glob pattern in the cellar directory and
+# Finds font files matching the glob pattern in the cellar directory and
 # copies them flat into the OS font directory.
 # Default glob: *.ttf (flat TTF files in the cellar root).
+# Uses find -path for robust handling of spaces in directory names.
 font_install_files() {
   local cellar_dir="$1"
   local font_glob="${2:-*.ttf}"
@@ -53,15 +54,10 @@ font_install_files() {
   mkdir -p "$font_dir"
 
   local count=0
-  shopt -s nullglob
-  local files=("${cellar_dir}"/${font_glob})
-  shopt -u nullglob
-
-  for ttf in "${files[@]}"; do
-    [[ -f "$ttf" ]] || continue
-    cp -f "$ttf" "$font_dir/"
+  while IFS= read -r -d '' f; do
+    cp -f "${cellar_dir}/${f#./}" "$font_dir/"
     count=$((count + 1))
-  done
+  done < <(cd "$cellar_dir" && find . -type f -path "./$font_glob" -print0 2>/dev/null)
 
   if [[ "$count" -eq 0 ]]; then
     error "no font files matching '${font_glob}' found in ${cellar_dir}"

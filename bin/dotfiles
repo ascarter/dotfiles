@@ -39,6 +39,7 @@ Commands:
   gitconfig   Generate machine-specific ~/.gitconfig
   tool        Manage tools (install|uninstall|upgrade|clean|list|status [<toolname>])
   font        Manage fonts (install|list [<fontname>])
+  cache       Manage download cache (status|clean)
   flatpak     Manage Flatpak apps (install|status)
   script      Run a script (list available scripts if no name given)
 
@@ -277,6 +278,11 @@ cmd_font() {
   _font_cmd "$@"
 }
 
+cmd_cache() {
+  source "${DOTFILES_LIB_DIR}/cache.sh"
+  _cache_cmd "$@"
+}
+
 cmd_flatpak() {
   [[ "$(uname -s)" == "Linux" ]] || abort "flatpak subcommand is Linux only"
   command -v flatpak >/dev/null 2>&1 || abort "flatpak not found on PATH"
@@ -289,7 +295,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | font | flatpak | gitconfig)
+  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | font | cache | flatpak | gitconfig)
     cmd_$cmd "$@"
     ;;
   help)

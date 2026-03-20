@@ -157,6 +157,9 @@ dotfiles font install           # Install all fonts
 dotfiles font install <name>    # Install one font
 dotfiles font list              # Show installed fonts
 
+dotfiles cache status           # Show download cache size
+dotfiles cache clean            # Clear all cached archives
+
 dotfiles script <name>          # Run a script from scripts/
 ```
 

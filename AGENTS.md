@@ -14,13 +14,14 @@ Conflict rule:
 - `.github/copilot-instructions.md`: thin pointer for coding assistants back to this file.
 
 ## Project Structure & Module Organization
-- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `env`, `sync`, `status`, `update`, `edit`, `host`, `tool`, `font`, `gitconfig`, `script`).
+- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `env`, `sync`, `status`, `update`, `edit`, `host`, `tool`, `font`, `cache`, `gitconfig`, `script`).
 - `config/`: source-of-truth configs synced into `$XDG_CONFIG_HOME`.
 - `lib/core.sh`: sourced library; tty/logging functions (`log`, `warn`, `error`, `abort`, `ensure`, `success`).
 - `lib/sync.sh`: sourced library; `_sync` implementation for link/unlink/status modes.
 - `lib/tool.sh`: sourced library; `dotfiles tool` subcommand implementation (`_tool_cmd` and helpers).
 - `lib/opt.sh`: sourced installer library; declares `XDG_OPT_*` vars, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`, and the declarative tool driver (`tool_run_recipe`).
 - `lib/font.sh`: sourced library; `dotfiles font` subcommand implementation (`_font_cmd`, `font_run_recipe`, `font_gh_install`); sources `lib/opt.sh` for storage paths.
+- `lib/cache.sh`: sourced library; `dotfiles cache` subcommand implementation (`_cache_cmd`); shows and clears the shared download cache.
 - `lib/os/fedora/pkg.sh`: Fedora package management helper (dnf/rpm-ostree); called by tool scripts.
 - `lib/os/fedora/repo.sh`: Fedora repo management helper; called by tool scripts.
 - `tools/`: flat directory of tool recipes and installer scripts, one per tool capability.
@@ -144,6 +145,8 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles font install`: install all fonts in `fonts/`.
 - `bin/dotfiles font install <name>`: install a single font by name.
 - `bin/dotfiles font list`: show installed fonts with versions.
+- `bin/dotfiles cache status`: show download cache size and contents.
+- `bin/dotfiles cache clean`: clear all downloaded archives from cache.
 - `bin/dotfiles script <name>`: run a script from `scripts/` directly.
 - `./test.sh`: smoke test install/sync in `.testuser/`.
 

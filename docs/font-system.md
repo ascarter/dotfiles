@@ -129,3 +129,4 @@ FONT_GLOB="ttf/*.ttf"
 | `ibm-plex-mono` | IBM Plex Mono | IBM/plex |
 | `ibm-plex-sans` | IBM Plex Sans | IBM/plex |
 | `ibm-plex-serif` | IBM Plex Serif | IBM/plex |
+| `monaspace` | Monaspace | githubnext/monaspace |
