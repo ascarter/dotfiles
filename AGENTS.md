@@ -10,18 +10,21 @@ Conflict rule:
 - `README.md`: install/bootstrap quick start.
 - `docs/dev-environment.md`: detailed lifecycle, tier model, and implementation patterns.
 - `docs/tool-system.md`: tool system reference — recipe format, config variables, hooks, driver flow.
+- `docs/font-system.md`: font system reference — recipe format, config variables, hooks, driver flow.
 - `.github/copilot-instructions.md`: thin pointer for coding assistants back to this file.
 
 ## Project Structure & Module Organization
-- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `env`, `sync`, `status`, `update`, `edit`, `host`, `tool`, `gitconfig`, `script`).
+- `bin/dotfiles`: primary CLI entrypoint (`init`, `shell`, `env`, `sync`, `status`, `update`, `edit`, `host`, `tool`, `font`, `gitconfig`, `script`).
 - `config/`: source-of-truth configs synced into `$XDG_CONFIG_HOME`.
 - `lib/core.sh`: sourced library; tty/logging functions (`log`, `warn`, `error`, `abort`, `ensure`, `success`).
 - `lib/sync.sh`: sourced library; `_sync` implementation for link/unlink/status modes.
 - `lib/tool.sh`: sourced library; `dotfiles tool` subcommand implementation (`_tool_cmd` and helpers).
 - `lib/opt.sh`: sourced installer library; declares `XDG_OPT_*` vars, provides `tool_gh_install`, `tool_link`, `tool_latest_tag`, `tool_installed_tag`, and the declarative tool driver (`tool_run_recipe`).
+- `lib/font.sh`: sourced library; `dotfiles font` subcommand implementation (`_font_cmd`, `font_run_recipe`, `font_gh_install`); sources `lib/opt.sh` for storage paths.
 - `lib/os/fedora/pkg.sh`: Fedora package management helper (dnf/rpm-ostree); called by tool scripts.
 - `lib/os/fedora/repo.sh`: Fedora repo management helper; called by tool scripts.
 - `tools/`: flat directory of tool recipes and installer scripts, one per tool capability.
+- `fonts/`: flat directory of font recipes, one per font family. See `docs/font-system.md`.
 - `host/<platform>.sh`: OS baseline provisioning; one script per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`).
 - `scripts/*.sh`: convenience and orchestration scripts (e.g. `gitconfig.sh`, `developer.sh`).
 
@@ -54,6 +57,43 @@ Used only when hook functions cannot express the install flow.
 
 No imperative scripts exist today — `ghostty.sh` and `vscode.sh` were converted to
 recipes with custom hooks (`tool_download`, `tool_post_install`, `tool_uninstall`).
+
+## Font Recipes
+
+Font recipes in `fonts/` follow a similar declarative pattern to tool recipes.
+The driver (`lib/font.sh`) sources a recipe to load variables and optional hooks,
+then downloads, extracts, and copies TTF files to the OS font directory.
+
+See `docs/font-system.md` for the full reference on writing recipes, config variables,
+hooks, and driver flow.
+
+**Keep `docs/font-system.md` up to date when changing the font system.**
+
+### Quick recipe example
+
+```bash
+# fonts/juliamono.sh — pure config, no logic needed
+FONT_REPO=cormullion/juliamono
+FONT_ASSET="JuliaMono-ttf.tar.gz"
+```
+
+### Custom tag resolution (IBM Plex)
+
+Repos with non-standard release tags use a `font_latest_tag` hook:
+
+```bash
+# fonts/ibm-plex-mono.sh
+FONT_REPO=IBM/plex
+FONT_ASSET="ibm-plex-mono.zip"
+FONT_GLOB="fonts/complete/ttf/*.ttf"
+FONT_STRIP_COMPONENTS=1
+
+font_latest_tag() {
+  gh release list --repo IBM/plex --limit 100 \
+    --json tagName,isDraft,isPrerelease \
+    --jq 'map(select((.isDraft | not) and (.isPrerelease | not) and (.tagName | startswith("@ibm/plex-mono@"))))[0].tagName'
+}
+```
 
 ## XDG_OPT_* Convention
 
@@ -101,6 +141,9 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles tool uninstall --force [<name>]`: force removal even if cellar is missing (for broken installs).
 - `bin/dotfiles tool outdated`: show tools with newer versions available.
 - `bin/dotfiles tool clean [<name>]`: clear downloaded archives from cache.
+- `bin/dotfiles font install`: install all fonts in `fonts/`.
+- `bin/dotfiles font install <name>`: install a single font by name.
+- `bin/dotfiles font list`: show installed fonts with versions.
 - `bin/dotfiles script <name>`: run a script from `scripts/` directly.
 - `./test.sh`: smoke test install/sync in `.testuser/`.
 

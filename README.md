@@ -8,6 +8,8 @@ concerns in one repository:
 2. **Bootstrap and tools** — OS provisioning, shell wiring, and a tool management
    system (`dotfiles tool`) that installs GitHub-release binaries into a clean,
    versioned layout under `~/.local/opt`.
+3. **Fonts** — a font management system (`dotfiles font`) that installs desktop fonts
+   from GitHub releases into the OS font directory.
 
 ---
 
@@ -150,6 +152,10 @@ dotfiles tool install <name>    # Install one tool
 dotfiles tool outdated          # Show tools with newer versions available
 dotfiles tool uninstall [name]  # Remove tool(s) from cellar; keeps cache
 dotfiles tool clean [name]      # Clear downloaded archives
+
+dotfiles font install           # Install all fonts
+dotfiles font install <name>    # Install one font
+dotfiles font list              # Show installed fonts
 
 dotfiles script <name>          # Run a script from scripts/
 ```
