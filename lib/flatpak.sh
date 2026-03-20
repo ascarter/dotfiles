@@ -19,9 +19,9 @@ _flatpak_read_list() {
 }
 
 _flatpak_ensure_flathub() {
-  if ! flatpak remote-list --columns=name 2>/dev/null | grep -qx "flathub"; then
+  if ! flatpak remote-list --user --columns=name 2>/dev/null | grep -qx "flathub"; then
     log "flatpak" "Adding Flathub remote"
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
   fi
 }
 
@@ -29,16 +29,16 @@ _flatpak_install() {
   _flatpak_ensure_flathub
 
   log "flatpak" "Updating installed Flatpaks"
-  flatpak update -y --noninteractive
+  flatpak update --user -y --noninteractive
 
   local app_id
   local rc=0
   while IFS= read -r app_id; do
-    if flatpak info "$app_id" >/dev/null 2>&1; then
+    if flatpak info --user "$app_id" >/dev/null 2>&1; then
       vlog "flatpak" "already installed: $app_id"
     else
       log "flatpak" "Installing $app_id"
-      if ! flatpak install -y --noninteractive flathub "$app_id"; then
+      if ! flatpak install --user -y --noninteractive flathub "$app_id"; then
         warn "flatpak" "Failed to install $app_id"
         rc=1
       fi
@@ -61,7 +61,7 @@ _flatpak_status() {
 
   while IFS= read -r app_id; do
     installed+=("$app_id")
-  done < <(flatpak list --app --columns=application 2>/dev/null)
+  done < <(flatpak list --user --app --columns=application 2>/dev/null)
 
   local missing=0 extra=0
 
