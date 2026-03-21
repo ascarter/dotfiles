@@ -1,0 +1,185 @@
+#compdef dotfiles
+
+# Zsh completion for the dotfiles CLI.
+#
+# Automatically registered by compinit because this file is named _dotfiles,
+# starts with #compdef, and lives on fpath (config/zsh/functions/).
+#
+# Maintenance policy: update this file whenever subcommands, flags, or
+# argument structure in bin/dotfiles or lib/*.sh change.
+
+_dotfiles() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  _arguments -C \
+    '-v[Enable verbose output]' \
+    '-f[Force actions where applicable]' \
+    '-h[Show help message]' \
+    '1:command:->command' \
+    '*::arg:->args'
+
+  case "$state" in
+    command)
+      local -a commands=(
+        'init:Bootstrap dotfiles environment'
+        'shell:Configure zsh and shell bootstrap'
+        'env:Export configuration for environment'
+        'sync:Synchronize config'
+        'uninstall:Uninstall dotfiles'
+        'status:Show status of dotfiles'
+        'update:Update dotfiles repository'
+        'edit:Edit dotfiles in \$EDITOR'
+        'host:Host provisioning'
+        'tool:Manage tools'
+        'font:Manage fonts'
+        'cache:Manage download cache'
+        'flatpak:Manage Flatpak apps'
+        'gitconfig:Generate machine-specific gitconfig'
+        'script:Run a script'
+        'help:Show help message'
+      )
+      _describe 'dotfiles command' commands
+      ;;
+    args)
+      case "${line[1]}" in
+        host)    _dotfiles_host ;;
+        tool)    _dotfiles_tool ;;
+        font)    _dotfiles_font ;;
+        cache)   _dotfiles_cache ;;
+        flatpak) _dotfiles_flatpak ;;
+        script)  _dotfiles_script ;;
+      esac
+      ;;
+  esac
+}
+
+# -- Helpers: dynamic name lists from filesystem -----------------
+
+_dotfiles__names_from_dir() {
+  local dir="$1" desc="$2"
+  local dotfiles_home="${DOTFILES_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles}"
+  local -a names
+  if [[ -d "$dotfiles_home/$dir" ]]; then
+    local f
+    for f in "$dotfiles_home/$dir"/*.sh(N); do
+      names+=("${${f:t}%.sh}")
+    done
+  fi
+  _describe "$desc" names
+}
+
+# -- host --------------------------------------------------------
+
+_dotfiles_host() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  local -a subcmds=(
+    'init:Provision host OS'
+    'status:Show host environment info'
+  )
+
+  _arguments -C '1:host command:->subcmd' '*::arg:->args'
+
+  case "$state" in
+    subcmd)
+      _describe 'host command' subcmds
+      ;;
+    args)
+      case "${line[1]}" in
+        init) _dotfiles__names_from_dir host 'host environment' ;;
+      esac
+      ;;
+  esac
+}
+
+# -- tool --------------------------------------------------------
+
+_dotfiles_tool() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  local -a subcmds=(
+    'install:Install tool(s)'
+    'uninstall:Uninstall tool(s)'
+    'upgrade:Upgrade tool(s)'
+    'outdated:Show tools with newer versions'
+    'clean:Clean download cache'
+    'list:List installed tools'
+    'status:Show tool infrastructure status'
+  )
+
+  _arguments -C '1:tool command:->subcmd' '*::arg:->args'
+
+  case "$state" in
+    subcmd)
+      _describe 'tool command' subcmds
+      ;;
+    args)
+      case "${line[1]}" in
+        install|upgrade|clean)
+          _dotfiles__names_from_dir tools 'tool name'
+          ;;
+        uninstall)
+          _arguments \
+            '--force[Force removal even if cellar is missing]' \
+            ':tool name: _dotfiles__names_from_dir tools "tool name"'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+# -- font --------------------------------------------------------
+
+_dotfiles_font() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  local -a subcmds=(
+    'install:Install font(s)'
+    'list:List installed fonts'
+  )
+
+  _arguments -C '1:font command:->subcmd' '*::arg:->args'
+
+  case "$state" in
+    subcmd)
+      _describe 'font command' subcmds
+      ;;
+    args)
+      case "${line[1]}" in
+        install) _dotfiles__names_from_dir fonts 'font name' ;;
+      esac
+      ;;
+  esac
+}
+
+# -- cache -------------------------------------------------------
+
+_dotfiles_cache() {
+  local -a subcmds=(
+    'status:Show cache size and contents'
+    'clean:Clear all cached archives'
+  )
+  _describe 'cache command' subcmds
+}
+
+# -- flatpak -----------------------------------------------------
+
+_dotfiles_flatpak() {
+  local -a subcmds=(
+    'install:Install Flatpak apps'
+    'status:Show missing or extra apps'
+  )
+  _describe 'flatpak command' subcmds
+}
+
+# -- script ------------------------------------------------------
+
+_dotfiles_script() {
+  _dotfiles__names_from_dir scripts 'script name'
+}
+
+_dotfiles "$@"

@@ -27,6 +27,7 @@ Conflict rule:
 - `tools/`: flat directory of tool recipes and installer scripts, one per tool capability.
 - `fonts/`: flat directory of font recipes, one per font family. See `docs/font-system.md`.
 - `host/<platform>.sh`: OS baseline provisioning; one script per environment (`macos.sh`, `fedora.sh`, `toolbox.sh`).
+- `config/zsh/functions/_dotfiles`: zsh completion function for the `dotfiles` CLI (auto-registered via `compinit`).
 - `scripts/*.sh`: convenience and orchestration scripts (e.g. `gitconfig.sh`, `developer.sh`).
 
 ## Tool Script Categories
@@ -160,6 +161,17 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - Host scripts self-locate one level deeper: `$(dirname "$0")/..` from `host/`.
 - Use `XDG_OPT_*` vars for opt-space paths; use standard `XDG_*` vars for everything else.
 - macOS support in this repo targets Apple Silicon only; do not add or consider Intel Mac recipe support unless explicitly requested.
+
+## Zsh Completion
+
+`config/zsh/functions/_dotfiles` provides tab-completion for the `dotfiles` CLI.
+It is placed on `fpath` via `config/zsh/.zshrc` and auto-registered by `compinit`.
+
+**Keep `_dotfiles` in sync with the CLI.** When you add, rename, or remove a
+subcommand, flag, or argument in `bin/dotfiles` or `lib/*.sh`, update the
+completion function to match. Dynamic arguments (tool names, font names, script
+names, host environments) are discovered from the filesystem at completion time
+and do not need manual updates.
 
 ## Testing Guidelines
 - No unit test suite currently; validation is command/script based.
