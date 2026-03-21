@@ -27,6 +27,10 @@ if (( $+commands[rustup] )); then
   alias rustbook="rustup doc --book"
 fi
 
+if (( $+commands[btm] )); then
+  alias htop="btm --basic"
+fi
+
 # Obsidian
 case $(uname) in
 Darwin)
