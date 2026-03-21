@@ -7,4 +7,4 @@ TOOL_ASSET_LINUX_AMD64="ripgrep-*-x86_64-unknown-linux-musl.tar.gz"
 TOOL_STRIP_COMPONENTS=1
 TOOL_LINKS=(rg)
 TOOL_MAN_PAGES=(doc/rg.1)
-TOOL_COMPLETIONS=(complete/_rg complete/rg.bash)
+TOOL_COMPLETIONS=(complete/_rg)

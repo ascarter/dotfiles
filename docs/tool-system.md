@@ -48,7 +48,7 @@ TOOL_ASSET_LINUX_AMD64="ripgrep-*-x86_64-unknown-linux-gnu.tar.gz"
 TOOL_STRIP_COMPONENTS=1
 TOOL_LINKS=(rg)
 TOOL_MAN_PAGES=(doc/rg.1)
-TOOL_COMPLETIONS=(complete/_rg complete/rg.bash)
+TOOL_COMPLETIONS=(complete/_rg)
 ```
 
 ### Curl installer example
@@ -136,7 +136,7 @@ tool_uninstall() {
 | `TOOL_BREW` | no | Homebrew formula/cask name override when it differs from the tool name (e.g. `visual-studio-code` for vscode) |
 | `TOOL_LINKS` | no | Array of symlink specs: `src:dst` or bare `name` (→ `name:bin/name`) |
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
-| `TOOL_COMPLETIONS` | no | Array of completion files to link (relative to install dir) |
+| `TOOL_COMPLETIONS` | no | Array of completion specs: `src:dst` or bare path (basename used as dst). Paths relative to install dir, linked into `share/completions/`. Use `src:dst` to rename (e.g. `completions/foo.zsh:_foo`). |
 
 ## Hook functions
 

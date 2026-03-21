@@ -356,7 +356,7 @@ tool_appimage_uninstall_desktop() {
 #   TOOL_ASSET_LINUX_AMD64       — asset glob for Linux x86_64
 #   TOOL_LINKS                   — array of symlink specs: "src:dst" or bare "name" (→ name:bin/name)
 #   TOOL_MAN_PAGES               — array of man page paths to link (relative to install dir)
-#   TOOL_COMPLETIONS             — array of completion file paths to link
+#   TOOL_COMPLETIONS             — array of completion specs: "src:dst" or bare path (→ basename as dst)
 #   TOOL_STRIP_COMPONENTS        — strip N leading directory components during extraction (like tar --strip-components)
 #
 # Recipe hook functions (optional — override default behavior):
@@ -427,12 +427,43 @@ _tool_default_post_install() {
   local comp comp_path
   for comp in "${TOOL_COMPLETIONS[@]:-}"; do
     [[ -n "$comp" ]] || continue
-    comp_path="${TOOLS_INSTALL_DIR}/${comp}"
+    local comp_src comp_dst
+    if [[ "$comp" == *:* ]]; then
+      comp_src="${comp%%:*}"
+      comp_dst="${comp#*:}"
+    else
+      comp_src="$comp"
+      comp_dst="$(basename "$comp")"
+    fi
+    comp_path="${TOOLS_INSTALL_DIR}/${comp_src}"
     [[ -e "$comp_path" ]] || { error "tool_post_install: expected completion not found: ${comp_path}"; return 1; }
-    local basename_comp
-    basename_comp="$(basename "$comp")"
-    tool_link "$comp" "share/completions/${basename_comp}"
+    tool_link "$comp_src" "share/completions/${comp_dst}"
   done
+
+  # Prune stale completion symlinks that point into this tool's cellar
+  # but are not part of the current recipe (e.g. after removing bash completions).
+  local comp_dir="${XDG_OPT_HOME}/share/completions"
+  if [[ -d "$comp_dir" ]]; then
+    local cellar_prefix="${TOOLS_CELLAR}/${TOOL_REPO##*/}/"
+    local link target
+    find "$comp_dir" -maxdepth 1 -type l | while IFS= read -r link; do
+      target="$(readlink "$link" 2>/dev/null)" || continue
+      [[ "$target" == "$cellar_prefix"* ]] || continue
+      local base
+      base="$(basename "$link")"
+      local declared=0
+      for comp in "${TOOL_COMPLETIONS[@]:-}"; do
+        [[ -n "$comp" ]] || continue
+        local chk_dst
+        if [[ "$comp" == *:* ]]; then chk_dst="${comp#*:}"; else chk_dst="$(basename "$comp")"; fi
+        [[ "$base" == "$chk_dst" ]] && declared=1 && break
+      done
+      if [[ "$declared" -eq 0 ]]; then
+        rm -f "$link"
+        vlog "prune" "stale completion: $link"
+      fi
+    done
+  fi
 }
 
 _tool_ready_path() {
