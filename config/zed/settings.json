@@ -59,11 +59,15 @@
   },
   "ui_font_family": ".SystemUIFont",
   "ui_font_size": 14.0,
-  "buffer_font_family": "Berkeley Mono",
-  "buffer_font_fallbacks": ["JuliaMono", ".ZedMono"],
+  "buffer_font_family": "JuliaMono",
   "buffer_font_size": 13.0,
   "buffer_font_features": {
     "zero": true,
+    "ss01": true,
+    "ss03": true,
+    "ss05": true,
+    "ss10": true,
+    "cv04": true,
   },
   "show_completions_on_input": false,
   "show_edit_predictions": true,
@@ -145,7 +149,7 @@
       "effort": "high",
       "provider": "copilot_chat",
       "model": "gpt-5.4",
-      "enable_thinking": false
+      "enable_thinking": false,
     },
     "show_turn_stats": true,
     "tool_permissions": {
