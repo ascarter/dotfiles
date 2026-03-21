@@ -15,26 +15,26 @@ vim.opt.rtp:prepend(lazypath)
 -- =============================================================================
 -- Options
 -- =============================================================================
-local opt            = vim.opt
+local opt                = vim.opt
 
 -- Leader (set before plugins)
-vim.g.mapleader      = " "
-vim.g.maplocalleader = " "
+vim.g.mapleader          = " "
+vim.g.maplocalleader     = " "
 
 -- Disable netrw (replaced by fzf-lua file picker)
 vim.g.loaded_netrw       = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- Cursor
-opt.guicursor        = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
+opt.guicursor            = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
 
 -- Interface
-opt.number           = true
-opt.relativenumber   = true
-opt.cursorline       = true
-opt.scrolloff        = 10
-opt.signcolumn       = "yes"
-opt.breakindent      = true
+opt.number               = true
+opt.relativenumber       = true
+opt.cursorline           = true
+opt.scrolloff            = 10
+opt.signcolumn           = "yes"
+opt.breakindent          = true
 
 -- Status column: bold line numbers for active line and visual selection
 function _G.statuscolumn()
@@ -51,37 +51,38 @@ function _G.statuscolumn()
   local hl = bold and "%#CursorLineNr#" or "%#LineNr#"
   return "%s%=" .. hl .. num .. "%* "
 end
+
 opt.statuscolumn = "%!v:lua.statuscolumn()"
 
 -- Folding (treesitter-based)
-opt.foldmethod       = "expr"
-opt.foldexpr         = "v:lua.vim.treesitter.foldexpr()"
-opt.foldlevel        = 99
+opt.foldmethod   = "expr"
+opt.foldexpr     = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel    = 99
 
 -- Search
-opt.ignorecase       = true
-opt.smartcase        = true
+opt.ignorecase   = true
+opt.smartcase    = true
 
 -- Splits
-opt.splitright       = true
-opt.splitbelow       = true
+opt.splitright   = true
+opt.splitbelow   = true
 
 -- Whitespace visibility
-opt.list             = true
-opt.listchars        = { tab = "» ", trail = "·", nbsp = "␣" }
+opt.list         = true
+opt.listchars    = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Completion
-opt.pumheight        = 10
+opt.pumheight    = 10
 
 -- Files
-opt.undofile         = true
-opt.swapfile         = false
+opt.undofile     = true
+opt.swapfile     = false
 
 -- Suppress intro screen
 opt.shortmess:append("I")
 
 -- Misc
-opt.confirm          = true
+opt.confirm    = true
 
 -- =============================================================================
 -- Statusline
@@ -126,7 +127,7 @@ vim.diagnostic.config({
   underline        = true,
   update_in_insert = false,
   severity_sort    = true,
-  float = {
+  float            = {
     border = "rounded",
     source = true,
   },
@@ -251,11 +252,9 @@ map("n", "<S-l>", "<cmd>bnext<CR>")
 map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 
 -- Clipboard: "On Yank" behavior (matches Zed setting)
--- y/Y/p/P use system clipboard; d/x/c stay in vim registers
+-- y/Y use system clipboard; d/x/c/p/P stay in vim registers
 map({ "n", "v" }, "y", '"+y')
-map("n",          "Y", '"+Y')
-map({ "n", "v" }, "p", '"+p')
-map({ "n", "v" }, "P", '"+P')
+map("n", "Y", '"+Y')
 
 -- =============================================================================
 -- Plugins (lazy.nvim)
