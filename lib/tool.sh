@@ -186,7 +186,11 @@ _tool_uninstall() {
   if [[ -n "$target" ]]; then
     local install_dir="${TOOLS_CELLAR}/${target}"
     if [[ "$force" -eq 0 && ! -d "$install_dir" ]]; then
-      abort "$target is not installed in cellar (use --force to clean up broken installs)"
+      # Allow custom tools that manage their own install location
+      local script="${DOTFILES_HOME}/tools/${target}.sh"
+      if ! [[ -f "$script" ]] || ! grep -q 'tool_uninstall()' "$script"; then
+        abort "$target is not installed in cellar (use --force to clean up broken installs)"
+      fi
     fi
     _tool_run_uninstall_hook "$target" "$force"
     if [[ -d "$install_dir" ]]; then
