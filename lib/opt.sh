@@ -443,7 +443,7 @@ _tool_default_post_install() {
   # Prune stale completion symlinks that point into this tool's cellar
   # but are not part of the current recipe (e.g. after removing bash completions).
   local comp_dir="${XDG_OPT_HOME}/share/completions"
-  if [[ -d "$comp_dir" ]]; then
+  if [[ -d "$comp_dir" ]] && [[ -n "${TOOL_REPO:-}" ]]; then
     local cellar_prefix="${TOOLS_CELLAR}/${TOOL_REPO##*/}/"
     local link target
     find "$comp_dir" -maxdepth 1 -type l | while IFS= read -r link; do
