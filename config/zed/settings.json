@@ -62,6 +62,7 @@
   "buffer_font_family": "JuliaMono",
   "buffer_font_size": 13.0,
   "buffer_font_features": {
+    "calt": true,
     "zero": true,
     "ss01": true,
     "ss03": true,
