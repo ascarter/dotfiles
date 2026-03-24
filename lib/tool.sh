@@ -157,19 +157,34 @@ _tool_run_uninstall_hook() {
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
-  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
+  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
 
   source "$script"
 
-  if declare -f tool_uninstall >/dev/null 2>&1; then
-    log "uninstall" "running hook for $name"
+  # Uninstall is a pipeline — each step runs if configured.
+  # 1. TOOL_UNINSTALL_COMMAND (e.g. rustup self uninstall -y)
+  if [[ -n "${TOOL_UNINSTALL_COMMAND:-}" ]]; then
+    log "uninstall" "$TOOL_UNINSTALL_COMMAND"
     if [[ "$force" -eq 1 ]]; then
-      tool_uninstall || warn "$name" "uninstall hook failed (continuing with --force)"
+      $TOOL_UNINSTALL_COMMAND || warn "$name" "uninstall command failed (continuing with --force)"
     else
-      tool_uninstall || { error "uninstall hook failed for $name"; return 1; }
+      $TOOL_UNINSTALL_COMMAND || { error "uninstall command failed for $name"; return 1; }
     fi
-  elif [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_DESKTOP_ID:-}" ]]; then
+  fi
+
+  # 2. TOOL_UNINSTALL_PATHS — remove declared data directories
+  local p
+  for p in "${TOOL_UNINSTALL_PATHS[@]:-}"; do
+    [[ -n "$p" ]] || continue
+    if [[ -e "$p" ]]; then
+      log "uninstall" "removing $p"
+      rm -rf "$p"
+    fi
+  done
+
+  # 3. Type-specific defaults
+  if [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_DESKTOP_ID:-}" ]]; then
     log "uninstall" "removing desktop integration for $name"
     source "${DOTFILES_HOME}/lib/opt.sh"
     tool_appimage_uninstall_desktop "$TOOL_DESKTOP_ID" "${TOOL_DESKTOP_ICON_EXT:-png}"
@@ -179,6 +194,16 @@ _tool_run_uninstall_hook() {
     if [[ -n "$cmd_path" ]]; then
       log "uninstall" "removing $cmd_path"
       rm -f "$cmd_path"
+    fi
+  fi
+
+  # 4. Hook runs last — for custom cleanup after everything else
+  if declare -f tool_uninstall >/dev/null 2>&1; then
+    log "uninstall" "running hook for $name"
+    if [[ "$force" -eq 1 ]]; then
+      tool_uninstall || warn "$name" "uninstall hook failed (continuing with --force)"
+    else
+      tool_uninstall || { error "uninstall hook failed for $name"; return 1; }
     fi
   fi
 }
@@ -347,7 +372,7 @@ _tool_outdated() {
     unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
-    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
+    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade tool_uninstall 2>/dev/null
 
     source "$script"
@@ -476,7 +501,7 @@ _tool_list() {
     unset TOOL_STRIP_COMPONENTS
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
-    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
+    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade tool_version 2>/dev/null
     source "$script"
 

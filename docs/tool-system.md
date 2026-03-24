@@ -85,11 +85,7 @@ TOOL_TYPE=installer
 TOOL_UPGRADE_COMMAND="rustup self update"
 TOOL_INSTALL_URL="https://sh.rustup.rs"
 TOOL_INSTALL_ARGS="-y --no-modify-path"
-
-tool_uninstall() {
-  command -v rustup >/dev/null 2>&1 || return 0
-  rustup self uninstall -y
-}
+TOOL_UNINSTALL_COMMAND="rustup self uninstall -y"
 ```
 
 ### Bootstrap recipe example (curl-based, no gh dependency)
@@ -179,6 +175,8 @@ TOOL_BREW=obsidian
 | `TOOL_INSTALL_URL` | if installer (no hook) | URL of the vendor install script (fetched with `curl -fsSL`) |
 | `TOOL_INSTALL_ENV` | no | Space-separated `KEY=VALUE` pairs passed to `env` before bash (e.g. `UV_NO_MODIFY_PATH=1`) |
 | `TOOL_INSTALL_ARGS` | no | Arguments passed to the install script after `--` (e.g. `-y --no-modify-path`) |
+| `TOOL_UNINSTALL_COMMAND` | no | Shell command to run first during uninstall (e.g. `rustup self uninstall -y`). Runs before path/binary cleanup. |
+| `TOOL_UNINSTALL_PATHS` | no | Array of data directories to remove on uninstall (e.g. version stores, depots). Removed after command, before hook. |
 
 ### AppImage-specific variables
 
@@ -212,7 +210,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS (or AppImage link + desktop for `appimage` type) | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms (or Linux-only with macOS brew hint for `appimage` type) | Restrict to specific distros or architectures |
 | `tool_externally_managed` | False (or true on macOS for `appimage` type) | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
-| `tool_uninstall` | No-op (or remove desktop entry for `appimage` type) | Custom cleanup before removal (e.g. `rustup self uninstall`) |
+| `tool_uninstall` | Runs last in the uninstall pipeline (after command, paths, and type defaults) | Extra cleanup not covered by declarative variables |
 | `tool_upgrade` | Run `TOOL_UPGRADE_COMMAND` if set, otherwise re-run install flow | Tools with self-update commands that need custom logic beyond a single command |
 
 The completion log reports the resolved command path from `command -v` when available,
@@ -263,7 +261,11 @@ upgrades, so it never depends on itself. All other tools then use `gh` normally.
 
 ```
 1. Source recipe           — load hooks and TOOL_TYPE
-2. tool_uninstall          — hook or TOOL_TYPE=appimage default (remove desktop entry)
+2. Uninstall pipeline:
+   a. TOOL_UNINSTALL_COMMAND  — run self-uninstall command if set
+   b. TOOL_UNINSTALL_PATHS   — remove declared data directories
+   c. Type defaults           — installer: remove binary; appimage: remove desktop entry
+   d. tool_uninstall hook     — custom cleanup (runs last)
 3. Remove cellar dir       — delete TOOLS_CELLAR/<name>/
 4. Remove state file       — delete TOOLS_STATE/<name>
 5. Prune symlinks          — remove broken links from bin/ and share/

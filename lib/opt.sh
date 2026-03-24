@@ -224,7 +224,7 @@ tool_run_recipe() {
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
-  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
+  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
 
   # Source the recipe — sets vars and optionally defines hooks
