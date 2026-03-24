@@ -18,6 +18,18 @@ dotfiles -v tool list              # Include command path in output
 dotfiles tool status               # Show paths, counts, and disk usage
 ```
 
+## Recipe types
+
+Every recipe declares `TOOL_TYPE` to identify how the tool is acquired and managed.
+The driver uses this to select the appropriate lifecycle behavior.
+
+| Type | Description | Driver behavior |
+|------|-------------|-----------------|
+| `github` | Download binary from GitHub releases | Default: resolve asset → `tool_gh_install` → symlink `TOOL_LINKS` |
+| `appimage` | Linux AppImage with desktop integration | Auto: platform gate (macOS → brew hint), `tool_appimage_link` + desktop entry, metadata-based versioning |
+| `installer` | Curl-based vendor install script | No special driver — hooks handle lifecycle |
+| `custom` | Bespoke download/install logic | No special driver — hooks handle lifecycle |
+
 ## Writing a recipe
 
 Recipes are plain config files in `tools/` — no shebang, no boilerplate. The driver
@@ -29,6 +41,7 @@ the install flow.
 ```bash
 # tools/fzf.sh
 TOOL_CMD=fzf
+TOOL_TYPE=github
 TOOL_REPO=junegunn/fzf
 TOOL_ASSET_MACOS_ARM64="fzf-*-darwin_arm64.tar.gz"
 TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
@@ -41,6 +54,7 @@ TOOL_LINKS=(fzf)
 ```bash
 # tools/ripgrep.sh
 TOOL_CMD=rg
+TOOL_TYPE=github
 TOOL_REPO=BurntSushi/ripgrep
 TOOL_ASSET_MACOS_ARM64="ripgrep-*-aarch64-apple-darwin.tar.gz"
 TOOL_ASSET_LINUX_ARM64="ripgrep-*-aarch64-unknown-linux-gnu.tar.gz"
@@ -56,6 +70,7 @@ TOOL_COMPLETIONS=(complete/_rg)
 ```bash
 # tools/uv.sh
 TOOL_CMD=uv
+TOOL_TYPE=installer
 
 tool_download() {
   curl -LsSf https://astral.sh/uv/install.sh | UV_NO_MODIFY_PATH=1 sh
@@ -67,6 +82,7 @@ tool_download() {
 ```bash
 # tools/gh.sh — self-bootstrapping via curl + GitHub REST API
 TOOL_CMD=gh
+TOOL_TYPE=custom
 TOOL_REPO=cli/cli
 TOOL_STRIP_COMPONENTS=1
 TOOL_LINKS=(bin/gh)
@@ -86,40 +102,40 @@ tool_post_install() {
 }
 ```
 
-### AppImage example (Linux desktop app)
+### AppImage example (declarative desktop app)
 
 ```bash
-# tools/obsidian.sh — AppImage with desktop integration
+# tools/ghostty.sh — fully declarative, zero hooks needed
+TOOL_CMD=ghostty
+TOOL_TYPE=appimage
+TOOL_REPO=pkgforge-dev/ghostty-appimage
+TOOL_ASSET_LINUX_ARM64="Ghostty-*-aarch64.AppImage"
+TOOL_ASSET_LINUX_AMD64="Ghostty-*-x86_64.AppImage"
+TOOL_DESKTOP_ID=com.mitchellh.ghostty
+TOOL_DESKTOP_EXEC="ghostty --font-size=10"
+TOOL_BREW=ghostty
+```
+
+The `appimage` driver handles everything: platform gating (macOS → brew hint),
+`tool_appimage_link`, desktop entry + icon installation, and uninstall cleanup.
+No hooks are needed for the standard AppImage flow.
+
+### AppImage with version interpolation
+
+When asset filenames embed the version number without a stable architecture
+suffix, use `TOOL_VERSION_MATCH` + `{version}` placeholders:
+
+```bash
+# tools/obsidian.sh — version-embedded asset names
 TOOL_CMD=obsidian
+TOOL_TYPE=appimage
 TOOL_REPO=obsidianmd/obsidian-releases
-
-tool_platform_check() {
-  case "$(uname -s)" in
-    Darwin) log "obsidian" "not found. Run: brew install --cask obsidian"; exit 1 ;;
-    Linux)  ;;
-    *)      error "Unsupported OS: $(uname -s)"; return 1 ;;
-  esac
-}
-
-tool_download() {
-  local tag version
-  tag="$(tool_latest_tag "$TOOL_REPO")"
-  version="${tag#v}"
-  case "$(uname -m)" in
-    x86_64)        tool_gh_install "$TOOL_REPO" "Obsidian-${version}.AppImage" "$tag" ;;
-    aarch64|arm64) tool_gh_install "$TOOL_REPO" "Obsidian-${version}-arm64.AppImage" "$tag" ;;
-    *)             error "Unsupported architecture: $(uname -m)"; return 1 ;;
-  esac
-}
-
-tool_post_install() {
-  tool_appimage_link "Obsidian-*.AppImage"
-  tool_appimage_desktop "obsidian" "obsidian %u"
-}
-
-tool_uninstall() {
-  tool_appimage_uninstall_desktop "obsidian"
-}
+TOOL_VERSION_MATCH="^v(.*)"
+TOOL_ASSET_LINUX_AMD64="Obsidian-{version}.AppImage"
+TOOL_ASSET_LINUX_ARM64="Obsidian-{version}-arm64.AppImage"
+TOOL_DESKTOP_ID=obsidian
+TOOL_DESKTOP_EXEC="obsidian %u"
+TOOL_BREW=obsidian
 ```
 
 ## Config variables
@@ -127,16 +143,40 @@ tool_uninstall() {
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TOOL_CMD` | yes | Binary name for `command -v` check |
-| `TOOL_REPO` | no | GitHub `owner/repo` (triggers gh-release flow using the latest non-draft, non-prerelease release by default) |
-| `TOOL_ASSET_MACOS_ARM64` | if TOOL_REPO | Asset glob for macOS ARM64 |
-| `TOOL_ASSET_LINUX_ARM64` | if TOOL_REPO | Asset glob for Linux ARM64 |
-| `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 |
+| `TOOL_TYPE` | yes | Recipe type: `github`, `appimage`, `installer`, `custom` |
+| `TOOL_REPO` | if github/appimage | GitHub `owner/repo` (triggers gh-release flow using the latest non-draft, non-prerelease release by default) |
+| `TOOL_ASSET_MACOS_ARM64` | if TOOL_REPO | Asset glob for macOS ARM64 (supports `{version}` interpolation) |
+| `TOOL_ASSET_LINUX_ARM64` | if TOOL_REPO | Asset glob for Linux ARM64 (supports `{version}` interpolation) |
+| `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 (supports `{version}` interpolation) |
 | `TOOL_STRIP_COMPONENTS` | no | Strip N leading directory components during tar extraction (default: 0) |
 | `TOOL_VERSION_ARGS` | no | Args passed to the binary to get version output (default: `--version`) |
-| `TOOL_BREW` | no | Homebrew formula/cask name override when it differs from the tool name (e.g. `visual-studio-code` for vscode) |
+| `TOOL_VERSION_MATCH` | no | Bash regex applied to the release tag. Capture group 1 becomes `{version}` for asset interpolation and metadata version display. |
+| `TOOL_BREW` | no | Homebrew formula/cask name override. Used in macOS platform-check hint for `appimage` type. |
 | `TOOL_LINKS` | no | Array of symlink specs: `src:dst` or bare `name` (→ `name:bin/name`) |
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
 | `TOOL_COMPLETIONS` | no | Array of completion specs: `src:dst` or bare path (basename used as dst). Paths relative to install dir, linked into `share/completions/`. Use `src:dst` to rename (e.g. `completions/foo.zsh:_foo`). |
+
+### AppImage-specific variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TOOL_DESKTOP_ID` | _(required)_ | Base name of the `.desktop` file (e.g. `com.mitchellh.ghostty`) |
+| `TOOL_DESKTOP_EXEC` | `$TOOL_CMD` | `Exec=` line in the `.desktop` file |
+| `TOOL_DESKTOP_ICON_EXT` | `png` | Icon file extension for uninstall cleanup |
+| `TOOL_APPIMAGE_GLOB` | `*.AppImage` | Glob to find the AppImage in install dir (override if ambiguous) |
+
+## Version interpolation
+
+Asset patterns can contain `{version}` placeholders. When present, the driver:
+
+1. Resolves the release tag via `tool_latest_tag` (or a `tool_latest_tag` hook)
+2. If `TOOL_VERSION_MATCH` is set, applies the regex:
+   `[[ "$tag" =~ ${TOOL_VERSION_MATCH} ]]` → capture group 1 is the version
+3. If `TOOL_VERSION_MATCH` is not set, the raw tag is used as the version
+4. Substitutes all `{version}` occurrences in the asset pattern
+5. Passes the interpolated pattern + resolved tag to `tool_gh_install`
+
+Patterns without `{version}` work as globs — this is fully backward-compatible.
 
 ## Hook functions
 
@@ -145,10 +185,10 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | Hook | Default | When to override |
 |------|---------|------------------|
 | `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset from the latest stable release | Custom APIs (go.dev), curl installers, package managers |
-| `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS | Plain binary rename (jq/yq), custom symlink layouts |
-| `tool_platform_check` | Allow all platforms | Redirect to brew on macOS, restrict to specific distros |
-| `tool_externally_managed` | False | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
-| `tool_uninstall` | No-op | Custom cleanup before removal (e.g. `rustup self uninstall`) |
+| `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS (or AppImage link + desktop for `appimage` type) | Plain binary rename (jq/yq), custom symlink layouts |
+| `tool_platform_check` | Allow all platforms (or Linux-only with macOS brew hint for `appimage` type) | Restrict to specific distros or architectures |
+| `tool_externally_managed` | False (or true on macOS for `appimage` type) | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
+| `tool_uninstall` | No-op (or remove desktop entry for `appimage` type) | Custom cleanup before removal (e.g. `rustup self uninstall`) |
 | `tool_upgrade` | Re-run install flow | Tools with self-update commands (e.g. `uv self update`) |
 
 The completion log reports the resolved command path from `command -v` when available,
@@ -158,7 +198,8 @@ so self-managed installers can show their native location instead of always assu
 ## AppImage helpers
 
 Shared helpers in `lib/opt.sh` for tools distributed as Linux AppImages.
-Use these in `tool_post_install` and `tool_uninstall` hooks.
+For `TOOL_TYPE=appimage` recipes, these are called automatically by the driver.
+They can also be called directly in hooks for custom AppImage workflows.
 
 | Function | Description |
 |----------|-------------|
@@ -184,26 +225,37 @@ upgrades, so it never depends on itself. All other tools then use `gh` normally.
 ### Install
 
 ```
-1. Source recipe        — sets variables, optionally defines hook functions
-2. tool_check           — skip if TOOL_CMD found (unless upgrading)
-3. tool_platform_check  — hook or pass-through
-4. tool_download        — hook or tool_gh_install with resolved asset
-5. tool_post_install    — hook or default symlinks (errors on missing paths)
-6. Log completion
+1. Source recipe           — sets variables, optionally defines hook functions
+2. Externally managed      — hook or TOOL_TYPE=appimage default (macOS → skip)
+3. tool_check              — skip if TOOL_CMD found (unless upgrading)
+4. tool_platform_check     — hook or TOOL_TYPE=appimage default (macOS → brew hint)
+5. tool_download           — hook or tool_gh_install with resolved asset + {version} interpolation
+6. tool_post_install       — hook or TOOL_TYPE default (appimage: link + desktop; others: symlinks)
+7. Log completion
 ```
 
 ### Uninstall
 
 ```
-1. Source recipe        — load tool_uninstall hook if defined
-2. tool_uninstall       — hook runs before any file deletions
-3. Remove cellar dir    — delete TOOLS_CELLAR/<name>/
-4. Remove state file    — delete TOOLS_STATE/<name>
-5. Prune symlinks       — remove broken links from bin/ and share/
+1. Source recipe           — load hooks and TOOL_TYPE
+2. tool_uninstall          — hook or TOOL_TYPE=appimage default (remove desktop entry)
+3. Remove cellar dir       — delete TOOLS_CELLAR/<name>/
+4. Remove state file       — delete TOOLS_STATE/<name>
+5. Prune symlinks          — remove broken links from bin/ and share/
 ```
 
 Use `--force` to skip the cellar existence check and continue past hook failures.
 Useful for cleaning up broken or partial installs.
+
+### Version detection
+
+`dotfiles tool list` shows the installed version for each tool:
+
+1. `tool_version` hook — if defined, explicit override always wins
+2. State file tag — for `TOOL_TYPE=appimage`, reads the persisted tag from
+   `TOOLS_STATE/<name>` and applies `TOOL_VERSION_MATCH` for display
+3. Binary `--version` — default for other types (runs the binary with
+   `TOOL_VERSION_ARGS` and extracts a version pattern)
 
 ## Recipe vs legacy detection
 
@@ -214,14 +266,11 @@ The driver distinguishes recipes from legacy scripts by the first line:
 
 Legacy scripts are self-contained bash scripts that source `lib/opt.sh` and call
 functions directly. Used only when hook functions cannot express the install flow.
-Tools with complex platform-specific logic (e.g. desktop integration, AppImage
-extraction) should use custom hooks (`tool_download`, `tool_post_install`,
-`tool_uninstall`) instead.
 
 ## Implementation
 
 | File | Role |
 |------|------|
-| `lib/opt.sh` | Tool primitives (`tool_gh_install`, `tool_link`, `tool_check`) and driver (`tool_run_recipe`, `tool_is_recipe`) |
+| `lib/opt.sh` | Tool primitives (`tool_gh_install`, `tool_link`, `tool_check`), version interpolation, AppImage defaults, and driver (`tool_run_recipe`, `tool_is_recipe`) |
 | `lib/tool.sh` | CLI dispatcher (`_tool_cmd`), install/upgrade/uninstall/list/status/clean |
 | `tools/*.sh` | Recipes and legacy scripts, one per tool |

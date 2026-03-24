@@ -1,5 +1,6 @@
 # codex — OpenAI Codex CLI
 TOOL_CMD=codex
+TOOL_TYPE=github
 TOOL_REPO=openai/codex
 
 tool_download() {

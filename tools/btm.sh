@@ -1,5 +1,6 @@
 # btm — terminal system monitor
 TOOL_CMD=btm
+TOOL_TYPE=github
 TOOL_REPO=ClementTsang/bottom
 TOOL_ASSET_MACOS_ARM64="bottom_aarch64-apple-darwin.tar.gz"
 TOOL_ASSET_LINUX_ARM64="bottom_aarch64-unknown-linux-gnu.tar.gz"

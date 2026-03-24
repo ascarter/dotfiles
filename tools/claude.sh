@@ -1,5 +1,6 @@
 # claude — Claude Code CLI
 TOOL_CMD=claude
+TOOL_TYPE=installer
 
 tool_download() {
   curl -fsSL https://claude.ai/install.sh | bash

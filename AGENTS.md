@@ -34,17 +34,28 @@ Conflict rule:
 
 Tools in `tools/` use one of two formats: **declarative recipes** (preferred) or
 **imperative scripts** (legacy). The driver auto-detects based on shebang presence.
+Every recipe declares `TOOL_TYPE` to identify how the tool is acquired.
 See `docs/tool-system.md` for the full reference on writing recipes, config variables,
 hooks, and driver flow.
 
 **Keep `docs/tool-system.md` up to date when changing the tool system** — it is the
 canonical reference for recipe format, config variables, hooks, and driver behavior.
 
-### Quick recipe example
+### Recipe types
+
+| Type | Description | Examples |
+|------|-------------|----------|
+| `github` | Download from GitHub releases | fzf, ripgrep, just |
+| `appimage` | Linux AppImage with desktop integration (driver handles platform gate, linking, desktop entry) | ghostty, obsidian |
+| `installer` | Curl-based vendor install script | uv, rustup, claude |
+| `custom` | Bespoke download/install logic | gh, go, vscode |
+
+### Quick recipe example (github)
 
 ```bash
 # tools/fzf.sh — pure config, no logic needed
 TOOL_CMD=fzf
+TOOL_TYPE=github
 TOOL_REPO=junegunn/fzf
 TOOL_ASSET_MACOS_ARM64="fzf-*-darwin_arm64.tar.gz"
 TOOL_ASSET_LINUX_ARM64="fzf-*-linux_arm64.tar.gz"
@@ -52,13 +63,26 @@ TOOL_ASSET_LINUX_AMD64="fzf-*-linux_amd64.tar.gz"
 TOOL_LINKS=(fzf)
 ```
 
+### Quick recipe example (appimage)
+
+```bash
+# tools/ghostty.sh — fully declarative, zero hooks
+TOOL_CMD=ghostty
+TOOL_TYPE=appimage
+TOOL_REPO=pkgforge-dev/ghostty-appimage
+TOOL_ASSET_LINUX_ARM64="Ghostty-*-aarch64.AppImage"
+TOOL_ASSET_LINUX_AMD64="Ghostty-*-x86_64.AppImage"
+TOOL_DESKTOP_ID=com.mitchellh.ghostty
+TOOL_DESKTOP_EXEC="ghostty --font-size=10"
+TOOL_BREW=ghostty
+```
+
 ### Imperative scripts (shebang present — legacy)
 
 Self-contained bash scripts that source `lib/opt.sh` and call functions directly.
 Used only when hook functions cannot express the install flow.
 
-No imperative scripts exist today — `ghostty.sh` and `vscode.sh` were converted to
-recipes with custom hooks (`tool_download`, `tool_post_install`, `tool_uninstall`).
+No imperative scripts exist today — all tools use declarative recipes with hooks.
 
 ## Font Recipes
 

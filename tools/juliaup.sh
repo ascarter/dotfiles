@@ -1,5 +1,6 @@
 # julia — Julia language (via juliaup version manager)
 TOOL_CMD=juliaup
+TOOL_TYPE=installer
 JULIAUP_HOME="${XDG_DATA_HOME}"/juliaup
 
 tool_download() {

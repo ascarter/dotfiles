@@ -1,5 +1,6 @@
 # go — Go programming language (custom download from go.dev API)
 TOOL_CMD=go
+TOOL_TYPE=custom
 TOOL_VERSION_ARGS=version
 
 tool_download() {

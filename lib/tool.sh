@@ -152,10 +152,11 @@ _tool_run_uninstall_hook() {
   [[ -f "$script" ]] || return 0
 
   # Reset recipe state before sourcing
-  unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
-  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS
+  unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+  unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
 
   source "$script"
@@ -167,6 +168,10 @@ _tool_run_uninstall_hook() {
     else
       tool_uninstall || { error "uninstall hook failed for $name"; return 1; }
     fi
+  elif [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_DESKTOP_ID:-}" ]]; then
+    log "uninstall" "removing desktop integration for $name"
+    source "${DOTFILES_HOME}/lib/opt.sh"
+    tool_appimage_uninstall_desktop "$TOOL_DESKTOP_ID" "${TOOL_DESKTOP_ICON_EXT:-png}"
   fi
 }
 
@@ -326,9 +331,10 @@ _tool_outdated() {
     cmd="$(_tool_cmd_name "$script")"
 
     # Reset recipe state
-    unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
-    unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS
+    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+    unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade tool_uninstall 2>/dev/null
 
     source "$script"
@@ -453,9 +459,10 @@ _tool_list() {
     cmd="$(_tool_cmd_name "$script")"
 
     # Source recipe to read all state at once
-    unset TOOL_CMD TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
     unset TOOL_STRIP_COMPONENTS
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+    unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade tool_version 2>/dev/null
     source "$script"
 
@@ -475,7 +482,15 @@ _tool_list() {
       esac
     fi
 
-    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null && [[ "$is_managed" -eq 0 ]]; then
+    # Check externally managed (hook or TOOL_TYPE=appimage on macOS)
+    local is_external=0
+    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
+      is_external=1
+    elif [[ "${TOOL_TYPE:-}" == "appimage" && "$(uname -s)" == "Darwin" ]]; then
+      is_external=1
+    fi
+
+    if [[ "$is_external" -eq 1 && "$is_managed" -eq 0 ]]; then
       if [[ "$verbose" -eq 1 ]]; then
         names+=("$name")
         sources+=("skipped")
@@ -487,19 +502,35 @@ _tool_list() {
 
     names+=("$name")
 
-    # Determine source type
-    if [[ -n "${TOOL_REPO:-}" ]]; then
-      sources+=("gh-release")
+    # Determine source type — prefer explicit TOOL_TYPE, fall back to inference
+    if [[ -n "${TOOL_TYPE:-}" ]]; then
+      sources+=("$TOOL_TYPE")
+    elif [[ -n "${TOOL_REPO:-}" ]]; then
+      sources+=("github")
     elif declare -f tool_download >/dev/null 2>&1; then
       sources+=("self-install")
     else
       sources+=("unknown")
     fi
 
-    # Detect version only for installed tools
+    # Detect version for installed tools
     if [[ "$is_managed" -eq 1 ]]; then
       if declare -f tool_version >/dev/null 2>&1; then
         versions+=("$(tool_version "$cmd_path" 2>/dev/null || echo '-')")
+      elif [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_REPO:-}" ]]; then
+        # AppImage: use persisted tag metadata instead of running the binary
+        local repo_name="${TOOL_REPO##*/}"
+        if [[ -f "${TOOLS_STATE}/${repo_name}" ]]; then
+          local tag
+          tag="$(cat "${TOOLS_STATE}/${repo_name}")"
+          if [[ -n "${TOOL_VERSION_MATCH:-}" && "$tag" =~ ${TOOL_VERSION_MATCH} ]]; then
+            versions+=("${BASH_REMATCH[1]}")
+          else
+            versions+=("$tag")
+          fi
+        else
+          versions+=("-")
+        fi
       else
         versions+=("$(_tool_detect_version "$cmd_path" "${TOOL_VERSION_ARGS:-}")")
       fi

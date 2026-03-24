@@ -4,6 +4,7 @@
 # without requiring gh to already be installed. After initial install,
 # run `dotfiles gitconfig` to authenticate and configure git identity.
 TOOL_CMD=gh
+TOOL_TYPE=custom
 TOOL_REPO=cli/cli
 TOOL_STRIP_COMPONENTS=1
 TOOL_LINKS=(bin/gh)

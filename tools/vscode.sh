@@ -1,6 +1,7 @@
 # Visual Studio Code (brew on macOS, tarball on Linux)
 
 TOOL_CMD=code
+TOOL_TYPE=custom
 TOOL_BREW=visual-studio-code
 
 tool_externally_managed() {
