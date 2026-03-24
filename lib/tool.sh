@@ -173,6 +173,13 @@ _tool_run_uninstall_hook() {
     log "uninstall" "removing desktop integration for $name"
     source "${DOTFILES_HOME}/lib/opt.sh"
     tool_appimage_uninstall_desktop "$TOOL_DESKTOP_ID" "${TOOL_DESKTOP_ICON_EXT:-png}"
+  elif [[ "${TOOL_TYPE:-}" == "installer" && -n "${TOOL_CMD:-}" ]]; then
+    local cmd_path
+    cmd_path="$(command -v "$TOOL_CMD" 2>/dev/null || true)"
+    if [[ -n "$cmd_path" ]]; then
+      log "uninstall" "removing $cmd_path"
+      rm -f "$cmd_path"
+    fi
   fi
 }
 
@@ -192,9 +199,13 @@ _tool_uninstall() {
   if [[ -n "$target" ]]; then
     local install_dir="${TOOLS_CELLAR}/${target}"
     if [[ "$force" -eq 0 && ! -d "$install_dir" ]]; then
-      # Allow custom tools that manage their own install location
+      # Allow installer-type tools and tools with uninstall hooks to skip cellar check
       local script="${DOTFILES_HOME}/tools/${target}.sh"
-      if ! [[ -f "$script" ]] || ! grep -q 'tool_uninstall()' "$script"; then
+      if [[ -f "$script" ]]; then
+        if ! grep -q 'tool_uninstall()' "$script" && ! grep -q 'TOOL_TYPE=installer' "$script"; then
+          abort "$target is not installed in cellar (use --force to clean up broken installs)"
+        fi
+      else
         abort "$target is not installed in cellar (use --force to clean up broken installs)"
       fi
     fi
