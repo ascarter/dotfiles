@@ -28,7 +28,7 @@ The driver uses this to select the appropriate lifecycle behavior.
 | `github` | Download binary from GitHub releases | Default: resolve asset → `tool_gh_install` → symlink `TOOL_LINKS` |
 | `appimage` | Linux AppImage with desktop integration | Auto: platform gate (macOS → brew hint), `tool_appimage_link` + desktop entry, metadata-based versioning |
 | `installer` | Curl-based vendor install script | Auto: `curl -fsSL $TOOL_INSTALL_URL \| env $TOOL_INSTALL_ENV bash -s -- $TOOL_INSTALL_ARGS` |
-| `custom` | Bespoke download/install logic | No special driver — hooks handle lifecycle |
+| `custom` | Bespoke download/install logic | Skipped in batch install/upgrade/outdated — hooks handle full lifecycle when targeted |
 
 ## Writing a recipe
 
@@ -163,6 +163,7 @@ TOOL_BREW=obsidian
 | `TOOL_VERSION_ARGS` | no | Args passed to the binary to get version output (default: `--version`) |
 | `TOOL_VERSION_MATCH` | no | Bash regex applied to the release tag. Capture group 1 becomes `{version}` for asset interpolation and metadata version display. |
 | `TOOL_UPGRADE_COMMAND` | no | Shell command to run for `dotfiles tool upgrade` (e.g. `uv self update`). Skipped when an explicit `tool_upgrade` hook is defined. |
+| `TOOL_SKIP` | no | Array of lifecycle phases to skip in batch operations (e.g. `(install upgrade)`). Tools with self-managed updaters use this to opt out of batch install/upgrade while remaining targetable individually. |
 | `TOOL_BREW` | no | Homebrew formula/cask name override. Used in macOS platform-check hint for `appimage` type. |
 | `TOOL_LINKS` | no | Array of symlink specs: `src:dst` or bare `name` (→ `name:bin/name`) |
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
@@ -209,7 +210,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_download` | `_tool_installer_download` for `installer` type with `TOOL_INSTALL_URL`, or `tool_gh_install` using TOOL_REPO + resolved asset for `github`/`appimage` types | Custom APIs (go.dev), non-standard install flows |
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS (or AppImage link + desktop for `appimage` type) | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms (or Linux-only with macOS brew hint for `appimage` type) | Restrict to specific distros or architectures |
-| `tool_externally_managed` | False (or true on macOS for `appimage` type) | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
+| `tool_externally_managed` | False (or true on macOS for `appimage` type) | Legacy hook — prefer `TOOL_SKIP=(install upgrade)` for new recipes. Kept for conditional platform logic. |
 | `tool_uninstall` | Runs last in the uninstall pipeline (after command, paths, and type defaults) | Extra cleanup not covered by declarative variables |
 | `tool_upgrade` | Run `TOOL_UPGRADE_COMMAND` if set, otherwise re-run install flow | Tools with self-update commands that need custom logic beyond a single command |
 

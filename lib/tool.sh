@@ -152,7 +152,7 @@ _tool_run_uninstall_hook() {
   [[ -f "$script" ]] || return 0
 
   # Reset recipe state before sourcing
-  unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS TOOL_SKIP
   unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
@@ -368,7 +368,7 @@ _tool_outdated() {
     cmd="$(_tool_cmd_name "$script")"
 
     # Reset recipe state
-    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS TOOL_SKIP
     unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
@@ -380,8 +380,11 @@ _tool_outdated() {
     # Skip tools without TOOL_REPO (self-managed, no tag tracking)
     [[ -n "${TOOL_REPO:-}" ]] || continue
 
-    # Skip externally managed tools (unless verbose)
-    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
+    # Skip tools that opt out of upgrade/outdated checks
+    if _tool_should_skip "upgrade" || [[ "${TOOL_TYPE:-}" == "custom" ]]; then
+      vlog "skip" "${name} upgrade disabled"
+      continue
+    elif declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
       vlog "skip" "${name} externally managed"
       continue
     fi
@@ -497,7 +500,7 @@ _tool_list() {
     cmd="$(_tool_cmd_name "$script")"
 
     # Source recipe to read all state at once
-    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+    unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS TOOL_SKIP
     unset TOOL_STRIP_COMPONENTS
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
@@ -521,9 +524,11 @@ _tool_list() {
       esac
     fi
 
-    # Check externally managed (hook or TOOL_TYPE=appimage on macOS)
+    # Check if tool is skipped (TOOL_SKIP, hook, or appimage on macOS)
     local is_external=0
-    if declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
+    if _tool_should_skip "install" || _tool_should_skip "upgrade" || [[ "${TOOL_TYPE:-}" == "custom" ]]; then
+      is_external=1
+    elif declare -f tool_externally_managed >/dev/null 2>&1 && tool_externally_managed 2>/dev/null; then
       is_external=1
     elif [[ "${TOOL_TYPE:-}" == "appimage" && "$(uname -s)" == "Darwin" ]]; then
       is_external=1

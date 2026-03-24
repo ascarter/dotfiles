@@ -4,10 +4,6 @@ TOOL_CMD=code
 TOOL_TYPE=custom
 TOOL_BREW=visual-studio-code
 
-tool_externally_managed() {
-  return 0
-}
-
 tool_platform_check() {
   case "$(uname -s)" in
     Darwin) log "vscode" "not found. Run: brew install --cask visual-studio-code"; exit 1 ;;

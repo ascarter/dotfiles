@@ -201,6 +201,16 @@ _tool_ready_path() {
   fi
 }
 
+# _tool_should_skip <phase>
+# Returns 0 if TOOL_SKIP array contains the given phase.
+_tool_should_skip() {
+  local phase="$1" s
+  for s in "${TOOL_SKIP[@]:-}"; do
+    [[ "$s" == "$phase" ]] && return 0
+  done
+  return 1
+}
+
 # tool_is_recipe <script>
 # Returns 0 if the file is a declarative recipe (no shebang), 1 if legacy.
 tool_is_recipe() {
@@ -219,7 +229,7 @@ tool_run_recipe() {
   # Reset recipe state
   TOOLS_INSTALL_SKIPPED=0
   TOOLS_INSTALL_SKIPPED_REASON=""
-  unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
+  unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS TOOL_SKIP
   unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_UPGRADE_COMMAND
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
@@ -232,18 +242,24 @@ tool_run_recipe() {
 
   [[ -n "${TOOL_CMD:-}" ]] || { error "tool_run_recipe: TOOL_CMD not set in ${recipe}"; return 1; }
 
-  # Externally managed check (hook or TOOL_TYPE=appimage default)
+  # Skip check: TOOL_SKIP array, hook, or TOOL_TYPE=appimage macOS default
   if [[ -n "${DOTFILES_TOOL_SKIP_EXTERNAL:-}" ]]; then
-    local is_external=0
-    if declare -f tool_externally_managed >/dev/null 2>&1; then
-      tool_externally_managed && is_external=1
+    local phase="install"
+    [[ -z "${DOTFILES_TOOL_UPGRADE:-}" ]] || phase="upgrade"
+    local is_skipped=0
+    if _tool_should_skip "$phase"; then
+      is_skipped=1
+    elif [[ "${TOOL_TYPE:-}" == "custom" ]]; then
+      is_skipped=1
+    elif declare -f tool_externally_managed >/dev/null 2>&1; then
+      tool_externally_managed && is_skipped=1
     elif [[ "${TOOL_TYPE:-}" == "appimage" && "$(uname -s)" == "Darwin" ]]; then
-      is_external=1
+      is_skipped=1
     fi
-    if [[ "$is_external" -eq 1 ]]; then
+    if [[ "$is_skipped" -eq 1 ]]; then
       TOOLS_INSTALL_SKIPPED=1
       TOOLS_INSTALL_SKIPPED_REASON="external"
-      vlog "skip" "$(basename "$recipe" .sh) externally managed on $(uname -s)"
+      vlog "skip" "$(basename "$recipe" .sh) skipped ($phase)"
       return 0
     fi
   fi
