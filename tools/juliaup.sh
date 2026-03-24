@@ -12,5 +12,5 @@ tool_upgrade() {
 }
 
 tool_uninstall() {
-  command -v juliaup >/dev/null 2>&1 && juliaup self uninstall -y
+  command -v juliaup >/dev/null 2>&1 && juliaup self uninstall
 }
