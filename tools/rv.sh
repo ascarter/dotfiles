@@ -2,7 +2,5 @@
 TOOL_CMD=rv
 TOOL_TYPE=installer
 TOOL_UPGRADE_COMMAND="rv selfupdate"
-
-tool_download() {
-  curl -LsSf https://rv.dev/install | RV_NO_MODIFY_PATH=1 sh
-}
+TOOL_INSTALL_URL="https://rv.dev/install"
+TOOL_INSTALL_ENV="RV_NO_MODIFY_PATH=1"

@@ -69,6 +69,7 @@ mkdir -p "${TOOLS_CELLAR}" "${TOOLS_CACHE}" "${TOOLS_STATE}" "${TOOLS_BIN}" "${T
 # ---------------------------------------------------------------------------
 source "${DOTFILES_HOME}/lib/opt/github.sh"
 source "${DOTFILES_HOME}/lib/opt/appimage.sh"
+source "${DOTFILES_HOME}/lib/opt/installer.sh"
 
 # ---------------------------------------------------------------------------
 # Shared primitives
@@ -223,6 +224,7 @@ tool_run_recipe() {
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
+  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
 
   # Source the recipe — sets vars and optionally defines hooks
@@ -269,9 +271,11 @@ tool_run_recipe() {
     fi
   fi
 
-  # 4. Download (hook or default GitHub release)
+  # 4. Download (hook → installer driver → GitHub release)
   if declare -f tool_download >/dev/null 2>&1; then
     tool_download
+  elif [[ -n "${TOOL_INSTALL_URL:-}" ]]; then
+    _tool_installer_download
   elif [[ -n "${TOOL_REPO:-}" ]]; then
     local asset
     asset="$(_tool_resolve_asset)"
@@ -287,7 +291,7 @@ tool_run_recipe() {
       tool_gh_install "$TOOL_REPO" "$asset"
     fi
   else
-    error "tool_run_recipe: TOOL_REPO not set and no tool_download hook in ${recipe}"
+    error "tool_run_recipe: no download method in ${recipe} (set TOOL_REPO, TOOL_INSTALL_URL, or define tool_download)"
     return 1
   fi
 

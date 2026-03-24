@@ -27,7 +27,7 @@ The driver uses this to select the appropriate lifecycle behavior.
 |------|-------------|-----------------|
 | `github` | Download binary from GitHub releases | Default: resolve asset → `tool_gh_install` → symlink `TOOL_LINKS` |
 | `appimage` | Linux AppImage with desktop integration | Auto: platform gate (macOS → brew hint), `tool_appimage_link` + desktop entry, metadata-based versioning |
-| `installer` | Curl-based vendor install script | No special driver — hooks handle lifecycle |
+| `installer` | Curl-based vendor install script | Auto: `curl -fsSL $TOOL_INSTALL_URL \| env $TOOL_INSTALL_ENV bash -s -- $TOOL_INSTALL_ARGS` |
 | `custom` | Bespoke download/install logic | No special driver — hooks handle lifecycle |
 
 ## Writing a recipe
@@ -68,12 +68,27 @@ TOOL_COMPLETIONS=(complete/_rg)
 ### Curl installer example
 
 ```bash
-# tools/uv.sh
+# tools/uv.sh — pure config, no hooks needed
 TOOL_CMD=uv
 TOOL_TYPE=installer
+TOOL_UPGRADE_COMMAND="uv self update"
+TOOL_INSTALL_URL="https://astral.sh/uv/install.sh"
+TOOL_INSTALL_ENV="UV_NO_MODIFY_PATH=1"
+```
 
-tool_download() {
-  curl -LsSf https://astral.sh/uv/install.sh | UV_NO_MODIFY_PATH=1 sh
+### Curl installer with args
+
+```bash
+# tools/rustup.sh — install args passed after --
+TOOL_CMD=rustup
+TOOL_TYPE=installer
+TOOL_UPGRADE_COMMAND="rustup self update"
+TOOL_INSTALL_URL="https://sh.rustup.rs"
+TOOL_INSTALL_ARGS="-y --no-modify-path"
+
+tool_uninstall() {
+  command -v rustup >/dev/null 2>&1 || return 0
+  rustup self uninstall -y
 }
 ```
 
@@ -157,6 +172,14 @@ TOOL_BREW=obsidian
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
 | `TOOL_COMPLETIONS` | no | Array of completion specs: `src:dst` or bare path (basename used as dst). Paths relative to install dir, linked into `share/completions/`. Use `src:dst` to rename (e.g. `completions/foo.zsh:_foo`). |
 
+### Installer-specific variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `TOOL_INSTALL_URL` | if installer (no hook) | URL of the vendor install script (fetched with `curl -fsSL`) |
+| `TOOL_INSTALL_ENV` | no | Space-separated `KEY=VALUE` pairs passed to `env` before bash (e.g. `UV_NO_MODIFY_PATH=1`) |
+| `TOOL_INSTALL_ARGS` | no | Arguments passed to the install script after `--` (e.g. `-y --no-modify-path`) |
+
 ### AppImage-specific variables
 
 | Variable | Default | Description |
@@ -185,7 +208,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 
 | Hook | Default | When to override |
 |------|---------|------------------|
-| `tool_download` | `tool_gh_install` using TOOL_REPO + resolved asset from the latest stable release | Custom APIs (go.dev), curl installers, package managers |
+| `tool_download` | `_tool_installer_download` for `installer` type with `TOOL_INSTALL_URL`, or `tool_gh_install` using TOOL_REPO + resolved asset for `github`/`appimage` types | Custom APIs (go.dev), non-standard install flows |
 | `tool_post_install` | Symlink TOOL_LINKS, TOOL_MAN_PAGES, TOOL_COMPLETIONS (or AppImage link + desktop for `appimage` type) | Plain binary rename (jq/yq), custom symlink layouts |
 | `tool_platform_check` | Allow all platforms (or Linux-only with macOS brew hint for `appimage` type) | Restrict to specific distros or architectures |
 | `tool_externally_managed` | False (or true on macOS for `appimage` type) | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
@@ -231,7 +254,7 @@ upgrades, so it never depends on itself. All other tools then use `gh` normally.
 3. tool_check              — skip if TOOL_CMD found (unless upgrading)
 4. tool_platform_check     — hook or TOOL_TYPE=appimage default (macOS → brew hint)
 5. Upgrade gate            — hook → TOOL_UPGRADE_COMMAND → fall through to normal flow
-6. tool_download           — hook or tool_gh_install with resolved asset + {version} interpolation
+6. tool_download           — hook → TOOL_INSTALL_URL (installer driver) → tool_gh_install (github/appimage)
 7. tool_post_install       — hook or TOOL_TYPE default (appimage: link + desktop; others: symlinks)
 8. Log completion
 ```
@@ -273,6 +296,9 @@ functions directly. Used only when hook functions cannot express the install flo
 
 | File | Role |
 |------|------|
-| `lib/opt.sh` | Tool primitives (`tool_gh_install`, `tool_link`, `tool_check`), version interpolation, AppImage defaults, and driver (`tool_run_recipe`, `tool_is_recipe`) |
+| `lib/opt.sh` | Framework: XDG layout, platform detection, version interpolation, recipe driver (`tool_run_recipe`) |
+| `lib/opt/github.sh` | GitHub release driver: `tool_gh_install`, `tool_latest_tag`, asset resolution, default post-install |
+| `lib/opt/appimage.sh` | AppImage driver: link, desktop integration, platform gate |
+| `lib/opt/installer.sh` | Installer driver: `curl -fsSL` → `env` → `bash` pipeline |
 | `lib/tool.sh` | CLI dispatcher (`_tool_cmd`), install/upgrade/uninstall/list/status/clean |
 | `tools/*.sh` | Recipes and legacy scripts, one per tool |

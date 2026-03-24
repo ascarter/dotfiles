@@ -157,6 +157,7 @@ _tool_run_uninstall_hook() {
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
+  unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
 
   source "$script"
@@ -335,6 +336,7 @@ _tool_outdated() {
     unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
+    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade tool_uninstall 2>/dev/null
 
     source "$script"
@@ -463,6 +465,7 @@ _tool_list() {
     unset TOOL_STRIP_COMPONENTS
     unset TOOL_ASSET_MACOS_ARM64 TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
+    unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade tool_version 2>/dev/null
     source "$script"
 
