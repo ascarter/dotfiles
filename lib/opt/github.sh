@@ -188,7 +188,20 @@ _tool_default_post_install() {
       dst="bin/${spec}"
     fi
     src_path="${TOOLS_INSTALL_DIR}/${src}"
-    [[ -e "$src_path" ]] || { error "tool_post_install: expected path not found: ${src_path}"; return 1; }
+    # Bare binary fallback: if the expected path doesn't exist and there's
+    # exactly one file in the install dir, use it (handles platform-named
+    # binaries like jq-linux-amd64 or yq_darwin_arm64).
+    if [[ ! -e "$src_path" ]]; then
+      local -a files=()
+      while IFS= read -r f; do files+=("$f"); done < <(find "$TOOLS_INSTALL_DIR" -maxdepth 1 -type f)
+      if [[ ${#files[@]} -eq 1 ]]; then
+        src="$(basename "${files[0]}")"
+        src_path="${files[0]}"
+      else
+        error "tool_post_install: expected path not found: ${src_path}"
+        return 1
+      fi
+    fi
     tool_link "$src" "$dst"
   done
 
