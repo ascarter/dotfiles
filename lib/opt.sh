@@ -219,7 +219,7 @@ tool_run_recipe() {
   TOOLS_INSTALL_SKIPPED=0
   TOOLS_INSTALL_SKIPPED_REASON=""
   unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS
-  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH
+  unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_UPGRADE_COMMAND
   unset TOOL_ASSET_MACOS_ARM64
   unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
@@ -256,11 +256,17 @@ tool_run_recipe() {
     _tool_appimage_platform_check
   fi
 
-  # 3. If upgrading and a tool_upgrade hook exists, use it instead of the normal flow
-  if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]] && declare -f tool_upgrade >/dev/null 2>&1; then
-    log "upgrade" "$TOOL_CMD"
-    tool_upgrade
-    return $?
+  # 3. If upgrading, prefer hook → declarative command → skip (normal install flow)
+  if [[ -n "${DOTFILES_TOOL_UPGRADE:-}" ]]; then
+    if declare -f tool_upgrade >/dev/null 2>&1; then
+      log "upgrade" "$TOOL_CMD"
+      tool_upgrade
+      return $?
+    elif [[ -n "${TOOL_UPGRADE_COMMAND:-}" ]]; then
+      log "upgrade" "$TOOL_CMD"
+      $TOOL_UPGRADE_COMMAND
+      return $?
+    fi
   fi
 
   # 4. Download (hook or default GitHub release)

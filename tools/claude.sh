@@ -1,13 +1,10 @@
 # claude — Claude Code CLI
 TOOL_CMD=claude
 TOOL_TYPE=installer
+TOOL_UPGRADE_COMMAND="claude update"
 
 tool_download() {
   curl -fsSL https://claude.ai/install.sh | bash
-}
-
-tool_upgrade() {
-  claude update
 }
 
 tool_uninstall() {

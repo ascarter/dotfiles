@@ -1,11 +1,8 @@
 # uv — Python package manager
 TOOL_CMD=uv
 TOOL_TYPE=installer
+TOOL_UPGRADE_COMMAND="uv self update"
 
 tool_download() {
   curl -LsSf https://astral.sh/uv/install.sh | UV_NO_MODIFY_PATH=1 sh
-}
-
-tool_upgrade() {
-  uv self update
 }

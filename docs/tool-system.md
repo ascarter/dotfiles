@@ -151,6 +151,7 @@ TOOL_BREW=obsidian
 | `TOOL_STRIP_COMPONENTS` | no | Strip N leading directory components during tar extraction (default: 0) |
 | `TOOL_VERSION_ARGS` | no | Args passed to the binary to get version output (default: `--version`) |
 | `TOOL_VERSION_MATCH` | no | Bash regex applied to the release tag. Capture group 1 becomes `{version}` for asset interpolation and metadata version display. |
+| `TOOL_UPGRADE_COMMAND` | no | Shell command to run for `dotfiles tool upgrade` (e.g. `uv self update`). Skipped when an explicit `tool_upgrade` hook is defined. |
 | `TOOL_BREW` | no | Homebrew formula/cask name override. Used in macOS platform-check hint for `appimage` type. |
 | `TOOL_LINKS` | no | Array of symlink specs: `src:dst` or bare `name` (→ `name:bin/name`) |
 | `TOOL_MAN_PAGES` | no | Array of man page paths to link (relative to install dir) |
@@ -189,7 +190,7 @@ Hooks override default driver behavior. Define them as functions in the recipe.
 | `tool_platform_check` | Allow all platforms (or Linux-only with macOS brew hint for `appimage` type) | Restrict to specific distros or architectures |
 | `tool_externally_managed` | False (or true on macOS for `appimage` type) | Mark a recipe as externally managed on the current platform so batch install/upgrade skips it instead of failing |
 | `tool_uninstall` | No-op (or remove desktop entry for `appimage` type) | Custom cleanup before removal (e.g. `rustup self uninstall`) |
-| `tool_upgrade` | Re-run install flow | Tools with self-update commands (e.g. `uv self update`) |
+| `tool_upgrade` | Run `TOOL_UPGRADE_COMMAND` if set, otherwise re-run install flow | Tools with self-update commands that need custom logic beyond a single command |
 
 The completion log reports the resolved command path from `command -v` when available,
 so self-managed installers can show their native location instead of always assuming
@@ -229,9 +230,10 @@ upgrades, so it never depends on itself. All other tools then use `gh` normally.
 2. Externally managed      — hook or TOOL_TYPE=appimage default (macOS → skip)
 3. tool_check              — skip if TOOL_CMD found (unless upgrading)
 4. tool_platform_check     — hook or TOOL_TYPE=appimage default (macOS → brew hint)
-5. tool_download           — hook or tool_gh_install with resolved asset + {version} interpolation
-6. tool_post_install       — hook or TOOL_TYPE default (appimage: link + desktop; others: symlinks)
-7. Log completion
+5. Upgrade gate            — hook → TOOL_UPGRADE_COMMAND → fall through to normal flow
+6. tool_download           — hook or tool_gh_install with resolved asset + {version} interpolation
+7. tool_post_install       — hook or TOOL_TYPE default (appimage: link + desktop; others: symlinks)
+8. Log completion
 ```
 
 ### Uninstall
