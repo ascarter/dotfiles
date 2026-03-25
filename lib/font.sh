@@ -75,8 +75,9 @@ font_install_files() {
 # which derives the name from the repo).
 #
 # After completion, sets:
-#   TOOLS_INSTALL_DIR  — versioned install directory
-#   TOOLS_INSTALL_TAG  — resolved tag
+#   TOOLS_INSTALL_DIR     — versioned install directory
+#   TOOLS_INSTALL_TAG     — raw release tag (for GitHub API calls)
+#   TOOLS_INSTALL_VERSION — normalized version
 font_gh_install() {
   local name="$1"
   local repo="$2"
@@ -98,17 +99,21 @@ font_gh_install() {
     return 1
   fi
 
-  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${tag}"
-  TOOLS_INSTALL_TAG="$tag"
-  export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG
+  local version
+  version="$(_tool_normalize_version "$tag")" || return 1
 
-  # Skip if already installed at this tag
-  local installed_tag="none"
+  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${version}"
+  TOOLS_INSTALL_TAG="$tag"
+  TOOLS_INSTALL_VERSION="$version"
+  export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG TOOLS_INSTALL_VERSION
+
+  # Skip if already installed at this version
+  local installed_version="none"
   if [[ -f "$state_file" ]]; then
-    installed_tag="$(cat "$state_file")"
+    installed_version="$(cat "$state_file")"
   fi
-  if [[ "$installed_tag" == "$tag" && -d "$TOOLS_INSTALL_DIR" ]]; then
-    vlog "skip" "${name} at ${tag}"
+  if [[ "$installed_version" == "$version" && -d "$TOOLS_INSTALL_DIR" ]]; then
+    vlog "skip" "${name} at ${version}"
     TOOLS_INSTALL_SKIPPED=1
     return 0
   fi
@@ -156,8 +161,8 @@ font_gh_install() {
     return 1
   fi
 
-  printf '%s\n' "$tag" > "$state_file"
-  log "install" "${name} ${tag} -> ${TOOLS_INSTALL_DIR}"
+  printf '%s\n' "$version" > "$state_file"
+  log "install" "${name} ${version} -> ${TOOLS_INSTALL_DIR}"
 }
 
 # ---------------------------------------------------------------------------
@@ -193,7 +198,7 @@ font_run_recipe() {
 
   # Reset recipe state
   TOOLS_INSTALL_SKIPPED=0
-  unset FONT_REPO FONT_ASSET FONT_GLOB FONT_STRIP_COMPONENTS
+  unset FONT_REPO FONT_ASSET FONT_GLOB FONT_STRIP_COMPONENTS TOOL_VERSION_MATCH
   unset -f font_download font_post_install font_latest_tag 2>/dev/null
 
   source "$recipe"

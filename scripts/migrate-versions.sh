@@ -40,51 +40,62 @@ fi
 
 # --- Phase 2: Cellar version normalization ---
 
-tools_dir="${DOTFILES_HOME}/tools"
 migrated=0
 
-for recipe in "$tools_dir"/*.sh; do
-  name="$(basename "$recipe" .sh)"
-  state_file="${TOOLS_STATE}/${name}"
+_migrate_recipes() {
+  local recipe_dir="$1"
+  [[ -d "$recipe_dir" ]] || return 0
 
-  [[ -f "$state_file" ]] || continue
+  for recipe in "$recipe_dir"/*.sh; do
+    [[ -f "$recipe" ]] || continue
+    local name
+    name="$(basename "$recipe" .sh)"
+    local state_file="${TOOLS_STATE}/${name}"
 
-  # Reset and source recipe to get TOOL_VERSION_MATCH
-  unset TOOL_VERSION_MATCH 2>/dev/null || true
-  TOOL_CMD="" TOOL_TYPE="" TOOL_REPO=""
-  source "$recipe" 2>/dev/null || continue
+    [[ -f "$state_file" ]] || continue
 
-  raw_tag="$(cat "$state_file")"
-  normalized="$(_tool_normalize_version "$raw_tag" 2>/dev/null)" || continue
+    # Reset and source recipe to get TOOL_VERSION_MATCH
+    unset TOOL_VERSION_MATCH 2>/dev/null || true
+    TOOL_CMD="" TOOL_TYPE="" TOOL_REPO="" FONT_REPO="" FONT_ASSET=""
+    source "$recipe" 2>/dev/null || continue
 
-  [[ "$raw_tag" != "$normalized" ]] || continue
+    local raw_tag normalized
+    raw_tag="$(cat "$state_file")"
+    normalized="$(_tool_normalize_version "$raw_tag" 2>/dev/null)" || continue
 
-  old_dir="${TOOLS_CELLAR}/${name}/${raw_tag}"
-  new_dir="${TOOLS_CELLAR}/${name}/${normalized}"
+    [[ "$raw_tag" != "$normalized" ]] || continue
 
-  # Update state file
-  printf '%s\n' "$normalized" > "$state_file"
+    local old_dir="${TOOLS_CELLAR}/${name}/${raw_tag}"
+    local new_dir="${TOOLS_CELLAR}/${name}/${normalized}"
 
-  # Rename cellar dir
-  if [[ -d "$old_dir" && ! -d "$new_dir" ]]; then
-    mv "$old_dir" "$new_dir"
+    # Update state file
+    printf '%s\n' "$normalized" > "$state_file"
 
-    # Fix symlinks pointing to old path
-    while IFS= read -r link; do
-      [[ -L "$link" ]] || continue
-      target="$(readlink "$link")"
-      if [[ "$target" == *"${old_dir}"* ]]; then
-        ln -sf "${target/${old_dir}/${new_dir}}" "$link"
-      fi
-    done < <(find "${XDG_OPT_BIN}" "${XDG_OPT_SHARE}" -type l 2>/dev/null)
-  fi
+    # Rename cellar dir
+    if [[ -d "$old_dir" && ! -d "$new_dir" ]]; then
+      mv "$old_dir" "$new_dir"
 
-  log "migrate" "${name}: ${raw_tag} -> ${normalized}"
-  migrated=$((migrated + 1))
-done
+      # Fix symlinks pointing to old path
+      while IFS= read -r link; do
+        [[ -L "$link" ]] || continue
+        local target
+        target="$(readlink "$link")"
+        if [[ "$target" == *"${old_dir}"* ]]; then
+          ln -sf "${target/${old_dir}/${new_dir}}" "$link"
+        fi
+      done < <(find "${XDG_OPT_BIN}" "${XDG_OPT_SHARE}" -type l 2>/dev/null)
+    fi
+
+    log "migrate" "${name}: ${raw_tag} -> ${normalized}"
+    migrated=$((migrated + 1))
+  done
+}
+
+_migrate_recipes "${DOTFILES_HOME}/tools"
+_migrate_recipes "${DOTFILES_HOME}/fonts"
 
 if [[ "$migrated" -eq 0 ]]; then
   success "nothing to migrate — already up to date"
 else
-  success "migrated ${migrated} tool(s)"
+  success "migrated ${migrated} item(s)"
 fi
