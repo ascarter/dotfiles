@@ -140,6 +140,7 @@ _dotfiles_font() {
 
   local -a subcmds=(
     'install:Install font(s)'
+    'cleanup:Remove old cellar versions'
     'list:List installed fonts'
   )
 
@@ -151,7 +152,7 @@ _dotfiles_font() {
       ;;
     args)
       case "${line[1]}" in
-        install) _dotfiles__names_from_dir fonts 'font name' ;;
+        install|cleanup) _dotfiles__names_from_dir fonts 'font name' ;;
       esac
       ;;
   esac

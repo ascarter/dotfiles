@@ -315,6 +315,60 @@ _font_list() {
   printf "\n  %d font%s installed\n" "${#names[@]}" "$([[ ${#names[@]} -eq 1 ]] && printf '' || printf 's')"
 }
 
+# _font_cleanup [<name>]
+# Remove old cellar versions for fonts, keeping only the current installed version.
+_font_cleanup() {
+  local target="${1:-}"
+  local fonts_dir="${DOTFILES_HOME}/fonts"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  local total_freed=0 fonts_cleaned=0
+
+  _cleanup_font() {
+    local name="$1"
+    local cellar_dir="${TOOLS_CELLAR}/${name}"
+    local state_file="${TOOLS_STATE}/${name}"
+
+    [[ -d "$cellar_dir" ]] || return 0
+
+    local current=""
+    [[ -f "$state_file" ]] && current="$(cat "$state_file")"
+
+    local removed=0
+    while IFS= read -r version_dir; do
+      local ver
+      ver="$(basename "$version_dir")"
+      [[ "$ver" != "$current" ]] || continue
+
+      local size
+      size="$(du -sk "$version_dir" 2>/dev/null | cut -f1)"
+      rm -rf "$version_dir"
+      total_freed=$((total_freed + ${size:-0}))
+      removed=1
+      log "cleanup" "${name}/${ver} removed"
+    done < <(find "$cellar_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+
+    [[ "$removed" -eq 1 ]] && fonts_cleaned=$((fonts_cleaned + 1)) || true
+  }
+
+  if [[ -n "$target" ]]; then
+    _cleanup_font "$target"
+  else
+    while IFS= read -r script; do
+      _cleanup_font "$(basename "$script" .sh)"
+    done < <(find "$fonts_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
+  fi
+
+  if [[ "$fonts_cleaned" -eq 0 ]]; then
+    log "cleanup" "nothing to clean up"
+  else
+    local freed_mb=$(( (total_freed + 512) / 1024 ))
+    log "cleanup" "${fonts_cleaned} font(s) cleaned, ~${freed_mb}MB freed"
+  fi
+
+  unset -f _cleanup_font
+}
+
 # _font_cmd <op> [<name>]
 # Main dispatcher — called by cmd_font in bin/dotfiles.
 _font_cmd() {
@@ -325,12 +379,13 @@ _font_cmd() {
 
   case "$op" in
     install) _font_install "$@" ;;
+    cleanup) _font_cleanup "$@" ;;
     list)    _font_list ;;
     "")
-      abort "usage: dotfiles font <install|list> [<fontname>]"
+      abort "usage: dotfiles font <install|cleanup|list> [<fontname>]"
       ;;
     *)
-      abort "unknown font operation: $op (use install or list)"
+      abort "unknown font operation: $op (use install, cleanup, or list)"
       ;;
   esac
 }
