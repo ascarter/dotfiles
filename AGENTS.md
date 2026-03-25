@@ -166,7 +166,6 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles tool uninstall [<name>]`: remove installed tool(s); preserves cache.
 - `bin/dotfiles tool uninstall --force [<name>]`: force removal even if cellar is missing (for broken installs).
 - `bin/dotfiles tool outdated`: show tools with newer versions available.
-- `bin/dotfiles tool clean [<name>]`: clear downloaded archives from cache.
 - `bin/dotfiles tool cleanup [<name>]`: remove old cellar versions, keeping only the currently installed version.
 - `bin/dotfiles font install`: install all fonts in `fonts/`.
 - `bin/dotfiles font install <name>`: install a single font by name.

@@ -12,7 +12,6 @@ dotfiles tool upgrade [<name>]     # Upgrade to latest version
 dotfiles tool outdated             # Show tools with newer versions available
 dotfiles tool uninstall [<name>]   # Remove from cellar; preserves cache
 dotfiles tool uninstall --force [<name>]  # Force removal even if cellar is missing
-dotfiles tool clean [<name>]       # Clear downloaded archives from cache
 dotfiles tool cleanup [<name>]     # Remove old cellar versions, keeping only current
 dotfiles tool list                 # Show available tools, source type, and version
 dotfiles -v tool list              # Include command path in output

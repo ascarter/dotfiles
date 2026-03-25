@@ -37,7 +37,7 @@ Commands:
   edit        Edit dotfiles repository using $EDITOR
   host        Host provisioning (init|status)
   gitconfig   Generate machine-specific ~/.gitconfig
-  tool        Manage tools (install|uninstall|upgrade|clean|list|status [<toolname>])
+  tool        Manage tools (install|uninstall|upgrade|cleanup|list|status [<toolname>])
   font        Manage fonts (install|list [<fontname>])
   cache       Manage download cache (status|clean)
   flatpak     Manage Flatpak apps (install|status)

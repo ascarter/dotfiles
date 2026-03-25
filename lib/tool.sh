@@ -268,30 +268,6 @@ _tool_uninstall() {
   log "uninstall" "done"
 }
 
-# _tool_clean [<name>]
-_tool_clean() {
-  local target="${1:-}"
-  source "${DOTFILES_HOME}/lib/opt.sh"
-
-  if [[ -n "$target" ]]; then
-    local cache_dir="${TOOLS_CACHE}/${target}"
-    if [[ ! -d "$cache_dir" ]]; then
-      log "clean" "no cache for $target"
-    else
-      rm -rf "$cache_dir"
-      log "clean" "$target"
-    fi
-  else
-    local cleaned=0
-    while IFS= read -r d; do
-      rm -rf "$d"
-      log "clean" "$(basename "$d")"
-      cleaned=1
-    done < <(find "$TOOLS_CACHE" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
-    [[ "$cleaned" -eq 1 ]] || log "clean" "cache already empty"
-  fi
-}
-
 # _tool_cleanup [<name>]
 # Remove old cellar versions, keeping only the current installed version.
 # Like brew cleanup: frees disk space without affecting running installs.
@@ -694,15 +670,14 @@ _tool_cmd() {
     uninstall) _tool_uninstall "$@" ;;
     upgrade)   _tool_upgrade   "$@" ;;
     outdated)  _tool_outdated ;;
-    clean)     _tool_clean     "$@" ;;
     cleanup)   _tool_cleanup   "$@" ;;
     list)      _tool_list ;;
     status)    _tool_status ;;
     "")
-      abort "usage: dotfiles tool <install|uninstall|upgrade|outdated|clean|cleanup|list|status> [<toolname>]"
+      abort "usage: dotfiles tool <install|uninstall|upgrade|outdated|cleanup|list|status> [<toolname>]"
       ;;
     *)
-      abort "unknown tool operation: $op (use install, uninstall, upgrade, outdated, clean, cleanup, list, or status)"
+      abort "unknown tool operation: $op (use install, uninstall, upgrade, outdated, cleanup, list, or status)"
       ;;
   esac
 }

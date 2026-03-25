@@ -105,7 +105,6 @@ _dotfiles_tool() {
     'uninstall:Uninstall tool(s)'
     'upgrade:Upgrade tool(s)'
     'outdated:Show tools with newer versions'
-    'clean:Clean download cache'
     'cleanup:Remove old cellar versions'
     'list:List installed tools'
     'status:Show tool infrastructure status'
@@ -119,7 +118,7 @@ _dotfiles_tool() {
       ;;
     args)
       case "${line[1]}" in
-        install|upgrade|clean|cleanup)
+        install|upgrade|cleanup)
           _dotfiles__names_from_dir tools 'tool name'
           ;;
         uninstall)
