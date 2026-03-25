@@ -52,7 +52,7 @@ TOOL_LINKS=(fzf)
 ### Full example (GitHub release with strip, man pages, completions)
 
 ```bash
-# tools/ripgrep.sh
+# tools/rg.sh
 TOOL_CMD=rg
 TOOL_TYPE=github
 TOOL_REPO=BurntSushi/ripgrep
