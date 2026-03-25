@@ -13,6 +13,7 @@ dotfiles tool outdated             # Show tools with newer versions available
 dotfiles tool uninstall [<name>]   # Remove from cellar; preserves cache
 dotfiles tool uninstall --force [<name>]  # Force removal even if cellar is missing
 dotfiles tool clean [<name>]       # Clear downloaded archives from cache
+dotfiles tool cleanup [<name>]     # Remove old cellar versions, keeping only current
 dotfiles tool list                 # Show available tools, source type, and version
 dotfiles -v tool list              # Include command path in output
 dotfiles tool status               # Show paths, counts, and disk usage
@@ -161,7 +162,7 @@ TOOL_BREW=obsidian
 | `TOOL_ASSET_LINUX_AMD64` | if TOOL_REPO | Asset glob for Linux x86_64 (supports `{version}` interpolation) |
 | `TOOL_STRIP_COMPONENTS` | no | Strip N leading directory components during tar extraction (default: 0) |
 | `TOOL_VERSION_ARGS` | no | Args passed to the binary to get version output (default: `--version`) |
-| `TOOL_VERSION_MATCH` | no | Bash regex applied to the release tag. Capture group 1 becomes `{version}` for asset interpolation and metadata version display. |
+| `TOOL_VERSION_MATCH` | no | Bash regex applied to the release tag. Capture group 1 becomes `{version}` for asset interpolation **and** is used by `_tool_normalize_version` to derive clean cellar/state versions (e.g. `^jq-(.*)` extracts `1.7.1` from `jq-1.7.1`). When unset, the driver strips a leading `v` prefix. |
 | `TOOL_UPGRADE_COMMAND` | no | Shell command to run for `dotfiles tool upgrade` (e.g. `uv self update`). Skipped when an explicit `tool_upgrade` hook is defined. |
 | `TOOL_SKIP` | no | Array of lifecycle phases to skip in batch operations (e.g. `(install upgrade)`). Tools with self-managed updaters use this to opt out of batch install/upgrade while remaining targetable individually. |
 | `TOOL_BREW` | no | Homebrew formula/cask name override. Used in macOS platform-check hint for `appimage` type. |
@@ -188,6 +189,20 @@ TOOL_BREW=obsidian
 | `TOOL_DESKTOP_ICON_EXT` | `png` | Icon file extension for uninstall cleanup |
 | `TOOL_APPIMAGE_GLOB` | `*.AppImage` | Glob to find the AppImage in install dir (override if ambiguous) |
 
+## Version normalization
+
+The driver normalizes raw GitHub release tags into clean version strings via
+`_tool_normalize_version`. This affects cellar directory names and state file
+contents:
+
+- If `TOOL_VERSION_MATCH` is set, applies the regex and uses capture group 1
+  (e.g. tag `jq-1.7.1` with `^jq-(.*)` → version `1.7.1`)
+- Otherwise, strips a leading `v` prefix (e.g. tag `v0.70.0` → `0.70.0`)
+
+Cellar directories use the normalized version: `cellar/fzf/0.70.0/` (not
+`v0.70.0/`). State files store the normalized version. `tool outdated`
+normalizes both the installed and latest versions before comparing.
+
 ## Version interpolation
 
 Asset patterns can contain `{version}` placeholders. When present, the driver:
@@ -195,7 +210,7 @@ Asset patterns can contain `{version}` placeholders. When present, the driver:
 1. Resolves the release tag via `tool_latest_tag` (or a `tool_latest_tag` hook)
 2. If `TOOL_VERSION_MATCH` is set, applies the regex:
    `[[ "$tag" =~ ${TOOL_VERSION_MATCH} ]]` → capture group 1 is the version
-3. If `TOOL_VERSION_MATCH` is not set, the raw tag is used as the version
+3. If `TOOL_VERSION_MATCH` is not set, strips a leading `v` prefix
 4. Substitutes all `{version}` occurrences in the asset pattern
 5. Passes the interpolated pattern + resolved tag to `tool_gh_install`
 
@@ -280,8 +295,8 @@ Useful for cleaning up broken or partial installs.
 `dotfiles tool list` shows the installed version for each tool:
 
 1. `tool_version` hook — if defined, explicit override always wins
-2. State file tag — for `TOOL_TYPE=appimage`, reads the persisted tag from
-   `TOOLS_STATE/<name>` and applies `TOOL_VERSION_MATCH` for display
+2. State file — for `github` and `appimage` types, reads the normalized
+   version from `TOOLS_STATE/<name>` (already clean, no further processing)
 3. Binary `--version` — default for other types (runs the binary with
    `TOOL_VERSION_ARGS` and extracts a version pattern)
 
@@ -294,6 +309,29 @@ The driver distinguishes recipes from legacy scripts by the first line:
 
 Legacy scripts are self-contained bash scripts that source `lib/opt.sh` and call
 functions directly. Used only when hook functions cannot express the install flow.
+
+## Tool storage layout
+
+```
+~/.local/opt/                          XDG_OPT_HOME
+  bin/                                 XDG_OPT_BIN   — symlinks to installed binaries
+  share/                               XDG_OPT_SHARE — symlinks to man pages, completions
+  cellar/                              TOOLS_CELLAR  — versioned extracted assets
+    <name>/
+      <version>/                       normalized version (e.g. 0.70.0, not v0.70.0)
+
+~/.cache/dotfiles/tools/               TOOLS_CACHE   — downloaded archives
+  <name>/
+
+~/.local/state/dotfiles/tools/         TOOLS_STATE   — installed version receipts
+  <name>                               one file per tool, contains the normalized version
+```
+
+`XDG_OPT_HOME` is self-contained: `rm -rf ~/.local/opt` removes all opt-managed tools
+and their symlinks. Cache and state are separate and survive an uninstall.
+
+On first run, the driver auto-migrates from the old paths (`~/.cache/tools/`,
+`~/.local/state/tools/`) to the new `dotfiles/tools/` namespace.
 
 ## Implementation
 

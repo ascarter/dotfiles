@@ -67,8 +67,8 @@ The XDG Base Directory Specification separates files by their intended lifecycle
 | `~/.local/opt` | `XDG_OPT_HOME` | Permanent — opt-managed versioned tools |
 
 `~/.cache` in particular can always be deleted without losing anything important.
-`dotfiles tool clean` prunes `~/.cache/tools/` specifically. Version state (which
-tag is installed) is kept in `~/.local/state/tools/` and survives a cache wipe.
+`dotfiles tool clean` prunes `~/.cache/dotfiles/tools/` specifically. Version state (which
+version is installed) is kept in `~/.local/state/dotfiles/tools/` and survives a cache wipe.
 
 ### Tool Install Destinations
 

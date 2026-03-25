@@ -137,18 +137,18 @@ They are exported by `cmd_env` and set with fallbacks by `lib/opt.sh`:
 ## Tool Storage Layout
 
 ```
-~/.local/opt/                   XDG_OPT_HOME
-  bin/                          XDG_OPT_BIN   — symlinks to installed binaries
-  share/                        XDG_OPT_SHARE — symlinks to man pages, completions
-  cellar/                       TOOLS_CELLAR  — versioned extracted assets
+~/.local/opt/                          XDG_OPT_HOME
+  bin/                                 XDG_OPT_BIN   — symlinks to installed binaries
+  share/                               XDG_OPT_SHARE — symlinks to man pages, completions
+  cellar/                              TOOLS_CELLAR  — versioned extracted assets
     <name>/
-      <tag>/
+      <version>/                       normalized version (e.g. 0.70.0, not v0.70.0)
 
-~/.cache/tools/                 TOOLS_CACHE   — downloaded archives
+~/.cache/dotfiles/tools/               TOOLS_CACHE   — downloaded archives
   <name>/
 
-~/.local/state/tools/           TOOLS_STATE   — installed version receipts
-  <name>                        one file per tool, contains the installed tag
+~/.local/state/dotfiles/tools/         TOOLS_STATE   — installed version receipts
+  <name>                               one file per tool, contains the normalized version
 ```
 
 `XDG_OPT_HOME` is self-contained: `rm -rf ~/.local/opt` removes all opt-managed tools
@@ -167,6 +167,7 @@ and their symlinks. Cache and state are separate and survive an uninstall.
 - `bin/dotfiles tool uninstall --force [<name>]`: force removal even if cellar is missing (for broken installs).
 - `bin/dotfiles tool outdated`: show tools with newer versions available.
 - `bin/dotfiles tool clean [<name>]`: clear downloaded archives from cache.
+- `bin/dotfiles tool cleanup [<name>]`: remove old cellar versions, keeping only the currently installed version.
 - `bin/dotfiles font install`: install all fonts in `fonts/`.
 - `bin/dotfiles font install <name>`: install a single font by name.
 - `bin/dotfiles font list`: show installed fonts with versions.

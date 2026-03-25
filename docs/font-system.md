@@ -21,9 +21,9 @@ skips fonts already at the latest tag.
 Fonts reuse the opt-space storage infrastructure from `lib/opt.sh`:
 
 ```
-~/.local/opt/cellar/<name>/<tag>/   Extracted archive (TOOLS_CELLAR)
-~/.cache/tools/<name>/              Downloaded archives (TOOLS_CACHE)
-~/.local/state/tools/<name>         Installed tag receipt (TOOLS_STATE)
+~/.local/opt/cellar/<name>/<version>/    Extracted archive (TOOLS_CELLAR)
+~/.cache/dotfiles/tools/<name>/          Downloaded archives (TOOLS_CACHE)
+~/.local/state/dotfiles/tools/<name>     Installed version receipt (TOOLS_STATE)
 ```
 
 Font files are **copied** (not symlinked) flat into the OS font directory:
