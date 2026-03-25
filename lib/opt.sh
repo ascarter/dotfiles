@@ -232,7 +232,7 @@ tool_run_recipe() {
   unset TOOL_CMD TOOL_TYPE TOOL_REPO TOOL_BREW TOOL_LINKS TOOL_MAN_PAGES TOOL_COMPLETIONS TOOL_SKIP
   unset TOOL_STRIP_COMPONENTS TOOL_VERSION_ARGS TOOL_VERSION_MATCH TOOL_UPGRADE_COMMAND
   unset TOOL_ASSET_MACOS_ARM64
-  unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64
+  unset TOOL_ASSET_LINUX_ARM64 TOOL_ASSET_LINUX_AMD64 TOOL_ASSET_EXTRA
   unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
   unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
@@ -316,7 +316,12 @@ tool_run_recipe() {
     return 0
   fi
 
-  # 6. Post-install (hook or TOOL_TYPE default)
+  # 6. Download extra assets (overlay into install dir)
+  if [[ ${#TOOL_ASSET_EXTRA[@]:-0} -gt 0 ]]; then
+    _tool_download_extras
+  fi
+
+  # 7. Post-install (hook or TOOL_TYPE default)
   if declare -f tool_post_install >/dev/null 2>&1; then
     tool_post_install
   elif [[ "${TOOL_TYPE:-}" == "appimage" ]]; then

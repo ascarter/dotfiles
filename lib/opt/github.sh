@@ -131,6 +131,33 @@ tool_gh_install() {
   log "install" "${name} ${tag} -> ${TOOLS_INSTALL_DIR}"
 }
 
+# _tool_download_extras
+# Downloads and extracts TOOL_ASSET_EXTRA entries into TOOLS_INSTALL_DIR.
+# Called after tool_gh_install when the array is set. Uses TOOLS_INSTALL_TAG
+# and TOOL_REPO set by the prior download step.
+_tool_download_extras() {
+  local extra cache_dir asset_file filename
+  cache_dir="${TOOLS_CACHE}/${TOOL_REPO##*/}"
+  for extra in "${TOOL_ASSET_EXTRA[@]:-}"; do
+    [[ -n "$extra" ]] || continue
+    gh release download "$TOOLS_INSTALL_TAG" \
+      --repo "$TOOL_REPO" \
+      --pattern "$extra" \
+      --dir "$cache_dir" \
+      --clobber || { error "extra asset download failed: ${extra}"; return 1; }
+    asset_file="$(find "$cache_dir" -maxdepth 1 -name "$extra" | head -n1)"
+    [[ -n "$asset_file" ]] || { error "extra asset not found: ${extra}"; return 1; }
+    filename="$(basename "$asset_file")"
+    if [[ "$filename" == *.tar.gz || "$filename" == *.tgz ]]; then
+      tar -xzf "$asset_file" -C "$TOOLS_INSTALL_DIR"
+    elif [[ "$filename" == *.zip ]]; then
+      unzip -q -o "$asset_file" -d "$TOOLS_INSTALL_DIR"
+    else
+      cp "$asset_file" "${TOOLS_INSTALL_DIR}/${filename}"
+    fi
+  done
+}
+
 # tool_strip_quarantine <path>
 #
 # Strips com.apple.quarantine from an unsigned binary on macOS.
@@ -212,7 +239,10 @@ _tool_default_post_install() {
     [[ -e "$page_path" ]] || { error "tool_post_install: expected man page not found: ${page_path}"; return 1; }
     local basename_page
     basename_page="$(basename "$page")"
-    local section="${basename_page##*.}"
+    # Handle .gz man pages: btm.1.gz → section 1, keep .gz filename
+    local section_name="$basename_page"
+    [[ "$section_name" != *.gz ]] || section_name="${section_name%.gz}"
+    local section="${section_name##*.}"
     tool_link "$page" "share/man/man${section}/${basename_page}"
   done
 
