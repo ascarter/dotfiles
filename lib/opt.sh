@@ -319,7 +319,7 @@ tool_run_recipe() {
   fi
 
   # 6. Download extra assets (overlay into install dir)
-  if [[ ${#TOOL_ASSET_EXTRA[@]:-0} -gt 0 ]]; then
+  if [[ ${TOOL_ASSET_EXTRA[@]+x} ]]; then
     _tool_download_extras
   fi
 
