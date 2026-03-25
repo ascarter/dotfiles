@@ -69,7 +69,7 @@ run_script() {
   [ -f "$script_path" ] || abort "script not found: $script_name"
 
   vlog "script" "running $script_name"
-  ensure sh "$script_path" "$@"
+  ensure bash "$script_path" "$@"
 }
 
 # ------------------------------
