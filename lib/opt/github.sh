@@ -26,7 +26,7 @@ tool_latest_tag() {
 }
 
 # tool_installed_tag <owner/repo>
-# Reads the state file for the tool. Prints tag or "none".
+# Reads the installed version from the state file. Prints version or "none".
 # Uses TOOLS_NAME (script basename) when set, falls back to repo basename.
 tool_installed_tag() {
   local repo="$1"
@@ -43,8 +43,9 @@ tool_installed_tag() {
 #
 # Downloads and extracts a GitHub release asset.
 # After completion, sets:
-#   TOOLS_INSTALL_DIR  — versioned install directory (TOOLS_CELLAR/<name>/<tag>/)
-#   TOOLS_INSTALL_TAG  — resolved tag
+#   TOOLS_INSTALL_DIR     — versioned install directory (TOOLS_CELLAR/<name>/<version>/)
+#   TOOLS_INSTALL_TAG     — raw release tag (for GitHub API calls)
+#   TOOLS_INSTALL_VERSION — normalized version (for display and state)
 #
 # Handles:
 #   .tar.gz  — tar -xzf to versioned dir
@@ -68,14 +69,44 @@ tool_gh_install() {
     return 1
   fi
 
-  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${tag}"
-  TOOLS_INSTALL_TAG="$tag"
-  export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG
+  local version
+  version="$(_tool_normalize_version "$tag")" || return 1
 
-  # Skip if already installed at this tag
-  local installed_tag
-  installed_tag="$(tool_installed_tag "$repo")"
-  if [[ "$installed_tag" == "$tag" && -d "$TOOLS_INSTALL_DIR" ]]; then
+  TOOLS_INSTALL_DIR="${TOOLS_CELLAR}/${name}/${version}"
+  TOOLS_INSTALL_TAG="$tag"
+  TOOLS_INSTALL_VERSION="$version"
+  export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG TOOLS_INSTALL_VERSION
+
+  # Migrate: if state has old raw tag, normalize it; rename cellar dir if needed
+  local installed_version
+  installed_version="$(tool_installed_tag "$repo")"
+  if [[ "$installed_version" != "none" && "$installed_version" != "$version" ]]; then
+    local old_dir="${TOOLS_CELLAR}/${name}/${installed_version}"
+    local migrated_version
+    migrated_version="$(_tool_normalize_version "$installed_version" 2>/dev/null)" || migrated_version="$installed_version"
+    if [[ "$migrated_version" == "$version" ]]; then
+      # State has raw tag, normalize it
+      printf '%s\n' "$version" > "$state_file"
+      # Rename cellar dir from raw tag to normalized version
+      if [[ -d "$old_dir" && ! -d "$TOOLS_INSTALL_DIR" ]]; then
+        mv "$old_dir" "$TOOLS_INSTALL_DIR"
+        # Fix symlinks that pointed into the old cellar path
+        local link
+        while IFS= read -r link; do
+          [[ -L "$link" ]] || continue
+          local target
+          target="$(readlink "$link")"
+          if [[ "$target" == *"${old_dir}"* ]]; then
+            ln -sf "${target/${old_dir}/${TOOLS_INSTALL_DIR}}" "$link"
+          fi
+        done < <(find "${XDG_OPT_BIN}" "${XDG_OPT_SHARE}" -type l 2>/dev/null)
+      fi
+      installed_version="$version"
+    fi
+  fi
+
+  # Skip if already installed at this version
+  if [[ "$installed_version" == "$version" && -d "$TOOLS_INSTALL_DIR" ]]; then
     vlog "skip" "${name} at ${tag}"
     TOOLS_INSTALL_SKIPPED=1
     return 0
@@ -127,9 +158,9 @@ tool_gh_install() {
     chmod +x "${TOOLS_INSTALL_DIR}/${filename}"
   fi
 
-  # Record installed tag
-  printf '%s\n' "$tag" > "$state_file"
-  log "install" "${name} ${tag} -> ${TOOLS_INSTALL_DIR}"
+  # Record installed version (normalized)
+  printf '%s\n' "$version" > "$state_file"
+  log "install" "${name} ${version} -> ${TOOLS_INSTALL_DIR}"
 }
 
 # _tool_download_extras

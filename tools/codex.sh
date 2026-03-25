@@ -2,6 +2,7 @@
 TOOL_CMD=codex
 TOOL_TYPE=github
 TOOL_REPO=openai/codex
+TOOL_VERSION_MATCH="^rust-v(.*)"
 
 tool_download() {
   local asset

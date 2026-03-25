@@ -27,17 +27,27 @@ export XDG_OPT_HOME XDG_OPT_BIN XDG_OPT_SHARE
 #   share/        (XDG_OPT_SHARE) symlink farm for man pages and completions
 #   cellar/       (TOOLS_CELLAR)  versioned installs, keyed by tool name
 #     <name>/
-#       <tag>/    extracted assets
+#       <version>/ extracted assets
 #
-# XDG_CACHE_HOME/tools/  (TOOLS_CACHE)  downloaded archives, keyed by tool name
+# XDG_CACHE_HOME/dotfiles/tools/  (TOOLS_CACHE)  downloaded archives
 #   <name>/
 #
-# XDG_STATE_HOME/tools/  (TOOLS_STATE)  installed version receipts
-#   <name>        one file per tool, contains the installed tag
+# XDG_STATE_HOME/dotfiles/tools/  (TOOLS_STATE)  installed version receipts
+#   <name>        one file per tool, contains the normalized version
 #
 TOOLS_CELLAR="${XDG_OPT_HOME}/cellar"
-TOOLS_CACHE="${XDG_CACHE_HOME}/tools"
-TOOLS_STATE="${XDG_STATE_HOME}/tools"
+TOOLS_CACHE="${XDG_CACHE_HOME}/dotfiles/tools"
+TOOLS_STATE="${XDG_STATE_HOME}/dotfiles/tools"
+
+# Migrate from old paths (pre-namespace)
+if [[ -d "${XDG_STATE_HOME}/tools" && ! -d "${TOOLS_STATE}" ]]; then
+  mkdir -p "$(dirname "$TOOLS_STATE")"
+  mv "${XDG_STATE_HOME}/tools" "$TOOLS_STATE"
+fi
+if [[ -d "${XDG_CACHE_HOME}/tools" && ! -d "${TOOLS_CACHE}" ]]; then
+  mkdir -p "$(dirname "$TOOLS_CACHE")"
+  mv "${XDG_CACHE_HOME}/tools" "$TOOLS_CACHE"
+fi
 # Convenience aliases used by tool scripts
 TOOLS_BIN="${XDG_OPT_BIN}"
 TOOLS_SHARE="${XDG_OPT_SHARE}"
@@ -130,10 +140,31 @@ tool_link() {
 # Version interpolation
 # ---------------------------------------------------------------------------
 
+# _tool_normalize_version <tag>
+#
+# Normalizes a raw release tag into a clean version string.
+# Uses TOOL_VERSION_MATCH regex (capture group 1) when set; otherwise
+# strips a leading "v" prefix. Deterministic: same tag always produces
+# the same result.
+_tool_normalize_version() {
+  local tag="$1"
+  if [[ -n "${TOOL_VERSION_MATCH:-}" ]]; then
+    if [[ "$tag" =~ ${TOOL_VERSION_MATCH} ]]; then
+      printf '%s' "${BASH_REMATCH[1]}"
+    else
+      error "_tool_normalize_version: tag '${tag}' does not match TOOL_VERSION_MATCH: ${TOOL_VERSION_MATCH}"
+      return 1
+    fi
+  else
+    printf '%s' "${tag#v}"
+  fi
+}
+
 # _tool_interpolate_version <asset> <repo>
 #
-# If <asset> contains {version}, resolves the tag and applies TOOL_VERSION_MATCH
-# to extract the version string. Returns the interpolated asset pattern.
+# If <asset> contains {version}, resolves the tag and applies
+# _tool_normalize_version to extract the version string.
+# Returns the interpolated asset pattern.
 # Sets TOOL_RESOLVED_TAG and TOOL_RESOLVED_VERSION for downstream use.
 _tool_interpolate_version() {
   local asset="$1"
@@ -151,15 +182,8 @@ _tool_interpolate_version() {
 
   TOOL_RESOLVED_TAG="$tag"
 
-  local version="$tag"
-  if [[ -n "${TOOL_VERSION_MATCH:-}" ]]; then
-    if [[ "$tag" =~ ${TOOL_VERSION_MATCH} ]]; then
-      version="${BASH_REMATCH[1]}"
-    else
-      error "_tool_interpolate_version: tag '${tag}' does not match TOOL_VERSION_MATCH: ${TOOL_VERSION_MATCH}"
-      return 1
-    fi
-  fi
+  local version
+  version="$(_tool_normalize_version "$tag")" || return 1
 
   TOOL_RESOLVED_VERSION="$version"
   printf '%s' "${asset//\{version\}/$version}"

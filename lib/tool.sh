@@ -292,10 +292,60 @@ _tool_clean() {
   fi
 }
 
-# _tool_upgrade [<name>]
-# Upgrade installed tools to latest version.
-# Skips tools already at the latest version via tool_gh_install's tag check.
-# Sets DOTFILES_TOOL_UPGRADE=1 so scripts bypass the command -v early exit.
+# _tool_cleanup [<name>]
+# Remove old cellar versions, keeping only the current installed version.
+# Like brew cleanup: frees disk space without affecting running installs.
+_tool_cleanup() {
+  local target="${1:-}"
+  source "${DOTFILES_HOME}/lib/opt.sh"
+
+  local total_freed=0 tools_cleaned=0
+
+  _cleanup_tool() {
+    local name="$1"
+    local cellar_dir="${TOOLS_CELLAR}/${name}"
+    local state_file="${TOOLS_STATE}/${name}"
+
+    [[ -d "$cellar_dir" ]] || return 0
+
+    local current=""
+    [[ -f "$state_file" ]] && current="$(cat "$state_file")"
+
+    local removed=0
+    while IFS= read -r version_dir; do
+      local ver
+      ver="$(basename "$version_dir")"
+      [[ "$ver" != "$current" ]] || continue
+
+      local size
+      size="$(du -sk "$version_dir" 2>/dev/null | cut -f1)"
+      rm -rf "$version_dir"
+      total_freed=$((total_freed + ${size:-0}))
+      removed=1
+      log "cleanup" "${name}/${ver} removed"
+    done < <(find "$cellar_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+
+    [[ "$removed" -eq 1 ]] && tools_cleaned=$((tools_cleaned + 1)) || true
+  }
+
+  if [[ -n "$target" ]]; then
+    _cleanup_tool "$target"
+  else
+    while IFS= read -r d; do
+      _cleanup_tool "$(basename "$d")"
+    done < <(find "$TOOLS_CELLAR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+  fi
+
+  if [[ "$tools_cleaned" -eq 0 ]]; then
+    log "cleanup" "nothing to clean up"
+  else
+    local freed_mb=$(( (total_freed + 512) / 1024 ))
+    log "cleanup" "${tools_cleaned} tool(s) cleaned, ~${freed_mb}MB freed"
+  fi
+
+  unset -f _cleanup_tool
+}
+
 _tool_upgrade() {
   local target="${1:-}"
   local tools_dir="${DOTFILES_HOME}/tools"
@@ -398,16 +448,17 @@ _tool_outdated() {
       continue
     fi
 
-    local cur_tag latest_tag
-    cur_tag="$(tool_installed_tag "$TOOL_REPO")"
+    local cur_version latest_tag latest_version
+    cur_version="$(tool_installed_tag "$TOOL_REPO")"
     latest_tag="$(tool_latest_tag "$TOOL_REPO" 2>/dev/null)" || { warn "$name" "failed to check latest version"; continue; }
 
     [[ -n "$latest_tag" ]] || continue
-    [[ "$cur_tag" != "$latest_tag" ]] || continue
+    latest_version="$(_tool_normalize_version "$latest_tag")" || { warn "$name" "failed to normalize tag: $latest_tag"; continue; }
+    [[ "$cur_version" != "$latest_version" ]] || continue
 
     names+=("$name")
-    installed+=("$cur_tag")
-    latest+=("$latest_tag")
+    installed+=("$cur_version")
+    latest+=("$latest_version")
   done < <(find "$tools_dir" -maxdepth 1 -name "*.sh" 2>/dev/null | sort)
 
   if [[ ${#names[@]} -eq 0 ]]; then
@@ -569,16 +620,10 @@ _tool_list() {
     if [[ "$is_managed" -eq 1 ]]; then
       if declare -f tool_version >/dev/null 2>&1; then
         versions+=("$(tool_version "$cmd_path" 2>/dev/null || echo '-')")
-      elif [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_REPO:-}" ]]; then
-        # AppImage: use persisted tag metadata instead of running the binary
+      elif [[ "${TOOL_TYPE:-}" == "github" || "${TOOL_TYPE:-}" == "appimage" ]]; then
+        # Cellar-managed: read normalized version from state file
         if [[ -f "${TOOLS_STATE}/${name}" ]]; then
-          local tag
-          tag="$(cat "${TOOLS_STATE}/${name}")"
-          if [[ -n "${TOOL_VERSION_MATCH:-}" && "$tag" =~ ${TOOL_VERSION_MATCH} ]]; then
-            versions+=("${BASH_REMATCH[1]}")
-          else
-            versions+=("$tag")
-          fi
+          versions+=("$(cat "${TOOLS_STATE}/${name}")")
         else
           versions+=("-")
         fi
@@ -650,13 +695,14 @@ _tool_cmd() {
     upgrade)   _tool_upgrade   "$@" ;;
     outdated)  _tool_outdated ;;
     clean)     _tool_clean     "$@" ;;
+    cleanup)   _tool_cleanup   "$@" ;;
     list)      _tool_list ;;
     status)    _tool_status ;;
     "")
-      abort "usage: dotfiles tool <install|uninstall|upgrade|outdated|clean|list|status> [<toolname>]"
+      abort "usage: dotfiles tool <install|uninstall|upgrade|outdated|clean|cleanup|list|status> [<toolname>]"
       ;;
     *)
-      abort "unknown tool operation: $op (use install, uninstall, upgrade, outdated, clean, list, or status)"
+      abort "unknown tool operation: $op (use install, uninstall, upgrade, outdated, clean, cleanup, list, or status)"
       ;;
   esac
 }
