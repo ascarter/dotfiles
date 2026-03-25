@@ -474,6 +474,8 @@ _tool_detect_version() {
   # Extract first version-like pattern from output
   local ver
   ver="$(printf '%s' "$output" | grep -oE '(v?[0-9]+\.[0-9]+[.0-9a-zA-Z_-]*)' | head -n1)"
+  ver="${ver%.}"  # strip trailing dot (e.g. copilot outputs "1.0.11.")
+  ver="${ver#v}"  # strip leading v prefix
   if [[ -n "$ver" ]]; then
     printf '%s' "$ver"
   else
