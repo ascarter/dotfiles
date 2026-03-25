@@ -38,16 +38,6 @@ export XDG_OPT_HOME XDG_OPT_BIN XDG_OPT_SHARE
 TOOLS_CELLAR="${XDG_OPT_HOME}/cellar"
 TOOLS_CACHE="${XDG_CACHE_HOME}/dotfiles/tools"
 TOOLS_STATE="${XDG_STATE_HOME}/dotfiles/tools"
-
-# Migrate from old paths (pre-namespace)
-if [[ -d "${XDG_STATE_HOME}/tools" && ! -d "${TOOLS_STATE}" ]]; then
-  mkdir -p "$(dirname "$TOOLS_STATE")"
-  mv "${XDG_STATE_HOME}/tools" "$TOOLS_STATE"
-fi
-if [[ -d "${XDG_CACHE_HOME}/tools" && ! -d "${TOOLS_CACHE}" ]]; then
-  mkdir -p "$(dirname "$TOOLS_CACHE")"
-  mv "${XDG_CACHE_HOME}/tools" "$TOOLS_CACHE"
-fi
 # Convenience aliases used by tool scripts
 TOOLS_BIN="${XDG_OPT_BIN}"
 TOOLS_SHARE="${XDG_OPT_SHARE}"

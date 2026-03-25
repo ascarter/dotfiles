@@ -77,35 +77,9 @@ tool_gh_install() {
   TOOLS_INSTALL_VERSION="$version"
   export TOOLS_INSTALL_DIR TOOLS_INSTALL_TAG TOOLS_INSTALL_VERSION
 
-  # Migrate: if state has old raw tag, normalize it; rename cellar dir if needed
+  # Skip if already installed at this version
   local installed_version
   installed_version="$(tool_installed_tag "$repo")"
-  if [[ "$installed_version" != "none" && "$installed_version" != "$version" ]]; then
-    local old_dir="${TOOLS_CELLAR}/${name}/${installed_version}"
-    local migrated_version
-    migrated_version="$(_tool_normalize_version "$installed_version" 2>/dev/null)" || migrated_version="$installed_version"
-    if [[ "$migrated_version" == "$version" ]]; then
-      # State has raw tag, normalize it
-      printf '%s\n' "$version" > "$state_file"
-      # Rename cellar dir from raw tag to normalized version
-      if [[ -d "$old_dir" && ! -d "$TOOLS_INSTALL_DIR" ]]; then
-        mv "$old_dir" "$TOOLS_INSTALL_DIR"
-        # Fix symlinks that pointed into the old cellar path
-        local link
-        while IFS= read -r link; do
-          [[ -L "$link" ]] || continue
-          local target
-          target="$(readlink "$link")"
-          if [[ "$target" == *"${old_dir}"* ]]; then
-            ln -sf "${target/${old_dir}/${TOOLS_INSTALL_DIR}}" "$link"
-          fi
-        done < <(find "${XDG_OPT_BIN}" "${XDG_OPT_SHARE}" -type l 2>/dev/null)
-      fi
-      installed_version="$version"
-    fi
-  fi
-
-  # Skip if already installed at this version
   if [[ "$installed_version" == "$version" && -d "$TOOLS_INSTALL_DIR" ]]; then
     vlog "skip" "${name} at ${tag}"
     TOOLS_INSTALL_SKIPPED=1
