@@ -27,9 +27,10 @@ tool_latest_tag() {
 
 # tool_installed_tag <owner/repo>
 # Reads the state file for the tool. Prints tag or "none".
+# Uses TOOLS_NAME (script basename) when set, falls back to repo basename.
 tool_installed_tag() {
   local repo="$1"
-  local name="${repo##*/}"
+  local name="${TOOLS_NAME:-${repo##*/}}"
   local state_file="${TOOLS_STATE}/${name}"
   if [[ -f "$state_file" ]]; then
     cat "$state_file"
@@ -54,7 +55,7 @@ tool_gh_install() {
   local repo="$1"
   local asset_glob="$2"
   local tag="${3:-}"
-  local name="${repo##*/}"
+  local name="${TOOLS_NAME:-${repo##*/}}"
   local state_file="${TOOLS_STATE}/${name}"
 
   # Resolve tag if not provided. Default is the latest stable release.
@@ -137,7 +138,7 @@ tool_gh_install() {
 # and TOOL_REPO set by the prior download step.
 _tool_download_extras() {
   local extra cache_dir asset_file filename
-  cache_dir="${TOOLS_CACHE}/${TOOL_REPO##*/}"
+  cache_dir="${TOOLS_CACHE}/${TOOLS_NAME:-${TOOL_REPO##*/}}"
   for extra in "${TOOL_ASSET_EXTRA[@]:-}"; do
     [[ -n "$extra" ]] || continue
     gh release download "$TOOLS_INSTALL_TAG" \
@@ -266,7 +267,7 @@ _tool_default_post_install() {
   # but are not part of the current recipe (e.g. after removing bash completions).
   local comp_dir="${XDG_OPT_HOME}/share/completions"
   if [[ -d "$comp_dir" ]] && [[ -n "${TOOL_REPO:-}" ]]; then
-    local cellar_prefix="${TOOLS_CELLAR}/${TOOL_REPO##*/}/"
+    local cellar_prefix="${TOOLS_CELLAR}/${TOOLS_NAME:-${TOOL_REPO##*/}}/"
     local link target
     find "$comp_dir" -maxdepth 1 -type l | while IFS= read -r link; do
       target="$(readlink "$link" 2>/dev/null)" || continue

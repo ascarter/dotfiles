@@ -238,6 +238,8 @@ tool_run_recipe() {
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade 2>/dev/null
 
   # Source the recipe — sets vars and optionally defines hooks
+  TOOLS_NAME="$(basename "$recipe" .sh)"
+  export TOOLS_NAME
   source "$recipe"
 
   [[ -n "${TOOL_CMD:-}" ]] || { error "tool_run_recipe: TOOL_CMD not set in ${recipe}"; return 1; }

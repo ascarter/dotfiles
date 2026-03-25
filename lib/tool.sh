@@ -160,6 +160,8 @@ _tool_run_uninstall_hook() {
   unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
   unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall 2>/dev/null
 
+  TOOLS_NAME="$name"
+  export TOOLS_NAME
   source "$script"
 
   # Uninstall is a pipeline — each step runs if configured.
@@ -375,6 +377,8 @@ _tool_outdated() {
     unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_upgrade tool_uninstall 2>/dev/null
 
+    TOOLS_NAME="$name"
+    export TOOLS_NAME
     source "$script"
 
     # Skip tools without TOOL_REPO (self-managed, no tag tracking)
@@ -506,6 +510,8 @@ _tool_list() {
     unset TOOL_DESKTOP_ID TOOL_DESKTOP_EXEC TOOL_DESKTOP_ICON_EXT TOOL_APPIMAGE_GLOB
     unset TOOL_INSTALL_URL TOOL_INSTALL_ENV TOOL_INSTALL_ARGS TOOL_UNINSTALL_PATHS TOOL_UNINSTALL_COMMAND
     unset -f tool_download tool_post_install tool_platform_check tool_externally_managed tool_uninstall tool_upgrade tool_version 2>/dev/null
+    TOOLS_NAME="$name"
+    export TOOLS_NAME
     source "$script"
 
     # Resolve command path — prefer our managed binary over system
@@ -563,10 +569,9 @@ _tool_list() {
         versions+=("$(tool_version "$cmd_path" 2>/dev/null || echo '-')")
       elif [[ "${TOOL_TYPE:-}" == "appimage" && -n "${TOOL_REPO:-}" ]]; then
         # AppImage: use persisted tag metadata instead of running the binary
-        local repo_name="${TOOL_REPO##*/}"
-        if [[ -f "${TOOLS_STATE}/${repo_name}" ]]; then
+        if [[ -f "${TOOLS_STATE}/${name}" ]]; then
           local tag
-          tag="$(cat "${TOOLS_STATE}/${repo_name}")"
+          tag="$(cat "${TOOLS_STATE}/${name}")"
           if [[ -n "${TOOL_VERSION_MATCH:-}" && "$tag" =~ ${TOOL_VERSION_MATCH} ]]; then
             versions+=("${BASH_REMATCH[1]}")
           else
