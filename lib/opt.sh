@@ -144,13 +144,9 @@ _tool_interpolate_version() {
 
   [[ "$asset" == *"{version}"* ]] || { printf '%s' "$asset"; return 0; }
 
-  # Resolve tag (respect tool_latest_tag hook if defined)
+  # Resolve tag (respect tool_latest_tag hook if recipe overrides it)
   local tag
-  if declare -f tool_latest_tag >/dev/null 2>&1; then
-    tag="$(tool_latest_tag)"
-  else
-    tag="$(tool_latest_tag "$repo")"
-  fi
+  tag="$(tool_latest_tag "$repo")"
   [[ -n "$tag" ]] || { error "_tool_interpolate_version: failed to resolve tag for ${repo}"; return 1; }
 
   TOOL_RESOLVED_TAG="$tag"
