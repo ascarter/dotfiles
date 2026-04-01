@@ -1,4 +1,4 @@
-font-family = "JuliaMono"
+font-family = "Berkeley Mono"
 font-feature = "+calt,zero on,+ss01,+ss03,+ss05,+ss10,+cv04"
 theme = alpental-dark
 window-padding-x = 12
