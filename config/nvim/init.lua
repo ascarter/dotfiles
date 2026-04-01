@@ -30,6 +30,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 vim.pack.add({
   gh("ascarter/nvim-alpental-theme"),
   gh("nvim-treesitter/nvim-treesitter"),
+  gh("nvim-treesitter/nvim-treesitter-textobjects"),
   gh("mason-org/mason.nvim"),
   gh("neovim/nvim-lspconfig"),
   gh("ibhagwan/fzf-lua"),

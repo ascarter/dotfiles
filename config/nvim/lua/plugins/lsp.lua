@@ -117,10 +117,24 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
     end
 
-    -- Use fzf-lua for references (nicer UI than default quickfix)
+    -- Zed-style LSP keymaps (https://zed.dev/docs/vim#language-server)
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buf = bufnr, silent = true, desc = "Go to definition" })
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buf = bufnr, silent = true, desc = "Go to declaration" })
+    vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { buf = bufnr, silent = true, desc = "Go to type definition" })
+    vim.keymap.set("n", "gI", vim.lsp.buf.implementation, { buf = bufnr, silent = true, desc = "Go to implementation" })
+    vim.keymap.set("n", "gh", vim.lsp.buf.hover, { buf = bufnr, silent = true, desc = "Hover" })
+    vim.keymap.set({ "n", "v" }, "g.", vim.lsp.buf.code_action, { buf = bufnr, silent = true, desc = "Code action" })
+    vim.keymap.set("n", "cd", vim.lsp.buf.rename, { buf = bufnr, silent = true, desc = "Rename symbol" })
+    vim.keymap.set("n", "g[", function() vim.diagnostic.jump({ count = -1 }) end, { buf = bufnr, silent = true, desc = "Previous diagnostic" })
+    vim.keymap.set("n", "g]", function() vim.diagnostic.jump({ count = 1 }) end, { buf = bufnr, silent = true, desc = "Next diagnostic" })
+
+    -- Use fzf-lua for references and symbols (nicer UI than default quickfix)
     local ok, fzf = pcall(require, "fzf-lua")
     if ok then
       vim.keymap.set("n", "grr", fzf.lsp_references, { buf = bufnr, silent = true, desc = "References" })
+      vim.keymap.set("n", "gA", fzf.lsp_references, { buf = bufnr, silent = true, desc = "All references" })
+      vim.keymap.set("n", "gs", fzf.lsp_document_symbols, { buf = bufnr, silent = true, desc = "Document symbols" })
+      vim.keymap.set("n", "gS", fzf.lsp_workspace_symbols, { buf = bufnr, silent = true, desc = "Workspace symbols" })
     end
 
     -- Format with leader key
