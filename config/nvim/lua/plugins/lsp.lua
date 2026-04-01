@@ -74,8 +74,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     -- Enable inline ghost-text completions (Copilot)
+    -- Ctrl-E to request, Ctrl-Y to accept, Ctrl-] to dismiss
     if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion) then
       vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+      vim.keymap.set("i", "<C-e>", "v:lua.vim.lsp.inline_completion.get()", {
+        buf = bufnr, expr = true, desc = "Request inline completion",
+      })
     end
 
     -- Use fzf-lua for references (nicer UI than default quickfix)
