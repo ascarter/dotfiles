@@ -1,29 +1,45 @@
 -- =============================================================================
--- Bootstrap lazy.nvim
+-- Leader (set before any plugins reference it)
 -- =============================================================================
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
-  vim.fn.system({
-    "git", "clone", "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
-end
-vim.opt.rtp:prepend(lazypath)
-
--- =============================================================================
--- Options
--- =============================================================================
-local opt                = vim.opt
-
--- Leader (set before plugins)
 vim.g.mapleader          = " "
 vim.g.maplocalleader     = " "
 
 -- Disable netrw (replaced by fzf-lua file picker)
 vim.g.loaded_netrw       = 1
 vim.g.loaded_netrwPlugin = 1
+
+-- =============================================================================
+-- Packages (vim.pack)
+-- =============================================================================
+local gh = function(r) return "https://github.com/" .. r end
+
+-- Build hook: recompile parsers after treesitter updates
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(ev)
+    if ev.data.spec.name == "nvim-treesitter" and ev.data.kind == "update" then
+      vim.cmd("TSUpdate")
+    end
+  end,
+})
+
+vim.pack.add({
+  gh("ascarter/nvim-alpental-theme"),
+  gh("nvim-treesitter/nvim-treesitter"),
+  gh("mason-org/mason.nvim"),
+  gh("neovim/nvim-lspconfig"),
+  gh("ibhagwan/fzf-lua"),
+  gh("mfussenegger/nvim-dap"),
+  gh("rcarriga/nvim-dap-ui"),
+  gh("nvim-neotest/nvim-nio"),
+  gh("folke/which-key.nvim"),
+  gh("echasnovski/mini.pairs"),
+  gh("echasnovski/mini.surround"),
+})
+
+-- =============================================================================
+-- Options
+-- =============================================================================
+local opt                = vim.opt
 
 -- Cursor
 opt.guicursor            = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
@@ -52,37 +68,42 @@ function _G.statuscolumn()
   return "%s%=" .. hl .. num .. "%* "
 end
 
-opt.statuscolumn = "%!v:lua.statuscolumn()"
+opt.statuscolumn         = "%!v:lua.statuscolumn()"
 
 -- Folding (treesitter-based)
-opt.foldmethod   = "expr"
-opt.foldexpr     = "v:lua.vim.treesitter.foldexpr()"
-opt.foldlevel    = 99
+opt.foldmethod           = "expr"
+opt.foldexpr             = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel            = 99
 
 -- Search
-opt.ignorecase   = true
-opt.smartcase    = true
+opt.ignorecase           = true
+opt.smartcase            = true
 
 -- Splits
-opt.splitright   = true
-opt.splitbelow   = true
+opt.splitright           = true
+opt.splitbelow           = true
 
 -- Whitespace visibility
-opt.list         = true
-opt.listchars    = { tab = "» ", trail = "·", nbsp = "␣" }
+opt.list                 = true
+opt.listchars            = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Completion
-opt.pumheight    = 10
+opt.pumheight            = 10
 
 -- Files
-opt.undofile     = true
-opt.swapfile     = false
+opt.undofile             = true
+opt.swapfile             = false
 
 -- Suppress intro screen
 opt.shortmess:append("I")
 
 -- Misc
-opt.confirm    = true
+opt.confirm              = true
+
+-- =============================================================================
+-- Colorscheme
+-- =============================================================================
+vim.cmd.colorscheme("alpental")
 
 -- =============================================================================
 -- Statusline
@@ -132,6 +153,15 @@ vim.diagnostic.config({
     source = true,
   },
 })
+
+-- =============================================================================
+-- Plugin Configuration
+-- =============================================================================
+require("plugins.treesitter")
+require("plugins.lsp")
+require("plugins.fzf")
+require("plugins.dap")
+require("plugins.editor")
 
 -- =============================================================================
 -- Autocommands
@@ -195,37 +225,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
--- LSP customizations (activate when a language server attaches)
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-
-    -- Enable built-in LSP completion
-    if client and client:supports_method("textDocument/completion") then
-      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
-    end
-
-    -- Use fzf-lua for references (nicer UI than default quickfix)
-    local ok, fzf = pcall(require, "fzf-lua")
-    if ok then
-      vim.keymap.set("n", "grr", fzf.lsp_references, { buf = bufnr, silent = true, desc = "References" })
-    end
-
-    -- Format with leader key
-    vim.keymap.set({ "n", "v" }, "<leader>cf", function()
-      vim.lsp.buf.format({ async = true })
-    end, { buf = bufnr, silent = true, desc = "Format" })
-
-    -- Inlay hints (<leader>ci to toggle)
-    if client and client:supports_method("textDocument/inlayHint") then
-      vim.keymap.set("n", "<leader>ci", function()
-        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
-      end, { buf = bufnr, silent = true, desc = "Toggle inlay hints" })
-    end
-  end,
-})
-
 -- =============================================================================
 -- Keymaps
 -- =============================================================================
@@ -255,13 +254,3 @@ map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 -- y/Y use system clipboard; d/x/c/p/P stay in vim registers
 map({ "n", "v" }, "y", '"+y')
 map("n", "Y", '"+Y')
-
--- =============================================================================
--- Plugins (lazy.nvim)
--- =============================================================================
-require("lazy").setup({
-  spec             = { { import = "plugins" } },
-  defaults         = { lazy = true },
-  rocks            = { enabled = false },
-  change_detection = { notify = false },
-})
