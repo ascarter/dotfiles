@@ -202,26 +202,26 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
     -- Enable built-in LSP completion
-    if client and client.supports_method("textDocument/completion") then
+    if client and client:supports_method("textDocument/completion") then
       vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
     end
 
     -- Use fzf-lua for references (nicer UI than default quickfix)
     local ok, fzf = pcall(require, "fzf-lua")
     if ok then
-      vim.keymap.set("n", "grr", fzf.lsp_references, { buffer = bufnr, silent = true, desc = "References" })
+      vim.keymap.set("n", "grr", fzf.lsp_references, { buf = bufnr, silent = true, desc = "References" })
     end
 
     -- Format with leader key
     vim.keymap.set({ "n", "v" }, "<leader>cf", function()
       vim.lsp.buf.format({ async = true })
-    end, { buffer = bufnr, silent = true, desc = "Format" })
+    end, { buf = bufnr, silent = true, desc = "Format" })
 
     -- Inlay hints (<leader>ci to toggle)
-    if client and client.supports_method("textDocument/inlayHint") then
+    if client and client:supports_method("textDocument/inlayHint") then
       vim.keymap.set("n", "<leader>ci", function()
         vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
-      end, { buffer = bufnr, silent = true, desc = "Toggle inlay hints" })
+      end, { buf = bufnr, silent = true, desc = "Toggle inlay hints" })
     end
   end,
 })

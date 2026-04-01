@@ -51,7 +51,7 @@ return {
           end
           if client:supports_method(vim.lsp.protocol.Methods.textDocument_completion, args.buf) then
             vim.keymap.set("i", "<C-Space>", "<C-x><C-o>", {
-              buffer = args.buf,
+              buf = args.buf,
               desc = "LSP: trigger completion",
             })
           end
