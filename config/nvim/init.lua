@@ -94,6 +94,13 @@ opt.listchars            = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- Completion
 opt.pumheight            = 10
+opt.pumwidth             = 15
+opt.pummaxwidth          = 40
+opt.pumborder            = "rounded"
+opt.completeopt          = "menuone,noinsert,popup"
+
+-- Floating windows (docs popup, hover, etc.)
+opt.winborder            = "rounded"
 
 -- Files
 opt.undofile             = true
@@ -154,7 +161,6 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort    = true,
   float            = {
-    border = "rounded",
     source = true,
   },
 })
@@ -259,3 +265,32 @@ map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 -- y/Y use system clipboard; d/x/c/p/P stay in vim registers
 map({ "n", "v" }, "y", '"+y')
 map("n", "Y", '"+Y')
+
+-- Completion: Tab accepts popup selection or ghost text, else inserts tab
+-- Ctrl-Y does the same with fallback to built-in (insert char from line above)
+-- Ctrl-N/P navigate popup items (built-in), Ctrl-E dismisses (built-in)
+vim.keymap.set("i", "<Tab>", function()
+  if vim.fn.pumvisible() == 1 then
+    return "<C-y>"
+  end
+  if not vim.lsp.inline_completion.get() then
+    return "<Tab>"
+  end
+end, { expr = true, desc = "Accept completion or Tab" })
+
+vim.keymap.set("i", "<C-y>", function()
+  if vim.fn.pumvisible() == 1 then
+    return "<C-y>"
+  end
+  if not vim.lsp.inline_completion.get() then
+    return "<C-y>"
+  end
+end, { expr = true, desc = "Accept completion" })
+
+-- Esc dismisses popup without accepting, then exits insert mode
+vim.keymap.set("i", "<Esc>", function()
+  if vim.fn.pumvisible() == 1 then
+    return "<C-e><Esc>"
+  end
+  return "<Esc>"
+end, { expr = true, desc = "Dismiss completion or exit insert" })

@@ -3,7 +3,7 @@
 -- =============================================================================
 
 -- Mason: install and manage LSP servers, DAP adapters, linters
-require("mason").setup({ ui = { border = "rounded" } })
+require("mason").setup()
 
 -- Auto-install required tools on startup
 local tools = {
@@ -65,21 +65,56 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if not client then return end
 
-    -- Enable built-in LSP completion
+    -- Enable built-in LSP completion (icon-only kind, no menu detail)
     if client:supports_method("textDocument/completion") then
-      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+      -- LSP CompletionItemKind icons (Material Design / Nerd Font)
+      local kind_icons = {
+        [1]  = "\u{f021a}",  -- Text: file-document
+        [2]  = "\u{f0295}",  -- Method: function
+        [3]  = "\u{f0295}",  -- Function: function
+        [4]  = "\u{f0551}",  -- Constructor: wrench
+        [5]  = "\u{f0374}",  -- Field: ray-start-arrow
+        [6]  = "\u{f0034}",  -- Variable: alpha-v-circle
+        [7]  = "\u{f01a7}",  -- Class: cube-scan
+        [8]  = "\u{f01a5}",  -- Interface: cube-outline
+        [9]  = "\u{f01a7}",  -- Module: cube-scan
+        [10] = "\u{f0374}",  -- Property: ray-start-arrow
+        [11] = "\u{f01a5}",  -- Unit: cube-outline
+        [12] = "\u{f0317}",  -- Value: numeric
+        [13] = "\u{f0279}",  -- Enum: format-list-numbered
+        [14] = "\u{f0a76}",  -- Keyword: key-variant
+        [15] = "\u{f0174}",  -- Snippet: code-tags
+        [16] = "\u{f0266}",  -- Color: palette
+        [17] = "\u{f0214}",  -- File: file
+        [18] = "\u{f0320}",  -- Reference: link-variant
+        [19] = "\u{f024b}",  -- Folder: folder
+        [20] = "\u{f0279}",  -- EnumMember: format-list-numbered
+        [21] = "\u{f0317}",  -- Constant: numeric
+        [22] = "\u{f01a7}",  -- Struct: cube-scan
+        [23] = "\u{f05ce}",  -- Event: lightning-bolt
+        [24] = "\u{f0498}",  -- Operator: plus-minus-variant
+        [25] = "\u{f01a7}",  -- TypeParameter: cube-scan
+      }
+      vim.lsp.completion.enable(true, client.id, bufnr, {
+        autotrigger = true,
+        convert = function(item)
+          local icon = kind_icons[item.kind] or ""
+          return {
+            abbr = icon ~= "" and (icon .. " " .. item.label) or item.label,
+            kind = "",
+            menu = "",
+          }
+        end,
+      })
       vim.keymap.set("i", "<C-Space>", "<C-x><C-o>", {
         buf = bufnr, desc = "LSP: trigger completion",
       })
     end
 
     -- Enable inline ghost-text completions (Copilot)
-    -- Suggestions appear automatically; Ctrl-Shift-Space to accept
+    -- Suggestions appear automatically; Tab or Ctrl-Y to accept
     if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlineCompletion) then
       vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
-      vim.keymap.set("i", "<C-S-Space>", function()
-        vim.lsp.inline_completion.get()
-      end, { buf = bufnr, desc = "Accept inline completion" })
     end
 
     -- Use fzf-lua for references (nicer UI than default quickfix)

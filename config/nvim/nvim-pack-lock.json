@@ -17,7 +17,7 @@
       "src": "https://github.com/echasnovski/mini.surround"
     },
     "nvim-alpental-theme": {
-      "rev": "71fd0b992d48f9e3b883174126de59a90ef52be1",
+      "rev": "388120437e4cafd4b241a3bb0836a6d0a3015a75",
       "src": "https://github.com/ascarter/nvim-alpental-theme"
     },
     "nvim-dap": {

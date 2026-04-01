@@ -50,11 +50,14 @@ fi
 # ── Update ─────────────────────────────────────────────────────────────────────
 echo "Updating plugins..."
 nvim --headless +'lua vim.pack.update(nil, {force=true})' +qa
+echo ""
 
 echo "Updating treesitter parsers..."
 nvim --headless +TSUpdate +qa
+echo ""
 
-echo "Updating Mason tools..."
-nvim --headless +'lua require("mason-registry").refresh(function() require("mason-registry").update(function() vim.cmd("qa") end) end)' 2>&1
+echo "Updating Mason registry..."
+nvim --headless +'lua require("mason-registry").refresh(function() vim.cmd("qa") end)' 2>&1
+echo ""
 
 echo "Neovim update complete."
