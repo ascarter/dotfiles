@@ -98,11 +98,12 @@
     },
   },
   "project_panel": {
+    "hide_root": true,
+    "git_status_indicator": true,
     "hide_hidden": false,
     "bold_folder_labels": true,
     "indent_size": 12.0,
     "folder_icons": false,
-    "hide_root": true,
     "git_status": true,
     "file_icons": false,
     "entry_spacing": "standard",
