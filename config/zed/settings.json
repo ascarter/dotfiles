@@ -7,6 +7,9 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "title_bar": {
+    "show_branch_icon": true,
+  },
   "document_folding_ranges": "on",
   "semantic_tokens": "combined",
   "completion_menu_scrollbar": "auto",
