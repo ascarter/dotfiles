@@ -23,7 +23,10 @@ vim.api.nvim_create_autocmd("PackChanged", {
 })
 
 -- Update plugins:  :lua vim.pack.update()
+-- Update parsers:  :TSUpdate
+-- Update Mason:    :Mason then press U
 -- From CLI:        nvim --headless +'lua vim.pack.update(nil, {force=true})' +qa
+--                  nvim --headless +TSUpdate +qa
 vim.pack.add({
   gh("ascarter/nvim-alpental-theme"),
   gh("nvim-treesitter/nvim-treesitter"),
