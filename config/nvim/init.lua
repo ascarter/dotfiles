@@ -32,7 +32,6 @@ vim.pack.add({
   gh("nvim-treesitter/nvim-treesitter"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
   gh("mason-org/mason.nvim"),
-  gh("neovim/nvim-lspconfig"),
   gh("ibhagwan/fzf-lua"),
   gh("mfussenegger/nvim-dap"),
   gh("rcarriga/nvim-dap-ui"),

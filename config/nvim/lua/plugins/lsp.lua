@@ -1,5 +1,5 @@
 -- =============================================================================
--- Mason (tool installer) + native LSP configuration
+-- Mason (tool installer) + LSP configuration
 -- =============================================================================
 
 -- Mason: install and manage LSP servers, DAP adapters, linters
@@ -33,21 +33,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
--- LSP server customizations (override nvim-lspconfig defaults)
-vim.lsp.config("lua_ls", {
-  settings = {
-    Lua = {
-      runtime   = { version = "LuaJIT" },
-      workspace = {
-        checkThirdParty = false,
-        library = { vim.env.VIMRUNTIME },
-      },
-      telemetry = { enable = false },
-    },
-  },
-})
-
--- Enable LSP servers (definitions provided by nvim-lspconfig)
+-- Enable LSP servers (definitions in lsp/*.lua)
 vim.lsp.enable({
   "bashls",
   "copilot",
