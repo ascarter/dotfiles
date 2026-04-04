@@ -12,7 +12,6 @@ local tools = {
   "gopls",
   "lua-language-server",
   "marksman",
-  "rust-analyzer",
   "taplo",
   "codelldb",
   "delve",
