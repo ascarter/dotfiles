@@ -165,9 +165,6 @@ typeset -U path
 path=("$XDG_OPT_BIN" "$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
 typeset -U manpath
 manpath=("$XDG_OPT_SHARE/man" $manpath)
-# Source env modules (language runtimes, PATH additions — all shells)
-for __df_env_f in "$ZDOTDIR"/env.d/*.zsh(-.N); do source "$__df_env_f"; done
-unset __df_env_f
 EOF
 }
 

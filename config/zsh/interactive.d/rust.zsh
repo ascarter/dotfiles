@@ -1,5 +1,10 @@
-# Rust interactive setup (completions).
-# Exports and PATH are in env.d/rust.zsh.
+export RUSTUP_HOME="${XDG_DATA_HOME}"/rustup
+export CARGO_HOME="${XDG_DATA_HOME}"/cargo
+
+if [[ -d ${CARGO_HOME}/bin ]]; then
+  path=(${CARGO_HOME}/bin $path)
+fi
+
 if (( $+commands[rustup] )); then
   source <(rustup completions zsh)
 fi
