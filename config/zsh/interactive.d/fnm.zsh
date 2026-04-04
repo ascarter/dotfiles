@@ -1,6 +1,5 @@
-export FNM_DIR="${FNM_DIR:-${XDG_DATA_HOME}/fnm}"
-
-# Add fnm to PATH and configure shell integration
+# Shell integration for fnm (completions, automatic version switching).
+# Exports and default-Node PATH are in env.d/fnm.zsh.
 if (( $+commands[fnm] )); then
   eval "$(fnm completions --shell zsh)"
 

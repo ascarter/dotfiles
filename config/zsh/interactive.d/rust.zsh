@@ -1,12 +1,5 @@
-export RUSTUP_HOME="${XDG_DATA_HOME}"/rustup
-export CARGO_HOME="${XDG_DATA_HOME}"/cargo
-
-# Rust shell configuration
-if [[ -d ${CARGO_HOME} ]]; then
-  . "${CARGO_HOME}"/env
-fi
-
-# Enable shell completions for rustup and cargo
+# Rust interactive setup (completions).
+# Exports and PATH are in env.d/rust.zsh.
 if (( $+commands[rustup] )); then
   source <(rustup completions zsh)
 fi
