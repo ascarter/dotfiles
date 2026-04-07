@@ -34,22 +34,28 @@ packages, sets up aqua, and applies OS defaults.
 
 ```sh
 dotfiles init                   # Bootstrap XDG dirs, shell wiring, sync
+dotfiles shell                  # Configure zsh and .zshenv bootstrap
+dotfiles env                    # Emit zsh environment exports (eval'd by .zshenv)
 dotfiles sync                   # Symlink config/ into ~/.config
+dotfiles uninstall              # Remove managed symlinks
 dotfiles status                 # Show sync state
 dotfiles update                 # git pull + re-sync
-dotfiles host init              # OS provisioning (auto-detects macos|fedora-atomic|toolbox)
-dotfiles host status            # Show host environment info
 dotfiles doctor                 # Check workstation health
+dotfiles host init [<env>]      # OS provisioning (auto-detects macos|fedora-atomic|toolbox)
+dotfiles host status            # Show host environment info
 dotfiles gitconfig              # Generate machine-specific ~/.gitconfig
 dotfiles script <name>          # Run a script from scripts/
-dotfiles env                    # Emit zsh environment setup (sourced by .zshenv)
+dotfiles aqua list              # List configured aqua packages
+dotfiles aqua add [package]     # Add an aqua package
+dotfiles aqua update [package]  # Update all (or one) aqua package and install
+dotfiles aqua install           # Install all configured aqua packages
 ```
 
 For daily tool and package maintenance, use native commands directly:
 
 ```sh
 brew update && brew upgrade             # macOS packages
-aqua update && aqua i -a               # workstation CLI tools
+dotfiles aqua update                   # workstation CLI tools
 dotfiles update && dotfiles sync       # config and repo
 ```
 
@@ -120,8 +126,7 @@ Aqua uses standard XDG paths:
 eval "$($HOME/.local/share/dotfiles/bin/dotfiles env)"
 ```
 
-`dotfiles env` exports XDG defaults, `ZDOTDIR`, `DOTFILES_HOME`, aqua config
-paths, and PATH additions. The repo owns zsh initialization; everything else
+`dotfiles env` exports XDG defaults, `ZDOTDIR`, `DOTFILES_HOME`, and PATH additions. The repo owns zsh initialization; everything else
 is configured through files in `config/zsh/`.
 
 ---
