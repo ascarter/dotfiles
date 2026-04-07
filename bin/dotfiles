@@ -239,18 +239,13 @@ cmd_host() {
 
   case "$subcommand" in
   init)
-    local env_override="${1:-}"
-    if [ -n "$env_override" ]; then
-      local host_script="${DOTFILES_HOST_DIR}/${env_override}/bootstrap.sh"
-      [ -f "$host_script" ] || abort "Unknown host environment: ${env_override}"
-      ensure bash "$host_script"
-    else
-      local detected
-      detected="$(_detect_host_env)"
-      local host_script="${DOTFILES_HOST_DIR}/${detected}/bootstrap.sh"
-      [ -f "$host_script" ] || abort "No provisioning script found for: ${detected}"
-      ensure bash "$host_script"
-    fi
+    local env="${1:-$(_detect_host_env)}"
+    local host_script="${DOTFILES_HOST_DIR}/${env}/bootstrap.sh"
+    [ -f "$host_script" ] || abort "No provisioning script found for: ${env}"
+    ensure bash "$host_script"
+
+    # Run aqua tools install too when running init for convenience
+    cmd_aqua update
     ;;
   status)
     local detected
@@ -384,24 +379,13 @@ cmd_aqua() {
     grep '^ *- name:' "$aqua_config" | sed 's/.*name: /  /'
     ;;
   update)
-    local pkg="${1:-}"
-    if [ -n "$pkg" ]; then
-      log "aqua" "updating $pkg..."
-      aqua -c "$aqua_config" up "$pkg"
-    else
-      log "aqua" "updating all packages..."
-      aqua -c "$aqua_config" up
-    fi
+    log "aqua" "updating${1:+ $1}..."
+    aqua -c "$aqua_config" up "$@"
     log "aqua" "installing..."
     aqua -c "$aqua_config" install
     log "aqua" "cleaning up unused packages..."
     aqua -c "$aqua_config" vacuum
     success "aqua packages updated"
-    ;;
-  install)
-    log "aqua" "installing packages..."
-    aqua -c "$aqua_config" install
-    success "aqua packages installed"
     ;;
   add)
     local checksum_before=""
@@ -414,7 +398,7 @@ cmd_aqua() {
       return 0
     fi
     if grep -q '\[SET PACKAGE VERSION\]' "$aqua_config"; then
-      warn "package added with unresolved version — edit $aqua_config to set the version, then run dotfiles aqua install"
+      warn "package added with unresolved version — edit $aqua_config to set the version, then run dotfiles aqua update"
       return 1
     fi
     log "aqua" "installing..."
@@ -428,8 +412,7 @@ dotfiles aqua - manage aqua tools
 Usage:
   dotfiles aqua list              List configured packages
   dotfiles aqua add [package]     Add a package (interactive picker if no name given)
-  dotfiles aqua update [package]  Update all (or one) package, regenerate checksums, install
-  dotfiles aqua install           Install all configured packages
+  dotfiles aqua update [package]  Update all (or one) package, install, and vacuum
 USAGE
     [ -z "$subcommand" ] || abort "Unknown aqua subcommand: $subcommand"
     ;;

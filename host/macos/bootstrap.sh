@@ -32,7 +32,12 @@ spctl developer-mode enable-terminal 2>/dev/null || true
 
 # macOS defaults
 log "defaults" "Applying macOS defaults"
-bash "${HOST_DIR}/defaults.sh"
+
+# Terminal: focus follows mouse
+defaults write com.apple.terminal FocusFollowsMouse -string true
+
+# Reduce menu icons (macOS 26 Tahoe+)
+defaults write -g NSMenuEnableActionImages -bool NO
 
 # Homebrew
 HOMEBREW_PREFIX="/opt/homebrew"

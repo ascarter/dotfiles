@@ -89,8 +89,7 @@ _dotfiles_aqua() {
   local -a subcmds=(
     'list:List configured packages'
     'add:Add a package'
-    'update:Update packages and checksums'
-    'install:Install all configured packages'
+    'update:Update packages, install, and vacuum'
   )
 
   _arguments -C '1:aqua command:->subcmd' '*::arg:->args'

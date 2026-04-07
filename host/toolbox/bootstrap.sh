@@ -46,7 +46,7 @@ fi
 AQUA_BIN="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
 if ! command -v aqua >/dev/null 2>&1 && ! [ -x "${AQUA_BIN}/aqua" ]; then
   log "aqua" "Installing aqua"
-  curl -sSfL https://raw.githubusercontent.com/aquaproj/aqua-installer/v4.0.2/aqua-installer | bash
+  bash "${DOTFILES_HOME}/scripts/aqua.sh"
 fi
 export PATH="${AQUA_BIN}:${PATH}"
 if command -v aqua >/dev/null 2>&1; then

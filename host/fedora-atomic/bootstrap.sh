@@ -22,11 +22,12 @@ rpm-ostree upgrade
 # Install overlays from manifest
 overlay() { rpm-ostree install --idempotent "$@" || warn "overlay" "failed: $*"; }
 
-if [ -f "${HOST_DIR}/overlay-packages.txt" ]; then
+local overlay_pkgs="${HOST_DIR}/overlay-rpms"
+if [ -f "${overlay_pkgs}" ]; then
   while IFS= read -r pkg || [ -n "$pkg" ]; do
     [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
     overlay "$pkg"
-  done < "${HOST_DIR}/overlay-packages.txt"
+  done < "${overlay_pkgs}"
 fi
 
 # Desktop-specific overlays
@@ -40,18 +41,8 @@ GNOME)
 esac
 
 # Aqua
-AQUA_BIN="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
-if ! command -v aqua >/dev/null 2>&1 && ! [ -x "${AQUA_BIN}/aqua" ]; then
-  log "aqua" "Installing aqua"
-  curl -sSfL https://raw.githubusercontent.com/aquaproj/aqua-installer/v4.0.2/aqua-installer | bash
-fi
-export PATH="${AQUA_BIN}:${PATH}"
-if command -v aqua >/dev/null 2>&1; then
-  log "aqua" "Installing workstation tools"
-  aqua i -a
-else
-  warn "aqua" "aqua installation failed"
-fi
+log "aqua" "Installing aqua"
+"${DOTFILES_HOME}/bin/dotfiles" script aqua
 
 log "init" "Fedora Atomic provisioning complete"
 log "init" "Run 'systemctl reboot' to restart"

@@ -4,12 +4,7 @@
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
-
-abort() {
-  printf "%s\n" "$*" >&2
-  exit 1
-}
+source "${DOTFILES_HOME}/lib/logging.sh"
 
 if command -v speedtest >/dev/null 2>&1; then
   echo "speedtest already installed: $(command -v speedtest)"
