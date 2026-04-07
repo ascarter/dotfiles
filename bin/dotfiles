@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# dotfiles management tool
+# dotfiles — workstation profile management
 #
 
 set -eu
@@ -17,11 +17,11 @@ DOTFILES_HOST_DIR="${DOTFILES_HOME}/host"
 export DOTFILES_HOME DOTFILES_LIB_DIR
 
 # Load shared display/logging functions
-source "${DOTFILES_LIB_DIR}/core.sh"
+source "${DOTFILES_LIB_DIR}/logging.sh"
 
 usage() {
   cat <<'EOF'
-dotfiles - manage dotfiles repository
+dotfiles - workstation profile management
 
 Usage:
   dotfiles [options] <command>
@@ -31,16 +31,13 @@ Commands:
   shell       Configure zsh and shell bootstrap for dotfiles
   env         Export configuration for environment
   sync        Synchronize config
-  uninstall   Uninstall dotfiles
+  uninstall   Uninstall dotfiles (remove symlinks)
   status      Show status of dotfiles
   update      Update dotfiles repository
-  edit        Edit dotfiles repository using $EDITOR
+  doctor      Check workstation health
   host        Host provisioning (init|status)
+  aqua        Manage aqua tools
   gitconfig   Generate machine-specific ~/.gitconfig
-  tool        Manage tools (install|uninstall|upgrade|cleanup|list|status [<toolname>])
-  font        Manage fonts (install|list [<fontname>])
-  cache       Manage download cache (status|clean)
-  flatpak     Manage Flatpak apps (install|status)
   script      Run a script (list available scripts if no name given)
 
 Options:
@@ -51,11 +48,140 @@ EOF
 }
 
 # ------------------------------
+# Config sync
+# ------------------------------
+
+_sync() {
+  local action=${1:-status}
+
+  XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+  local SRC="${DOTFILES_HOME}/config/"
+  local DEST="${XDG_CONFIG_HOME}/"
+
+  local EXCLUDE_PATTERNS=".DS_Store Thumbs.db *.tmp .gitkeep"
+
+  local find_cmd="find \"$SRC\" -type f"
+  for pattern in $EXCLUDE_PATTERNS; do
+    find_cmd="$find_cmd -not -name \"$pattern\""
+  done
+
+  vlog "$action" "$SRC -> $DEST"
+
+  _sync_log() {
+    local label="$1"
+    shift
+    case "$label" in
+    link | unlink | ok)
+      [ "$QUIET" -ne 1 ] && log "$label" "$@"
+      return 0
+      ;;
+    *)
+      [ "$QUIET" -ne 1 ] && warn "$label" "$@"
+      return 1
+      ;;
+    esac
+  }
+
+  _sync_link() {
+    local src_path="$1" dest_path="$2"
+    local rel_src="${src_path#$SRC}"
+
+    if [ -e "$dest_path" ] && [ "$FORCE" -eq 1 ]; then
+      _sync_unlink "$src_path" "$dest_path"
+    fi
+
+    if [ -e "$dest_path" ]; then
+      _sync_status "$src_path" "$dest_path"
+    else
+      mkdir -p "$(dirname "$dest_path")"
+      ln -s "$src_path" "$dest_path"
+      _sync_log "link" "$rel_src" "$dest_path -> $src_path"
+    fi
+  }
+
+  _sync_unlink() {
+    local src_path="$1" dest_path="$2"
+    local rel_src="${src_path#$SRC}"
+
+    _compare_files() {
+      if cmp -s "$dest_path" "$src_path"; then
+        printf "matches source"
+      else
+        printf "differs from source"
+      fi
+    }
+
+    if [ -L "$dest_path" ]; then
+      local existing_target
+      existing_target=$(readlink "$dest_path")
+      if [ "$existing_target" = "$src_path" ]; then
+        rm "$dest_path"
+        _sync_log "unlink" "$rel_src" "removed $dest_path"
+      elif [ "$FORCE" -eq 1 ] && prompt "Symlink $dest_path points to $existing_target instead of $rel_src. Remove?"; then
+        rm "$dest_path"
+        _sync_log "unlink" "$rel_src" "deleted $dest_path -> $existing_target)"
+      else
+        _sync_log "skip" "$rel_src" "ignore $dest_path -> $existing_target"
+      fi
+    else
+      if [ -e "$dest_path" ]; then
+        if [ "$FORCE" -eq 1 ] && prompt "$dest_path exists and $(_compare_files "$src_path" "$dest_path"). Remove?"; then
+          rm -rf "$dest_path"
+          _sync_log "deleted" "$rel_src" "deleted $dest_path"
+        else
+          _sync_log "skip" "$dest_path"
+        fi
+      else
+        _sync_log "missing" "$dest_path"
+      fi
+    fi
+  }
+
+  _sync_status() {
+    local src_path="$1" dest_path="$2"
+    local rel_src="${src_path#$SRC}"
+
+    if [ -L "$dest_path" ]; then
+      local existing_target
+      existing_target=$(readlink "$dest_path")
+      if [ "$existing_target" = "$src_path" ]; then
+        if [ "$VERBOSE" -eq 1 ]; then
+          _sync_log "ok" "$rel_src"
+        fi
+      else
+        _sync_log "conflict" "$rel_src" "$dest_path -> $existing_target"
+      fi
+    else
+      if [ -e "$dest_path" ]; then
+        if cmp -s "$dest_path" "$src_path"; then
+          _sync_log "exists" "$rel_src" "$dest_path matches source"
+        else
+          _sync_log "conflict" "$rel_src" "$dest_path differs from source"
+        fi
+      else
+        _sync_log "missing" "$rel_src" "no file at $dest_path"
+      fi
+    fi
+  }
+
+  eval "$find_cmd" | sort | (
+    RC=0
+    while read -r source_file; do
+      target_file="${DEST}${source_file#$SRC}"
+      if ! _sync_"$action" "$source_file" "$target_file"; then
+        RC=1
+      fi
+    done
+    return $RC
+  )
+}
+
+# ------------------------------
 # Helper functions
 # ------------------------------
 
 run_script() {
-  script_name="$1"
+  local script_name="$1"
   shift
 
   case "$script_name" in
@@ -64,7 +190,7 @@ run_script() {
     ;;
   esac
 
-  script_path="${DOTFILES_SCRIPTS_DIR}/${script_name}.sh"
+  local script_path="${DOTFILES_SCRIPTS_DIR}/${script_name}.sh"
 
   [ -f "$script_path" ] || abort "script not found: $script_name"
 
@@ -77,15 +203,13 @@ run_script() {
 # ------------------------------
 
 cmd_init() {
-  # Create XDG directories
   : "${XDG_BIN_HOME:=$HOME/.local/bin}"
   : "${XDG_CONFIG_HOME:=$HOME/.config}"
   : "${XDG_DATA_HOME:=$HOME/.local/share}"
   : "${XDG_STATE_HOME:=$HOME/.local/state}"
   : "${XDG_CACHE_HOME:=$HOME/.cache}"
-  : "${XDG_OPT_HOME:=$HOME/.local/opt}"
 
-  for dir in "$XDG_BIN_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME" "$XDG_OPT_HOME"; do
+  for dir in "$XDG_BIN_HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"; do
     vlog "xdg" "ensuring $dir exists"
     [ -d "$dir" ] || mkdir -p "$dir"
   done
@@ -101,28 +225,35 @@ _detect_host_env() {
     echo "toolbox"
     return
   fi
-  platform_id
+  local id
+  id="$(platform_id)"
+  case "$id" in
+  fedora) echo "fedora-atomic" ;;
+  *)      echo "$id" ;;
+  esac
 }
 
 cmd_host() {
-  subcommand="${1:-}"
+  local subcommand="${1:-}"
   shift || true
 
   case "$subcommand" in
   init)
-    env_override="${1:-}"
+    local env_override="${1:-}"
     if [ -n "$env_override" ]; then
-      host_script="${DOTFILES_HOST_DIR}/${env_override}.sh"
+      local host_script="${DOTFILES_HOST_DIR}/${env_override}/bootstrap.sh"
       [ -f "$host_script" ] || abort "Unknown host environment: ${env_override}"
       ensure bash "$host_script"
     else
+      local detected
       detected="$(_detect_host_env)"
-      host_script="${DOTFILES_HOST_DIR}/${detected}.sh"
+      local host_script="${DOTFILES_HOST_DIR}/${detected}/bootstrap.sh"
       [ -f "$host_script" ] || abort "No provisioning script found for: ${detected}"
       ensure bash "$host_script"
     fi
     ;;
   status)
+    local detected
     detected="$(_detect_host_env)"
     log "env"      "${detected}"
     log "hostname" "$(hostname)"
@@ -137,7 +268,7 @@ cmd_host() {
   "")
     cat <<'EOF'
 Usage:
-  dotfiles host init [<env>]   Provision host OS (auto-detect or specify: macos|fedora|toolbox)
+  dotfiles host init [<env>]   Provision host OS (auto-detect or specify)
   dotfiles host status         Show host environment info
 EOF
     exit 1
@@ -149,22 +280,16 @@ EOF
 }
 
 cmd_env() {
-  # zsh environment setup
   cat <<'EOF'
 export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-export XDG_OPT_HOME="${XDG_OPT_HOME:-$HOME/.local/opt}"
-export XDG_OPT_BIN="${XDG_OPT_BIN:-$XDG_OPT_HOME/bin}"
-export XDG_OPT_SHARE="${XDG_OPT_SHARE:-$XDG_OPT_HOME/share}"
 export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
 export DOTFILES_HOME="${DOTFILES_HOME:-$XDG_DATA_HOME/dotfiles}"
 typeset -U path
-path=("$XDG_OPT_BIN" "$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
-typeset -U manpath
-manpath=("$XDG_OPT_SHARE/man" $manpath)
+path=("$XDG_BIN_HOME" "$DOTFILES_HOME/bin" $path)
 EOF
 }
 
@@ -172,8 +297,8 @@ cmd_shell() {
   : "${XDG_DATA_HOME:=$HOME/.local/share}"
   : "${DOTFILES_HOME:=${XDG_DATA_HOME}/dotfiles}"
 
-  zshenv="$HOME/.zshenv"
-  bootstrap_line="eval \"\$(${DOTFILES_HOME}/bin/dotfiles env)\""
+  local zshenv="$HOME/.zshenv"
+  local bootstrap_line="eval \"\$(${DOTFILES_HOME}/bin/dotfiles env)\""
 
   if [ ! -f "${zshenv}" ] || ! grep -qE 'eval "\$\([^"]*bin/dotfiles env\)"' "${zshenv}"; then
     cat >>"${zshenv}" <<EOF
@@ -187,6 +312,7 @@ EOF
     # Default shell is typically zsh on modern macOS.
     ;;
   Linux)
+    local zsh_path
     zsh_path="$(command -v zsh || true)"
     [ -n "$zsh_path" ] || {
       warn "shell" "zsh not found; skipping login shell change"
@@ -201,12 +327,11 @@ EOF
 }
 
 cmd_sync() {
-  source "${DOTFILES_LIB_DIR}/sync.sh"
   (_sync link) && log "sync" "ok"
 }
 
 cmd_script() {
-  script_name="${1:-}"
+  local script_name="${1:-}"
 
   if [ -z "$script_name" ]; then
     find "$DOTFILES_SCRIPTS_DIR" -type f -name "*.sh" | sed "s|^$DOTFILES_SCRIPTS_DIR/||;s|\\.sh$||" | sort | while read -r script; do
@@ -220,83 +345,170 @@ cmd_script() {
 }
 
 cmd_status() {
-  source "${DOTFILES_LIB_DIR}/sync.sh"
-  source "${DOTFILES_LIB_DIR}/tool.sh"
-  source "${DOTFILES_LIB_DIR}/opt.sh"
   (_sync status) && log "status" "ok"
-  printf "\n${tty_bold}tools${tty_reset}\n"
-  local count=0
-  while IFS= read -r f; do
-    local name tag
-    name="$(basename "$f")"
-    tag="$(cat "$f")"
-    printf "  %-16s %s\n" "$name" "$tag"
-    count=$((count + 1))
-  done < <(find "$TOOLS_STATE" -maxdepth 1 -type f 2>/dev/null | sort)
-  [[ "$count" -gt 0 ]] || printf "  no tools installed\n"
 }
 
 cmd_uninstall() {
-  source "${DOTFILES_LIB_DIR}/sync.sh"
   (_sync unlink) && log "unlink" "ok"
 }
 
 cmd_update() {
-  # Suppress output except errors
   QUIET=1
 
-  source "${DOTFILES_LIB_DIR}/sync.sh"
-
-  # Unlink files before updating in case of structure changes
   cmd_uninstall || abort "failed to unlink files before update"
 
-  # Update the repository
   log "git" "Updating dotfiles repository"
   git -C "$DOTFILES_HOME" pull --ff-only
 
-  # Resync files after update
   cmd_sync || abort "failed to resync files after update"
 
   success "dotfiles updated"
-}
-
-cmd_edit() {
-  "$EDITOR" "$DOTFILES_HOME"
 }
 
 cmd_gitconfig() {
   ensure bash "${DOTFILES_SCRIPTS_DIR}/gitconfig.sh" "$@"
 }
 
-cmd_tool() {
-  source "${DOTFILES_LIB_DIR}/tool.sh"
-  _tool_cmd "$@"
+cmd_aqua() {
+  local aqua_config="${DOTFILES_HOME}/config/aquaproj-aqua/aqua.yaml"
+
+  command -v aqua >/dev/null 2>&1 || abort "aqua not found on PATH"
+  [ -f "$aqua_config" ] || abort "aqua config not found at $aqua_config"
+
+  local subcommand="${1:-}"
+  shift || true
+
+  case "$subcommand" in
+  list)
+    log "aqua" "installed packages:"
+    grep '^ *- name:' "$aqua_config" | sed 's/.*name: /  /'
+    ;;
+  update)
+    local pkg="${1:-}"
+    if [ -n "$pkg" ]; then
+      log "aqua" "updating $pkg..."
+      aqua -c "$aqua_config" up "$pkg"
+    else
+      log "aqua" "updating all packages..."
+      aqua -c "$aqua_config" up
+    fi
+    log "aqua" "installing..."
+    aqua -c "$aqua_config" install
+    log "aqua" "cleaning up unused packages..."
+    aqua -c "$aqua_config" vacuum
+    success "aqua packages updated"
+    ;;
+  install)
+    log "aqua" "installing packages..."
+    aqua -c "$aqua_config" install
+    success "aqua packages installed"
+    ;;
+  add)
+    local checksum_before=""
+    [ -f "$aqua_config" ] && checksum_before=$(md5sum "$aqua_config")
+    aqua -c "$aqua_config" generate -g -i -s "$@"
+    local checksum_after=""
+    [ -f "$aqua_config" ] && checksum_after=$(md5sum "$aqua_config")
+    if [ "$checksum_before" = "$checksum_after" ]; then
+      log "aqua" "no changes"
+      return 0
+    fi
+    if grep -q '\[SET PACKAGE VERSION\]' "$aqua_config"; then
+      warn "package added with unresolved version — edit $aqua_config to set the version, then run dotfiles aqua install"
+      return 1
+    fi
+    log "aqua" "installing..."
+    aqua -c "$aqua_config" install
+    success "package added"
+    ;;
+  *)
+    cat <<'USAGE'
+dotfiles aqua - manage aqua tools
+
+Usage:
+  dotfiles aqua list              List configured packages
+  dotfiles aqua add [package]     Add a package (interactive picker if no name given)
+  dotfiles aqua update [package]  Update all (or one) package, regenerate checksums, install
+  dotfiles aqua install           Install all configured packages
+USAGE
+    [ -z "$subcommand" ] || abort "Unknown aqua subcommand: $subcommand"
+    ;;
+  esac
 }
 
-cmd_font() {
-  source "${DOTFILES_LIB_DIR}/font.sh"
-  _font_cmd "$@"
-}
+cmd_doctor() {
+  local ok=0
 
-cmd_cache() {
-  source "${DOTFILES_LIB_DIR}/cache.sh"
-  _cache_cmd "$@"
-}
+  # XDG directories
+  for dir in "${XDG_BIN_HOME:-$HOME/.local/bin}" "${XDG_CONFIG_HOME:-$HOME/.config}" \
+             "${XDG_DATA_HOME:-$HOME/.local/share}" "${XDG_STATE_HOME:-$HOME/.local/state}" \
+             "${XDG_CACHE_HOME:-$HOME/.cache}"; do
+    if [ -d "$dir" ]; then
+      log "ok" "$dir"
+    else
+      warn "missing" "$dir"
+      ok=1
+    fi
+  done
 
-cmd_flatpak() {
-  [[ "$(uname -s)" == "Linux" ]] || abort "flatpak subcommand is Linux only"
-  command -v flatpak >/dev/null 2>&1 || abort "flatpak not found on PATH"
-  source "${DOTFILES_LIB_DIR}/flatpak.sh"
-  _flatpak_cmd "$@"
+  # .zshenv bootstrap
+  local zshenv="$HOME/.zshenv"
+  if [ -f "$zshenv" ] && grep -qE 'eval "\$\([^"]*bin/dotfiles env\)"' "$zshenv"; then
+    log "ok" ".zshenv bootstrap line"
+  else
+    warn "missing" ".zshenv bootstrap line"
+    ok=1
+  fi
+
+  # Config sync
+  if (_sync status) >/dev/null 2>&1; then
+    log "ok" "config sync"
+  else
+    warn "drift" "config sync has conflicts (run dotfiles status for details)"
+    ok=1
+  fi
+
+  # aqua
+  if command -v aqua >/dev/null 2>&1; then
+    log "ok" "aqua $(aqua version 2>/dev/null || echo '(version unknown)')"
+  else
+    warn "missing" "aqua not found on PATH"
+    ok=1
+  fi
+
+  local aqua_config="${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua/aqua.yaml"
+  if [ -f "$aqua_config" ]; then
+    log "ok" "aqua global config"
+  else
+    warn "missing" "aqua global config at $aqua_config"
+    ok=1
+  fi
+
+  # Host prerequisites
+  case "$(uname -s)" in
+  Darwin)
+    if command -v brew >/dev/null 2>&1; then
+      log "ok" "homebrew"
+    else
+      warn "missing" "homebrew"
+      ok=1
+    fi
+    ;;
+  esac
+
+  if [ "$ok" -eq 0 ]; then
+    log "doctor" "all checks passed"
+  fi
+  return $ok
 }
 
 main() {
-  cmd="$1"
+  local cmd="$1"
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | edit | host | tool | font | cache | flatpak | gitconfig)
-    cmd_$cmd "$@"
+  env | init | shell | sync | script | unlink | uninstall | status | update | host | doctor | gitconfig | aqua)
+    cmd_"$cmd" "$@"
     ;;
   help)
     usage

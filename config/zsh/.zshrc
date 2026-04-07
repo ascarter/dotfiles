@@ -64,11 +64,6 @@ if [[ -d $HOMEBREW_PREFIX/share/zsh/site-functions ]]; then
   fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 fi
 
-# Add opt-managed tool completions directory
-if [[ -d ${XDG_OPT_SHARE}/completions ]]; then
-  fpath=("${XDG_OPT_SHARE}"/completions $fpath)
-fi
-
 # Add XDG completions directory
 if [[ -d ${XDG_STATE_HOME}/zsh/completions ]]; then
   fpath=("${XDG_STATE_HOME}"/zsh/completions $fpath)
@@ -85,9 +80,4 @@ compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
 
 load_zsh_modules "${ZDOTDIR}"/interactive.d
 
-# =====================================
-# Final PATH assertion
-# =====================================
-# Re-prepend managed paths so they shadow system and brew binaries
-# (profile.d and interactive.d modules may have prepended their own)
-path=("$XDG_OPT_BIN" "$XDG_BIN_HOME" $path)
+

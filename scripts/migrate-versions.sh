@@ -14,7 +14,7 @@ set -eu
 # Usage: dotfiles script migrate-versions
 
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/core.sh"
+source "${DOTFILES_HOME}/lib/logging.sh"
 source "${DOTFILES_HOME}/lib/opt.sh"
 
 # --- Phase 1: Directory namespace ---

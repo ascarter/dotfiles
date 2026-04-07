@@ -1,0 +1,7 @@
+# Fedora Atomic rpm-ostree overlay packages
+# One package per line. Comments start with #.
+git
+zsh
+bolt
+solaar
+steam-devices

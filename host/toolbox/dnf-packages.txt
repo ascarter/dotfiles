@@ -1,0 +1,5 @@
+# Toolbox dnf baseline packages
+# One package per line. Comments start with #.
+git
+zsh
+curl

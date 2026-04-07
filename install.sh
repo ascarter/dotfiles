@@ -28,5 +28,5 @@ if [ -x "${DOTFILES_HOME}/bin/dotfiles" ]; then
   "${DOTFILES_HOME}/bin/dotfiles" sync
 fi
 
-echo "dotfiles installated"
+echo "dotfiles installed"
 echo "Reload your session to apply configuration"

@@ -13,7 +13,7 @@
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/core.sh"
+source "${DOTFILES_HOME}/lib/logging.sh"
 
 GIT_CONFIG_FILE="${HOME}/.gitconfig"
 
