@@ -35,7 +35,7 @@ Commands:
   status      Show status of dotfiles
   update      Update dotfiles repository
   doctor      Check workstation health
-  host        Host provisioning (init|status)
+  host        Host provisioning
   aqua        Manage aqua tools
   gitconfig   Generate machine-specific ~/.gitconfig
   script      Run a script (list available scripts if no name given)
@@ -195,7 +195,7 @@ run_script() {
   [ -f "$script_path" ] || abort "script not found: $script_name"
 
   vlog "script" "running $script_name"
-  ensure bash "$script_path" "$@"
+  bash "$script_path" "$@"
 }
 
 # ------------------------------
