@@ -81,7 +81,7 @@ dotfiles host init <platform> # explicit override
 
 ---
 
-## Flatpak (`host/flatpak/`)
+## Flatpak (`host/flatpak`)
 
 A plain-text manifest of Flathub application IDs. Not executed by any bootstrap
 script automatically — used as a reference for manual Flatpak installation on

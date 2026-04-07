@@ -7,9 +7,11 @@ fi
 
 # Shell integration (completions, automatic version switching).
 if (( $+commands[fnm] )); then
-  eval "$(fnm completions --shell zsh)"
+  if [[ -o interactive ]]; then
+    eval "$(fnm completions --shell zsh)"
 
-  if fnm list | grep -q 'default'; then
-    eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --shell zsh)"
+    if fnm list | grep -q 'default'; then
+      eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --shell zsh)"
+    fi
   fi
 fi

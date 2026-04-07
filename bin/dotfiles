@@ -376,13 +376,15 @@ cmd_aqua() {
   case "$subcommand" in
   list)
     log "aqua" "installed packages:"
-    grep '^ *- name:' "$aqua_config" | sed 's/.*name: /  /'
+    aqua list -a -installed
     ;;
   update)
     log "aqua" "updating${1:+ $1}..."
     aqua -c "$aqua_config" up "$@"
+    log "aqua" "updating checksums..."
+    aqua -c "$aqua_config" update-checksum -a -prune
     log "aqua" "installing..."
-    aqua -c "$aqua_config" install
+    aqua install -a
     log "aqua" "cleaning up unused packages..."
     aqua -c "$aqua_config" vacuum
     success "aqua packages updated"
@@ -401,6 +403,8 @@ cmd_aqua() {
       warn "package added with unresolved version — edit $aqua_config to set the version, then run dotfiles aqua update"
       return 1
     fi
+    log "aqua" "updating checksums..."
+    aqua -c "$aqua_config" update-checksum -a -prune
     log "aqua" "installing..."
     aqua -c "$aqua_config" install
     success "package added"

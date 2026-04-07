@@ -15,18 +15,14 @@ HOST_DIR="${DOTFILES_HOME}/host/toolbox"
 log "init" "Provisioning toolbox container"
 
 # Install baseline packages from manifest
-if command -v dnf >/dev/null 2>&1 && [ -f "${HOST_DIR}/dnf-packages.txt" ]; then
-  pkgs=()
+dnf_install() { sudo dnf install -y "$@" || warn "dnf" "failed: $*"; }
+
+local dnf_pkgs="${HOST_DIR}/dnf-rpms"
+if [ -f "${dnf_pkgs}" ]; then
   while IFS= read -r pkg || [ -n "$pkg" ]; do
     [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
-    pkgs+=("$pkg")
-  done < "${HOST_DIR}/dnf-packages.txt"
-  if [ ${#pkgs[@]} -gt 0 ]; then
-    log "pkg" "Installing: ${pkgs[*]}"
-    sudo dnf install -y "${pkgs[@]}"
-  fi
-else
-  warn "pkg" "dnf not found or no package list — skipping"
+    dnf_install "$pkg"
+  done < "${dnf_pkgs}"
 fi
 
 # Set login shell to zsh
@@ -43,17 +39,6 @@ else
 fi
 
 # Aqua
-AQUA_BIN="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"
-if ! command -v aqua >/dev/null 2>&1 && ! [ -x "${AQUA_BIN}/aqua" ]; then
-  log "aqua" "Installing aqua"
-  bash "${DOTFILES_HOME}/scripts/aqua.sh"
-fi
-export PATH="${AQUA_BIN}:${PATH}"
-if command -v aqua >/dev/null 2>&1; then
-  log "aqua" "Installing workstation tools"
-  aqua i -a
-else
-  warn "aqua" "aqua installation failed"
-fi
+"${DOTFILES_HOME}/bin/dotfiles" script aqua
 
 log "init" "Toolbox provisioning complete"

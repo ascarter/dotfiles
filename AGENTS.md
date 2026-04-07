@@ -64,6 +64,9 @@ test.sh                   — smoke test install/sync in .testuser/
 | `dotfiles host init [<env>]` | Run OS provisioning (auto-detects macos, fedora-atomic, toolbox) |
 | `dotfiles host status` | Show detected host environment info |
 | `dotfiles gitconfig` | Generate machine-specific `~/.gitconfig` |
+| `dotfiles aqua list` | List configured aqua packages |
+| `dotfiles aqua add [package]` | Add an aqua package (interactive picker if no name given) |
+| `dotfiles aqua update [package]` | Update all (or one) aqua package, install, and vacuum |
 | `dotfiles script <name>` | Run a script from `scripts/` (lists available if no name) |
 
 ## Environment Variables

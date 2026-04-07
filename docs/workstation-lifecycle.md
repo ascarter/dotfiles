@@ -81,19 +81,17 @@ if any check fails.
 
 ### Adding a CLI tool
 
-Add the tool to the appropriate aqua import file in `config/aquaproj-aqua/imports/`:
-
-| Import file | Category |
-|------------|----------|
-| `core.yaml` | Portable CLI tools (ripgrep, jq, fzf, etc.) |
-| `editors.yaml` | Editor-related tools |
-| `languages.yaml` | Language toolchain tools |
-| `agents.yaml` | AI/agent CLI tools |
-
-Then install:
+Use the interactive picker or specify a package directly:
 
 ```sh
-aqua i -a
+dotfiles aqua add              # interactive search
+dotfiles aqua add owner/repo   # add specific package
+```
+
+Or edit `config/aquaproj-aqua/aqua.yaml` directly and run:
+
+```sh
+dotfiles aqua update
 ```
 
 ### Adding a host package

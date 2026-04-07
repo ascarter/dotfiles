@@ -6,8 +6,8 @@ deliberately stops there.
 
 ## Layer Model
 
-The development environment is built in five layers. This repo owns layers 1–3;
-layers 4–5 are mentioned only to draw the boundary.
+The development environment is built in four layers. This repo owns layers 1–3;
+layer 4 is mentioned only to draw the boundary.
 
 | Layer | Responsibility | Owned by this repo | Examples |
 |-------|---------------|:------------------:|----------|
@@ -15,7 +15,6 @@ layers 4–5 are mentioned only to draw the boundary.
 | 2. Workstation CLI tools | Cross-platform portable binaries | ✓ | aqua (fzf, ripgrep, jq, delta, …) |
 | 3. Language version managers | Runtime toolchains | ✓ | rustup, uv, fnm |
 | 4. Project-local environments | Per-repo deps and config | ✗ | Cargo.toml, pyproject.toml, package.json |
-| 5. Agent behavior | AI assistant configuration | ✗ | .github/copilot-instructions.md |
 
 ### Layer 1 — Host OS baseline
 
@@ -59,7 +58,7 @@ their commands.
 - Project-level dependency management
 - Container image definitions
 - CI/CD pipelines
-- AI agent system prompts (beyond the repo's own `.github/copilot-instructions.md`)
+- AI agent system prompts (beyond the repo's own contributor docs)
 
 ## Command Philosophy
 
@@ -89,6 +88,19 @@ workstation-specific:
 - `dotfiles sync` — symlinks config into place
 - `dotfiles host init` — runs the platform bootstrap sequence
 - `dotfiles doctor` — checks that everything is wired correctly
+
+### Policy commands
+
+The `dotfiles aqua` subcommands are an intentional exception. They are not thin
+1:1 wrappers — they target the repo-local source config (not the synced copy
+in `~/.config`) and compose multi-step workflows:
+
+- `dotfiles aqua update` — chains `aqua up`, `aqua install`, and `aqua vacuum`
+- `dotfiles aqua add` — runs `aqua generate` then `aqua install`
+- `dotfiles aqua list` — reads the source config directly
+
+This is the same pattern as `dotfiles init` or `dotfiles update`: orchestrating
+a sequence of operations that would be tedious and error-prone to type manually.
 
 ## The Guiding Question
 

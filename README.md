@@ -48,7 +48,6 @@ dotfiles script <name>          # Run a script from scripts/
 dotfiles aqua list              # List configured aqua packages
 dotfiles aqua add [package]     # Add an aqua package
 dotfiles aqua update [package]  # Update all (or one) aqua package and install
-dotfiles aqua install           # Install all configured aqua packages
 ```
 
 For daily tool and package maintenance, use native commands directly:

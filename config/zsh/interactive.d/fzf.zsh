@@ -1,3 +1,5 @@
 if (( $+commands[fzf] )); then
-  source <(fzf --zsh)
+  if [[ -o interactive ]]; then
+    source <(fzf --zsh)
+  fi
 fi

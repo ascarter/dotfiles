@@ -1,3 +1,5 @@
 if (( $+commands[codex] )); then
-  source <(codex completion zsh)
+  if [[ -o interactive ]]; then
+    source <(codex completion zsh)
+  fi
 fi

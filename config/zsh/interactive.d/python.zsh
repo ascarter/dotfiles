@@ -1,6 +1,8 @@
 UV_NO_MODIFY_PATH=1
 
 if (( $+commands[uv] )); then
-  eval "$(uv generate-shell-completion zsh)"
-  eval "$(uvx --generate-shell-completion zsh)"
+  if [[ -o interactive ]]; then
+    eval "$(uv generate-shell-completion zsh)"
+    eval "$(uvx --generate-shell-completion zsh)"
+  fi
 fi

@@ -1,5 +1,7 @@
 # Tailscale shell configuration
 
-if [[ -o interactive ]] && (( $+commands[tailscale] )); then
-  eval "$(tailscale completion zsh)"
+if (( $+commands[tailscale] )); then
+  if [[ -o interactive ]]; then
+    eval "$(tailscale completion zsh)"
+  fi
 fi

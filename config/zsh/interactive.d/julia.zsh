@@ -6,5 +6,7 @@ if [[ -d ${JULIAUP_HOME}/bin ]]; then
 fi
 
 if (( $+commands[juliaup] )); then
-  source <(juliaup completions zsh)
+  if [[ -o interactive ]]; then
+    source <(juliaup completions zsh)
+  fi
 fi
