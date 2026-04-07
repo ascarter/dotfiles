@@ -121,31 +121,6 @@
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/chmln/sd/v1.1.0/sd-v1.1.0-aarch64-apple-darwin.tar.gz",
-      "checksum": "4BD3C09226376CA0A1D69589C91E86276FAE36C5FBAAEE669AFCE583F6682030",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/chmln/sd/v1.1.0/sd-v1.1.0-aarch64-unknown-linux-musl.tar.gz",
-      "checksum": "EC8C93C0533FF21F4851D11566808D4082544BAF063D9B96EA77C27E98B7CD99",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/chmln/sd/v1.1.0/sd-v1.1.0-x86_64-apple-darwin.tar.gz",
-      "checksum": "1FCA1E9C91813A8AAC6821063C923107BA0F66A83309E095EDCD3B202F67F97E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/chmln/sd/v1.1.0/sd-v1.1.0-x86_64-pc-windows-msvc.zip",
-      "checksum": "59837C2E7C911099ACA1CC46B663BCDC5A949FD3E9FBBAF34FC73E5D5D71007C",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/chmln/sd/v1.1.0/sd-v1.1.0-x86_64-unknown-linux-musl.tar.gz",
-      "checksum": "02F00F4777D43E8E95B7B8D49E1A0D6E502FED4B8E79C1C8B8063857A30CAA2E",
-      "algorithm": "sha256"
-    },
-    {
       "id": "github_release/github.com/cli/cli/v2.89.0/gh_2.89.0_linux_amd64.tar.gz",
       "checksum": "D0422CAADE520530E76C1C558DA47DAEBAA8E1203D6B7FF10AD7D6FABA3490D8",
       "algorithm": "sha256"
@@ -173,26 +148,6 @@
     {
       "id": "github_release/github.com/cli/cli/v2.89.0/gh_2.89.0_windows_arm64.zip",
       "checksum": "DFFFA1FBA55AE9C1BA53C307038DDCE26ACE3DB29C9AF329E98D568ECEAE7D98",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/dandavison/delta/0.19.2/delta-0.19.2-aarch64-apple-darwin.tar.gz",
-      "checksum": "9BE36612A5A13E9E386DC498FB8E50DC87C72EE42B63DB0EA05B32F99A72A69A",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/dandavison/delta/0.19.2/delta-0.19.2-aarch64-unknown-linux-gnu.tar.gz",
-      "checksum": "0BFCE159A5CDDD5FEB3D6DB4A616D883FF51253CE08AC7EC11CB1D208CFAAB9E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/dandavison/delta/0.19.2/delta-0.19.2-x86_64-pc-windows-msvc.zip",
-      "checksum": "AC8EBB4A9F1CBEE8B9EA897BA119808A244181ADAE6F3BED1F3B6B923C50B557",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/dandavison/delta/0.19.2/delta-0.19.2-x86_64-unknown-linux-musl.tar.gz",
-      "checksum": "F1EA01CA7728CE3462DEBC359F39DFC7CBBC1A63224B71FEFABF92042864AA1B",
       "algorithm": "sha256"
     },
     {
@@ -381,31 +336,6 @@
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/mvdan/sh/v3.13.1/shfmt_v3.13.1_darwin_amd64",
-      "checksum": "6FEEDAFC72915794163114F512348E2437D080D0047EF8B8FA2EC63B575F12AF",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/mvdan/sh/v3.13.1/shfmt_v3.13.1_darwin_arm64",
-      "checksum": "9680526BE4A66EA1FFE988ED08AF58E1400FE1E4F4AEF5BD88B20BB9B3DA33F8",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/mvdan/sh/v3.13.1/shfmt_v3.13.1_linux_amd64",
-      "checksum": "FB096C5D1AC6BEABBDBAA2874D025BADB03EE07929F0C9FF67563CE8C75398B1",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/mvdan/sh/v3.13.1/shfmt_v3.13.1_linux_arm64",
-      "checksum": "32D92ACAA5CD8ABB29FC49DAC123DC412442D5713967819D8AF2C29F1B3857C7",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/mvdan/sh/v3.13.1/shfmt_v3.13.1_windows_amd64.exe",
-      "checksum": "60CD368533D0AD73FA86D93D5BBF95EF40587245CE684ED138C1B31557B5FE97",
-      "algorithm": "sha256"
-    },
-    {
       "id": "github_release/github.com/neovim/neovim/v0.12.1/nvim-linux-arm64.tar.gz",
       "checksum": "A3F8AA5590FD2AC930BCC5C9070B9AC1EC33461D262B6428874C5FC640F3F13C",
       "algorithm": "sha256"
@@ -453,31 +383,6 @@
     {
       "id": "github_release/github.com/openai/codex/rust-v0.118.0/codex-x86_64-unknown-linux-musl.zst",
       "checksum": "ADD27A73DF075CDD689102453EBA9B40493AA7FFFF0CA88170EE249EBC04DA7E",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/sharkdp/bat/v0.26.1/bat-v0.26.1-aarch64-apple-darwin.tar.gz",
-      "checksum": "E30BEFF26779C9BF60BB541E1D79046250CB74378F2757F8EB250AFDDB19E114",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/sharkdp/bat/v0.26.1/bat-v0.26.1-aarch64-unknown-linux-musl.tar.gz",
-      "checksum": "6369242C584065F195FB20CB36FBD7CB63AE690605BBE89868A7596B596C2C23",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/sharkdp/bat/v0.26.1/bat-v0.26.1-x86_64-apple-darwin.tar.gz",
-      "checksum": "830D63B0BBA1FA040542EC569E3CF77F60D3356B9DE75116A344B061E0894245",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/sharkdp/bat/v0.26.1/bat-v0.26.1-x86_64-pc-windows-msvc.zip",
-      "checksum": "0F729B4B6F5F28D395C641EACC2E9FF68D0096B85AA0EEC344AA62425144B69B",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/sharkdp/bat/v0.26.1/bat-v0.26.1-x86_64-unknown-linux-musl.tar.gz",
-      "checksum": "0DCD8AC79732C0D5B136F11F4EE00E581440E16A44EAB5B3105B611BBF2CF191",
       "algorithm": "sha256"
     },
     {

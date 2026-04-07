@@ -1,0 +1,2 @@
+packages:
+  - name: neovim/neovim@v0.12.1
