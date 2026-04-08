@@ -3,11 +3,12 @@
 # Visual Studio Code editor
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
 source "${DOTFILES_HOME}/lib/logging.sh"
+source "${DOTFILES_HOME}/lib/checksum.sh"
 
 if command -v code >/dev/null 2>&1; then
-  echo "Visual Studio Code already installed: $(command -v code)"
+  log "vscode" "already installed: $(command -v code)"
   exit 0
 fi
 
@@ -75,16 +76,7 @@ case "$(uname -s)" in
     echo "Downloading Visual Studio Code tarball..."
     curl -fLso "${ARCHIVE_PATH}" "${VSCODE_URL}" || abort "Failed to download Visual Studio Code archive"
 
-    printf '%s  %s\n' "${EXPECTED_SHA}" "${ARCHIVE_PATH}" > "${SHA_PATH}.check"
-
-    if command -v sha256sum >/dev/null 2>&1; then
-      sha256sum -c "${SHA_PATH}.check" >/dev/null 2>&1 || abort "Checksum verification failed"
-    elif command -v shasum >/dev/null 2>&1; then
-      ACTUAL_SHA="$(shasum -a 256 "${ARCHIVE_PATH}" | awk '{print $1}')"
-      [ "${ACTUAL_SHA}" = "${EXPECTED_SHA}" ] || abort "Checksum verification failed"
-    else
-      abort "No SHA-256 tool found (need sha256sum or shasum)"
-    fi
+    sha256_verify "${ARCHIVE_PATH}" "${EXPECTED_SHA}" || abort "Checksum verification failed"
 
     echo "Extracting Visual Studio Code..."
     tar -xzf "${ARCHIVE_PATH}" -C "${STAGE_DIR}" || abort "Failed to extract archive"

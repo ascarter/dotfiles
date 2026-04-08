@@ -13,8 +13,8 @@
 # - Tailscale is expected to be managed by Homebrew cask.
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+source "${DOTFILES_HOME}/lib/logging.sh"
 
 usage() {
   cat <<'EOF'

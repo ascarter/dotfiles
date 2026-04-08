@@ -23,7 +23,9 @@ This repo manages **workstation profiles**, not packages. It is deliberately lea
 
 - **Not a package manager.** Tool installation is delegated to [aqua](https://aquaproj.github.io/), Homebrew, rpm-ostree, and dnf. Do not add wrapper commands that merely mirror native package-manager behavior.
 - **`bin/dotfiles` is self-contained.** Config-sync logic is inlined; there is no separate `lib/sync.sh`.
-- **`lib/logging.sh` is the only shared library.** It provides logging/display utilities and is sourced by `bin/dotfiles`, host bootstrap scripts, and `scripts/gitconfig.sh`.
+- **`lib/logging.sh` is the primary shared library.** It provides logging/display utilities and is sourced by `bin/dotfiles`, host bootstrap scripts, and app scripts.
+- **`lib/checksum.sh` provides portable SHA-256 verification.** Probes for `sha256sum` or `shasum` at source time.
+- **`lib/appimage.sh` provides AppImage installation helpers.** Full lifecycle: resolve version, download, install, desktop integration. Used by AppImage installer scripts in `scripts/apps/`.
 - **Host bootstrap uses native tools directly** — `brew bundle`, `rpm-ostree`, `dnf install`.
 - **Project-local environments belong in each project**, not in this repo.
 - **`XDG_OPT_*` variables no longer exist.** Use standard `XDG_*` variables only.
@@ -41,6 +43,8 @@ host/                     — OS bootstrap scripts, one directory per environmen
   fedora-atomic/          — bootstrap.sh, overlay-packages.txt
   toolbox/                — bootstrap.sh, dnf-packages.txt
 lib/logging.sh            — shared logging/utility library (sourced, no shebang)
+lib/checksum.sh           — portable SHA-256 verification (sourced, no shebang)
+lib/appimage.sh           — AppImage installation helpers (sourced, no shebang)
 scripts/                  — standalone helper scripts (gitconfig.sh, developer.sh, etc.)
 docs/                     — architecture, host-bootstrap, lifecycle docs
 install.sh                — one-line bootstrap: clone repo → dotfiles init
@@ -128,7 +132,7 @@ Each supported environment has a directory under `host/` containing a
 ## Coding Style & Naming Conventions
 
 - Default shell: `#!/usr/bin/env bash` with `set -eu` for all scripts.
-- Sourced libraries (`lib/logging.sh`) have no shebang and do not use `set -e` internally.
+- Sourced libraries (`lib/logging.sh`, `lib/checksum.sh`, `lib/appimage.sh`) have no shebang and do not use `set -e` internally.
 - Keep scripts linear, explicit, idempotent, and re-runnable.
 - Follow `.editorconfig` (2 spaces, UTF-8, LF, trailing newline).
 - `bin/dotfiles` self-locates via `realpath`.

@@ -8,8 +8,10 @@
 # 3. https://proton.me/support/linux-pass-desktop
 
 set -eu
-: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
-source "${DOTFILES_HOME}/lib/opt.sh"
+: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
+source "${DOTFILES_HOME}/lib/logging.sh"
+
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
 
 sha512_verify_file() {
   file="$1"
@@ -57,7 +59,7 @@ get_release() {
 }
 
 proton_rpm() {
-  CACHE_DIR="${TOOLS_CACHE}/proton-rpms"
+  CACHE_DIR="${XDG_CACHE_HOME}/proton-rpms"
   mkdir -p "$CACHE_DIR"
 
   for cmd in curl jq sha512sum rpm rpm-ostree; do
