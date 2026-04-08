@@ -38,6 +38,8 @@ echo "${INSTALLER_SHA256}  ${tmpfile}" | $SHA256CMD -c - >/dev/null
 log "aqua" "Checksum verified"
 
 log "aqua" "Running installer"
-bash "$tmpfile"
+bash "$tmpfile" </dev/null || {
+  command -v aqua >/dev/null 2>&1 || abort "aqua installation failed"
+}
 
 log "aqua" "Installed successfully"
