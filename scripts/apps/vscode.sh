@@ -31,26 +31,23 @@ case "$(uname -s)" in
     esac
 
     VSCODE_SHA_INDEX_URL="https://code.visualstudio.com/sha"
-    VSCODE_DIR="${XDG_OPT_HOME}/vscode"
-    VSCODE_BIN="${TOOLS_BIN}/code"
-    VSCODE_BIN_TARGET="${VSCODE_DIR}/bin/code"
+    VSCODE_DIR="${XDG_DATA_HOME}/vscode"
     VSCODE_GUI_BIN="${VSCODE_DIR}/code"
+    VSCODE_BIN_TARGET="${VSCODE_DIR}/bin/code"
+    VSCODE_BIN="${XDG_BIN_HOME}/code"
     VSCODE_DESKTOP_DIR="${XDG_DATA_HOME}/applications"
     VSCODE_DESKTOP_FILE="${VSCODE_DESKTOP_DIR}/code.desktop"
-    DOWNLOAD_DIR="${TOOLS_CACHE}/vscode"
+    DOWNLOAD_DIR="${XDG_CACHE_HOME}/vscode"
     ARCHIVE_PATH="${DOWNLOAD_DIR}/code-stable-${VSCODE_OS}.tar.gz"
     SHA_PATH="${ARCHIVE_PATH}.sha256"
     STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/vscode-install.XXXXXXXX")"
 
     command -v jq >/dev/null 2>&1 || abort "jq is required to resolve VS Code download metadata"
 
-    cleanup() {
-      rm -rf "${STAGE_DIR}"
-    }
+    cleanup() { rm -rf "${STAGE_DIR}"; }
     trap cleanup EXIT INT TERM
 
     install -d "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
-    install -d "${TOOLS_BIN}" || abort "Failed to create bin directory: ${TOOLS_BIN}"
     install -d "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
 
     echo "Resolving Visual Studio Code download metadata..."
@@ -101,7 +98,6 @@ case "$(uname -s)" in
     rm -rf "${VSCODE_DIR}"
     install -d "${VSCODE_DIR}" || abort "Failed to create install directory: ${VSCODE_DIR}"
     cp -a "${TOP_DIR}/." "${VSCODE_DIR}/" || abort "Failed to install Visual Studio Code"
-
     ln -sfn "${VSCODE_BIN_TARGET}" "${VSCODE_BIN}" || abort "Failed to link code CLI"
 
     cat > "${VSCODE_DESKTOP_FILE}" <<EOF
