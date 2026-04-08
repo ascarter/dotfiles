@@ -22,7 +22,7 @@ rpm-ostree upgrade
 # Install overlays from manifest
 overlay() { rpm-ostree install --idempotent "$@" || warn "overlay" "failed: $*"; }
 
-local overlay_pkgs="${HOST_DIR}/overlay-rpms"
+overlay_pkgs="${HOST_DIR}/overlay-rpms"
 if [ -f "${overlay_pkgs}" ]; then
   while IFS= read -r pkg || [ -n "$pkg" ]; do
     [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue

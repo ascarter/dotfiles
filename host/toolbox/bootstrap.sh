@@ -17,7 +17,7 @@ log "init" "Provisioning toolbox container"
 # Install baseline packages from manifest
 dnf_install() { sudo dnf install -y "$@" || warn "dnf" "failed: $*"; }
 
-local dnf_pkgs="${HOST_DIR}/dnf-rpms"
+dnf_pkgs="${HOST_DIR}/dnf-rpms"
 if [ -f "${dnf_pkgs}" ]; then
   while IFS= read -r pkg || [ -n "$pkg" ]; do
     [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
