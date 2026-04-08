@@ -1,2 +1,0 @@
-packages:
-  - name: openai/codex@rust-v0.118.0

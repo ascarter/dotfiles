@@ -33,7 +33,7 @@ This repo manages **workstation profiles**, not packages. It is deliberately lea
 ```
 bin/dotfiles              — primary CLI entrypoint (single self-contained script)
 config/                   — source-of-truth configs synced into $XDG_CONFIG_HOME
-  aquaproj-aqua/          — global aqua tool manifests (aqua.yaml + imports/)
+  aquaproj-aqua/          — global aqua tool manifest (aqua.yaml)
   zsh/                    — zsh config (.zshrc, .zprofile, functions/, interactive.d/, profile.d/)
   git/ nvim/ zed/ ...     — app configs
 host/                     — OS bootstrap scripts, one directory per environment
@@ -104,8 +104,7 @@ CLI tool installation is delegated to **aqua**. Tool manifests live in
 `config/aquaproj-aqua/` and are synced into `~/.config/aquaproj-aqua/` by
 `dotfiles sync`.
 
-- Add a tool: edit `config/aquaproj-aqua/aqua.yaml` or an imports file, then
-  run `aqua install`.
+- Add a tool: edit `config/aquaproj-aqua/aqua.yaml`, then run `aqua install`.
 - Remove a tool: delete its entry and run `aqua install` to clean up.
 - List installed tools: `aqua list`.
 
