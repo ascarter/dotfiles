@@ -9,6 +9,14 @@ set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/.." && pwd)}"
 source "${DOTFILES_HOME}/lib/logging.sh"
 
+if command -v shasum >/dev/null 2>&1; then
+  SHA256CMD="shasum -a 256"
+elif command -v sha256sum >/dev/null 2>&1; then
+  SHA256CMD="sha256sum"
+else
+  abort "No SHA256 command found (need shasum or sha256sum)"
+fi
+
 if command -v aqua >/dev/null 2>&1; then
   log "aqua" "Already installed, skipping"
   exit 0
@@ -26,7 +34,7 @@ log "aqua" "Downloading aqua-installer ${INSTALLER_VERSION}"
 curl -sSfL -o "$tmpfile" "$INSTALLER_URL"
 
 log "aqua" "Verifying checksum"
-echo "${INSTALLER_SHA256}  ${tmpfile}" | shasum -a 256 -c - >/dev/null
+echo "${INSTALLER_SHA256}  ${tmpfile}" | $SHA256CMD -c - >/dev/null
 log "aqua" "Checksum verified"
 
 log "aqua" "Running installer"
