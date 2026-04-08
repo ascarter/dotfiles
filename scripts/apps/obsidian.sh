@@ -31,12 +31,17 @@ TAG="${1:-}"
 APPIMAGE_DIR="${XDG_DATA_HOME}/appimages/${CMD}"
 CACHE_DIR="${XDG_CACHE_HOME}/appimages/${CMD}"
 
+if command -v $CMD >/dev/null 2>&1; then
+  echo "Obsidian already installed: $(command -v $CMD)"
+  exit 0
+fi
+
 # ---------- platform check ----------
 
 case "$(uname -s)" in
   Linux) ;;
   Darwin)
-    log "$CMD" "AppImages are Linux-only. Run: brew install --cask obsidian"
+    log "$CMD" "Obsidian not found. Run: brew install --cask obsidian"
     exit 1
     ;;
   *) abort "Unsupported OS: $(uname -s)" ;;
