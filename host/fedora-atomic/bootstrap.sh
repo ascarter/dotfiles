@@ -2,7 +2,7 @@
 
 # Fedora Atomic host provisioning
 #
-# Installs minimal rpm-ostree overlays and ensures aqua is available.
+# Installs minimal rpm-ostree overlays and installs gh-tool.
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
@@ -40,9 +40,17 @@ GNOME)
   ;;
 esac
 
-# Aqua
-log "aqua" "Installing aqua"
-"${DOTFILES_HOME}/bin/dotfiles" script aqua
+# gh-tool — install CLI tools from GitHub releases
+if command -v gh >/dev/null 2>&1; then
+  if ! gh extension list 2>/dev/null | grep -q gh-tool; then
+    log "gh-tool" "Installing gh-tool extension"
+    gh extension install ascarter/gh-tool
+  fi
+  log "gh-tool" "Installing workstation tools"
+  gh tool install
+else
+  warn "gh" "gh not found — install gh first"
+fi
 
 log "init" "Fedora Atomic provisioning complete"
 log "init" "Run 'systemctl reboot' to restart"

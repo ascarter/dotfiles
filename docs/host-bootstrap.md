@@ -2,7 +2,7 @@
 
 Each supported platform has a bootstrap script in `host/<platform>/bootstrap.sh`.
 All scripts source `lib/logging.sh` for logging, guard on the expected OS, and
-finish by running `aqua i -a` if aqua is available.
+finish by running `gh tool install` if gh-tool is available.
 
 Run bootstrap with:
 
@@ -29,9 +29,9 @@ dotfiles host init <platform> # explicit override
 2. **Developer mode** — enables `spctl developer-mode` for terminal.
 3. **macOS defaults** — runs `defaults.sh` to apply system preferences (Terminal focus-follows-mouse, menu bar settings).
 4. **Homebrew** — installs to `/opt/homebrew` if absent, then runs `brew bundle` with the repo-local `Brewfile`.
-5. **aqua** — installed via Homebrew (declared in the `Brewfile`). Runs `aqua i -a` to install all declared CLI tools.
+5. **gh-tool** — `gh` is installed via Homebrew (declared in the `Brewfile`). Runs `gh tool install` to install all declared CLI tools.
 
-**Brewfile contents** include host utilities (age, btop, sqlite, uutils-coreutils), security tools (gnupg, ykman), macOS casks (Ghostty, VS Code, Claude, etc.), and the `aqua` formula itself.
+**Brewfile contents** include host utilities (age, btop, sqlite, uutils-coreutils), security tools (gnupg, ykman), macOS casks (Ghostty, VS Code, Claude, etc.), and the `gh` formula itself.
 
 ---
 
@@ -54,7 +54,7 @@ dotfiles host init <platform> # explicit override
    - `solaar` — Logitech device manager
    - `steam-devices` — Steam controller udev rules
 3. **Desktop-specific tweaks** — if `$XDG_CURRENT_DESKTOP` is GNOME, installs `gnome-tweaks` and applies window button layout.
-4. **aqua** — must be installed separately (not available via rpm-ostree). Runs `aqua i -a` if found on PATH.
+4. **gh-tool** — `gh` must be installed separately (not available via rpm-ostree). Runs `gh tool install` if found on PATH.
 
 **Note:** rpm-ostree changes require a reboot. The script logs a reminder at completion.
 
@@ -77,7 +77,7 @@ dotfiles host init <platform> # explicit override
    - `zsh` — shell
    - `curl` — HTTP client
 3. **Login shell** — sets zsh as the login shell via `chsh` if not already configured.
-4. **aqua** — must be installed separately. Runs `aqua i -a` if found on PATH.
+4. **gh-tool** — `gh` must be installed separately. Runs `gh tool install` if found on PATH.
 
 ---
 
@@ -102,13 +102,13 @@ source "${DOTFILES_HOME}/lib/logging.sh"
 # Platform guard
 # Package installation
 # Desktop-specific config (if applicable)
-# aqua i -a (if available)
+# gh tool install (if available)
 ```
 
-**aqua installation** differs by platform:
+**gh-tool installation** differs by platform:
 
-| Platform | aqua install method |
+| Platform | gh install method |
 |----------|-------------------|
-| macOS | Homebrew (`brew "aqua"` in Brewfile) |
-| Fedora Atomic | Manual install from https://aquaproj.github.io/docs/install |
-| Toolbox | Manual install from https://aquaproj.github.io/docs/install |
+| macOS | Homebrew (`brew "gh"` in Brewfile) |
+| Fedora Atomic | Manual install from https://cli.github.com |
+| Toolbox | Manual install from https://cli.github.com |

@@ -36,7 +36,6 @@ Commands:
   update      Update dotfiles repository
   doctor      Check workstation health
   host        Host provisioning
-  aqua        Manage aqua tools
   gitconfig   Generate machine-specific ~/.gitconfig
   script      Run a script (list available scripts if no name given)
 
@@ -243,9 +242,6 @@ cmd_host() {
     local host_script="${DOTFILES_HOST_DIR}/${env}/bootstrap.sh"
     [ -f "$host_script" ] || abort "No provisioning script found for: ${env}"
     ensure bash "$host_script"
-
-    # Run aqua tools install too when running init for convenience
-    cmd_aqua update
     ;;
   status)
     local detected
@@ -364,65 +360,6 @@ cmd_gitconfig() {
   ensure bash "${DOTFILES_SCRIPTS_DIR}/gitconfig.sh" "$@"
 }
 
-cmd_aqua() {
-  local aqua_config="${DOTFILES_HOME}/config/aquaproj-aqua/aqua.yaml"
-
-  command -v aqua >/dev/null 2>&1 || abort "aqua not found on PATH"
-  [ -f "$aqua_config" ] || abort "aqua config not found at $aqua_config"
-
-  local subcommand="${1:-}"
-  shift || true
-
-  case "$subcommand" in
-  list)
-    log "aqua" "installed packages:"
-    aqua list -a -installed
-    ;;
-  update)
-    log "aqua" "updating${1:+ $1}..."
-    aqua -c "$aqua_config" up "$@"
-    log "aqua" "updating checksums..."
-    aqua -c "$aqua_config" update-checksum -a -prune
-    log "aqua" "installing..."
-    aqua install -a
-    log "aqua" "cleaning up unused packages..."
-    aqua -c "$aqua_config" vacuum
-    success "aqua packages updated"
-    ;;
-  add)
-    local checksum_before=""
-    [ -f "$aqua_config" ] && checksum_before=$(md5sum "$aqua_config")
-    aqua -c "$aqua_config" generate -g -i -s "$@"
-    local checksum_after=""
-    [ -f "$aqua_config" ] && checksum_after=$(md5sum "$aqua_config")
-    if [ "$checksum_before" = "$checksum_after" ]; then
-      log "aqua" "no changes"
-      return 0
-    fi
-    if grep -q '\[SET PACKAGE VERSION\]' "$aqua_config"; then
-      warn "package added with unresolved version — edit $aqua_config to set the version, then run dotfiles aqua update"
-      return 1
-    fi
-    log "aqua" "updating checksums..."
-    aqua -c "$aqua_config" update-checksum -a -prune
-    log "aqua" "installing..."
-    aqua -c "$aqua_config" install
-    success "package added"
-    ;;
-  *)
-    cat <<'USAGE'
-dotfiles aqua - manage aqua tools
-
-Usage:
-  dotfiles aqua list              List configured packages
-  dotfiles aqua add [package]     Add a package (interactive picker if no name given)
-  dotfiles aqua update [package]  Update all (or one) package, install, and vacuum
-USAGE
-    [ -z "$subcommand" ] || abort "Unknown aqua subcommand: $subcommand"
-    ;;
-  esac
-}
-
 cmd_doctor() {
   local ok=0
 
@@ -455,22 +392,6 @@ cmd_doctor() {
     ok=1
   fi
 
-  # aqua
-  if command -v aqua >/dev/null 2>&1; then
-    log "ok" "aqua $(aqua version 2>/dev/null || echo '(version unknown)')"
-  else
-    warn "missing" "aqua not found on PATH"
-    ok=1
-  fi
-
-  local aqua_config="${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua/aqua.yaml"
-  if [ -f "$aqua_config" ]; then
-    log "ok" "aqua global config"
-  else
-    warn "missing" "aqua global config at $aqua_config"
-    ok=1
-  fi
-
   # Host prerequisites
   case "$(uname -s)" in
   Darwin)
@@ -494,7 +415,7 @@ main() {
   shift
 
   case "$cmd" in
-  env | init | shell | sync | script | unlink | uninstall | status | update | host | doctor | gitconfig | aqua)
+  env | init | shell | sync | script | unlink | uninstall | status | update | host | doctor | gitconfig)
     cmd_"$cmd" "$@"
     ;;
   help)

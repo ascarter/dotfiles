@@ -28,7 +28,6 @@ _dotfiles() {
         'update:Update dotfiles repository'
         'doctor:Check workstation health'
         'host:Host provisioning'
-        'aqua:Manage aqua tools'
         'gitconfig:Generate machine-specific gitconfig'
         'script:Run a script'
         'help:Show help message'
@@ -38,7 +37,6 @@ _dotfiles() {
     args)
       case "${line[1]}" in
         host)    _dotfiles_host ;;
-        aqua)    _dotfiles_aqua ;;
         script)  _dotfiles_script ;;
       esac
       ;;
@@ -74,39 +72,6 @@ _dotfiles_host() {
             done
           fi
           _describe 'host environment' envs
-          ;;
-      esac
-      ;;
-  esac
-}
-
-# -- aqua --------------------------------------------------------
-
-_dotfiles_aqua() {
-  local curcontext="$curcontext" state line
-  typeset -A opt_args
-
-  local -a subcmds=(
-    'list:List configured packages'
-    'add:Add a package'
-    'update:Update packages, install, and vacuum'
-  )
-
-  _arguments -C '1:aqua command:->subcmd' '*::arg:->args'
-
-  case "$state" in
-    subcmd)
-      _describe 'aqua command' subcmds
-      ;;
-    args)
-      case "${line[1]}" in
-        update)
-          local aqua_config="${XDG_CONFIG_HOME:-$HOME/.config}/aquaproj-aqua/aqua.yaml"
-          local -a pkgs
-          if [[ -f "$aqua_config" ]]; then
-            pkgs=("${(@f)$(grep '^ *- name:' "$aqua_config" | sed 's/.*name: //;s/@.*//')}")
-          fi
-          _describe 'package' pkgs
           ;;
       esac
       ;;

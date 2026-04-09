@@ -3,7 +3,7 @@
 # macOS host provisioning
 #
 # Installs Xcode CLT, applies defaults, installs Homebrew, runs brew bundle,
-# and ensures aqua is available.
+# and installs gh-tool.
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
@@ -52,12 +52,16 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
 brew bundle --file "${HOST_DIR}/Brewfile" check || brew bundle --file "${HOST_DIR}/Brewfile" install
 
-# Aqua tools
-if command -v aqua >/dev/null 2>&1; then
-  log "aqua" "Installing workstation tools"
-  aqua i -a
+# gh-tool — install CLI tools from GitHub releases
+if command -v gh >/dev/null 2>&1; then
+  if ! gh extension list 2>/dev/null | grep -q gh-tool; then
+    log "gh-tool" "Installing gh-tool extension"
+    gh extension install ascarter/gh-tool
+  fi
+  log "gh-tool" "Installing workstation tools"
+  gh tool install
 else
-  warn "aqua" "aqua not found — install via brew or https://aquaproj.github.io/docs/install"
+  warn "gh" "gh not found — install via brew"
 fi
 
 log "init" "macOS provisioning complete"

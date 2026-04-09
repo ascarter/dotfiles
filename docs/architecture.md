@@ -12,7 +12,7 @@ layer 4 is mentioned only to draw the boundary.
 | Layer | Responsibility | Owned by this repo | Examples |
 |-------|---------------|:------------------:|----------|
 | 1. Host OS baseline | OS packages, desktop apps, system config | ✓ | brew, rpm-ostree, dnf |
-| 2. Workstation CLI tools | Cross-platform portable binaries | ✓ | aqua (fzf, ripgrep, jq, delta, …) |
+| 2. Workstation CLI tools | Cross-platform portable binaries | ✓ | gh-tool (fzf, ripgrep, jq, fd, …) |
 | 3. Language version managers | Runtime toolchains | ✓ | rustup, uv, fnm |
 | 4. Project-local environments | Per-repo deps and config | ✗ | Cargo.toml, pyproject.toml, package.json |
 
@@ -28,12 +28,13 @@ bootstrap script and package manifest.
 
 ### Layer 2 — Workstation CLI tools
 
-[aqua](https://aquaproj.github.io/) manages portable CLI binaries from GitHub
-releases. Tools are declared in `config/aquaproj-aqua/` and organized into
-import files (`core.yaml`, `editors.yaml`, `languages.yaml`, `agents.yaml`).
+[gh-tool](https://github.com/ascarter/gh-tool) manages portable CLI binaries from
+GitHub releases. Tools are declared in `config/gh-tool/config.toml`.
 
-aqua is installed by the host layer (Homebrew on macOS, standalone installer on
-Linux) and invoked during bootstrap with `aqua i -a`.
+gh-tool is a GitHub CLI extension. The `gh` CLI is installed by the host layer
+(Homebrew on macOS, dnf/rpm-ostree on Linux). The extension is installed during
+bootstrap with `gh extension install ascarter/gh-tool`, then tools are installed
+with `gh tool install`.
 
 ### Layer 3 — Language version managers
 
@@ -49,7 +50,7 @@ their commands.
 - XDG directory structure and shell bootstrap (`dotfiles init`)
 - Config files synced into `$XDG_CONFIG_HOME` (`dotfiles sync`)
 - Host provisioning scripts (`dotfiles host init`)
-- aqua tool declarations (`config/aquaproj-aqua/`)
+- gh-tool manifest (`config/gh-tool/`)
 - Machine-specific gitconfig generation (`dotfiles gitconfig`)
 - Health checks (`dotfiles doctor`)
 
@@ -69,8 +70,8 @@ or proxy commands that already have good interfaces.
 ```
 # Yes — native tool, native interface
 brew update && brew upgrade
-aqua update
-aqua i -a
+gh tool upgrade
+gh tool install
 
 # No — shadow CLI that mirrors upstream
 dotfiles tool update    # removed
@@ -79,7 +80,7 @@ dotfiles tool install   # removed
 
 ### No shadow CLIs
 
-If a command would just be a thin wrapper around `brew`, `aqua`, `rpm-ostree`,
+If a command would just be a thin wrapper around `brew`, `gh tool`, `rpm-ostree`,
 or any other tool, don't build it. Users should learn and use the native tool's
 interface. The `dotfiles` CLI exists for operations that are genuinely
 workstation-specific:
@@ -89,18 +90,11 @@ workstation-specific:
 - `dotfiles host init` — runs the platform bootstrap sequence
 - `dotfiles doctor` — checks that everything is wired correctly
 
-### Policy commands
+### Direct tool management
 
-The `dotfiles aqua` subcommands are an intentional exception. They are not thin
-1:1 wrappers — they target the repo-local source config (not the synced copy
-in `~/.config`) and compose multi-step workflows:
-
-- `dotfiles aqua update` — chains `aqua up`, `aqua install`, and `aqua vacuum`
-- `dotfiles aqua add` — runs `aqua generate` then `aqua install`
-- `dotfiles aqua list` — reads the source config directly
-
-This is the same pattern as `dotfiles init` or `dotfiles update`: orchestrating
-a sequence of operations that would be tedious and error-prone to type manually.
+Unlike the previous aqua integration, gh-tool requires no wrapper commands.
+Users interact with the `gh tool` CLI directly for install, upgrade, and list
+operations. The `dotfiles` CLI does not proxy these commands.
 
 ## The Guiding Question
 

@@ -21,7 +21,7 @@ the other document to match.
 
 This repo manages **workstation profiles**, not packages. It is deliberately lean:
 
-- **Not a package manager.** Tool installation is delegated to [aqua](https://aquaproj.github.io/), Homebrew, rpm-ostree, and dnf. Do not add wrapper commands that merely mirror native package-manager behavior.
+- **Not a package manager.** Tool installation is delegated to [gh-tool](https://github.com/ascarter/gh-tool), Homebrew, rpm-ostree, and dnf. Do not add wrapper commands that merely mirror native package-manager behavior.
 - **`bin/dotfiles` is self-contained.** Config-sync logic is inlined; there is no separate `lib/sync.sh`.
 - **`lib/logging.sh` is the primary shared library.** It provides logging/display utilities and is sourced by `bin/dotfiles`, host bootstrap scripts, and app scripts.
 - **`lib/checksum.sh` provides portable SHA-256 verification.** Probes for `sha256sum` or `shasum` at source time.
@@ -35,7 +35,7 @@ This repo manages **workstation profiles**, not packages. It is deliberately lea
 ```
 bin/dotfiles              — primary CLI entrypoint (single self-contained script)
 config/                   — source-of-truth configs synced into $XDG_CONFIG_HOME
-  aquaproj-aqua/          — global aqua tool manifest (aqua.yaml)
+  gh-tool/              — gh-tool manifest (config.toml)
   zsh/                    — zsh config (.zshrc, .zprofile, functions/, interactive.d/, profile.d/)
   git/ nvim/ zed/ ...     — app configs
 host/                     — OS bootstrap scripts, one directory per environment
@@ -64,13 +64,10 @@ test.sh                   — smoke test install/sync in .testuser/
 | `dotfiles uninstall` | Remove managed symlinks |
 | `dotfiles status` | Show config sync state |
 | `dotfiles update` | `git pull` + unlink + resync |
-| `dotfiles doctor` | Check workstation health (XDG dirs, zshenv, aqua, sync) |
+| `dotfiles doctor` | Check workstation health (XDG dirs, zshenv, sync) |
 | `dotfiles host init [<env>]` | Run OS provisioning (auto-detects macos, fedora-atomic, toolbox) |
 | `dotfiles host status` | Show detected host environment info |
 | `dotfiles gitconfig` | Generate machine-specific `~/.gitconfig` |
-| `dotfiles aqua list` | List configured aqua packages |
-| `dotfiles aqua add [package]` | Add an aqua package (interactive picker if no name given) |
-| `dotfiles aqua update [package]` | Update all (or one) aqua package, install, and vacuum |
 | `dotfiles script <name>` | Run a script from `scripts/` (lists available if no name) |
 
 ## Environment Variables
@@ -86,10 +83,8 @@ test.sh                   — smoke test install/sync in .testuser/
 | `XDG_CACHE_HOME` | `~/.cache` |
 | `ZDOTDIR` | `$XDG_CONFIG_HOME/zsh` |
 | `DOTFILES_HOME` | `$XDG_DATA_HOME/dotfiles` |
-| `AQUA_GLOBAL_CONFIG` | `$XDG_CONFIG_HOME/aquaproj-aqua/aqua.yaml` |
-| `AQUA_DISABLE_LAZY_INSTALL` | `true` |
 
-`PATH` is prepended with: aqua proxy bin → `XDG_BIN_HOME` → `DOTFILES_HOME/bin`.
+`PATH` is prepended with: `XDG_BIN_HOME` → `DOTFILES_HOME/bin`.
 
 ## Canonical Lifecycle
 
@@ -98,22 +93,23 @@ test.sh                   — smoke test install/sync in .testuser/
 3. `dotfiles init` — XDG dirs, shell wiring, config sync.
 4. `dotfiles host init` — OS baseline provisioning (reboots may be needed on Fedora Atomic).
 5. `dotfiles gitconfig` — machine-specific git identity and credentials.
-6. `aqua install` — install CLI tools declared in `config/aquaproj-aqua/`.
+6. `gh tool install` — install CLI tools declared in `config/gh-tool/`.
 7. Run convenience scripts as needed (e.g. `dotfiles script developer`).
 8. Authenticate credentials and verify with `dotfiles doctor`.
 
-## Tool Management (aqua)
+## Tool Management (gh-tool)
 
-CLI tool installation is delegated to **aqua**. Tool manifests live in
-`config/aquaproj-aqua/` and are synced into `~/.config/aquaproj-aqua/` by
-`dotfiles sync`.
+CLI tool installation is delegated to **[gh-tool](https://github.com/ascarter/gh-tool)**,
+a `gh` extension. Tool manifests live in `config/gh-tool/` and are synced into
+`~/.config/gh-tool/` by `dotfiles sync`.
 
-- Add a tool: edit `config/aquaproj-aqua/aqua.yaml`, then run `aqua install`.
-- Remove a tool: delete its entry and run `aqua install` to clean up.
-- List installed tools: `aqua list`.
+- Add a tool: edit `config/gh-tool/config.toml`, then run `gh tool install`.
+- Remove a tool: delete its entry and run `gh tool install`.
+- List installed tools: `gh tool list`.
+- Upgrade tools: `gh tool upgrade`.
 
 Do **not** add tool-install wrapper commands to `bin/dotfiles`. The CLI delegates
-to aqua and does not reimplement package management.
+to gh-tool and does not reimplement package management.
 
 ## Host Bootstrap
 
@@ -166,12 +162,12 @@ from the filesystem at completion time and do not need manual updates.
 ## Security & Configuration Tips
 
 - Use standard XDG paths for all storage.
-- Keep host installs for OS-integrated needs; use aqua for CLI tools.
+- Keep host installs for OS-integrated needs; use gh-tool for CLI tools.
 - `gh` self-bootstraps via curl when not found; run `dotfiles gitconfig` after install.
 
 ## Important Restrictions
 
 - This repo is **not** and must **not** become a package manager.
-- Do not add wrapper commands that merely mirror native aqua/brew behavior.
+- Do not add wrapper commands that merely mirror native gh-tool/brew behavior.
 - Do not add `XDG_OPT_*` variables or opt-space tool management — that system was removed.
 - Project-local environments belong in each project, not here.

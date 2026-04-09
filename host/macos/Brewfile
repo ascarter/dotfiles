@@ -2,7 +2,7 @@
 #
 # Used by: dotfiles host init (brew bundle --file)
 # Contains: host-integrated apps, OS utilities, and package manager prerequisites.
-# CLI tools that work cross-platform belong in aqua config instead.
+# CLI tools that work cross-platform belong in the gh-tool manifest instead.
 
 # Host utilities
 brew "age"
@@ -16,8 +16,8 @@ brew "uutils-coreutils"
 brew "uutils-diffutils"
 brew "uutils-findutils"
 
-# Package managers
-brew "aqua"
+# GitHub CLI
+brew "gh"
 
 # Security
 brew "gnupg"

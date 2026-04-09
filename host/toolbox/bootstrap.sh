@@ -38,7 +38,16 @@ else
   warn "shell" "zsh not found — skipping login shell change"
 fi
 
-# Aqua
-"${DOTFILES_HOME}/bin/dotfiles" script aqua
+# gh-tool — install CLI tools from GitHub releases
+if command -v gh >/dev/null 2>&1; then
+  if ! gh extension list 2>/dev/null | grep -q gh-tool; then
+    log "gh-tool" "Installing gh-tool extension"
+    gh extension install ascarter/gh-tool
+  fi
+  log "gh-tool" "Installing workstation tools"
+  gh tool install
+else
+  warn "gh" "gh not found — install gh first"
+fi
 
 log "init" "Toolbox provisioning complete"

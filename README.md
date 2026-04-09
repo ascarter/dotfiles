@@ -26,7 +26,7 @@ dotfiles host init
 
 `install.sh` clones the repo (if needed), runs `dotfiles init` and
 `dotfiles sync`. Host provisioning (`dotfiles host init`) installs platform
-packages, sets up aqua, and applies OS defaults.
+packages, sets up gh-tool, and applies OS defaults.
 
 ---
 
@@ -45,16 +45,13 @@ dotfiles host init [<env>]      # OS provisioning (auto-detects macos|fedora-ato
 dotfiles host status            # Show host environment info
 dotfiles gitconfig              # Generate machine-specific ~/.gitconfig
 dotfiles script <name>          # Run a script from scripts/
-dotfiles aqua list              # List configured aqua packages
-dotfiles aqua add [package]     # Add an aqua package
-dotfiles aqua update [package]  # Update all (or one) aqua package and install
 ```
 
 For daily tool and package maintenance, use native commands directly:
 
 ```sh
 brew update && brew upgrade             # macOS packages
-dotfiles aqua update                   # workstation CLI tools
+gh tool upgrade                         # workstation CLI tools
 dotfiles update && dotfiles sync       # config and repo
 ```
 
@@ -65,8 +62,8 @@ dotfiles update && dotfiles sync       # config and repo
 | Layer | Scope | Managed by |
 |-------|-------|------------|
 | **1. Host OS baseline** | System packages, drivers, desktop apps | `brew`, `rpm-ostree`, `dnf` |
-| **2. Workstation CLI tools** | Portable CLI binaries (ripgrep, fzf, jq, delta, …) | [aqua](https://aquaproj.github.io) (`config/aquaproj-aqua/`) |
-| **3. Language version managers** | rustup, uv, fnm | Managed by aqua or standalone installers |
+| **2. Workstation CLI tools** | Portable CLI binaries (ripgrep, fzf, jq, fd, …) | [gh-tool](https://github.com/ascarter/gh-tool) (`config/gh-tool/`) |
+| **3. Language version managers** | rustup, uv, fnm | Standalone installers |
 | **4. Project-local environments** | `.envrc`, `devcontainer.json`, per-repo tooling | Owned by each project — not this repo |
 
 ---
@@ -80,7 +77,7 @@ dotfiles update && dotfiles sync       # config and repo
 ├── install.sh                 # Bootstrap entrypoint
 ├── bin/dotfiles               # CLI entrypoint
 ├── config/
-│   ├── aquaproj-aqua/         # Global aqua tool manifests
+│   ├── gh-tool/               # Global gh-tool manifests
 │   ├── zsh/                   # Shell config
 │   ├── git/                   # Git config
 │   ├── nvim/                  # Neovim config
@@ -110,10 +107,7 @@ directly to `$HOME`.
 | `~/.local/state` | `XDG_STATE_HOME` | Persistent runtime state |
 | `~/.cache` | `XDG_CACHE_HOME` | Ephemeral caches — safe to delete |
 
-Aqua uses standard XDG paths:
-
-- `AQUA_GLOBAL_CONFIG` → `$XDG_CONFIG_HOME/aquaproj-aqua/aqua.yaml`
-- `AQUA_ROOT_DIR` → `$XDG_DATA_HOME/aquaproj-aqua`
+gh-tool configuration is synced into `$XDG_CONFIG_HOME/gh-tool/`.
 
 ---
 

@@ -35,9 +35,8 @@ Use native tools directly — there are no dotfiles wrappers for package updates
 # macOS
 brew update && brew upgrade
 
-# aqua (all platforms)
-aqua update
-aqua i -a
+# gh-tool (all platforms)
+gh tool upgrade
 
 # Language toolchains
 rustup update
@@ -71,7 +70,7 @@ dotfiles sync
 dotfiles doctor
 ```
 
-Checks XDG directories, `.zshenv` bootstrap line, config sync status, aqua
+Checks XDG directories, `.zshenv` bootstrap line, config sync status, gh-tool
 availability, and platform prerequisites (Homebrew on macOS). Returns non-zero
 if any check fails.
 
@@ -81,17 +80,16 @@ if any check fails.
 
 ### Adding a CLI tool
 
-Use the interactive picker or specify a package directly:
+Edit `config/gh-tool/config.toml` to add a new tool entry, then install:
 
 ```sh
-dotfiles aqua add              # interactive search
-dotfiles aqua add owner/repo   # add specific package
+gh tool install owner/repo --pattern 'asset-pattern'
 ```
 
-Or edit `config/aquaproj-aqua/aqua.yaml` directly and run:
+Or after editing the manifest directly:
 
 ```sh
-dotfiles aqua update
+gh tool install
 ```
 
 ### Adding a host package
