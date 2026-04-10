@@ -1,5 +1,5 @@
 if (( $+commands[zed] )); then
-  alias dfedit="EDITOR=zed dotfiles edit"
+  alias dfedit="zed ${DOTFILES_HOME}"
 fi
 
 alias dfcd='cd ${DOTFILES_HOME}'
