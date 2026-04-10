@@ -50,7 +50,7 @@ fi
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
-brew bundle --file "${HOST_DIR}/Brewfile" check || brew bundle --file "${HOST_DIR}/Brewfile" install
+brew bundle --global check || brew bundle --global install
 
 # gh-tool — install CLI tools from GitHub releases
 if command -v gh >/dev/null 2>&1; then
