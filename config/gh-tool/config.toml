@@ -1,97 +1,89 @@
-# gh-tool manifest — CLI tools from GitHub releases
-#
-# Managed by: dotfiles sync → ~/.config/gh-tool/config.toml
-# Install all:  gh tool install
-# Upgrade all:  gh tool upgrade
-# List status:  gh tool list
-
-# ── Rust-triple tools ────────────────────────────────────────────
+[[tool]]
+  repo = "BurntSushi/ripgrep"
+  pattern = "ripgrep-*-{{triple}}.tar.gz"
+  bin = ["rg"]
+  man = ["doc/rg.1"]
+  completions = ["complete/_rg", "complete/rg.bash"]
 
 [[tool]]
-repo = "BurntSushi/ripgrep"
-pattern = "ripgrep-*-aarch64-apple-darwin.tar.gz"
-bin = ["rg"]
-man = ["doc/rg.1"]
-completions = ["complete/_rg", "complete/rg.bash"]
+  repo = "casey/just"
+  pattern = "just-*-{{triple}}.tar.gz"
+  bin = ["just"]
+  man = ["just.1"]
+  completions = ["completions/just.zsh", "completions/just.bash"]
 
 [[tool]]
-repo = "casey/just"
-pattern = "just-*-aarch64-apple-darwin.tar.gz"
-bin = ["just"]
-man = ["just.1"]
-completions = ["completions/just.zsh", "completions/just.bash"]
+  repo = "ClementTsang/bottom"
+  pattern = "bottom_{{triple}}.tar.gz"
+  bin = ["btm"]
+  completions = ["completion/_btm", "completion/btm.bash"]
 
 [[tool]]
-repo = "ClementTsang/bottom"
-pattern = "bottom_aarch64-apple-darwin.tar.gz"
-bin = ["btm"]
-completions = ["completion/_btm", "completion/btm.bash"]
+  repo = "lusingander/serie"
+  pattern = "serie-*-{{triple}}.tar.gz"
+  bin = ["serie"]
 
 [[tool]]
-repo = "lusingander/serie"
-pattern = "serie-*-aarch64-apple-darwin.tar.gz"
-bin = ["serie"]
+  repo = "sharkdp/fd"
+  pattern = "fd-*-{{triple}}.tar.gz"
+  bin = ["fd"]
+  man = ["fd.1"]
+  completions = ["autocomplete/_fd", "autocomplete/fd.bash"]
 
 [[tool]]
-repo = "sharkdp/fd"
-pattern = "fd-*-aarch64-apple-darwin.tar.gz"
-bin = ["fd"]
-man = ["fd.1"]
-completions = ["autocomplete/_fd", "autocomplete/fd.bash"]
+  repo = "spinel-coop/rv"
+  pattern = "rv-{{triple}}.tar.xz"
+  bin = ["rv", "rvx"]
 
 [[tool]]
-repo = "spinel-coop/rv"
-pattern = "rv-aarch64-apple-darwin.tar.xz"
-bin = ["rv", "rvx"]
+  repo = "astral-sh/uv"
+  pattern = "uv-{{triple}}.tar.gz"
+  bin = ["uv", "uvx"]
 
 [[tool]]
-repo = "astral-sh/uv"
-pattern = "uv-aarch64-apple-darwin.tar.gz"
-bin = ["uv", "uvx"]
-
-# ── Go-style naming (cross-platform with {{os}}/{{arch}}) ───────
+  repo = "direnv/direnv"
+  pattern = "direnv.darwin-arm64"
+  bin = ["direnv.{{os}}-{{arch}}:direnv"]
 
 [[tool]]
-repo = "direnv/direnv"
-pattern = "direnv.{{os}}-{{arch}}"
-bin = ["direnv"]
+  repo = "junegunn/fzf"
+  pattern = "fzf-*-{{os}}_{{arch}}.tar.gz"
+  bin = ["fzf"]
 
 [[tool]]
-repo = "junegunn/fzf"
-pattern = "fzf-*-{{os}}_{{arch}}.tar.gz"
-bin = ["fzf"]
+  repo = "mikefarah/yq"
+  pattern = "yq_darwin_arm64.tar.gz"
+  bin = ["yq_{{os}}_{{arch}}:yq"]
+  man = ["yq.1"]
 
 [[tool]]
-repo = "mikefarah/yq"
-pattern = "yq_{{os}}_{{arch}}.tar.gz"
-bin = ["yq"]
-man = ["yq.1"]
-
-# ── Unique naming patterns ──────────────────────────────────────
+  repo = "jqlang/jq"
+  pattern = "jq-{{platform}}-{{arch}}"
+  bin = ["jq-{{platform}}-{{arch}}:jq"]
 
 [[tool]]
-repo = "jqlang/jq"
-pattern = "jq-macos-arm64"
-tag = "jq-1.8.1"
-bin = ["jq"]
+  repo = "koalaman/shellcheck"
+  pattern = "shellcheck-*.{{os}}.{{gnuarch}}.tar.gz"
+  bin = ["shellcheck"]
 
 [[tool]]
-repo = "koalaman/shellcheck"
-pattern = "shellcheck-*.darwin.aarch64.tar.gz"
-bin = ["shellcheck"]
+  repo = "Schniz/fnm"
+  pattern = "fnm-{{platform}}.zip"
+  bin = ["fnm"]
 
 [[tool]]
-repo = "neovim/neovim"
-pattern = "nvim-macos-arm64.tar.gz"
-bin = ["nvim"]
-man = ["share/man/man1/nvim.1"]
+  repo = "neovim/neovim"
+  pattern = "nvim-{{platform}}-{{arch}}.tar.gz"
+  bin = ["nvim"]
+  man = ["share/man/man1/nvim.1"]
+  [tool.patterns]
+    darwin_amd64 = "nvim-macos-x86_64.tar.gz"
+    linux_amd64 = "nvim-linux-x86_64.tar.gz"
 
 [[tool]]
-repo = "Schniz/fnm"
-pattern = "fnm-macos.zip"
-bin = ["fnm"]
-
-[[tool]]
-repo = "tree-sitter/tree-sitter"
-pattern = "tree-sitter-cli-macos-arm64.zip"
-bin = ["tree-sitter"]
+  repo = "tree-sitter/tree-sitter"
+  pattern = "tree-sitter-cli-{{platform}}-{{arch}}.zip"
+  bin = ["tree-sitter"]
+  [tool.patterns]
+    darwin_amd64 = "tree-sitter-cli-macos-x64.zip"
+    linux_amd64 = "tree-sitter-cli-linux-x64.zip"
