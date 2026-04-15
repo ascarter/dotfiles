@@ -4,6 +4,8 @@
   bin = ["rg"]
   man = ["doc/rg.1"]
   completions = ["complete/_rg", "complete/rg.bash"]
+  [tool.patterns]
+    linux_amd64 = "ripgrep-*-x86_64-unknown-linux-musl.tar.gz"
 
 [[tool]]
   repo = "casey/just"
@@ -11,6 +13,8 @@
   bin = ["just"]
   man = ["just.1"]
   completions = ["completions/just.zsh", "completions/just.bash"]
+  [tool.patterns]
+    linux_amd64 = "just-*-x86_64-unknown-linux-musl.tar.gz"
 
 [[tool]]
   repo = "ClementTsang/bottom"
@@ -42,7 +46,7 @@
 
 [[tool]]
   repo = "direnv/direnv"
-  pattern = "direnv.darwin-arm64"
+  pattern = "direnv.{{os}}-{{arch}}"
   bin = ["direnv.{{os}}-{{arch}}:direnv"]
 
 [[tool]]
@@ -52,7 +56,7 @@
 
 [[tool]]
   repo = "mikefarah/yq"
-  pattern = "yq_darwin_arm64.tar.gz"
+  pattern = "yq_{{os}}_{{arch}}.tar.gz"
   bin = ["yq_{{os}}_{{arch}}:yq"]
   man = ["yq.1"]
 
