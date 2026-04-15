@@ -1,0 +1,4 @@
+# RPM repositories
+# One repo URL per line. Comments start with #.
+https://cli.github.com/packages/rpm/gh-cli.repo
+https://pkgs.tailscale.com/stable/fedora/tailscale.repo

@@ -7,6 +7,7 @@
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
 source "${DOTFILES_HOME}/lib/logging.sh"
+source "${DOTFILES_HOME}/lib/rpm.sh"
 
 [ "$(uname -s)" = "Linux" ] || abort "Fedora Linux only"
 [ -f /etc/os-release ] || abort "Unsupported Linux distribution"
@@ -18,6 +19,15 @@ HOST_DIR="${DOTFILES_HOME}/host/fedora-atomic"
 log "init" "Provisioning Fedora Atomic host ($VARIANT_ID)"
 
 rpm-ostree upgrade
+
+# Install RPM repositories from manifest
+rpm_repo_list="${HOST_DIR}/rpm-repos"
+if [ -f "${rpm_repo_list}" ]; then
+  while IFS= read -r repo || [ -n "$repo" ]; do
+    [[ "$repo" =~ ^#.*$ || -z "$repo" ]] && continue
+    add_repo "$repo"
+  done < "${rpm_repo_list}"
+fi
 
 # Install overlays from manifest
 overlay() { rpm-ostree install --idempotent "$@" || warn "overlay" "failed: $*"; }

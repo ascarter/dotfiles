@@ -7,12 +7,22 @@
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
 source "${DOTFILES_HOME}/lib/logging.sh"
+source "${DOTFILES_HOME}/lib/rpm.sh"
 
 [ -f /run/.toolboxenv ] || abort "Not running inside a toolbox container"
 
 HOST_DIR="${DOTFILES_HOME}/host/toolbox"
 
 log "init" "Provisioning toolbox container"
+
+# Install RPM repositories from manifest
+rpm_repo_list="${HOST_DIR}/rpm-repos"
+if [ -f "${rpm_repo_list}" ]; then
+  while IFS= read -r repo || [ -n "$repo" ]; do
+    [[ "$repo" =~ ^#.*$ || -z "$repo" ]] && continue
+    add_repo "$repo"
+  done < "${rpm_repo_list}"
+fi
 
 # Install baseline packages from manifest
 dnf_install() { sudo dnf install -y "$@" || warn "dnf" "failed: $*"; }
