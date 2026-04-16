@@ -6,7 +6,8 @@ set -eu
 source "${DOTFILES_HOME}/lib/logging.sh"
 
 if command -v copilot >/dev/null 2>&1; then
-  log "copilot" "already installed: $(command -v copilot)"
+  log "copilot" "updating"
+  copilot update || warn "copilot" "update failed"
   exit 0
 fi
 

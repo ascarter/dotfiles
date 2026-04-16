@@ -39,13 +39,15 @@ config/                   — source-of-truth configs synced into $XDG_CONFIG_HO
   zsh/                    — zsh config (.zshrc, .zprofile, functions/, interactive.d/, profile.d/)
   git/ nvim/ zed/ ...     — app configs
 host/                     — OS bootstrap scripts, one directory per environment
-  macos/                  — bootstrap.sh, Brewfile, defaults.sh
-  fedora-atomic/          — bootstrap.sh, overlay-packages.txt
-  toolbox/                — bootstrap.sh, dnf-packages.txt
+  macos/                  — init.sh, update.sh, Brewfile
+  fedora-atomic/          — init.sh, update.sh, rpm-repos, overlay-rpms, flatpaks
+  toolbox/                — init.sh, update.sh, rpm-repos, dnf-rpms
 lib/logging.sh            — shared logging/utility library (sourced, no shebang)
 lib/checksum.sh           — portable SHA-256 verification (sourced, no shebang)
 lib/appimage.sh           — AppImage installation helpers (sourced, no shebang)
 scripts/                  — standalone helper scripts (gitconfig.sh, developer.sh, etc.)
+  apps/                   — app install/update scripts (claude, rustup, ghostty, etc.)
+  host/                   — host provisioning scripts (homebrew, rpm-repos, gh-tool, etc.)
 docs/                     — architecture, host-bootstrap, lifecycle docs
 install.sh                — one-line bootstrap: clone repo → dotfiles init
 test.sh                   — smoke test install/sync in .testuser/
@@ -65,7 +67,8 @@ test.sh                   — smoke test install/sync in .testuser/
 | `dotfiles status` | Show config sync state |
 | `dotfiles update` | `git pull` + unlink + resync |
 | `dotfiles doctor` | Check workstation health (XDG dirs, zshenv, sync) |
-| `dotfiles host init [<env>]` | Run OS provisioning (auto-detects macos, fedora-atomic, toolbox) |
+| `dotfiles host init [<env>]` | Run first-time OS provisioning (auto-detects macos, fedora-atomic, toolbox) |
+| `dotfiles host update [<env>]` | Update host (dotfiles, packages, tools, apps) |
 | `dotfiles host status` | Show detected host environment info |
 | `dotfiles gitconfig` | Generate machine-specific `~/.gitconfig` |
 | `dotfiles script <name>` | Run a script from `scripts/` (lists available if no name) |
@@ -91,11 +94,11 @@ test.sh                   — smoke test install/sync in .testuser/
 1. Install OS from scratch.
 2. Bootstrap dotfiles: `install.sh` (or manual clone + `./install.sh`).
 3. `dotfiles init` — XDG dirs, shell wiring, config sync.
-4. `dotfiles host init` — OS baseline provisioning (reboots may be needed on Fedora Atomic).
+4. `dotfiles host init` — OS baseline provisioning (reboot required on Fedora Atomic).
 5. `dotfiles gitconfig` — machine-specific git identity and credentials.
-6. `gh tool install` — install CLI tools declared in `config/gh-tool/`.
-7. Run convenience scripts as needed (e.g. `dotfiles script developer`).
-8. Authenticate credentials and verify with `dotfiles doctor`.
+6. `dotfiles host update` — install/update tools, apps, and packages.
+7. Authenticate credentials and verify with `dotfiles doctor`.
+8. Ongoing: run `dotfiles host update` periodically for maintenance.
 
 ## Tool Management (gh-tool)
 
@@ -113,8 +116,9 @@ to gh-tool and does not reimplement package management.
 
 ## Host Bootstrap
 
-Each supported environment has a directory under `host/` containing a
-`bootstrap.sh` and platform-specific package lists:
+Each supported environment has a directory under `host/` containing
+`init.sh` (first-time provisioning) and `update.sh` (ongoing maintenance),
+plus platform-specific package lists:
 
 | Environment | Directory | Package manager |
 |-------------|-----------|-----------------|
@@ -123,7 +127,10 @@ Each supported environment has a directory under `host/` containing a
 | Toolbox | `host/toolbox/` | dnf |
 
 `dotfiles host init` auto-detects the current environment and runs the matching
-`bootstrap.sh`. Pass an explicit environment name to override.
+`init.sh`. Pass an explicit environment name to override.
+
+`dotfiles host update` runs `dotfiles update` (git pull + resync), then the
+platform `update.sh` which upgrades packages, gh tools, and runs app scripts.
 
 ## Coding Style & Naming Conventions
 

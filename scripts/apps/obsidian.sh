@@ -34,7 +34,7 @@ case "$(uname -s)" in
     else
       log "obsidian" "not found — install with: brew install --cask obsidian"
     fi
-    exit 1
+    exit 0
     ;;
   *) abort "Unsupported OS: $(uname -s)" ;;
 esac

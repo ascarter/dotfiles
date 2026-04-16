@@ -33,7 +33,7 @@ case "$(uname -s)" in
     else
       log "ghostty" "not found — install with: brew install --cask ghostty"
     fi
-    exit 1
+    exit 0
     ;;
   *) abort "Unsupported OS: $(uname -s)" ;;
 esac

@@ -35,7 +35,7 @@ Commands:
   status      Show status of dotfiles
   update      Update dotfiles repository
   doctor      Check workstation health
-  host        Host provisioning
+  host        Host provisioning and updates
   gitconfig   Generate machine-specific ~/.gitconfig
   script      Run a script (list available scripts if no name given)
 
@@ -239,8 +239,18 @@ cmd_host() {
   case "$subcommand" in
   init)
     local env="${1:-$(_detect_host_env)}"
-    local host_script="${DOTFILES_HOST_DIR}/${env}/bootstrap.sh"
-    [ -f "$host_script" ] || abort "No provisioning script found for: ${env}"
+    local host_script="${DOTFILES_HOST_DIR}/${env}/init.sh"
+    [ -f "$host_script" ] || abort "No init script found for: ${env}"
+    ensure bash "$host_script"
+    ;;
+  update)
+    local env="${1:-$(_detect_host_env)}"
+    local host_script="${DOTFILES_HOST_DIR}/${env}/update.sh"
+    [ -f "$host_script" ] || abort "No update script found for: ${env}"
+
+    # Update dotfiles repo before running platform update
+    cmd_update
+
     ensure bash "$host_script"
     ;;
   status)
@@ -259,8 +269,9 @@ cmd_host() {
   "")
     cat <<'EOF'
 Usage:
-  dotfiles host init [<env>]   Provision host OS (auto-detect or specify)
-  dotfiles host status         Show host environment info
+  dotfiles host init [<env>]     Provision host OS (auto-detect or specify)
+  dotfiles host update [<env>]   Update host (packages, tools, apps)
+  dotfiles host status           Show host environment info
 EOF
     exit 1
     ;;

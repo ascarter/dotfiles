@@ -15,7 +15,8 @@ source "${DOTFILES_HOME}/lib/logging.sh"
 OS="$(uname -s)"
 
 if ! command -v tailscale >/dev/null 2>&1; then
-  abort "Tailscale is not installed"
+  warn "tailscale" "not installed — skipping"
+  exit 0
 fi
 
 if tailscale status >/dev/null 2>&1; then

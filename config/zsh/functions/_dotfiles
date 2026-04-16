@@ -51,6 +51,7 @@ _dotfiles_host() {
 
   local -a subcmds=(
     'init:Provision host OS'
+    'update:Update host (packages, tools, apps)'
     'status:Show host environment info'
   )
 
@@ -62,13 +63,13 @@ _dotfiles_host() {
       ;;
     args)
       case "${line[1]}" in
-        init)
+        init|update)
           local dotfiles_home="${DOTFILES_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles}"
           local -a envs
           if [[ -d "$dotfiles_home/host" ]]; then
             local d
             for d in "$dotfiles_home/host"/*(N/); do
-              [[ -f "$d/bootstrap.sh" ]] && envs+=("${d:t}")
+              [[ -f "$d/init.sh" ]] && envs+=("${d:t}")
             done
           fi
           _describe 'host environment' envs

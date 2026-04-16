@@ -6,7 +6,7 @@ set -eu
 source "${DOTFILES_HOME}/lib/logging.sh"
 
 if command -v zed >/dev/null 2>&1; then
-  log "zed" "already installed: $(command -v zed)"
+  log "zed" "already installed (self-updates)"
   exit 0
 fi
 

@@ -7,15 +7,14 @@ set -eu
 source "${DOTFILES_HOME}/lib/logging.sh"
 source "${DOTFILES_HOME}/lib/checksum.sh"
 
-if command -v code >/dev/null 2>&1; then
-  log "vscode" "already installed: $(command -v code)"
-  exit 0
-fi
-
 case "$(uname -s)" in
   Darwin)
-    echo "Visual Studio Code not found. Run: brew install --cask visual-studio-code"
-    exit 1
+    if command -v code >/dev/null 2>&1; then
+      log "vscode" "already installed: $(command -v code)"
+    else
+      log "vscode" "not found — install with: brew install --cask visual-studio-code"
+    fi
+    exit 0
     ;;
   Linux)
     ARCH="$(uname -m)"
