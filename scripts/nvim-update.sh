@@ -58,8 +58,13 @@ nvim --headless +TSUpdate +qa
 log
 
 log "nvim" "updating Mason registry..."
-timeout 30 nvim --headless +'lua require("mason-registry").refresh(function() vim.cmd("qa") end)' \
-  || warn "nvim" "Mason registry update timed out or failed"
+# Portable timeout: macOS lacks coreutils timeout
+nvim --headless +'lua require("mason-registry").refresh(function() vim.cmd("qa") end)' &
+_nvim_pid=$!
+(sleep 30 && kill "$_nvim_pid" 2>/dev/null) &
+_timer_pid=$!
+wait "$_nvim_pid" 2>/dev/null || warn "nvim" "Mason registry update timed out or failed"
+kill "$_timer_pid" 2>/dev/null || true
 log
 
 success "nvim" "update complete"
