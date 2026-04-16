@@ -7,6 +7,9 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "focus_follows_mouse": {
+    "enabled": true
+  },
   "title_bar": {
     "show_branch_icon": true,
   },
@@ -162,7 +165,7 @@
     },
     "profiles": {},
     "use_modifier_to_send": true,
-    "play_sound_when_agent_done": true,
+    "play_sound_when_agent_done": "when_hidden",
     "default_profile": "write",
   },
   "languages": {
@@ -250,10 +253,12 @@
   },
   "profiles": {
     "Presentation": {
-      "buffer_font_size": 20,
-      "ui_font_size": 18,
-      "theme": "Alpental Light",
-      "redact_private_values": true,
+      "settings": {
+        "buffer_font_size": 20,
+        "ui_font_size": 18,
+        "theme": "Alpental Light",
+        "redact_private_values": true
+      }
     },
   },
 }
