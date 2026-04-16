@@ -42,17 +42,17 @@ dotfiles status                 # Show sync state
 dotfiles update                 # git pull + re-sync
 dotfiles doctor                 # Check workstation health
 dotfiles host init [<env>]      # OS provisioning (auto-detects macos|fedora-atomic|toolbox)
+dotfiles host update [<env>]    # Update host (dotfiles, packages, tools, apps)
 dotfiles host status            # Show host environment info
 dotfiles gitconfig              # Generate machine-specific ~/.gitconfig
 dotfiles script <name>          # Run a script from scripts/
 ```
 
-For daily tool and package maintenance, use native commands directly:
+For ongoing maintenance, `dotfiles host update` handles everything — pulls the
+latest repo, re-syncs config, upgrades platform packages, gh tools, and apps:
 
 ```sh
-brew update && brew upgrade             # macOS packages
-gh tool upgrade                         # workstation CLI tools
-dotfiles update && dotfiles sync       # config and repo
+dotfiles host update                    # all-in-one maintenance
 ```
 
 ---
@@ -77,18 +77,24 @@ dotfiles update && dotfiles sync       # config and repo
 ├── install.sh                 # Bootstrap entrypoint
 ├── bin/dotfiles               # CLI entrypoint
 ├── config/
-│   ├── gh-tool/               # Global gh-tool manifests
-│   ├── zsh/                   # Shell config
-│   ├── git/                   # Git config
-│   ├── nvim/                  # Neovim config
-│   ├── zed/                   # Zed config
+│   ├── gh-tool/               # gh-tool manifest (config.toml)
+│   ├── zsh/                   # Shell config (.zshrc, .zprofile, functions/, env.d/, interactive.d/)
+│   ├── git/ ghostty/ nvim/    # App configs
+│   ├── zed/ helix/ vim/ …     #
 │   └── …
 ├── host/
-│   ├── macos/                 # bootstrap.sh, Brewfile, defaults.sh
-│   ├── fedora-atomic/         # bootstrap.sh, overlay-packages.txt
-│   └── toolbox/               # bootstrap.sh, dnf-packages.txt
-├── lib/logging.sh             # Shared logging/utility functions
-├── scripts/                   # Standalone helper scripts
+│   ├── macos/                 # init.sh, update.sh
+│   ├── fedora-atomic/         # init.sh, update.sh, overlay-rpms, rpm-repos, flatpaks
+│   └── toolbox/               # init.sh, update.sh, rpm-repos, dnf-rpms
+├── lib/
+│   ├── logging.sh             # Shared logging/display utilities
+│   ├── checksum.sh            # Portable SHA-256 verification
+│   ├── appimage.sh            # AppImage installation helpers
+│   └── rpm.sh                 # RPM helper utilities
+├── scripts/
+│   ├── apps/                  # App install/update scripts (claude, rustup, ghostty, …)
+│   ├── host/                  # Host provisioning scripts (homebrew, gh-tool, macos-defaults, …)
+│   └── misc/                  # Miscellaneous helper scripts
 └── docs/                      # Architecture and reference docs
 ```
 
