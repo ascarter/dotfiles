@@ -57,9 +57,4 @@ log "nvim" "updating treesitter parsers..."
 nvim --headless +TSUpdate +qa
 log
 
-log "nvim" "updating Mason registry..."
-nvim --headless +'lua require("mason-registry").refresh(function() vim.cmd("qa") end)' \
-  || warn "nvim" "Mason registry update failed"
-log
-
 success "nvim" "update complete"
