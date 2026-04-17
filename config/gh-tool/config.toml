@@ -91,3 +91,8 @@
   [tool.patterns]
     darwin_amd64 = "tree-sitter-cli-macos-x64.zip"
     linux_amd64 = "tree-sitter-cli-linux-x64.zip"
+
+[[tool]]
+  repo = "denoland/deno"
+  pattern = "deno-{{triple}}.zip"
+  bin = ["deno"]
