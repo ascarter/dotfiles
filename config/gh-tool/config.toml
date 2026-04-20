@@ -1,47 +1,47 @@
 [[tool]]
   repo = "BurntSushi/ripgrep"
-  pattern = "ripgrep-*-{{triple}}.tar.gz"
   bin = ["rg"]
   man = ["doc/rg.1"]
-  completions = ["complete/_rg", "complete/rg.bash"]
+  completions = ["complete/_rg", "complete/_rg.ps1", "complete/rg.bash", "complete/rg.fish"]
   [tool.patterns]
-    linux_amd64 = "ripgrep-*-x86_64-unknown-linux-musl.tar.gz"
+    darwin_amd64 = "ripgrep-{{tag}}-x86_64-apple-darwin.tar.gz"
+    darwin_arm64 = "ripgrep-{{tag}}-aarch64-apple-darwin.tar.gz"
+    linux_amd64 = "ripgrep-{{tag}}-x86_64-unknown-linux-musl.tar.gz"
+    linux_arm64 = "ripgrep-{{tag}}-aarch64-unknown-linux-gnu.tar.gz"
 
 [[tool]]
   repo = "casey/just"
-  pattern = "just-*-{{triple}}.tar.gz"
+  pattern = "just-{{tag}}-{{musltriple}}.tar.gz"
   bin = ["just"]
   man = ["just.1"]
-  completions = ["completions/just.zsh", "completions/just.bash"]
-  [tool.patterns]
-    linux_amd64 = "just-*-x86_64-unknown-linux-musl.tar.gz"
+  completions = ["completions/just.bash", "completions/just.fish", "completions/just.zsh"]
 
 [[tool]]
   repo = "ClementTsang/bottom"
-  pattern = "bottom_{{triple}}.tar.gz"
+  pattern = "bottom_{{musltriple}}.tar.gz"
   bin = ["btm"]
-  completions = ["completion/_btm", "completion/btm.bash"]
+  completions = ["completion/_btm", "completion/_btm.ps1", "completion/btm.bash", "completion/btm.fish"]
 
 [[tool]]
   repo = "lusingander/serie"
-  pattern = "serie-*-{{triple}}.tar.gz"
+  pattern = "serie-*-{{musltriple}}.tar.gz"
   bin = ["serie"]
 
 [[tool]]
   repo = "sharkdp/fd"
-  pattern = "fd-*-{{triple}}.tar.gz"
+  pattern = "fd-{{tag}}-{{musltriple}}.tar.gz"
   bin = ["fd"]
   man = ["fd.1"]
-  completions = ["autocomplete/_fd", "autocomplete/fd.bash"]
+  completions = ["autocomplete/_fd", "autocomplete/_fd.ps1", "autocomplete/fd.bash", "autocomplete/fd.fish"]
 
 [[tool]]
   repo = "spinel-coop/rv"
-  pattern = "rv-{{triple}}.tar.xz"
+  pattern = "rv-{{musltriple}}.tar.xz"
   bin = ["rv", "rvx"]
 
 [[tool]]
   repo = "astral-sh/uv"
-  pattern = "uv-{{triple}}.tar.gz"
+  pattern = "uv-{{musltriple}}.tar.gz"
   bin = ["uv", "uvx"]
 
 [[tool]]
@@ -57,7 +57,7 @@
 [[tool]]
   repo = "mikefarah/yq"
   pattern = "yq_{{os}}_{{arch}}.tar.gz"
-  bin = ["yq_{{os}}_{{arch}}:yq"]
+  bin = ["yq_darwin_arm64:yq"]
   man = ["yq.1"]
 
 [[tool]]
@@ -67,32 +67,38 @@
 
 [[tool]]
   repo = "koalaman/shellcheck"
-  pattern = "shellcheck-*.{{os}}.{{gnuarch}}.tar.gz"
+  pattern = "shellcheck-{{tag}}.{{os}}.{{gnuarch}}.tar.gz"
   bin = ["shellcheck"]
 
 [[tool]]
   repo = "Schniz/fnm"
-  pattern = "fnm-{{platform}}.zip"
   bin = ["fnm"]
+  [tool.patterns]
+    darwin_amd64 = "fnm-macos.zip"
+    darwin_arm64 = "fnm-macos.zip"
+    linux_amd64 = "fnm-linux.zip"
+    linux_arm64 = "fnm-arm64.zip"
 
 [[tool]]
   repo = "neovim/neovim"
-  pattern = "nvim-{{platform}}-{{arch}}.tar.gz"
   bin = ["nvim"]
   man = ["share/man/man1/nvim.1"]
   [tool.patterns]
     darwin_amd64 = "nvim-macos-x86_64.tar.gz"
+    darwin_arm64 = "nvim-macos-arm64.tar.gz"
     linux_amd64 = "nvim-linux-x86_64.tar.gz"
+    linux_arm64 = "nvim-linux-arm64.tar.gz"
 
 [[tool]]
   repo = "tree-sitter/tree-sitter"
-  pattern = "tree-sitter-cli-{{platform}}-{{arch}}.zip"
   bin = ["tree-sitter"]
   [tool.patterns]
     darwin_amd64 = "tree-sitter-cli-macos-x64.zip"
+    darwin_arm64 = "tree-sitter-cli-macos-arm64.zip"
     linux_amd64 = "tree-sitter-cli-linux-x64.zip"
+    linux_arm64 = "tree-sitter-cli-linux-arm64.zip"
 
 [[tool]]
   repo = "denoland/deno"
   pattern = "deno-{{triple}}.zip"
-  bin = ["deno"]
+  bin = ["deno", "deno:dx"]
