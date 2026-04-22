@@ -13,6 +13,8 @@ if command -v rustup >/dev/null 2>&1; then
   log "rustup" "updating"
   rustup self update || warn "rustup" "self update failed"
   rustup update || warn "rustup" "toolchain update failed"
+  rustup component add rust-analyzer clippy rustfmt 2>/dev/null || \
+    warn "rustup" "component add failed"
   exit 0
 fi
 
@@ -20,6 +22,8 @@ fi
 # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --help
 
 # Install rustup with default toolchain and no path modification (handled in shell config)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
+  -y --no-modify-path \
+  --component rust-analyzer --component clippy --component rustfmt
 
 log "rustup" "installed"
