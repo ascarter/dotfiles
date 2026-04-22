@@ -7,16 +7,27 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "diff_view_style": "unified",
+  "document_symbols": "on",
+  "semantic_tokens": "combined",
+  "indent_guides": {
+    
+  },
+  "redact_private_values": true,
+  "collaboration_panel": {
+    
+  },
   "focus_follows_mouse": {
     "enabled": true
   },
   "title_bar": {
-    "show_branch_icon": true,
+    
   },
   "document_folding_ranges": "on",
-  "semantic_tokens": "combined",
   "completion_menu_scrollbar": "auto",
-  "toolbar": {},
+  "toolbar": {
+    
+  },
   "agent_servers": {
     "gemini": {
       "type": "registry",
@@ -110,22 +121,18 @@
     },
   },
   "project_panel": {
-    "hide_root": true,
     "git_status_indicator": true,
     "hide_hidden": false,
     "bold_folder_labels": true,
-    "indent_size": 12.0,
     "folder_icons": false,
     "git_status": true,
     "file_icons": false,
     "entry_spacing": "standard",
     "auto_fold_dirs": true,
     "indent_guides": {
-      "show": "always",
-    },
+      },
   },
   "outline_panel": {
-    "indent_size": 11.0,
     "indent_guides": {
       "show": "always",
     },
