@@ -57,7 +57,7 @@
 [[tool]]
   repo = "mikefarah/yq"
   pattern = "yq_{{os}}_{{arch}}.tar.gz"
-  bin = ["yq_darwin_arm64:yq"]
+  bin = ["yq_{{os}}_{{arch}}:yq"]
   man = ["yq.1"]
 
 [[tool]]
