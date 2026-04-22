@@ -99,31 +99,7 @@ log "nvim" "updating plugins..."
 nvim --headless +'lua vim.pack.update(nil, {force=true})' +qa
 log
 
-# Update tree-sitter parsers (remove + reinstall each, sequentially).
-# Mirrors what `:TSManager` -> 'u' does, driven from a headless nvim session.
-log "nvim" "updating tree-sitter parsers..."
-ts_update_lua=$(mktemp -t nvim-ts-update.XXXXXX.lua)
-trap 'rm -f "$ts_update_lua"' EXIT
-cat > "$ts_update_lua" <<'EOF'
-local installer = require("tree-sitter-manager.installer")
-local cfg       = require("tree-sitter-manager.config").cfg
-local parsers   = {}
-for name, _ in vim.fs.dir(cfg.parser_dir) do
-  local lang = name:match("^(.*)%.so$") or name:match("^(.*)%.dylib$") or name:match("^(.*)%.dll$")
-  if lang then table.insert(parsers, lang) end
-end
-table.sort(parsers)
-print("updating " .. #parsers .. " parsers")
-for _, lang in ipairs(parsers) do
-  local done = false
-  installer.remove(lang)
-  installer.install(lang, function() done = true end)
-  vim.wait(120000, function() return done end, 50)
-  if not done then print("⚠ timeout: " .. lang) end
-end
-print("tree-sitter parser update complete")
-EOF
-nvim --headless "+luafile $ts_update_lua" +qa
-log
+# tree-sitter-manager.nvim installs missing parsers via ensure_installed on
+# startup. To upgrade existing parsers, open :TSManager and press 'u' on each.
 
 success "nvim" "update complete"
