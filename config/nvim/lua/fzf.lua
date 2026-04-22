@@ -51,6 +51,4 @@ map("<leader>cs", fzf.lsp_document_symbols,  "Document symbols")
 map("<leader>cS", fzf.lsp_workspace_symbols, "Workspace symbols")
 map("<leader>cd", fzf.diagnostics_document,  "Diagnostics")
 
--- Git
-map("<leader>gc", fzf.git_commits, "Commits")
-map("<leader>gs", fzf.git_status,  "Status")
+-- Git pickers and hunk navigation are configured in lua/git.lua under <leader>g*

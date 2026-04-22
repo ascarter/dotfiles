@@ -102,7 +102,20 @@ function _G.statusline()
   local m     = mode_map[vim.fn.mode()] or { hl = "ModeNormal", text = vim.fn.mode() }
   local mode  = ("%%#%s# %s %%*"):format(m.hl, m.text)
   local left  = " %f %m%r"
-  local right = "%l:%c  " .. mode .. "  " .. vim.bo.filetype .. " "
+
+  -- Git: branch and +/~/- counts (provided by gitsigns via b:gitsigns_*)
+  local git = ""
+  local head = vim.b.gitsigns_head
+  if head and head ~= "" then
+    local s = vim.b.gitsigns_status_dict or {}
+    local parts = { " " .. head }
+    if (s.added or 0)   > 0 then table.insert(parts, "+" .. s.added)   end
+    if (s.changed or 0) > 0 then table.insert(parts, "~" .. s.changed) end
+    if (s.removed or 0) > 0 then table.insert(parts, "-" .. s.removed) end
+    git = table.concat(parts, " ") .. "  "
+  end
+
+  local right = git .. "%l:%c  " .. mode .. "  " .. vim.bo.filetype .. " "
   return left .. "%=" .. right
 end
 

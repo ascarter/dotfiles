@@ -8,23 +8,13 @@ vim.g.loaded_netrwPlugin = 1
 
 local gh = function(r) return "https://github.com/" .. r end
 
--- Build hook: recompile parsers after treesitter updates
-vim.api.nvim_create_autocmd("PackChanged", {
-  callback = function(ev)
-    if ev.data.spec.name == "nvim-treesitter" and ev.data.kind == "update" then
-      vim.cmd("TSUpdate")
-    end
-  end,
-})
-
 -- Update plugins:  :lua vim.pack.update()
--- Update parsers:  :TSUpdate
+-- Update parsers:  :TSManager  (then 'u' on a parser, or 'i' to install)
 -- Update Mason:    :Mason then press U
 -- From CLI:        nvim --headless +'lua vim.pack.update(nil, {force=true})' +qa
---                  nvim --headless +TSUpdate +qa
 vim.pack.add({
   gh("ascarter/nvim-alpental-theme"),
-  gh("nvim-treesitter/nvim-treesitter"),
+  gh("romus204/tree-sitter-manager.nvim"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
   gh("mason-org/mason.nvim"),
   gh("ibhagwan/fzf-lua"),
@@ -32,6 +22,9 @@ vim.pack.add({
   gh("rcarriga/nvim-dap-ui"),
   gh("nvim-neotest/nvim-nio"),
   gh("folke/which-key.nvim"),
-  gh("echasnovski/mini.pairs"),
-  gh("echasnovski/mini.surround"),
+  gh("nvim-mini/mini.ai"),
+  gh("nvim-mini/mini.bracketed"),
+  gh("nvim-mini/mini.pairs"),
+  gh("nvim-mini/mini.surround"),
+  gh("lewis6991/gitsigns.nvim"),
 })
