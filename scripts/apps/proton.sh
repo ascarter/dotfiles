@@ -22,7 +22,7 @@ sha512_verify_file() {
 cache_rm() {
   file="$1"
   if [ -f "$file" ]; then
-    echo "Removing cached file: $file"
+    log "proton" "Removing cached file: $file"
     rm -f "$file"
   fi
 }
@@ -71,7 +71,7 @@ proton_rpm() {
     repo_path="$2"
 
     if [ ! -f "/etc/yum.repos.d/${repo_path}" ]; then
-      echo "Installing ProtonVPN repository"
+      log "proton" "Installing ProtonVPN repository"
       rpm_install "${repo_url}"
 
       case "$VARIANT_ID" in
@@ -110,7 +110,7 @@ proton_rpm() {
       if [ -f "$user_icon_file" ]; then
         continue
       fi
-      echo "Installing icon: ${icon_name}"
+      log "proton" "Installing icon: ${icon_name}"
       install -m 0644 "${icon}" "${user_icon_file}"
     done
   }
@@ -123,11 +123,11 @@ proton_rpm() {
     # If the RPM is already present and matches the expected SHA512, reuse it.
     if [ -f "$rpm_file" ]; then
       if sha512_verify_file "$rpm_file" "$sha512"; then
-        echo "Using cached RPM: $rpm_file"
+        vlog "proton" "Using cached RPM: $rpm_file"
         return
       else
         # Invalidate bad cache package
-        echo "Checksum mismatch" >&2
+        error "Checksum mismatch"
         cache_rm "$rpm_file"
       fi
     fi
@@ -135,7 +135,7 @@ proton_rpm() {
     if ! [ -f "$rpm_file" ]; then
       curl -fsSL "$rpm_url" -o "$rpm_file" || return 1
       if ! sha512_verify_file "$rpm_file" "$sha512"; then
-        echo "Checksum mismatch" >&2
+        error "Checksum mismatch"
         cache_rm "$rpm_file"
         return 1
       fi
@@ -170,7 +170,7 @@ proton_rpm() {
     fi
 
     if [ "$installed_verrel" = "$pkg_verrel" ]; then
-      echo "Up to date: ${pkg_name} ${installed_verrel}"
+      log "proton" "Up to date: ${pkg_name} ${installed_verrel}"
       return 0
     fi
 
@@ -186,8 +186,8 @@ proton_rpm() {
 
   proton_vpn_repo="https://repo.protonvpn.com/fedora-${VERSION_ID}-stable/protonvpn-stable-release/protonvpn-stable-release-1.0.3-1.noarch.rpm"
   rpm_repo_setup "$proton_vpn_repo" "protonvpn-stable.repo" || {
-    echo "Reboot to complete repository setup:"
-    echo "  systemctl reboot"
+    warn "proton" "Reboot to complete repository setup"
+    warn "proton" "Run: systemctl reboot"
     exit 0
   }
 
@@ -197,12 +197,25 @@ proton_rpm() {
   rpm_release_install "https://proton.me/download/authenticator/linux/version.json"
   rpm_release_install "https://proton.me/download/mail/linux/version.json"
   rpm_release_install "https://proton.me/download/PassDesktop/linux/x64/version.json"
+  rpm_release_install "https://proton.me/download/meet/linux/version.json"
   rpm_app_install "https://proton.me/download/bridge/protonmail-bridge-3.21.2-1.x86_64.rpm" "e802d0a9630d4aaf2f32de1e0d5b350728476340746b6735fa4ea166595c7a688e3025497c3c20dda1b556bd6045f129275539601828091fbb43766a91bbeba4"
   update_icons
 }
 
+proton_pass_cli() {
+  if command -v pass-cli >/dev/null 2>&1; then
+    log "pass-cli" "Updating"
+    pass-cli update
+  else
+    log "pass-cli" "Installing"
+    curl -fsSL https://proton.me/download/pass-cli/install.sh | bash
+  fi
+}
+
 case "$(uname -s)" in
   Darwin)
+    proton_pass_cli
+
     log "proton" "Proton apps are managed via Homebrew casks on macOS"
     log "proton" "Run: brew bundle --global"
     log "proton" "Or install individually:"
@@ -215,6 +228,7 @@ case "$(uname -s)" in
       . /etc/os-release
       case "${ID}" in
         fedora)
+          proton_pass_cli
           proton_rpm
           ;;
         *)
