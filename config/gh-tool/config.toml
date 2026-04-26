@@ -102,3 +102,8 @@
   repo = "denoland/deno"
   pattern = "deno-{{triple}}.zip"
   bin = ["deno", "deno:dx"]
+
+[[tool]]
+  repo = "coreos/butane"
+  pattern = "butane-{{triple}}"
+  bin = ["butane-{{triple}}:butane"]
