@@ -11,24 +11,12 @@
   "diff_view_style": "unified",
   "document_symbols": "on",
   "semantic_tokens": "combined",
-  "indent_guides": {
-    
-  },
   "redact_private_values": true,
-  "collaboration_panel": {
-    
-  },
   "focus_follows_mouse": {
-    "enabled": true
-  },
-  "title_bar": {
-    
+    "enabled": true,
   },
   "document_folding_ranges": "on",
   "completion_menu_scrollbar": "auto",
-  "toolbar": {
-    
-  },
   "agent_servers": {
     "gemini": {
       "type": "registry",
@@ -41,10 +29,7 @@
     },
     "github-copilot-cli": {
       "favorite_config_option_values": {
-        "model": [
-          "claude-opus-4.7",
-          "gpt-5.4"
-        ]
+        "model": ["claude-opus-4.7", "gpt-5.4"],
       },
       "type": "registry",
     },
@@ -68,7 +53,6 @@
     "file_icons": false,
   },
   "current_line_highlight": "all",
-  "buffer_line_height": "comfortable",
   "icon_theme": "Zed (Default)",
   "terminal": {
     "blinking": "on",
@@ -85,21 +69,13 @@
   "ui_font_size": 14.0,
   "buffer_font_family": "Berkeley Mono",
   "buffer_font_size": 13.0,
-  "buffer_font_features": {
-    "calt": true,
-    "zero": true,
-    "ss01": true,
-    "ss03": true,
-    "ss05": true,
-    "ss10": true,
-    "cv04": true,
-  },
+  "buffer_font_weight": 400,
+  "buffer_line_height": "comfortable",
   "show_completions_on_input": false,
   "show_edit_predictions": true,
   "edit_predictions": {
     "provider": "copilot",
     "mode": "eager",
-    "enabled_in_text_threads": true,
   },
   "always_treat_brackets_as_autoclosed": true,
   "wrap_guides": [80],
@@ -130,8 +106,7 @@
     "file_icons": false,
     "entry_spacing": "standard",
     "auto_fold_dirs": true,
-    "indent_guides": {
-      },
+    "indent_guides": {},
   },
   "outline_panel": {
     "indent_guides": {
@@ -271,8 +246,8 @@
         "buffer_font_size": 20,
         "ui_font_size": 18,
         "theme": "Alpental Light",
-        "redact_private_values": true
-      }
+        "redact_private_values": true,
+      },
     },
   },
 }
