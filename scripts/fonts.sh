@@ -5,8 +5,9 @@
 # Installs fonts from a zip file to the user's local fonts directory.
 # Usage: fonts.sh /path/to/fonts.zip
 #
-# Fonts are in a zip archive in a flat structure (no subdirectories)
-# and will be extracted to user's fonts directory
+# Prefers OTF fonts; falls back to TTF if no OTF files are found.
+# Extracts font files flattened (no subdirectories) and excludes
+# macOS resource fork (._) files.
 
 set -eu
 
@@ -20,15 +21,31 @@ fi
 case "$(uname -s)" in
   Darwin)
     FONTS_DIR="${HOME}/Library/Fonts"
-    mkdir -p "${FONTS_DIR}"
-    unzip -o "${FONTS_ZIP_FILE}" -d "${FONTS_DIR}"
     ;;
   Linux)
     FONTS_DIR="${HOME}/.local/share/fonts"
-    mkdir -p "${FONTS_DIR}"
-    unzip -o "${FONTS_ZIP_FILE}" -d "${FONTS_DIR}"
-    fc-cache -f -v
+    ;;
+  *)
+    echo "Unsupported OS: $(uname -s)"
+    exit 1
     ;;
 esac
+
+mkdir -p "${FONTS_DIR}"
+
+# Prefer OTF; fall back to TTF if archive contains no OTF files
+if unzip -l "${FONTS_ZIP_FILE}" "*.otf" 2>/dev/null | grep -qi '\.otf$'; then
+  unzip -o -j "${FONTS_ZIP_FILE}" "*.otf" -x "._*" -d "${FONTS_DIR}"
+elif unzip -l "${FONTS_ZIP_FILE}" "*.ttf" 2>/dev/null | grep -qi '\.ttf$'; then
+  unzip -o -j "${FONTS_ZIP_FILE}" "*.ttf" -x "._*" -d "${FONTS_DIR}"
+else
+  echo "No OTF or TTF fonts found in ${FONTS_ZIP_FILE}"
+  exit 1
+fi
+
+# Update font cache on Linux
+if [ "$(uname -s)" = "Linux" ]; then
+  fc-cache -f -v "${FONTS_DIR}"
+fi
 
 echo "Fonts installed to ${FONTS_DIR}"
