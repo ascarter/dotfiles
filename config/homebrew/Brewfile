@@ -26,6 +26,9 @@ brew "pinentry-mac"
 brew "ykman"
 brew "yubico-piv-tool"
 
+# Developer
+brew "vfkit"
+
 # macOS apps
 cask_args adopt: true
 cask "bbedit"
@@ -50,11 +53,18 @@ cask "protonvpn"
 cask "signal"
 cask "spotify"
 cask "tailscale-app"
+cask "utm"
 cask "vivaldi"
 cask "visual-studio-code"
 cask "xquartz"
 cask "xscope"
 cask "yubico-authenticator"
+
+# Fonts
+cask "font-ibm-plex-mono"
+cask "font-ibm-plex-sans"
+cask "font-ibm-plex-serif"
+cask "font-jetbrains-mono"
 
 # 3rd party
 tap "teamookla/speedtest"

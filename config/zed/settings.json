@@ -7,6 +7,12 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "collaboration_panel": {
+    "dock": "right"
+  },
+  "status_bar": {
+    
+  },
   "cli_default_open_behavior": "existing_window",
   "diff_view_style": "unified",
   "document_symbols": "on",
@@ -45,6 +51,7 @@
   },
   "show_wrap_guides": true,
   "git_panel": {
+    "dock": "right",
     "tree_view": true,
     "collapse_untracked_diff": true,
     "status_style": "icon",
@@ -56,6 +63,9 @@
   "icon_theme": "Zed (Default)",
   "terminal": {
     "blinking": "on",
+    "font_features": {
+      "calt": true,
+    },
   },
   "sticky_scroll": {
     "enabled": true,
@@ -67,9 +77,12 @@
   },
   "ui_font_family": ".SystemUIFont",
   "ui_font_size": 14.0,
-  "buffer_font_family": "Berkeley Mono",
+  "buffer_font_family": "JetBrains Mono",
   "buffer_font_size": 13.0,
   "buffer_font_weight": 400,
+  "buffer_font_features": {
+    "calt": true,
+  },
   "buffer_line_height": "comfortable",
   "show_completions_on_input": false,
   "show_edit_predictions": true,
@@ -98,6 +111,7 @@
     },
   },
   "project_panel": {
+    "dock": "right",
     "git_status_indicator": true,
     "hide_hidden": false,
     "bold_folder_labels": true,
@@ -109,6 +123,7 @@
     "indent_guides": {},
   },
   "outline_panel": {
+    "dock": "right",
     "indent_guides": {
       "show": "always",
     },
@@ -142,6 +157,8 @@
     },
   },
   "agent": {
+    "sidebar_side": "left",
+    "dock": "left",
     "default_model": {
       "effort": "high",
       "provider": "copilot_chat",
