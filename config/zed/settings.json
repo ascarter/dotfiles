@@ -7,6 +7,11 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "inlay_hints": {
+    "show_background": true,
+  },
+  "completion_menu_scrollbar": "auto",
+  "completion_menu_item_kind": "symbol",
   "collaboration_panel": {
     "dock": "right",
   },
@@ -16,7 +21,6 @@
   "semantic_tokens": "combined",
   "redact_private_values": true,
   "document_folding_ranges": "on",
-  "completion_menu_scrollbar": "auto",
   "agent_servers": {
     "gemini": {
       "type": "registry",
