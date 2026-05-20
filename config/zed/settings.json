@@ -15,9 +15,6 @@
   "document_symbols": "on",
   "semantic_tokens": "combined",
   "redact_private_values": true,
-  "focus_follows_mouse": {
-    "enabled": true,
-  },
   "document_folding_ranges": "on",
   "completion_menu_scrollbar": "auto",
   "agent_servers": {
