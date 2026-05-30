@@ -18,6 +18,9 @@ spctl developer-mode enable-terminal 2>/dev/null || true
 # Terminal: focus follows mouse
 defaults write com.apple.terminal FocusFollowsMouse -string true
 
+# Disable press-and-hold for keys in favor of key repeat
+defaults write -g ApplePressAndHoldEnabled -bool false
+
 # Reduce menu icons (macOS 26 Tahoe+)
 defaults write -g NSMenuEnableActionImages -bool NO
 
