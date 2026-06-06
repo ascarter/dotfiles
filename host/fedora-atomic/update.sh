@@ -31,4 +31,12 @@ for script in "${DOTFILES_HOME}/scripts/apps/"*.sh; do
   "$DOTFILES" script "apps/$name" || warn "app" "$name failed (continuing)"
 done
 
+log "fonts" "Installing fonts"
+for script in "${DOTFILES_HOME}/scripts/fonts/"*.sh; do
+  [ -f "$script" ] || continue
+  name="$(basename "$script" .sh)"
+  vlog "font" "$name"
+  "$DOTFILES" script "fonts/$name" || warn "font" "$name failed (continuing)"
+done
+
 log "update" "Fedora Atomic host update complete"

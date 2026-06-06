@@ -65,14 +65,6 @@ cask "xquartz"
 cask "xscope"
 cask "yubico-authenticator"
 
-# Fonts
-cask "font-ibm-plex-math"
-cask "font-ibm-plex-mono"
-cask "font-ibm-plex-sans"
-cask "font-ibm-plex-serif"
-cask "font-jetbrains-mono"
-cask "font-lilex"
-
 # 3rd party
 tap "teamookla/speedtest"
 brew "teamookla/speedtest/speedtest"

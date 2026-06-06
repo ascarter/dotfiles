@@ -26,6 +26,7 @@ This repo manages **workstation profiles**, not packages. It is deliberately lea
 - **`lib/logging.sh` is the primary shared library.** It provides logging/display utilities and is sourced by `bin/dotfiles`, host bootstrap scripts, and app scripts.
 - **`lib/checksum.sh` provides portable SHA-256 verification.** Probes for `sha256sum` or `shasum` at source time.
 - **`lib/appimage.sh` provides AppImage installation helpers.** Full lifecycle: resolve version, download, install, desktop integration. Used by AppImage installer scripts in `scripts/apps/`.
+- **`lib/fonts.sh` provides font installation helpers.** Wraps `gh release download`, archive extraction, and `fc-cache` refresh. Used by per-font scripts in `scripts/fonts/`. Each per-font script pins its own `VERSION=` variable — no auto-update; bump manually when needed.
 - **Host bootstrap uses native tools directly** — `brew bundle`, `rpm-ostree`, `dnf install`.
 - **Project-local environments belong in each project**, not in this repo.
 - **`XDG_OPT_*` variables no longer exist.** Use standard `XDG_*` variables only.
@@ -45,8 +46,10 @@ host/                     — OS bootstrap scripts, one directory per environmen
 lib/logging.sh            — shared logging/utility library (sourced, no shebang)
 lib/checksum.sh           — portable SHA-256 verification (sourced, no shebang)
 lib/appimage.sh           — AppImage installation helpers (sourced, no shebang)
+lib/fonts.sh              — font installation helpers (sourced, no shebang)
 scripts/                  — standalone helper scripts (gitconfig.sh, developer.sh, etc.)
   apps/                   — app install/update scripts (claude, rustup, ghostty, etc.)
+  fonts/                  — per-font install scripts (jetbrains-mono, monaspace, etc.)
   host/                   — host provisioning scripts (homebrew, rpm-repos, gh-tool, etc.)
 docs/                     — architecture, host-bootstrap, lifecycle docs
 install.sh                — one-line bootstrap: clone repo → dotfiles init
@@ -114,6 +117,24 @@ a `gh` extension. Tool manifests live in `config/gh-tool/` and are synced into
 Do **not** add tool-install wrapper commands to `bin/dotfiles`. The CLI delegates
 to gh-tool and does not reimplement package management.
 
+## Fonts
+
+Fonts are installed by per-font scripts under `scripts/fonts/`, mirroring the
+`scripts/apps/` pattern. Helpers in `lib/fonts.sh` wrap `gh release download`,
+archive extraction, and `fc-cache` refresh.
+
+- Each script pins its own `VERSION=` variable. No auto-update, no latest-tag
+  resolution. Bump the variable manually when a new release matters.
+- Each script is standalone-runnable: `dotfiles script fonts/<name>` installs
+  just that font (including font-cache refresh on Linux).
+- GUI hosts (`host/macos/update.sh`, `host/fedora-atomic/update.sh`) loop the
+  `scripts/fonts/` directory after the apps loop. Toolbox does not — no GUI
+  use case.
+- Installs land in `~/Library/Fonts` on macOS, `${XDG_DATA_HOME}/fonts` on Linux.
+- gh-tool intentionally does **not** handle fonts. Fonts often live outside
+  GitHub, have unique archive layouts, and don't benefit from the same
+  binary-asset autodetection. Keep them in this lean, per-font shell layer.
+
 ## Host Bootstrap
 
 Each supported environment has a directory under `host/` containing
@@ -130,7 +151,8 @@ plus platform-specific package lists:
 `init.sh`. Pass an explicit environment name to override.
 
 `dotfiles host update` runs `dotfiles update` (git pull + resync), then the
-platform `update.sh` which upgrades packages, gh tools, and runs app scripts.
+platform `update.sh` which upgrades packages, gh tools, runs app scripts, and
+(on GUI hosts) installs fonts.
 
 ## Coding Style & Naming Conventions
 
