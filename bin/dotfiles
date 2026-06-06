@@ -357,12 +357,12 @@ cmd_uninstall() {
 cmd_update() {
   QUIET=1
 
-  cmd_uninstall || abort "failed to unlink files before update"
+  cmd_uninstall || warn "unlink" "some entries could not be unlinked; continuing"
 
   log "git" "Updating dotfiles repository"
-  git -C "$DOTFILES_HOME" pull --ff-only
+  git -C "$DOTFILES_HOME" pull --ff-only || abort "git pull failed"
 
-  cmd_sync || abort "failed to resync files after update"
+  cmd_sync || warn "sync" "some entries could not be linked; run 'dotfiles status' to inspect"
 
   success "dotfiles updated"
 }
