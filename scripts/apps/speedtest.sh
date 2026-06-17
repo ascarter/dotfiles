@@ -19,19 +19,22 @@ fi
 
 case "$(uname -s)" in
   Darwin)
-    log "speedtest" "install via: brew tap teamookla/speedtest && brew install speedtest"
-    exit 0
+    SPEEDTEST_OS="macosx"
+    SPEEDTEST_ARCH="universal"
     ;;
-  Linux) ;;
+  Linux)
+    SPEEDTEST_OS="linux"
+    ARCH="$(uname -m)"
+    case "$ARCH" in
+      x86_64)  SPEEDTEST_ARCH="x86_64" ;;
+      aarch64) SPEEDTEST_ARCH="aarch64" ;;
+      *) abort "Unsupported architecture: $ARCH" ;;
+    esac
+
+    ;;
   *) abort "Unsupported OS: $(uname -s)" ;;
 esac
 
-ARCH="$(uname -m)"
-case "$ARCH" in
-  x86_64)  SPEEDTEST_ARCH="linux-x86_64" ;;
-  aarch64) SPEEDTEST_ARCH="linux-aarch64" ;;
-  *) abort "Unsupported architecture: $ARCH" ;;
-esac
 
 : "${XDG_BIN_HOME:=$HOME/.local/bin}"
 : "${XDG_DATA_HOME:=$HOME/.local/share}"
@@ -39,7 +42,7 @@ esac
 
 DOWNLOAD_DIR="${XDG_CACHE_HOME}/speedtest"
 INSTALL_DIR="${XDG_DATA_HOME}/speedtest"
-TARBALL="ookla-speedtest-${SPEEDTEST_VERSION}-${SPEEDTEST_ARCH}.tgz"
+TARBALL="ookla-speedtest-${SPEEDTEST_VERSION}-${SPEEDTEST_OS}-${SPEEDTEST_ARCH}.tgz"
 URL="https://install.speedtest.net/app/cli/${TARBALL}"
 
 mkdir -p "$DOWNLOAD_DIR" "$INSTALL_DIR" "$XDG_BIN_HOME"

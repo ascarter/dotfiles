@@ -27,9 +27,6 @@ brew "ykman"
 brew "yubico-piv-tool"
 
 # Developer
-brew "podman"
-brew "podman-compose"
-brew "podman-tui"
 brew "vfkit"
 
 # macOS apps
@@ -48,7 +45,6 @@ cask "logi-options+"
 cask "netnewswire"
 cask "obs"
 cask "obsidian"
-cask "podman-desktop"
 cask "proton-drive"
 cask "proton-mail"
 cask "proton-mail-bridge"
@@ -64,7 +60,3 @@ cask "visual-studio-code"
 cask "xquartz"
 cask "xscope"
 cask "yubico-authenticator"
-
-# 3rd party
-tap "teamookla/speedtest"
-brew "teamookla/speedtest/speedtest"
