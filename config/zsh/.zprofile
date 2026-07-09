@@ -1,3 +1,6 @@
+# Machine-local login environment
+[[ -r "$HOME/.zprofile" ]] && source "$HOME/.zprofile"
+
 # Configure readline
 # export INPUTRC="${XDG_CONFIG_HOME}/readline/inputrc"
 
