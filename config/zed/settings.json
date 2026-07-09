@@ -7,6 +7,10 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "preview_tabs": {
+    "enable_preview_multibuffer_from_code_navigation": true,
+    "enable_preview_from_file_finder": true
+  },
   "inlay_hints": {
     "show_background": true,
   },
@@ -33,10 +37,14 @@
     },
     "github-copilot-cli": {
       "default_config_options": {
-        "model": "gpt-5.5",
+        "model": "gpt-5.6-sol",
       },
       "favorite_config_option_values": {
-        "model": ["gpt-5.5", "claude-opus-4.8", "auto"],
+        "model": [
+          "auto",
+          "gpt-5.6-sol",
+          "mai-code-1-flash-picker"
+        ],
       },
       "type": "registry",
     },
@@ -100,7 +108,8 @@
   "git": {
     "hunk_style": "staged_hollow",
     "inline_blame": {
-      "enabled": false,
+      "enabled": true,
+      "location": "status_bar"
     },
   },
   "project_panel": {
