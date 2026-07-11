@@ -107,3 +107,12 @@
   repo = "coreos/butane"
   pattern = "butane-{{triple}}"
   bin = ["butane-{{triple}}:butane"]
+
+[[tool]]
+  repo = "oven-sh/bun"
+  bin = ["bun"]
+  [tool.patterns]
+    darwin_amd64 = "bun-darwin-x64.zip"
+    darwin_arm64 = "bun-darwin-aarch64.zip"
+    linux_amd64 = "bun-linux-x64-musl.zip"
+    linux_arm64 = "bun-linux-aarch64-musl.zip"
