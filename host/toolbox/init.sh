@@ -18,18 +18,8 @@ log "init" "Provisioning toolbox container"
 "$DOTFILES" script host/rpm-repos "${HOST_DIR}/rpm-repos"
 "$DOTFILES" script host/dnf-packages "${HOST_DIR}/dnf-rpms"
 
-# Set login shell to zsh
-zsh_path="$(command -v zsh 2>/dev/null || true)"
-if [ -n "$zsh_path" ]; then
-  if ! getent passwd "$(whoami)" | grep -qE ":${zsh_path}$"; then
-    log "shell" "Setting login shell to zsh"
-    chsh --shell "$zsh_path"
-  else
-    log "shell" "login shell already zsh"
-  fi
-else
-  warn "shell" "zsh not found — skipping login shell change"
-fi
+# Set login shell to zsh (also ensures the .zshenv bootstrap line is present)
+"$DOTFILES" shell
 
 "$DOTFILES" script host/gh-tool install
 

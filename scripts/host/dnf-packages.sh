@@ -26,9 +26,14 @@ fi
 
 log "dnf-packages" "Processing $(basename "$manifest")"
 
+packages=()
 while IFS= read -r pkg || [ -n "$pkg" ]; do
   [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
-  sudo dnf install -y "$pkg" || warn "dnf" "failed: $pkg"
+  packages+=("$pkg")
 done < "$manifest"
+
+if [ "${#packages[@]}" -gt 0 ]; then
+  sudo dnf install -y "${packages[@]}" || warn "dnf" "failed: ${packages[*]}"
+fi
 
 log "dnf-packages" "done"

@@ -31,11 +31,10 @@ fi
 
 rsync -a --exclude='.git/' --exclude='.testuser/' "${SCRIPT_DIR}/" "${TEST_DOTFILES_HOME}/"
 
-# dotfiles init
+# dotfiles init (also syncs config)
 export HOME="${TEST_HOME}"
 echo "${HOME} dotfiles init"
 sh "${TEST_DOTFILES_HOME}/bin/dotfiles" init
-sh "${TEST_DOTFILES_HOME}/bin/dotfiles" sync
 
 # Post-install checks
 STATUS=0

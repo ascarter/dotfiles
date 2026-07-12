@@ -10,6 +10,6 @@ if command -v zed >/dev/null 2>&1; then
   exit 0
 fi
 
-curl -f https://zed.dev/install.sh | sh
+curl -fsSL https://zed.dev/install.sh | sh
 
 log "zed" "installed"

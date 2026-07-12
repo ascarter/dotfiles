@@ -22,10 +22,9 @@ if [ ! -d "${DOTFILES_HOME}" ]; then
   git clone https://github.com/ascarter/dotfiles.git "${DOTFILES_HOME}"
 fi
 
-# Init dotfiles
+# Init dotfiles (also syncs config)
 if [ -x "${DOTFILES_HOME}/bin/dotfiles" ]; then
   "${DOTFILES_HOME}/bin/dotfiles" init
-  "${DOTFILES_HOME}/bin/dotfiles" sync
 fi
 
 echo "dotfiles installed"

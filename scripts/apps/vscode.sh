@@ -50,7 +50,7 @@ case "$(uname -s)" in
     install -d "${DOWNLOAD_DIR}" || abort "Failed to create download directory: ${DOWNLOAD_DIR}"
     install -d "${VSCODE_DESKTOP_DIR}" || abort "Failed to create desktop entry directory: ${VSCODE_DESKTOP_DIR}"
 
-    echo "Resolving Visual Studio Code download metadata..."
+    log "vscode" "resolving download metadata"
     SHA_JSON_PATH="${DOWNLOAD_DIR}/sha.json"
     curl -fLso "${SHA_JSON_PATH}" "${VSCODE_SHA_INDEX_URL}" || abort "Failed to download VS Code SHA index"
 
@@ -72,12 +72,13 @@ case "$(uname -s)" in
     )"
     [ -n "${EXPECTED_SHA}" ] && [ "${EXPECTED_SHA}" != "null" ] || abort "Could not resolve stable VS Code SHA256 for ${VSCODE_OS}"
 
-    echo "Downloading Visual Studio Code tarball..."
+    log "vscode" "downloading tarball"
     curl -fLso "${ARCHIVE_PATH}" "${VSCODE_URL}" || abort "Failed to download Visual Studio Code archive"
 
+    log "vscode" "verifying checksum"
     sha256_verify "${ARCHIVE_PATH}" "${EXPECTED_SHA}" || abort "Checksum verification failed"
 
-    echo "Extracting Visual Studio Code..."
+    log "vscode" "extracting"
     tar -xzf "${ARCHIVE_PATH}" -C "${STAGE_DIR}" || abort "Failed to extract archive"
 
     # Tarball contains one top-level dir (e.g., VSCode-linux-x64). Install contents directly into VSCODE_DIR.
@@ -112,10 +113,10 @@ Exec=${VSCODE_GUI_BIN} --new-window %F
 Icon=${VSCODE_DIR}/resources/app/resources/linux/code.png
 EOF
 
-    echo "Visual Studio Code installed."
-    echo "  dir: ${VSCODE_DIR}"
-    echo "  cli: ${VSCODE_BIN} -> ${VSCODE_BIN_TARGET}"
-    echo "  desktop: ${VSCODE_DESKTOP_FILE}"
+    log "vscode" "installed"
+    log "vscode" "dir: ${VSCODE_DIR}"
+    log "vscode" "cli: ${VSCODE_BIN} -> ${VSCODE_BIN_TARGET}"
+    log "vscode" "desktop: ${VSCODE_DESKTOP_FILE}"
     ;;
   *)
     abort "Unsupported operating system: $(uname -s)"

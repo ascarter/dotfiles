@@ -37,10 +37,10 @@ log() {
   0) printf "\n" ;;
   1) printf "%s\n" "$1" ;;
   *)
-    label="$1"
+    local label="$1"
     shift
     printf "${tty_bold}%s${tty_reset} " "${label}"
-    message="$1"
+    local message="$1"
     shift
     printf "%s\n" "$message"
 
@@ -65,7 +65,7 @@ error() {
 }
 
 warn() {
-  label="${1:-warning}"
+  local label="${1:-warning}"
   shift
   printf "${tty_blue}%s${tty_reset} %s\n" "$label" "$*" >&2
 }

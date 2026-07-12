@@ -18,7 +18,7 @@ source "${DOTFILES_HOME}/lib/logging.sh"
 GIT_CONFIG_FILE="${HOME}/.gitconfig"
 
 get_fullname() {
-  fullname=
+  local fullname=
   case "$(uname -s)" in
     Darwin) fullname=$(id -F 2>/dev/null) ;;
     Linux) fullname=$(getent passwd "$USER" 2>/dev/null | cut -d: -f5 | cut -d, -f1) ;;

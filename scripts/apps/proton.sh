@@ -28,15 +28,15 @@ cache_rm() {
 }
 
 get_release() {
-  manifest_url=$1
-  category=$2
-  identifier=$3
+  local manifest_url=$1
+  local category=$2
+  local identifier=$3
 
   # Pick latest entry from Proton's JSON.
   # Proton version manifests (contain latest URLs + SHA512)
   # Pick latest Stable release by semantic version, then select matching identifier
   # Extract URL + SHA512 in one jq run as tab-separated fields.
-  query='
+  local query='
     def semver_key:
       ( .Version
         | split(".")
@@ -67,8 +67,8 @@ proton_rpm() {
   done
 
   rpm_repo_setup() {
-    repo_url="$1"
-    repo_path="$2"
+    local repo_url="$1"
+    local repo_path="$2"
 
     if [ ! -f "/etc/yum.repos.d/${repo_path}" ]; then
       log "proton" "Installing ProtonVPN repository"
@@ -87,7 +87,7 @@ proton_rpm() {
   }
 
   rpm_install() {
-    rpm_file="$1"
+    local rpm_file="$1"
     case "$VARIANT_ID" in
       silverblue | cosmic-atomic)
         rpm-ostree install --idempotent "$rpm_file"
@@ -116,9 +116,9 @@ proton_rpm() {
   }
 
   rpm_download() {
-    rpm_url="$1"
-    sha512="$2"
-    rpm_file="$3"
+    local rpm_url="$1"
+    local sha512="$2"
+    local rpm_file="$3"
 
     # If the RPM is already present and matches the expected SHA512, reuse it.
     if [ -f "$rpm_file" ]; then
@@ -143,28 +143,31 @@ proton_rpm() {
   }
 
   rpm_release_install() {
-    manifest_url="$1"
-    category="${2:-Stable}"
-    identifier=".rpm"
+    local manifest_url="$1"
+    local category="${2:-Stable}"
+    local identifier=".rpm"
 
+    local tsv
     tsv=$(get_release "$manifest_url" "$category" "$identifier") || abort "Failed to get release info from $manifest_url"
+    local rpm_url sha512
     rpm_url=$(echo "$tsv" | cut -f1)
     sha512=$(echo "$tsv" | cut -f2)
     rpm_app_install "$rpm_url" "$sha512"
   }
 
   rpm_app_install() {
-    rpm_url="$1"
-    sha512="${2:-}"
-    rpm_file="${CACHE_DIR}/$(basename "$rpm_url")"
+    local rpm_url="$1"
+    local sha512="${2:-}"
+    local rpm_file="${CACHE_DIR}/$(basename "$rpm_url")"
 
     rpm_download "$rpm_url" "$sha512" "$rpm_file" || abort "Failed to download or verify RPM from $rpm_url"
 
     # Get NEVR from the RPM payload
+    local pkg_name pkg_verrel
     pkg_name="$(rpm -qp --queryformat '%{NAME}\n' "$rpm_file")"
     pkg_verrel="$(rpm -qp --queryformat '%{VERSION}-%{RELEASE}\n' "$rpm_file")"
 
-    installed_verrel="(not installed)"
+    local installed_verrel="(not installed)"
     if rpm -q "$pkg_name" >/dev/null 2>&1; then
       installed_verrel="$(rpm -q --qf '%{VERSION}-%{RELEASE}\n' "$pkg_name" || true)"
     fi

@@ -26,9 +26,10 @@ fi
 
 log "rpm-overlays" "Processing $(basename "$manifest")"
 
+packages=()
 while IFS= read -r pkg || [ -n "$pkg" ]; do
   [[ "$pkg" =~ ^#.*$ || -z "$pkg" ]] && continue
-  rpm-ostree install --idempotent "$pkg" || warn "overlay" "failed: $pkg"
+  packages+=("$pkg")
 done < "$manifest"
 
 # Desktop-specific overlays
@@ -36,9 +37,16 @@ case "${XDG_CURRENT_DESKTOP:-}" in
 COSMIC)
   ;;
 GNOME)
-  rpm-ostree install --idempotent gnome-tweaks || warn "overlay" "failed: gnome-tweaks"
-  gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
+  packages+=("gnome-tweaks")
   ;;
 esac
+
+if [ "${#packages[@]}" -gt 0 ]; then
+  rpm-ostree install --idempotent "${packages[@]}" || warn "overlay" "failed: ${packages[*]}"
+fi
+
+if [ "${XDG_CURRENT_DESKTOP:-}" = "GNOME" ]; then
+  gsettings set org.gnome.desktop.wm.preferences button-layout appmenu:minimize,close
+fi
 
 log "rpm-overlays" "done"
