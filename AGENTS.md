@@ -13,8 +13,6 @@ the other document to match.
 
 - `README.md` — install/bootstrap quick start.
 - `docs/architecture.md` — layer model and design principles.
-- `docs/host-bootstrap.md` — per-platform bootstrap reference.
-- `docs/workstation-lifecycle.md` — daily workflows and maintenance.
 - `.github/copilot-instructions.md` / `CLAUDE.md` — thin pointers back to this file.
 
 ## Design Principles
@@ -27,6 +25,7 @@ This repo manages **workstation profiles**, not packages. It is deliberately lea
 - **`lib/checksum.sh` provides portable SHA-256 verification.** Probes for `sha256sum` or `shasum` at source time.
 - **`lib/appimage.sh` provides AppImage installation helpers.** Full lifecycle: resolve version, download, install, desktop integration. Used by AppImage installer scripts in `scripts/apps/`.
 - **`lib/fonts.sh` provides font installation helpers.** Wraps `gh release download`, archive extraction, and `fc-cache` refresh. Used by per-font scripts in `scripts/fonts/`. Each per-font script pins its own `VERSION=` variable — no auto-update; bump manually when needed.
+- **`lib/rpm.sh` provides `add_repo()` for idempotent RPM repo setup.** Sourced by host bootstrap scripts on Linux (`scripts/host/rpm-repos.sh`).
 - **Host bootstrap uses native tools directly** — `brew bundle`, `rpm-ostree`, `dnf install`.
 - **Project-local environments belong in each project**, not in this repo.
 - **`XDG_OPT_*` variables no longer exist.** Use standard `XDG_*` variables only.
@@ -47,11 +46,12 @@ lib/logging.sh            — shared logging/utility library (sourced, no sheban
 lib/checksum.sh           — portable SHA-256 verification (sourced, no shebang)
 lib/appimage.sh           — AppImage installation helpers (sourced, no shebang)
 lib/fonts.sh              — font installation helpers (sourced, no shebang)
+lib/rpm.sh                — RPM repo helpers (sourced, no shebang)
 scripts/                  — standalone helper scripts (gitconfig.sh, developer.sh, etc.)
   apps/                   — app install/update scripts (claude, rustup, ghostty, etc.)
   fonts/                  — per-font install scripts (jetbrains-mono, monaspace, etc.)
   host/                   — host provisioning scripts (homebrew, rpm-repos, gh-tool, etc.)
-docs/                     — architecture, host-bootstrap, lifecycle docs
+docs/                     — architecture doc
 install.sh                — one-line bootstrap: clone repo → dotfiles init
 test.sh                   — smoke test install/sync in .testuser/
 ```
@@ -160,8 +160,7 @@ platform `update.sh` which upgrades packages, gh tools, runs app scripts, and
 - Sourced libraries (`lib/logging.sh`, `lib/checksum.sh`, `lib/appimage.sh`) have no shebang and do not use `set -e` internally.
 - Keep scripts linear, explicit, idempotent, and re-runnable.
 - Follow `.editorconfig` (2 spaces, UTF-8, LF, trailing newline).
-- `bin/dotfiles` self-locates via `realpath`.
-- Host scripts self-locate: `: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"`.
+- All scripts, including `bin/dotfiles`, self-locate with the same quoted pattern: `: "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"` (adjust the number of `..` segments to the script's depth).
 - macOS support targets Apple Silicon only.
 
 ## Zsh Completion
