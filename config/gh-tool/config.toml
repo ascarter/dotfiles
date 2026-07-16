@@ -116,3 +116,14 @@
     darwin_arm64 = "bun-darwin-aarch64.zip"
     linux_amd64 = "bun-linux-x64-musl.zip"
     linux_arm64 = "bun-linux-aarch64-musl.zip"
+
+[[tool]]
+  repo = "anthropics/anthropic-cli"
+  bin = ["ant"]
+  completions = ["completions/ant.bash", "completions/ant.fish", "completions/ant.zsh"]
+  man = ["man/man1/ant.1.gz"]
+  [tool.patterns]
+    darwin_amd64 = "ant_*_macos_amd64.zip"
+    darwin_arm64 = "ant_*_macos_arm64.zip"
+    linux_amd64 = "ant_*_linux_amd64.tar.gz"
+    linux_arm64 = "ant_*_linux_arm64.tar.gz"
