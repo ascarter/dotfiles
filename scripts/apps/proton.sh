@@ -1,22 +1,31 @@
 #!/usr/bin/env bash
 
-# Proton Mail / Pass / Authenticator installation script for Fedora Silverblue
-# Layers Proton RPMs via rpm-ostree
+# Proton Mail / Pass / Drive / Authenticator installation script
+# Layers Proton RPMs via rpm-ostree on Fedora Atomic
 # References:
 # 1. https://proton.me/support/linux-mail-desktop
 # 2. https://proton.me/support/linux-authenticator-desktop
 # 3. https://proton.me/support/linux-pass-desktop
+# 4. https://proton.me/support/drive-cli
 
 set -eu
 : "${DOTFILES_HOME:=$(cd "$(dirname "$0")/../.." && pwd)}"
 source "${DOTFILES_HOME}/lib/logging.sh"
 
+: "${XDG_BIN_HOME:=$HOME/.local/bin}"
 : "${XDG_CACHE_HOME:=$HOME/.cache}"
 
 sha512_verify_file() {
-  file="$1"
-  expected_sha512="$2"
-  echo "${expected_sha512}  ${file}" | sha512sum --check - >/dev/null 2>&1
+  local file="$1"
+  local expected_sha512="$2"
+
+  if command -v sha512sum >/dev/null 2>&1; then
+    echo "${expected_sha512}  ${file}" | sha512sum --check - >/dev/null 2>&1
+  elif command -v shasum >/dev/null 2>&1; then
+    echo "${expected_sha512}  ${file}" | shasum -a 512 --check - >/dev/null 2>&1
+  else
+    abort "No SHA-512 tool found (need sha512sum or shasum)"
+  fi
 }
 
 cache_rm() {
@@ -56,6 +65,89 @@ get_release() {
     | @tsv
   '
   curl -fsSL "$manifest_url" | jq -r --arg category "$category" --arg id "$identifier" "$query"
+}
+
+get_drive_cli_release() {
+  local platform="$1"
+  local manifest_url="https://proton.me/download/drive/cli/version.json"
+  local manifest
+  manifest=$(curl -fsSL "$manifest_url") || return 1
+
+  local query='
+    def semver_key:
+      ( .Version
+        | split(".")
+        | map(tonumber)
+        | . + ([0,0,0])[0:3]
+        | .[0:3]
+      );
+
+    .Releases
+    | map(select(.CategoryName == "Stable"))
+    | max_by(semver_key)
+    | . as $release
+    | .Files
+    | map(select(.Platform == $platform))
+    | first
+    | select(. != null)
+    | [$release.Version, .Url, .Sha512CheckSum]
+    | @tsv
+  '
+  printf '%s' "$manifest" | jq -er --arg platform "$platform" "$query"
+}
+
+proton_drive_cli() {
+  for cmd in curl install jq; do
+    command -v "$cmd" >/dev/null 2>&1 || abort "Missing command '$cmd'"
+  done
+
+  local platform
+  case "$(uname -s)/$(uname -m)" in
+    Darwin/arm64 | Darwin/aarch64) platform="macos/arm64" ;;
+    Darwin/x86_64)                platform="macos/x64" ;;
+    Linux/aarch64 | Linux/arm64)  platform="linux/arm64" ;;
+    Linux/x86_64)                 platform="linux/x64" ;;
+    *) abort "Unsupported Proton Drive CLI platform: $(uname -s)/$(uname -m)" ;;
+  esac
+
+  local tsv
+  tsv=$(get_drive_cli_release "$platform") ||
+    abort "Failed to get Proton Drive CLI release for $platform"
+
+  local version download_url sha512
+  version=$(printf '%s' "$tsv" | cut -f1)
+  download_url=$(printf '%s' "$tsv" | cut -f2)
+  sha512=$(printf '%s' "$tsv" | cut -f3)
+
+  local cache_dir="${XDG_CACHE_HOME}/proton-drive-cli/${version}/${platform/\//-}"
+  local cached_file="${cache_dir}/proton-drive"
+  local installed_file="${XDG_BIN_HOME}/proton-drive"
+
+  if [ -f "$installed_file" ] && sha512_verify_file "$installed_file" "$sha512"; then
+    log "proton-drive" "Up to date: ${version}"
+    return
+  fi
+
+  mkdir -p "$cache_dir"
+  if [ -f "$cached_file" ] && ! sha512_verify_file "$cached_file" "$sha512"; then
+    error "Checksum mismatch"
+    cache_rm "$cached_file"
+  fi
+
+  if [ ! -f "$cached_file" ]; then
+    log "proton-drive" "Downloading ${version} for ${platform}"
+    curl -fsSL "$download_url" -o "$cached_file" ||
+      abort "Failed to download Proton Drive CLI from $download_url"
+    if ! sha512_verify_file "$cached_file" "$sha512"; then
+      error "Checksum mismatch"
+      cache_rm "$cached_file"
+      abort "Failed to verify Proton Drive CLI"
+    fi
+  fi
+
+  install -d "$XDG_BIN_HOME"
+  install -m 0755 "$cached_file" "$installed_file"
+  log "proton-drive" "Installed: ${version}"
 }
 
 proton_rpm() {
@@ -217,6 +309,7 @@ proton_pass_cli() {
 
 case "$(uname -s)" in
   Darwin)
+    proton_drive_cli
     proton_pass_cli
 
     log "proton" "Proton apps are managed via Homebrew casks on macOS"
@@ -231,6 +324,7 @@ case "$(uname -s)" in
       . /etc/os-release
       case "${ID}" in
         fedora)
+          proton_drive_cli
           proton_pass_cli
           proton_rpm
           ;;
