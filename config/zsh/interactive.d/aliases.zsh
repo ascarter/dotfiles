@@ -4,6 +4,10 @@ fi
 
 alias dfcd='cd ${DOTFILES_HOME}'
 
+alias bbcurl='edcurl -e bbedit'
+alias nvcurl='edcurl -e nvim'
+alias zcurl='edcurl -e zed'
+
 if [[ -d ~/Developer ]]; then
   alias dev='cd ~/Developer'
 fi

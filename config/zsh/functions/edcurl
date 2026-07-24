@@ -1,0 +1,94 @@
+#autoload
+# Curl a URL into a clean editor buffer
+# Usage:
+#   edcurl [-e <editor>] <url>
+edcurl() {
+  emulate -L zsh
+  setopt local_options pipe_fail
+
+  local editor="${EDITOR:-${VISUAL:-vi}}"
+  local url
+  local name
+  local vim_name
+  local editor_name
+  local -a curl_command
+  local -a editor_command
+
+  while (( $# )); do
+    case "$1" in
+    -e | --editor)
+      if (( $# < 2 )); then
+        print -u2 "edcurl: $1 requires an editor"
+        return 1
+      fi
+      editor="$2"
+      shift 2
+      ;;
+    -h | --help)
+      print "Usage: edcurl [-e <editor>] <url>"
+      return 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      print -u2 "edcurl: unknown option: $1"
+      return 1
+      ;;
+    *)
+      break
+      ;;
+    esac
+  done
+
+  if (( $# != 1 )); then
+    print -u2 "Usage: edcurl [-e <editor>] <url>"
+    return 1
+  fi
+
+  url="$1"
+  name="${${url%%[\?#]*}:t}"
+  [[ -n "$name" && "$name" != "." && "$name" != ".." ]] || name="edcurl"
+  curl_command=(curl -fsSL "$url")
+
+  editor_command=(${(Q)${(z)editor}})
+  if (( ! $#editor_command )); then
+    print -u2 "edcurl: editor command is empty"
+    return 1
+  fi
+
+  if ! command -v "${editor_command[1]}" &>/dev/null; then
+    print -u2 "edcurl: editor not found: ${editor_command[1]}"
+    return 1
+  fi
+  editor_name="${editor_command[1]:t}"
+
+  # Configure the editor command based on the editor name
+  case "$editor_name" in
+  bbedit)
+    editor_command+=(-N -t "$name" --view-top --clean -)
+    ;;
+  nvim | vim | vi)
+    [[ "$editor_name" == "nvim" ]] || editor_command+=(--not-a-term)
+    vim_name="${name:gs/'/''/}"
+    editor_command+=(
+      -n
+      -c 'setlocal buftype=nofile bufhidden=wipe noswapfile noreadonly nomodified'
+      -c "silent execute 'file ' . fnameescape('$vim_name')"
+      -c "silent execute 'argadd ' . fnameescape('$vim_name')"
+      -
+    )
+    ;;
+  zed)
+    editor_command+=(-n -)
+    ;;
+  *)
+    print -u2 "edcurl: unsupported editor: $editor_name"
+    return 1
+    ;;
+  esac
+
+  # Run the curl command and pipe the output to the editor command
+  "${curl_command[@]}" | "${editor_command[@]}"
+}
