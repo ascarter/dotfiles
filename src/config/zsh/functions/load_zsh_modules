@@ -1,0 +1,20 @@
+#autoload
+# Load regular zsh module files from a directory in lexical order.
+#
+# Usage:
+#   load_zsh_modules "$ZDOTDIR/profile.d"
+#   load_zsh_modules "$ZDOTDIR/interactive.d" '*.(zsh|sh)'
+
+load_zsh_modules() {
+  emulate -L zsh
+  setopt extended_glob
+
+  local directory=$1
+  local pattern=${2:-'*.zsh'}
+  local module
+
+  for module in ${directory}/${~pattern}(-.N); do
+    source "$module"
+  done
+}
+

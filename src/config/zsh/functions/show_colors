@@ -1,0 +1,16 @@
+#autoload
+
+show_colors() {
+  emulate -L zsh
+
+  local -a color_names=(black red green yellow blue magenta cyan white)
+  local index
+
+  printf "%-14s %-6s %-6s\n" "Color" "Normal" "Bright"
+  for index in {0..7}; do
+    printf "%2d %-12s" "$index" "${color_names[index + 1]}"
+    printf "\e[4%dm      \e[0m " "$index"
+    printf "\e[10%dm      \e[0m\n" "$index"
+  done
+}
+

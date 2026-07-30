@@ -1,0 +1,69 @@
+#autoload
+
+prompt_source_help() {
+  cat <<-EOF
+Source prompt with Git branch display.
+EOF
+}
+
+prompt_source_setup() {
+  emulate -L zsh
+
+  prompt_opts=(cr percent subst)
+
+  local locale="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
+  if [[ $locale == *[Uu][Tt][Ff]-8* || $locale == *[Uu][Tt][Ff]8* ]]; then
+    typeset -g prompt_symbol="❯"
+  else
+    typeset -g prompt_symbol=">"
+  fi
+  typeset -g root_symbol="#"
+
+  function _source_title_ssh() {
+    [[ -n ${SSH_CONNECTION:-} ]] && print -Pn "%n@%m:"
+  }
+
+  function _source_title_preexec() {
+    local command_name="${1%% *}"
+    local command_rest="${1#"$command_name"}"
+    print -Pn "\e]0;"
+    _source_title_ssh
+    print -Pn "${command_name}${command_rest}\a"
+  }
+
+  function _source_title_precmd() {
+    print -Pn "\e]0;"
+    _source_title_ssh
+    print -Pn "${PWD/#$HOME/~}\a"
+  }
+
+  PROMPT=
+
+  case "${TERM_PROGRAM:-}" in
+    ghostty | zed) ;;
+    *)
+      autoload -Uz add-zsh-hook
+      add-zsh-hook precmd _source_title_precmd
+      add-zsh-hook preexec _source_title_preexec
+      ;;
+  esac
+
+  if [[ -n ${SSH_CONNECTION:-} ]]; then
+    PROMPT+="[%B%n@%m%b] "
+  fi
+
+  PROMPT+='%B%2~%b'
+
+  autoload -Uz vcs_info add-zsh-hook
+  add-zsh-hook precmd vcs_info
+  zstyle ':vcs_info:*' enable git
+  zstyle ':vcs_info:git:*' formats '%b'
+  zstyle ':vcs_info:git*:*' actionformats '%b|%a'
+  zstyle ':vcs_info:*' check-for-changes false
+  PROMPT+='${vcs_info_msg_0_:+ "%F{7}$vcs_info_msg_0_%f"}'
+
+  PROMPT+=' %(!.%F{red}${root_symbol}%f.${prompt_symbol}) '
+}
+
+prompt_source_setup "$@"
+

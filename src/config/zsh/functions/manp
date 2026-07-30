@@ -1,0 +1,20 @@
+#autoload
+# Render a man page as PDF and open it in the platform viewer.
+
+manp() {
+  emulate -L zsh
+
+  case "$(uname)" in
+    Darwin)
+      mandoc -T pdf "$(man -w "$@")" | open -f -a Preview
+      ;;
+    Linux)
+      man -Tpdf "$@" | flatpak run org.gnome.Evince
+      ;;
+    *)
+      print -u2 "manp: unsupported platform"
+      return 1
+      ;;
+  esac
+}
+

@@ -1,0 +1,11 @@
+# Global mise configuration.
+#
+# The initial workstation baseline intentionally contains no global tools,
+# language managers, language runtimes, or default language versions.
+
+[settings]
+idiomatic_version_file_enable_tools = []
+
+[settings.status]
+show_tools = false
+

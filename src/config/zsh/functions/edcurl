@@ -1,0 +1,94 @@
+#autoload
+# Open the response body from a URL in a clean editor buffer.
+#
+# Usage:
+#   edcurl [-e <editor>] <url>
+
+edcurl() {
+  emulate -L zsh
+  setopt pipe_fail
+
+  local editor="${EDITOR:-${VISUAL:-vi}}"
+  local url
+  local buffer_name
+  local escaped_name
+  local editor_name
+  local -a editor_command
+
+  while (( $# )); do
+    case "$1" in
+      -e | --editor)
+        (( $# >= 2 )) || {
+          print -u2 "edcurl: $1 requires an editor"
+          return 1
+        }
+        editor="$2"
+        shift 2
+        ;;
+      -h | --help)
+        print "Usage: edcurl [-e <editor>] <url>"
+        return 0
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        print -u2 "edcurl: unknown option: $1"
+        return 1
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  (( $# == 1 )) || {
+    print -u2 "Usage: edcurl [-e <editor>] <url>"
+    return 1
+  }
+
+  url="$1"
+  buffer_name="${${url%%[\?#]*}:t}"
+  [[ -n $buffer_name && $buffer_name != "." && $buffer_name != ".." ]] ||
+    buffer_name="edcurl"
+
+  editor_command=(${(Q)${(z)editor}})
+  (( $#editor_command )) || {
+    print -u2 "edcurl: editor command is empty"
+    return 1
+  }
+
+  command -v "${editor_command[1]}" &>/dev/null || {
+    print -u2 "edcurl: editor not found: ${editor_command[1]}"
+    return 1
+  }
+
+  editor_name="${editor_command[1]:t}"
+  case "$editor_name" in
+    bbedit)
+      editor_command+=(-N -t "$buffer_name" --view-top --clean -)
+      ;;
+    nvim | vim | vi)
+      [[ $editor_name == nvim ]] || editor_command+=(--not-a-term)
+      escaped_name="${buffer_name:gs/'/''/}"
+      editor_command+=(
+        -n
+        -c 'setlocal buftype=nofile bufhidden=wipe noswapfile noreadonly nomodified'
+        -c "silent execute 'file ' . fnameescape('$escaped_name')"
+        -c "silent execute 'argadd ' . fnameescape('$escaped_name')"
+        -
+      )
+      ;;
+    zed)
+      editor_command+=(-n -)
+      ;;
+    *)
+      print -u2 "edcurl: unsupported editor: $editor_name"
+      return 1
+      ;;
+  esac
+
+  curl -fsSL "$url" | "${editor_command[@]}"
+}
+

@@ -1,0 +1,9 @@
+.DS_Store
+
+# Local mise configuration and generated state
+mise.local.toml
+.mise.local.toml
+
+# Local review and test artifacts
+.tmp/
+

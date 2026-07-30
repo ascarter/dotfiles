@@ -1,0 +1,37 @@
+font-family = "Lilex"
+theme = alpental-dark
+window-padding-x = 12
+window-padding-y = 12
+window-height = 40
+window-width = 120
+mouse-hide-while-typing = true
+focus-follows-mouse = true
+cursor-style-blink = true
+shell-integration-features = ssh-terminfo,ssh-env
+
+# GTK-only presentation.
+gtk-titlebar-style = tabs
+
+# Working directory behavior
+window-inherit-working-directory = false
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
+
+# Show quick terminal with alt+command+`
+keybind = global:alt+super+grave_accent=toggle_quick_terminal
+
+# Enable shift+enter as an alternate newline.
+keybind = shift+enter=text:\n
+
+# Vim-style split navigation
+keybind = super+alt+j=goto_split:down
+keybind = super+alt+k=goto_split:up
+keybind = super+alt+h=goto_split:left
+keybind = super+alt+l=goto_split:right
+keybind = super+ctrl+j=resize_split:down,10
+keybind = super+ctrl+k=resize_split:up,10
+keybind = super+ctrl+h=resize_split:left,10
+keybind = super+ctrl+l=resize_split:right,10
+
+# Optional host-only settings load last.
+config-file = ?local
