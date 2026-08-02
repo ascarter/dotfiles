@@ -106,6 +106,10 @@
       "type": "registry",
     },
     "codex-acp": {
+      "default_config_options": {
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "medium"
+      },
       "type": "registry",
     },
     "claude-acp": {

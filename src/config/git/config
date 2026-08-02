@@ -1,7 +1,8 @@
 # Portable Git behavior shared by every supported environment.
 #
-# Identity, signing, credentials, Git LFS, and GUI tools belong in the real
-# local ~/.gitconfig or are maintained there by their owning applications.
+# Identity, credentials, Git LFS, GUI tools, signing, and private/work settings
+# belong in the real local ~/.gitconfig. bootstrap-git reconciles only the
+# baseline keys it owns.
 
 [core]
   autocrlf = input

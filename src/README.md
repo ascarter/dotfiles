@@ -8,15 +8,18 @@ coexist with local files, editor caches, application state, and configuration
 that should not be public.
 
 No root-level home files are currently managed. If that changes, create
-`src/home/` and add explicit source-to-target entries in `mise.toml`; do not
-assume that all contents of `src/home/` should be linked.
+`src/home/` and add explicit source-to-target entries in
+`.mise/config.toml`; do not assume that all contents of `src/home/` should be
+linked.
 
 The exception is a managed edit block inside the locally owned `~/.zshenv`.
-That block is declared directly in `mise.toml`; it is not a whole-file source.
+That block is declared directly in `.mise/config.toml`; it is not a whole-file
+source.
 
 Git is another intentional split-ownership case. `config/git/config` and
-`config/git/ignore` are public sources, while the root `~/.gitconfig` and any
-files under the live `~/.config/git/local/` directory remain untracked.
+`config/git/ignore` are public sources. The `bootstrap-git` FileTask reconciles
+its owned settings in the real, untracked root `~/.gitconfig`; unrelated local,
+private, and work settings remain there.
 
 Zed and Neovim follow the same split: public settings live under `config/`,
 while downloaded plugins, extensions, language servers, conversations,

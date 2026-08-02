@@ -8,7 +8,7 @@ dotfiles.default_mode = "symlink"
 # Keep the XDG config directory open to unmanaged and application-owned files.
 # Each source file is linked individually rather than replacing ~/.config.
 [dotfiles]
-"~/.config" = { source = "src/config", mode = "symlink-each" }
+"~/.config" = { source = "../src/config", mode = "symlink-each" }
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"
@@ -24,15 +24,9 @@ typeset -U path PATH
 path=("$XDG_BIN_HOME" $path)
 '''
 
-[tasks.status]
-description = "Report migration and live-configuration status without changing the system"
-run = "./scripts/dotfiles-status"
+[bootstrap.user]
+login_shell = "/bin/zsh"
 
-[tasks.doctor]
-description = "Run read-only repository, migration, and host readiness diagnostics"
-run = "./scripts/dotfiles-doctor"
-
-# Intentionally absent during the initial migration:
-# - [tools] language managers and runtimes
-# - [bootstrap.packages]
-# - [tasks.bootstrap]
+[tasks.bootstrap]
+description = "Complete final workstation setup"
+run = [{ task = "bootstrap-git" }]

@@ -13,3 +13,8 @@ load_zsh_modules "$ZDOTDIR/profile.d"
 # after public defaults so the local file may override them.
 [[ -r "$HOME/.zprofile" ]] && source "$HOME/.zprofile"
 
+# Make mise-managed tools available to login shells. Interactive shells replace
+# this with full PATH activation in .zshrc while retaining shims as a fallback.
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh --shims)"
+fi

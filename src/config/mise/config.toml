@@ -1,11 +1,6 @@
-# Global mise configuration.
-#
-# The initial workstation baseline intentionally contains no global tools,
-# language managers, language runtimes, or default language versions.
+# Keep the global baseline deliberately small. Language managers, runtimes,
+# and project tooling belong in each project's mise configuration.
 
-[settings]
-idiomatic_version_file_enable_tools = []
-
-[settings.status]
-show_tools = false
-
+[tools]
+gh = "latest"
+git-lfs = "latest"
