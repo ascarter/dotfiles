@@ -64,6 +64,8 @@ dotfiles-update -- --dry-run
 - `/bin/zsh` is selected as the login shell.
 - The global mise configuration installs `fzf`, `gh`, Git LFS, Neovim, the
   Tree-sitter CLI, and `usage`.
+- Vim receives a lightweight XDG configuration and remains the host-provided
+  fallback when Neovim is unavailable.
 - Zsh loads generated completions for mise and usage; the usage CLI also
   enables argument completion for mise tasks that declare usage specs.
 - The `dotfiles-update` shell alias invokes the project-local `update` task to
