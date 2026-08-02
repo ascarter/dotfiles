@@ -68,3 +68,6 @@ xcuserdata/
 
 # Agent-local settings
 **/.claude/settings.local.json
+
+# mise local configurations
+mise.local.toml
