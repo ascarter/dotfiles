@@ -18,9 +18,12 @@ Read `README.md` before changing this repository.
   block inside `~/.zshenv`.
 - `.mise/tasks/bootstrap-git` reconciles only its owned keys in the real,
   untracked `~/.gitconfig`. Unrelated private and work settings remain there.
-- The global mise tool baseline is deliberately limited to `gh` and Git LFS.
-  Language runtimes, language managers, language servers, formatters, linters,
-  debuggers, and build tools belong to their projects.
+- `.mise/tasks/update` provides the project-local propagation workflow used by
+  the `dotfiles-update` shell alias. It requires a clean `main` checkout and
+  only permits fast-forward pulls before delegating to bootstrap.
+- The global mise tool baseline is deliberately limited to `gh`, Git LFS, and
+  `usage`. Language runtimes, language managers, language servers, formatters,
+  linters, debuggers, and build tools belong to their projects.
 - `src/config/homebrew/Brewfile` is invoked separately with Homebrew. Host
   packages and desktop applications are not installed by bootstrap.
 - OpenSSH configuration and authentication state remain local and unmanaged.
@@ -53,7 +56,7 @@ Read `README.md` before changing this repository.
 Before committing bootstrap or managed-configuration changes, run:
 
 ```sh
-sh -n bootstrap.sh uninstall.sh .mise/tasks/bootstrap-git
+sh -n bootstrap.sh uninstall.sh .mise/tasks/bootstrap-git .mise/tasks/update
 mise fmt --check
 git diff --check
 mise bootstrap status --missing

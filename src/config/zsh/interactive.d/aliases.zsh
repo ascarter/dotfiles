@@ -1,8 +1,7 @@
-typeset -g DOTFILES_DIR="${DOTFILES_DIR:-$HOME/Developer/dotfiles}"
-
-alias dfcd='cd "$DOTFILES_DIR"'
+alias dotfiles-cd='cd "$DOTFILES_HOME"'
+alias dotfiles-update='mise -C "$DOTFILES_HOME" run update'
 if (( $+commands[zed] )); then
-  alias dfedit='zed "$DOTFILES_DIR"'
+  alias dotfiles-edit='zed "$DOTFILES_HOME"'
 fi
 
 alias bbcurl='edcurl -e bbedit'
@@ -46,4 +45,3 @@ case "$(uname)" in
     fi
     ;;
 esac
-

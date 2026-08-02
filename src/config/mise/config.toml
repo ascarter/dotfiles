@@ -4,3 +4,4 @@
 [tools]
 gh = "latest"
 git-lfs = "latest"
+usage = "latest"

@@ -1,7 +1,6 @@
-# Optional workstation applications. These guards do not install or require the
-# commands; they only activate valid completions when an application is already
-# available. A present application may still refuse to generate completions
-# when its local state is unavailable, so never eval output from a failed call.
+# Generate completions only from available commands. A present command may
+# still refuse to generate completions when its local state is unavailable, so
+# never eval output from a failed call.
 
 _load_generated_completion() {
   local generated
@@ -9,6 +8,14 @@ _load_generated_completion() {
   [[ $generated == \#compdef* ]] || return 0
   eval "$generated"
 }
+
+if (( $+commands[mise] )); then
+  _load_generated_completion mise completion zsh
+fi
+
+if (( $+commands[usage] )); then
+  _load_generated_completion usage --completions zsh
+fi
 
 if (( $+commands[codex] )); then
   _load_generated_completion codex completion zsh

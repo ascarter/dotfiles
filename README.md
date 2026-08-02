@@ -29,6 +29,32 @@ bootstrap plan:
 Bootstrap does not install host packages or desktop applications. Homebrew,
 RPM overlays, Flatpaks, fonts, and system services remain separate concerns.
 
+## Update an existing system
+
+Make a dotfiles change on one system, validate it, and commit and push it to
+`main`. On every other bootstrapped system, propagate that change with:
+
+```sh
+dotfiles-update
+```
+
+The alias invokes the project-local task as
+`mise -C "$DOTFILES_HOME" run update`, so it remains available from any
+directory without adding a global mise task. The task refuses to run unless
+the checkout is clean, on `main`, and has an upstream branch. It performs a
+fast-forward-only pull, runs the normal bootstrap preview and confirmation,
+and reports any remaining managed-state differences. It never stashes,
+resets, merges, or resolves local work.
+
+A pull may update the contents of existing linked files immediately, while
+bootstrap creates new links, applies managed edits, installs newly declared
+global tools, and runs setup tasks. To pull committed sources but only preview
+the environment reconciliation, run:
+
+```sh
+dotfiles-update -- --dry-run
+```
+
 ## What mise manages
 
 - Files under `src/config/` are linked individually into `~/.config`, allowing
@@ -36,7 +62,11 @@ RPM overlays, Flatpaks, fonts, and system services remain separate concerns.
 - A managed block in the otherwise local `~/.zshenv` establishes XDG paths and
   `ZDOTDIR`.
 - `/bin/zsh` is selected as the login shell.
-- The global mise configuration installs only `gh` and Git LFS.
+- The global mise configuration installs `gh`, Git LFS, and `usage`.
+- Zsh loads generated completions for mise and usage; the usage CLI also
+  enables argument completion for mise tasks that declare usage specs.
+- The `dotfiles-update` shell alias invokes the project-local `update` task to
+  propagate committed changes from any directory.
 - The `bootstrap-git` task authenticates GitHub when needed and reconciles the
   locally owned `~/.gitconfig` with identity, HTTPS credential helpers, Git
   LFS, optional Azure DevOps GCM support, and the host diff/merge tool.

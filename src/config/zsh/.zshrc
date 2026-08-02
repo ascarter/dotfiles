@@ -1,5 +1,7 @@
 # Public interactive-shell configuration.
 
+typeset -g DOTFILES_HOME="${DOTFILES_HOME:-$HOME/Developer/dotfiles}"
+
 fpath=(
   "$ZDOTDIR/functions"
   "${XDG_DATA_HOME}/zsh/site-functions"
@@ -67,4 +69,3 @@ load_zsh_modules "$ZDOTDIR/interactive.d"
 if (( $+commands[mise] )); then
   eval "$(mise activate zsh)"
 fi
-
