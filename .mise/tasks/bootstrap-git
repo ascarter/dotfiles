@@ -73,6 +73,24 @@ configure_azure_credentials() {
   log "Configured Git Credential Manager for Azure DevOps HTTPS remotes"
 }
 
+configure_github_credentials() {
+  github_mise_data_dir=${MISE_DATA_DIR:-${XDG_DATA_HOME:-"$HOME/.local/share"}/mise}
+  github_gh_shim="${github_mise_data_dir}/shims/gh"
+
+  [ -x "$github_gh_shim" ] ||
+    fail "mise gh shim is unavailable at $github_gh_shim"
+
+  for github_url in https://github.com https://gist.github.com; do
+    github_helper_key="credential.${github_url}.helper"
+    gitconfig_clear "$github_helper_key"
+    git config --file "$GITCONFIG" --add "$github_helper_key" ""
+    git config --file "$GITCONFIG" --add "$github_helper_key" \
+      "!\"$github_gh_shim\" auth git-credential"
+  done
+
+  log "Configured GitHub HTTPS credentials through the mise gh shim"
+}
+
 configure_diff_tools() {
   if [ "$(uname -s)" = Darwin ] && command -v opendiff >/dev/null 2>&1; then
     gitconfig_replace diff.tool opendiff
@@ -106,6 +124,7 @@ gitconfig_replace user.email "$git_email"
 
 # Let each owning tool reconcile its own global Git configuration.
 gh auth setup-git --hostname github.com
+configure_github_credentials
 configure_azure_credentials
 configure_diff_tools
 
