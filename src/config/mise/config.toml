@@ -1,6 +1,7 @@
-# Keep the global baseline deliberately small. Language managers, runtimes,
-# and project tooling belong in each project's mise configuration.
+# Keep the global baseline deliberately small. rv provides the Ruby manager,
+# and stable Rust provides a fallback; projects select their own toolchains.
 [settings]
+idiomatic_version_file_enable_tools = ["rust"]
 python.uv_venv_auto = "source"
 
 [tools]
@@ -9,5 +10,6 @@ fzf = "latest"
 gh = "latest"
 git-lfs = "latest"
 neovim = "latest"
+rust = "stable"
 tree-sitter = "latest"
 usage = "latest"

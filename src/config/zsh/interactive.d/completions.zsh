@@ -48,6 +48,10 @@ if (( $+commands[rv] )); then
   _load_generated_completion rv shell completions zsh
 fi
 
+if (( $+commands[rustup] )); then
+  _load_generated_completion rustup completions zsh
+fi
+
 if (( $+commands[tailscale] )); then
   _load_generated_completion tailscale completion zsh
 fi
@@ -65,3 +69,17 @@ if (( $+commands[zed] )); then
 fi
 
 unfunction _load_generated_completion
+
+# Cargo's completion belongs to the selected Rust toolchain. Resolve its
+# sysroot on demand so changing projects also changes the completion version.
+_cargo_toolchain_completion() {
+  local completion
+  completion="$(rustc --print sysroot 2>/dev/null)/share/zsh/site-functions/_cargo"
+  [[ -r $completion ]] || return 1
+
+  local fpath=("${completion:h}" $fpath)
+  (( $+functions[_cargo] )) && unfunction _cargo
+  autoload -Uz _cargo
+  _cargo "$@"
+}
+compdef _cargo_toolchain_completion cargo

@@ -62,8 +62,9 @@ dotfiles-update -- --dry-run
 - A managed block in the otherwise local `~/.zshenv` establishes XDG paths and
   `ZDOTDIR`.
 - `/bin/zsh` is selected as the login shell.
-- The global mise configuration installs `fzf`, `gh`, Git LFS, Neovim, the
-  Tree-sitter CLI, and `usage`.
+- The global mise configuration installs `fzf`, `gh`, Git LFS, Neovim, `rv`,
+  stable Rust, the Tree-sitter CLI, and `usage`. Projects can override stable
+  Rust with `rust-toolchain.toml`.
 - Vim receives a lightweight XDG configuration and remains the host-provided
   fallback when Neovim is unavailable.
 - Zsh loads generated completions for mise and usage; the usage CLI also
@@ -74,8 +75,9 @@ dotfiles-update -- --dry-run
   locally owned `~/.gitconfig` with identity, HTTPS credential helpers, Git
   LFS, optional Azure DevOps GCM support, and the host diff/merge tool.
 
-Language runtimes, language managers, formatters, language servers, debuggers,
-and build tools belong to each project and its idiomatic files or `mise.toml`.
+Apart from the global Ruby manager and stable Rust fallback, language runtimes,
+language managers, formatters, language servers, debuggers, and build tools
+belong to each project and its idiomatic files or `mise.toml`.
 
 ## Daily workflow
 
