@@ -9,11 +9,25 @@ vim.g.loaded_netrwPlugin = 1
 local gh = function(r) return "https://github.com/" .. r end
 
 -- Update plugins:  :lua vim.pack.update()
--- Update parsers:  :TSManager  (then 'u' on a parser, or 'i' to install)
+-- Update parsers:  :TSUpdate
 -- From CLI:        nvim --headless +'lua vim.pack.update(nil, {force=true})' +qa
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(event)
+    local data = event.data
+    if data.spec.name ~= "nvim-treesitter" or data.kind ~= "update" then
+      return
+    end
+
+    if not data.active then
+      vim.cmd.packadd("nvim-treesitter")
+    end
+    require("nvim-treesitter").update():wait(300000)
+  end,
+})
+
 vim.pack.add({
   gh("ascarter/nvim-alpental-theme"),
-  gh("romus204/tree-sitter-manager.nvim"),
+  gh("nvim-treesitter/nvim-treesitter"),
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
   gh("ibhagwan/fzf-lua"),
   gh("mfussenegger/nvim-dap"),

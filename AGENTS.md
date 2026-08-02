@@ -21,9 +21,10 @@ Read `README.md` before changing this repository.
 - `.mise/tasks/update` provides the project-local propagation workflow used by
   the `dotfiles-update` shell alias. It requires a clean `main` checkout and
   only permits fast-forward pulls before delegating to bootstrap.
-- The global mise tool baseline is deliberately limited to `gh`, Git LFS, and
-  `usage`. Language runtimes, language managers, language servers, formatters,
-  linters, debuggers, and build tools belong to their projects.
+- The global mise tool baseline is deliberately limited to `fzf`, `gh`, Git
+  LFS, Neovim, the Tree-sitter CLI, and `usage`. Language runtimes, language
+  managers, language servers, formatters, linters, debuggers, and build tools
+  belong to their projects.
 - `src/config/homebrew/Brewfile` is invoked separately with Homebrew. Host
   packages and desktop applications are not installed by bootstrap.
 - OpenSSH configuration and authentication state remain local and unmanaged.

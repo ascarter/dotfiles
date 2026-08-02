@@ -1,34 +1,79 @@
 -- =============================================================================
--- Tree-sitter parser management (tree-sitter-manager.nvim)
+-- Tree-sitter parser management (nvim-treesitter)
 -- =============================================================================
--- Replaces the archived nvim-treesitter. Manages parser install/update and
--- registers FileType autocmds to call vim.treesitter.start (Neovim 0.12+ has
--- treesitter in core). Use :TSManager for the TUI (i=install, u=update,
--- x=remove).
+-- Neovim owns highlighting; nvim-treesitter installs compatible parsers and
+-- queries. Keep only the formats needed for this repository as an eager
+-- baseline, then install other supported parsers when their filetype opens.
+local treesitter = require("nvim-treesitter")
+local install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site")
+treesitter.setup({ install_dir = install_dir })
 
-require("tree-sitter-manager").setup({
-  -- Keep only parsers needed to edit this workstation repository eagerly.
-  -- Other parsers remain editor-private and install when their filetype opens.
-  ensure_installed = {
-    "bash",
-    "json",
-    "lua",
-    "markdown",
-    "markdown_inline",
-    "toml",
-    "vim",
-    "vimdoc",
-  },
-  auto_install = true,
-})
+local parser_baseline = {
+  "bash",
+  "json",
+  "lua",
+  "markdown",
+  "markdown_inline",
+  "toml",
+  "vim",
+  "vimdoc",
+}
 
--- Skip treesitter highlighting on very large files (>500KB).
+local available = {}
+for _, language in ipairs(treesitter.get_available()) do
+  available[language] = true
+end
+
+-- Rebuild parser binaries that lack nvim-treesitter revision metadata before
+-- future updates try to reconcile them.
+local missing_metadata = {}
+for _, language in ipairs(treesitter.get_installed()) do
+  local revision = vim.fs.joinpath(install_dir, "parser-info", language .. ".revision")
+  if available[language] and not vim.uv.fs_stat(revision) then
+    missing_metadata[#missing_metadata + 1] = language
+  end
+end
+if #missing_metadata > 0 then
+  treesitter.install(missing_metadata, { force = true })
+end
+
+treesitter.install(parser_baseline)
+
+local function start_treesitter(bufnr, language)
+  local ok, loaded = pcall(vim.treesitter.language.add, language)
+  if ok and loaded then
+    pcall(vim.treesitter.start, bufnr, language)
+    return
+  end
+
+  if not available[language] then
+    return
+  end
+
+  treesitter.install({ language }):await(function(err, installed)
+    if err or not installed then
+      return
+    end
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(bufnr) then
+        pcall(vim.treesitter.start, bufnr, language)
+      end
+    end)
+  end)
+end
+
+-- Start highlighting when a parser is available, installing supported missing
+-- parsers on demand. Skip very large files (>500KB).
 vim.api.nvim_create_autocmd("FileType", {
   callback = function(args)
     local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
     if ok and stats and stats.size > 500 * 1024 then
-      vim.schedule(function() pcall(vim.treesitter.stop, args.buf) end)
+      return
     end
+
+    local filetype = vim.bo[args.buf].filetype
+    local language = vim.treesitter.language.get_lang(filetype) or filetype
+    start_treesitter(args.buf, language)
   end,
 })
 
@@ -111,8 +156,7 @@ vim.keymap.set({ "n", "x" }, "[x", ts_shrink, { silent = true, desc = "Shrink sy
 -- Tree-sitter text objects & motions (Zed-style)
 -- =============================================================================
 -- nvim-treesitter-textobjects ships textobjects.scm queries for ~all
--- languages and a select/move API. It's standalone (no longer depends on the
--- archived nvim-treesitter) and actively maintained.
+-- languages and a select/move API maintained alongside nvim-treesitter.
 
 require("nvim-treesitter-textobjects").setup({
   select = {

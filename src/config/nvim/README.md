@@ -50,8 +50,11 @@ Mapped in `lua/lsp.lua` on `LspAttach` (buffer-local).
 
 Configured in `lua/treesitter.lua`.
 
-Parsers are managed by [`tree-sitter-manager.nvim`](https://github.com/romus204/tree-sitter-manager.nvim).
-Run `:TSManager` to install (`i`), update (`u`), or remove (`x`) parsers.
+Parsers and their matching queries are managed by
+[`nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter).
+Use `:TSInstall language`, `:TSUpdate`, and `:TSUninstall language` for manual
+parser management. Supported missing parsers install automatically when their
+filetype first opens.
 
 Three plugins layer over treesitter:
 

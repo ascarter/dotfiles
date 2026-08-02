@@ -62,7 +62,8 @@ dotfiles-update -- --dry-run
 - A managed block in the otherwise local `~/.zshenv` establishes XDG paths and
   `ZDOTDIR`.
 - `/bin/zsh` is selected as the login shell.
-- The global mise configuration installs `gh`, Git LFS, and `usage`.
+- The global mise configuration installs `fzf`, `gh`, Git LFS, Neovim, the
+  Tree-sitter CLI, and `usage`.
 - Zsh loads generated completions for mise and usage; the usage CLI also
   enables argument completion for mise tasks that declare usage specs.
 - The `dotfiles-update` shell alias invokes the project-local `update` task to
