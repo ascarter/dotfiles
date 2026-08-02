@@ -1,5 +1,7 @@
 # Keep the global baseline deliberately small. Language managers, runtimes,
 # and project tooling belong in each project's mise configuration.
+[settings]
+python.uv_venv_auto = "source"
 
 [tools]
 "aqua:spinel-coop/rv" = "latest"
