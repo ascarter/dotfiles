@@ -2,6 +2,9 @@
 # and project tooling belong in each project's mise configuration.
 
 [tools]
+fzf = "latest"
 gh = "latest"
 git-lfs = "latest"
+neovim = "latest"
+tree-sitter = "latest"
 usage = "latest"
