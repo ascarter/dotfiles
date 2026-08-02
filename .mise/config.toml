@@ -1,5 +1,5 @@
-# Dotfile sources are staged here, but nothing is applied implicitly.
-# `mise dotfiles apply` and `mise bootstrap` are explicit mutating operations.
+# Dotfiles are applied only by explicit `mise dotfiles apply` or
+# `mise bootstrap` operations.
 min_version = "2026.7.4"
 
 [settings]
@@ -28,5 +28,5 @@ path=("$XDG_BIN_HOME" $path)
 login_shell = "/bin/zsh"
 
 [tasks.bootstrap]
-description = "Complete final workstation setup"
+description = "Reconcile the user environment"
 run = [{ task = "bootstrap-git" }]

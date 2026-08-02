@@ -1,4 +1,5 @@
-# Candidate macOS host manifest. Do not apply until its status is approved.
+# macOS packages and applications installed separately with
+# `brew bundle --global`.
 #
 # Project runtimes, language managers, language servers, formatters, linters,
 # and editor-private tools intentionally do not belong here.
