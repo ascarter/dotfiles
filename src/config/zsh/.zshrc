@@ -57,15 +57,15 @@ prompt source
 autoload -Uz compinit
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
 
+# Activate mise before public modules so globally managed commands are
+# available to completion, editor, and other conditional integrations.
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh)"
+fi
+
 # Public modules load in lexical order.
 load_zsh_modules "$ZDOTDIR/interactive.d"
 
 # Root-level zsh files remain local and untracked. Load local interactive
 # settings after public modules so aliases and preferences can be overridden.
 [[ -r "$HOME/.zshrc" ]] && source "$HOME/.zshrc"
-
-# Mise activation runs last so project tools are selected after other PATH
-# changes. It does not install any global tools by itself.
-if (( $+commands[mise] )); then
-  eval "$(mise activate zsh)"
-fi
