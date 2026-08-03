@@ -127,7 +127,7 @@ done
 command -v git >/dev/null 2>&1 || fail "git is required"
 
 repo_dir=$(CDPATH= cd -P "$(dirname "$0")" 2>/dev/null && pwd)
-[ -f "$repo_dir/.mise/config.toml" ] ||
+[ -f "$repo_dir/mise.toml" ] ||
   fail "run the uninstall script from its dotfiles checkout"
 
 log "Previewing managed dotfile removal"

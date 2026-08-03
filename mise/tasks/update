@@ -49,15 +49,21 @@ while [ "$#" -gt 0 ]; do
 done
 
 command -v git >/dev/null 2>&1 || fail "git is required"
+command -v mise >/dev/null 2>&1 || fail "mise is required"
 
-repo_candidate=${MISE_PROJECT_ROOT:-${DOTFILES_HOME:-$DEFAULT_REPO_DIR}}
+repo_candidate=${DOTFILES_HOME:-$DEFAULT_REPO_DIR}
+if [ -n "${MISE_PROJECT_ROOT:-}" ] &&
+  git -C "$MISE_PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 &&
+  [ -f "$MISE_PROJECT_ROOT/mise.toml" ]; then
+  repo_candidate=$MISE_PROJECT_ROOT
+fi
 [ -d "$repo_candidate" ] || fail "$repo_candidate is not a directory"
 repo_dir=$(CDPATH= cd -P "$repo_candidate" 2>/dev/null && pwd) ||
   fail "cannot access $repo_candidate"
 
 git -C "$repo_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 ||
   fail "$repo_dir is not a Git worktree"
-[ -f "$repo_dir/.mise/config.toml" ] ||
+[ -f "$repo_dir/mise.toml" ] ||
   fail "$repo_dir is not a dotfiles checkout"
 
 branch=$(git -C "$repo_dir" symbolic-ref --quiet --short HEAD 2>/dev/null) ||
@@ -82,7 +88,7 @@ set --
 [ "$assume_yes" = false ] || set -- "$@" --yes
 
 log "Reconciling the managed environment"
-"$repo_dir/bootstrap.sh" "$@"
+mise -C "$repo_dir" bootstrap "$@"
 
 log "Checking for remaining differences"
-"$HOME/.local/bin/mise" -C "$repo_dir" bootstrap status --missing
+mise -C "$repo_dir" bootstrap status --missing

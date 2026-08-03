@@ -1,14 +1,31 @@
-# Dotfiles are applied only by explicit `mise dotfiles apply` or
-# `mise bootstrap` operations.
+# This repository config installs itself as the global mise config. The
+# canonical checkout path keeps its sources valid before and after that link
+# exists. Dotfiles are applied only by explicit bootstrap operations.
 min_version = "2026.7.4"
 
 [settings]
 dotfiles.default_mode = "symlink"
+idiomatic_version_file_enable_tools = ["rust"]
+python.uv_venv_auto = "source"
+
+# Keep the global baseline deliberately small. rv provides the Ruby manager,
+# and stable Rust provides a fallback; projects select their own toolchains.
+[tools]
+"aqua:spinel-coop/rv" = "latest"
+fzf = "latest"
+gh = "latest"
+git-lfs = "latest"
+neovim = "latest"
+rust = "stable"
+tree-sitter = "latest"
+usage = "latest"
 
 # Keep the XDG config directory open to unmanaged and application-owned files.
-# Each source file is linked individually rather than replacing ~/.config.
+# The mise config and tasks are explicit entries because this file owns them.
 [dotfiles]
-"~/.config" = { source = "../src/config", mode = "symlink-each" }
+"~/.config" = { source = "~/Developer/dotfiles/config", mode = "symlink-each" }
+"~/.config/mise/config.toml" = { source = "~/Developer/dotfiles/mise.toml", mode = "symlink" }
+"~/.config/mise/tasks" = { source = "~/Developer/dotfiles/mise/tasks", mode = "symlink-each" }
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"

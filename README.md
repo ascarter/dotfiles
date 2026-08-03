@@ -18,9 +18,9 @@ From an existing checkout, run:
 ```
 
 The script installs mise at `~/.local/bin/mise`, clones this repository into
-`~/Developer/dotfiles` when necessary, trusts its configuration, previews the
-complete plan, and asks before applying it. Preview without applying the mise
-bootstrap plan:
+the canonical `~/Developer/dotfiles` location when necessary, trusts its
+configuration, and delegates the remaining plan and confirmation to
+`mise bootstrap`. Preview without applying the plan:
 
 ```sh
 ./bootstrap.sh --dry-run
@@ -38,13 +38,11 @@ Make a dotfiles change on one system, validate it, and commit and push it to
 dotfiles-update
 ```
 
-The alias invokes the project-local task as
-`mise -C "$DOTFILES_HOME" run update`, so it remains available from any
-directory without adding a global mise task. The task refuses to run unless
-the checkout is clean, on `main`, and has an upstream branch. It performs a
-fast-forward-only pull, runs the normal bootstrap preview and confirmation,
-and reports any remaining managed-state differences. It never stashes,
-resets, merges, or resolves local work.
+The alias invokes the repository task as `mise -C "$DOTFILES_HOME" run update`.
+The task refuses to run unless the checkout is clean, on `main`, and has an
+upstream branch. It performs a fast-forward-only pull, delegates reconciliation
+directly to `mise bootstrap`, and reports any remaining managed-state
+differences. It never stashes, resets, merges, or resolves local work.
 
 A pull may update the contents of existing linked files immediately, while
 bootstrap creates new links, applies managed edits, installs newly declared
@@ -57,8 +55,10 @@ dotfiles-update -- --dry-run
 
 ## What mise manages
 
-- Files under `src/config/` are linked individually into `~/.config`, allowing
+- Files under `config/` are linked individually into `~/.config`, allowing
   application-owned and local files to coexist.
+- The repository's `mise.toml` installs itself as
+  `~/.config/mise/config.toml`; `mise/tasks/` is linked alongside it.
 - A managed block in the otherwise local `~/.zshenv` establishes XDG paths and
   `ZDOTDIR`.
 - `/bin/zsh` is selected as the login shell.
@@ -69,7 +69,7 @@ dotfiles-update -- --dry-run
   fallback when Neovim is unavailable.
 - Zsh loads generated completions for mise and usage; the usage CLI also
   enables argument completion for mise tasks that declare usage specs.
-- The `dotfiles-update` shell alias invokes the project-local `update` task to
+- The `dotfiles-update` shell alias invokes the repository's `update` task to
   propagate committed changes from any directory.
 - The `bootstrap-git` task authenticates GitHub when needed and reconciles the
   locally owned `~/.gitconfig` with identity, HTTPS credential helpers, Git
@@ -92,11 +92,11 @@ Files already managed with `symlink-each` are live links. Edit their source in
 this repository and verify the change normally:
 
 ```sh
-$EDITOR src/config/ghostty/config
+$EDITOR config/ghostty/config
 git diff --check
 ```
 
-To add a new dotfile, create it beneath `src/config/` at its intended XDG path,
+To add a new dotfile, create it beneath `config/` at its intended XDG path,
 then preview and apply the new link:
 
 ```sh
@@ -110,12 +110,12 @@ Add a global tool only when it is required outside project environments:
 ```sh
 mise use -g jq
 mise which jq
-git diff -- src/config/mise/config.toml
+git diff -- mise.toml
 ```
 
 `mise use -g` installs the tool, selects it globally, and writes
 `~/.config/mise/config.toml`. That file is a managed link to
-`src/config/mise/config.toml`, so the declaration becomes a reviewable
+`mise.toml`, so the declaration becomes a reviewable
 repository change.
 
 Reconcile the complete workstation configuration at any time with:
@@ -144,12 +144,11 @@ Git configuration, and the current login-shell selection.
 
 ```text
 .
-├── .mise/
-│   ├── config.toml
-│   └── tasks/
 ├── AGENTS.md
 ├── bootstrap.sh
+├── config/
+├── mise/
+│   └── tasks/
+├── mise.toml
 ├── uninstall.sh
-└── src/
-    └── config/
 ```
