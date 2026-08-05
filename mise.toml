@@ -74,16 +74,19 @@ run = [
   'git config set --file ${GITCONFIG_FILE} user.email "${usage_email:-$(gh api user --jq .login)@users.noreply.github.com}"',
   'gh auth setup-git --hostname github.com'
 ]
+quiet = true
 
 [tasks."bootstrap:git-lfs"]
 description = "Configure Git LFS"
 run = 'git lfs install --skip-repo'
 depends = ["bootstrap:git"]
+quiet = true
 
 [tasks."bootstrap:gcm"]
 description = "Configure Git Credential Manager for Azure DevOps"
 run = 'git-credential-manager configure'
 depends = ["bootstrap:git"]
+quiet = true
 
 # macOS defaults
 [bootstrap.macos.dock]
