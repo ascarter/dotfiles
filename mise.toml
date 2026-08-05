@@ -12,10 +12,12 @@ python.uv_venv_auto = "source"
 # and stable Rust provides a fallback; projects select their own toolchains.
 [tools]
 "aqua:spinel-coop/rv" = "latest"
+delta = "latest"
 fzf = "latest"
 gh = "latest"
 git-lfs = "latest"
 neovim = "latest"
+ripgrep = "latest"
 rust = "stable"
 tree-sitter = "latest"
 usage = "latest"
@@ -51,7 +53,7 @@ login_shell = "/bin/zsh"
 
 [tasks.bootstrap]
 description = "Reconcile the user environment"
-depends_post = ["bootstrap:git"]
+depends_post = ["bootstrap:git", "bootstrap:git-lfs"]
 
 [tasks."bootstrap:git"]
 description = "Configure Git settings"
@@ -61,12 +63,18 @@ arg "[email]" help="Git user.email"
 '''
 env.GITCONFIG_FILE = "${HOME}/.gitconfig"
 run = [
+  'gh auth status --active || gh auth login --git-protocol=https --web --clipboard',
   'git config unset --file ${GITCONFIG_FILE} user.name || true',
   'git config unset --file ${GITCONFIG_FILE} user.email || true',
   'git config set --file ${GITCONFIG_FILE} user.name "${usage_name:-$(gh api user --jq .name)}"',
   'git config set --file ${GITCONFIG_FILE} user.email "${usage_email:-$(gh api user --jq .login)@users.noreply.github.com}"',
   'gh auth setup-git --hostname github.com'
 ]
+
+[tasks."bootstrap:git-lfs"]
+description = "Configure Git LFS"
+run = 'git lfs install --skip-repo'
+depends = ["bootstrap:git"]
 
 [tasks."bootstrap:gcm"]
 description = "Configure Git Credential Manager for Azure DevOps"

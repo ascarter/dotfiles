@@ -68,6 +68,14 @@ if (( $+commands[zed] )); then
   _load_generated_completion zed --completions zsh
 fi
 
+if (( $+commands[rg] )); then
+  _load_generated_completion rg --generate=complete-zsh
+fi
+
+if (( $+commands[delta] )); then
+  _load_generated_completion delta --generate-completion zsh
+fi
+
 unfunction _load_generated_completion
 
 # Cargo's completion belongs to the selected Rust toolchain. Resolve its
