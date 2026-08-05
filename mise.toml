@@ -4,6 +4,7 @@
 min_version = "2026.7.4"
 
 [settings]
+dotfiles.root = "~/Developer/dotfiles"
 dotfiles.default_mode = "symlink"
 idiomatic_version_file_enable_tools = ["rust"]
 python.uv_venv_auto = "source"
@@ -22,12 +23,14 @@ rust = "stable"
 tree-sitter = "latest"
 usage = "latest"
 
+[bootstrap.repos]
+"~/Developer/dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }
+
 # Keep the XDG config directory open to unmanaged and application-owned files.
 # The mise config and tasks are explicit entries because this file owns them.
 [dotfiles]
-"~/.config" = { source = "~/Developer/dotfiles/config", mode = "symlink-each" }
-"~/.config/mise/config.toml" = { source = "~/Developer/dotfiles/mise.toml", mode = "symlink" }
-# "~/.config/mise/tasks" = { source = "~/Developer/dotfiles/mise/tasks", mode = "symlink-each" }
+"~/.config" = { source = "config", mode = "symlink-each" }
+"~/.config/mise/config.toml" = "mise.toml"
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"
@@ -38,6 +41,7 @@ export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
+export DOTFILES_HOME="${DOTFILES_HOME:-${HOME}/Developer/dotfiles}"
 
 # Rustup owns Rust toolchains even when mise selects them. Keep its shared
 # toolchains and Cargo state beneath the XDG data directory.

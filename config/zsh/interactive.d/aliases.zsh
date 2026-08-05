@@ -1,5 +1,5 @@
 alias dotfiles-cd='cd "$DOTFILES_HOME"'
-alias dotfiles-update='mise -C "$DOTFILES_HOME" run bootstrap:update'
+alias dotfiles-update='mise -C "$DOTFILES_HOME" bootstrap'
 if (( $+commands[zed] )); then
   alias dotfiles-edit='zed "$DOTFILES_HOME"'
 fi

@@ -2,10 +2,10 @@
 
 set -eu
 
-readonly DEFAULT_REPO_URL="https://github.com/ascarter/dotfiles.git"
-readonly REPO_DIR="${HOME}/Developer/dotfiles"
+readonly DOTFILES_REPO_URL="https://github.com/ascarter/dotfiles.git"
+readonly DOTFILES_HOME="${HOME}/Developer/dotfiles"
 readonly MISE_BIN="${HOME}/.local/bin/mise"
-readonly MISE_CONFIG="${REPO_DIR}/mise.toml"
+readonly MISE_CONFIG="${DOTFILES_HOME}/mise.toml"
 
 log() {
   printf 'bootstrap: %s\n' "$*"
@@ -23,22 +23,29 @@ require_commands() {
   done
 }
 
-ensure_checkout() {
-  if [ -f "$MISE_CONFIG" ]; then
-    return 0
-  fi
+checkout() {
+  local repo_url="$1"
+  local checkout_dir="$2"
 
-  if [ -e "$REPO_DIR" ] && [ ! -d "$REPO_DIR" ]; then
-    fail "$REPO_DIR exists but is not a directory"
-  fi
+	if [ -e "$checkout_dir" ] && [ ! -d "$checkout_dir" ]; then
+		fail "$checkout_dir exists but is not a directory"
+	fi
 
-  if [ -d "$REPO_DIR" ] && [ -n "$(find "$REPO_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]; then
-    fail "$REPO_DIR exists but is not a dotfiles checkout"
-  fi
+	if [ -d "$checkout_dir" ]; then
+		if checkout_root="$(git -C "$checkout_dir" rev-parse --show-toplevel 2>/dev/null)" &&
+			[ "$checkout_root" = "$checkout_dir" ]; then
+			log "Dotfiles checkout exists at $checkout_dir"
+			return 0
+		fi
 
-  log "Cloning dotfiles into $REPO_DIR"
-  mkdir -p "$(dirname "$REPO_DIR")"
-  git clone "$repo_url" "$REPO_DIR"
+		if [ -n "$(find "$checkout_dir" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]; then
+			fail "$checkout_dir exists but is not a dotfiles checkout"
+		fi
+	fi
+
+  log "Cloning dotfiles into $checkout_dir"
+  mkdir -p "$(dirname "$checkout_dir")"
+  git clone "$repo_url" "$checkout_dir" || fail "Failed to clone $repo_url into $checkout_dir"
 }
 
 install_mise() {
@@ -54,11 +61,10 @@ install_mise() {
 
 require_commands curl git /bin/zsh
 
-repo_url=${DOTFILES_REPO_URL:-$DEFAULT_REPO_URL}
-ensure_checkout
+checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
 install_mise
 
 "$MISE_BIN" trust "$MISE_CONFIG"
 
 log "Delegating machine setup to mise"
-exec "$MISE_BIN" -C "$REPO_DIR" bootstrap "$@"
+exec "$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@"
