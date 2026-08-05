@@ -1,8 +1,11 @@
 alias dotfiles-cd='cd "$DOTFILES_HOME"'
-alias dotfiles-update='mise -C "$DOTFILES_HOME" run update'
+alias dotfiles-update='mise -C "$DOTFILES_HOME" run bootstrap:update'
 if (( $+commands[zed] )); then
   alias dotfiles-edit='zed "$DOTFILES_HOME"'
 fi
+
+# mise aliases
+alias mr='mise run'
 
 alias bbcurl='edcurl -e bbedit'
 alias nvcurl='edcurl -e nvim'

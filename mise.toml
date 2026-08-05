@@ -25,7 +25,7 @@ usage = "latest"
 [dotfiles]
 "~/.config" = { source = "~/Developer/dotfiles/config", mode = "symlink-each" }
 "~/.config/mise/config.toml" = { source = "~/Developer/dotfiles/mise.toml", mode = "symlink" }
-"~/.config/mise/tasks" = { source = "~/Developer/dotfiles/mise/tasks", mode = "symlink-each" }
+# "~/.config/mise/tasks" = { source = "~/Developer/dotfiles/mise/tasks", mode = "symlink-each" }
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"
@@ -51,4 +51,24 @@ login_shell = "/bin/zsh"
 
 [tasks.bootstrap]
 description = "Reconcile the user environment"
-run = [{ task = "bootstrap-git" }]
+depends_post = ["bootstrap:git"]
+
+[tasks."bootstrap:git"]
+description = "Configure Git settings"
+usage = '''
+arg "[name]" help="Git user.name"
+arg "[email]" help="Git user.email"
+'''
+env.GITCONFIG_FILE = "${HOME}/.gitconfig"
+run = [
+  'git config unset --file ${GITCONFIG_FILE} user.name || true',
+  'git config unset --file ${GITCONFIG_FILE} user.email || true',
+  'git config set --file ${GITCONFIG_FILE} user.name "${usage_name:-$(gh api user --jq .name)}"',
+  'git config set --file ${GITCONFIG_FILE} user.email "${usage_email:-$(gh api user --jq .login)@users.noreply.github.com}"',
+  'gh auth setup-git --hostname github.com'
+]
+
+[tasks."bootstrap:gcm"]
+description = "Configure Git Credential Manager for Azure DevOps"
+run = 'git-credential-manager configure'
+depends = ["bootstrap:git"]

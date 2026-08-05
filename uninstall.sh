@@ -96,7 +96,7 @@ cleanup_git_helpers() {
         if [ "$mode" = preview ]; then
           log "Would remove the mise-owned $key entries from $GITCONFIG"
         else
-          git config --file "$GITCONFIG" --unset-all "$key"
+          git config --file "$GITCONFIG" remove-section "${key%.helper}"
           log "Removed the mise-owned $key entries from $GITCONFIG"
         fi
         ;;
