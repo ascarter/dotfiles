@@ -3,7 +3,6 @@
 set -eu
 
 readonly MISE_BIN="${HOME}/.local/bin/mise"
-readonly GITCONFIG="${HOME}/.gitconfig"
 
 dry_run=false
 assume_yes=false
@@ -53,60 +52,6 @@ run_mise() {
   "$MISE_BIN" -C "$repo_dir" "$@"
 }
 
-classify_git_helper() {
-  key=$1
-  helper_state=absent
-  helpers=$(git config --file "$GITCONFIG" --get-all "$key" 2>/dev/null || true)
-  [ -n "$helpers" ] || return 0
-
-  has_mise_helper=false
-  has_other_helper=false
-  while IFS= read -r helper; do
-    case "$helper" in
-      "") ;;
-      *"/mise/installs/gh/"*"/gh auth git-credential")
-        has_mise_helper=true
-        ;;
-      *) has_other_helper=true ;;
-    esac
-  done <<EOF
-$helpers
-EOF
-
-  if [ "$has_mise_helper" = true ]; then
-    if [ "$has_other_helper" = true ]; then
-      helper_state=mixed
-    else
-      helper_state=mise
-    fi
-  fi
-}
-
-cleanup_git_helpers() {
-  mode=$1
-  [ -f "$GITCONFIG" ] || return 0
-
-  for key in \
-    credential.https://github.com.helper \
-    credential.https://gist.github.com.helper
-  do
-    classify_git_helper "$key"
-    case "$helper_state" in
-      mise)
-        if [ "$mode" = preview ]; then
-          log "Would remove the mise-owned $key entries from $GITCONFIG"
-        else
-          git config --file "$GITCONFIG" remove-section "${key%.helper}"
-          log "Removed the mise-owned $key entries from $GITCONFIG"
-        fi
-        ;;
-      mixed)
-        log "Preserving mixed credential helpers for $key; review them manually"
-        ;;
-    esac
-  done
-}
-
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --dry-run) dry_run=true ;;
@@ -132,7 +77,7 @@ repo_dir=$(CDPATH= cd -P "$(dirname "$0")" 2>/dev/null && pwd)
 
 log "Previewing managed dotfile removal"
 run_mise bootstrap dotfiles unapply --dry-run
-cleanup_git_helpers preview
+
 log "Previewing mise removal"
 "$MISE_BIN" implode --dry-run
 
@@ -148,9 +93,6 @@ fi
 
 log "Unapplying managed dotfiles"
 run_mise bootstrap dotfiles unapply --yes
-
-log "Removing mise-owned GitHub credential helpers"
-cleanup_git_helpers apply
 
 log "Removing mise and its installed tools and data"
 "$MISE_BIN" implode --yes
