@@ -1,0 +1,29 @@
+# macOS platform configuration
+
+# macOS defaults
+[bootstrap.macos.dock]
+autohide = true
+show_recents = true
+
+[bootstrap.macos.finder]
+show_all_files = true
+show_pathbar = true
+show_status_bar = true
+preferred_view_style = "column"
+
+[bootstrap.macos.keyboard]
+press_and_hold = false
+
+[bootstrap.macos.defaults]
+"com.apple.finder" = { AppleShowAllFiles = true }
+"com.apple.terminal" = { FocusFollowsMouse = true }
+"NSGlobalDomain" = { "NSMenuEnableActionImages" = false }
+
+[bootstrap.hooks.pre-packages]
+run = 'xcode-select --install || true'
+
+[bootstrap.hooks.post-defaults]
+run = [
+  'killall Dock || true',
+  'killall Finder || true'
+]

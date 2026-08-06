@@ -1,0 +1,15 @@
+[settings]
+idiomatic_version_file_enable_tools = ["rust"]
+python.uv_venv_auto = "source"
+
+[tools]
+"aqua:spinel-coop/rv" = "latest"
+delta = "latest"
+fzf = "latest"
+gh = "latest"
+git-lfs = "latest"
+neovim = "latest"
+ripgrep = "latest"
+rust = "latest"
+tree-sitter = "latest"
+usage = "latest"
