@@ -2,6 +2,13 @@
 idiomatic_version_file_enable_tools = ["rust"]
 python.uv_venv_auto = "source"
 
+[shell_alias]
+dotfiles-cd='cd "${DOTFILES_HOME}"'
+dotfiles-update='mise -C "${DOTFILES_HOME}" bootstrap'
+dotfiles-edit='$EDITOR "${DOTFILES_HOME}"'
+mdf='mise -C "${DOTFILES_HOME}"'
+mr='mise run'
+
 [tools]
 "aqua:spinel-coop/rv" = "latest"
 delta = "latest"
