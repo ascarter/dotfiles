@@ -26,6 +26,9 @@ path=("$XDG_BIN_HOME" $path)
 [bootstrap.user]
 login_shell = "/bin/zsh"
 
+[bootstrap.mise_shell_activate]
+zsh = true
+
 [tasks.bootstrap]
 description = "Reconcile the user environment"
 depends_post = ["bootstrap:git", "bootstrap:git-lfs"]
