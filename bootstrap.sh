@@ -5,7 +5,7 @@ set -eu
 readonly DOTFILES_REPO_URL="https://github.com/ascarter/dotfiles.git"
 readonly DOTFILES_HOME="${HOME}/.dotfiles"
 readonly MISE_BIN="${HOME}/.local/bin/mise"
-readonly MISE_CONFIG="${DOTFILES_HOME}/mise.toml"
+readonly MISE_CONFIG="${DOTFILES_HOME}/.config/mise/config.toml"
 
 log() {
   printf 'bootstrap: %s\n' "$*"
