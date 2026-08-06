@@ -36,6 +36,10 @@ if (( $+commands[usage] )); then
   _load_generated_completion usage --completions zsh
 fi
 
+if (( $+commands[herdr] )); then
+  _load_generated_completion herdr completion zsh
+fi
+
 if (( $+commands[codex] )); then
   _load_generated_completion codex completion zsh
 fi
