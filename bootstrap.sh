@@ -62,7 +62,6 @@ require_commands curl git /bin/zsh
 
 checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
 install_mise
-
 "$MISE_BIN" -C "$DOTFILES_HOME" trust
 
 log "Delegating machine setup to mise"
