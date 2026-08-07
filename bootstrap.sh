@@ -6,6 +6,9 @@ readonly DOTFILES_REPO_URL="https://github.com/ascarter/dotfiles.git"
 readonly DOTFILES_HOME="${HOME}/.dotfiles"
 readonly MISE_BIN="${HOME}/.local/bin/mise"
 
+# Enable auto_env for mise to support platform environment detection
+readonly MISE_AUTO_ENV=true
+
 log() {
   printf 'bootstrap: %s\n' "$*"
 }

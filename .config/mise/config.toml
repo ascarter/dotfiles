@@ -28,7 +28,7 @@ usage = "latest"
 "~/.dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }
 
 [dotfiles]
-"~/.config" = "~/.dotfiles/config"
+"~/.config" = "~/.dotfiles/.config"
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"
