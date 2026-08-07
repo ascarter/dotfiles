@@ -29,7 +29,6 @@ usage = "latest"
 
 [dotfiles]
 "~/.config" = "~/.dotfiles/config"
-"~/.config/mise" = "~/.dotfiles/mise"
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"
