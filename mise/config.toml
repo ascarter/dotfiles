@@ -28,8 +28,8 @@ usage = "latest"
 "~/.dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }
 
 [dotfiles]
-"~/.config" = "config"
-"~/.config/mise" = ".mise"
+"~/.config" = "~/.dotfiles/config"
+"~/.config/mise" = "~/.dotfiles/mise"
 
 [dotfiles."~/.zshenv/xdg"]
 comment = "#"

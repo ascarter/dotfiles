@@ -5,7 +5,6 @@ set -eu
 readonly DOTFILES_REPO_URL="https://github.com/ascarter/dotfiles.git"
 readonly DOTFILES_HOME="${HOME}/.dotfiles"
 readonly MISE_BIN="${HOME}/.local/bin/mise"
-readonly MISE_CONFIG="${DOTFILES_HOME}/.config/mise/config.toml"
 
 log() {
   printf 'bootstrap: %s\n' "$*"
@@ -64,7 +63,7 @@ require_commands curl git /bin/zsh
 checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
 install_mise
 
-"$MISE_BIN" trust "$MISE_CONFIG"
+"$MISE_BIN" -C "$DOTFILES_HOME" trust
 
 log "Delegating machine setup to mise"
-exec "$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@"
+"$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@"
