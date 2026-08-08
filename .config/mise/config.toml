@@ -1,0 +1,66 @@
+[settings]
+idiomatic_version_file_enable_tools = ["rust"]
+python.uv_venv_auto = "source"
+
+# Dotfiles configuration
+
+[bootstrap.user]
+login_shell = "/bin/zsh"
+
+[bootstrap.mise_shell_activate]
+zsh = true
+
+[bootstrap.repos]
+"~/.dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }
+
+[dotfiles]
+"~/.config" = { source = "~/.dotfiles/.config", mode = "symlink-each" }
+
+[dotfiles."~/.zshenv/xdg"]
+comment = "#"
+block = '''
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
+export DOTFILES_HOME="${DOTFILES_HOME:-${HOME}/.dotfiles}"
+
+typeset -U path PATH
+path=("$XDG_BIN_HOME" $path)
+'''
+
+[shell_alias]
+dotfiles-cd='cd "${DOTFILES_HOME}"'
+dotfiles-update='mise -C "${DOTFILES_HOME}" bootstrap'
+dotfiles-edit='$EDITOR "${DOTFILES_HOME}"'
+mdf='mise -C "${DOTFILES_HOME}"'
+mr='mise run'
+dircolors='coretuils dircolors'
+ls='coreutils ls --group-directories-first --color=auto --human-readable'
+la='ls -a -l'
+ll='ls -l'
+'l.'='ls -d .*'
+htop='btm --basic'
+sshpw='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
+dev='cd ${HOME}/Developer'
+bbcurl='edcurl -e bbedit'
+nvcurl='edcurl -e nvim'
+zcurl='edcurl -e zed'
+
+[tools]
+"aqua:spinel-coop/rv" = "latest"
+bottom = "latest"
+coreutils = "latest"
+delta = "latest"
+fastfetch = "latest"
+fzf = "latest"
+gh = "latest"
+git-lfs = "latest"
+herdr = "latest"
+neovim = "latest"
+ripgrep = "latest"
+rust = "latest"
+tree-sitter = "latest"
+usage = "latest"

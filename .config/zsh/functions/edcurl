@@ -91,4 +91,3 @@ edcurl() {
 
   curl -fsSL "$url" | "${editor_command[@]}"
 }
-

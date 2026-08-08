@@ -61,11 +61,11 @@ install_mise() {
   [ -x "$MISE_BIN" ] || fail "mise installation did not create $MISE_BIN"
 }
 
-require_commands curl git /bin/zsh
+require_commands curl git
 
 checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
 install_mise
 "$MISE_BIN" -C "$DOTFILES_HOME" trust
 
-log "Delegating machine setup to mise"
+log "Running mise bootstrap in $DOTFILES_HOME"
 "$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@"

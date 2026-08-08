@@ -1,0 +1,2 @@
+#MISE description = "Bootstrap user environment"
+#MISE depends_post = ["bootstrap:git", "bootstrap:git-lfs"]
