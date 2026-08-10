@@ -1,0 +1,10 @@
+# Laptop profile
+
+[shell_alias]
+battery = "pmset -g batt"
+
+[dotfiles."~/.miserc.toml/profile"]
+comment = "#"
+block = '''
+env = ["laptop"]
+'''

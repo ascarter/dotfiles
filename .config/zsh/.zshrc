@@ -1,10 +1,13 @@
 # Interactive-shell configuration.
 
+typeset -U fpath
 fpath=(
   "$ZDOTDIR/functions"
   "${XDG_DATA_HOME}/zsh/site-functions"
+  /opt/homebrew/share/zsh/site-functions
   $fpath
 )
+export FPATH
 
 # Autoload functions. A local ~/.zshrc can add more functions later.
 for function_file in "$ZDOTDIR"/functions/*(-.N); do
