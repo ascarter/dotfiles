@@ -1,12 +1,12 @@
 # macOS platform configuration
 
 [shell_alias]
-about='system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
-dequarantine='xattr -d com.apple.quarantine'
-spotlight-rebuild='sudo mdutil -E /'
-sysver='sw_vers'
-protonmail-bridge='"/Applications/Proton Mail Bridge.app/Contents/MacOS/Proton Mail Bridge"'
-tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
+about = 'system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
+dequarantine = 'xattr -d com.apple.quarantine'
+spotlight-rebuild = 'sudo mdutil -E /'
+sysver = 'sw_vers'
+protonmail-bridge = '"/Applications/Proton Mail Bridge.app/Contents/MacOS/Proton Mail Bridge"'
+tailscale = '/Applications/Tailscale.app/Contents/MacOS/Tailscale'
 
 [tools]
 mas = "latest"
@@ -30,10 +30,7 @@ press_and_hold = false
 "NSGlobalDomain" = { "NSMenuEnableActionImages" = false }
 
 [bootstrap.hooks.post-defaults]
-run = [
-  'killall Dock || true',
-  'killall Finder || true'
-]
+run = ['killall Dock || true', 'killall Finder || true']
 
 [bootstrap.hooks.pre-packages]
 run = 'xcode-select --install || true'
@@ -49,5 +46,5 @@ run = 'xcode-select --install || true'
 "brew-cask:spotify" = "latest"
 "brew-cask:tailscale-app" = "latest"
 "brew-cask:visual-studio-code" = "latest"
-"mas:6502835663" = "latest" # Proton Pass for Safari
-"mas:497799835" = "latest" # Xcode
+"mas:6502835663" = "latest"               # Proton Pass for Safari
+"mas:497799835" = "latest"                # Xcode

@@ -11,17 +11,35 @@ The host must provide `curl`, `git`, and `/bin/zsh`.
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | sh
 ```
 
+Select an optional machine profile on the initial run by passing mise's `-E`
+option:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh |
+  sh -s -- -E laptop
+```
+
 From an existing checkout, run:
 
 ```sh
 ./bootstrap.sh
 ```
 
+To select the laptop profile:
+
+```sh
+./bootstrap.sh -E laptop
+```
+
 The script:
 
 * Installs mise at `~/.local/bin/mise`
-* Clones this repository into `~/.dotfiles` location
-* Run mise bootstrap from dotfiles
+* Clones this repository into `~/.dotfiles`
+* Runs mise bootstrap from the checkout, forwarding options such as
+  `-E laptop`
+
+The laptop profile persists its selection in a managed block in
+`~/.miserc.toml`, so later runs do not need `-E laptop`.
 
 ## Update an existing system
 
@@ -41,14 +59,15 @@ mise bootstrap status --missing
 mise ls --current
 ```
 
-Files already managed with `symlink-each` are live links. Edit their source in this repository and verify the change normally:
+Files already managed with `symlink-each` are live links. Edit their source in
+this repository and verify the change normally:
 
 ```sh
-$EDITOR config/ghostty/config
+$EDITOR .config/ghostty/config
 git diff --check
 ```
 
-To add a new dotfile, create it beneath `config/` at its intended XDG path,
+To add a new dotfile, create it beneath `.config/` at its intended XDG path,
 then preview and apply the new link:
 
 ```sh
@@ -61,10 +80,13 @@ Add a global tool only when it is required outside project environments:
 ```sh
 mise use -g jq
 mise which jq
-git diff -- mise.toml
+git diff -- .config/mise/config.toml
 ```
 
-`mise use -g` installs the tool, selects it globally, and writes `~/.config/mise/config.toml`. That file is a managed link to `mise.toml`, so the declaration becomes a reviewable repository change.
+`mise use -g` installs the tool, selects it globally, and writes
+`~/.config/mise/config.toml`. That file is a managed link to
+`.config/mise/config.toml`, so the declaration becomes a reviewable repository
+change.
 
 Reconcile the complete workstation configuration at any time with:
 

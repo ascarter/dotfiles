@@ -5,49 +5,67 @@ Read `README.md` before changing this repository.
 ## Architecture
 
 - Mise is the control plane for applying dotfiles, selecting the login shell,
-  installing the global CLI baseline, and running setup tasks.
-- `mise.toml` is both the repository bootstrap config and the
-  source of the self-managed global mise config. It owns global tools,
-  bootstrap orchestration, dotfile mappings, and the managed `~/.zshenv`
+  installing the global CLI baseline, applying platform settings and packages,
+  and running setup tasks.
+- `.config/mise/config.toml` is both the repository bootstrap config and the
+  source of the managed global mise config. It owns shared tools, aliases,
+  bootstrap orchestration, the dotfile mapping, and the managed `~/.zshenv`
   block.
+- `.config/mise/config.macos.toml` and `config.linux.toml` are platform
+  overlays. Files such as `config.laptop.toml` are opt-in profiles selected
+  during bootstrap.
+- `.config/mise/miserc.toml` enables mise automatic environment detection so
+  the repository config and applicable overlays load from this checkout.
 - `bootstrap.sh` handles the initial mise installation and repository clone,
-  then delegates to `mise bootstrap`.
-- `uninstall.sh` delegates dotfile removal and mise cleanup to mise while
-  preserving locally owned state.
-- `config/` mirrors `$XDG_CONFIG_HOME` and is applied to `~/.config` with
-  `symlink-each`. It must coexist with application-owned and local files.
-- Root home files remain locally owned. Mise manages only its marker-delimited
-  block inside `~/.zshenv`.
-- `mise/tasks/bootstrap-git` reconciles only its owned keys in the real,
-  untracked `~/.gitconfig`. Unrelated private and work settings remain there.
-- `mise/tasks/update` provides the propagation workflow used by
-  the `dotfiles-update` shell alias. It requires a clean `main` checkout and
-  only permits fast-forward pulls before delegating directly to
+  trusts the checkout, then forwards arguments such as `-E laptop` to
   `mise bootstrap`.
-- The global mise tool baseline is deliberately limited to `fzf`, `gh`, Git
-  LFS, Neovim, `rv`, stable Rust, the Tree-sitter CLI, and `usage`. `rv`
-  provides the Ruby manager and stable Rust provides a fallback; projects
-  select Ruby and Rust versions through their idiomatic files. Other language
-  runtimes, language managers, language servers, formatters, linters,
-  debuggers, and build tools belong to their projects.
-- `config/homebrew/Brewfile` is invoked separately with Homebrew. Host
-  packages and desktop applications are not installed by bootstrap.
+- `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
+  `mise implode`, preserving the checkout and nonempty local mise config.
+- `.config/` mirrors `$XDG_CONFIG_HOME` and is applied to `~/.config` with
+  `symlink-each`. It must coexist with application-owned and local files; new
+  children are picked up without adding individual mappings.
+- Root home files remain locally owned. Mise manages its marker-delimited
+  block in `~/.zshenv`; an explicitly selected profile may manage its own
+  block in `~/.miserc.toml`. Managed Zsh files under `.config/zsh/` source
+  local `~/.zprofile` and `~/.zshrc` extensions.
+- `.config/git/config` contains portable Git behavior. Bootstrap tasks under
+  `.config/mise/tasks/bootstrap/` configure GitHub authentication, local Git
+  identity, Git LFS, and optionally Git Credential Manager in the real,
+  untracked user state.
+- The `dotfiles-update` alias delegates directly to `mise bootstrap`; it does
+  not pull or enforce a branch or worktree policy.
+- The global tool baseline is declared in `.config/mise/config.toml`.
+  Project-specific runtimes, language servers, formatters, linters, debuggers,
+  and build tools belong to their projects.
+- `.config/mise/config.macos.toml` owns the bootstrap-managed macOS defaults,
+  hooks, App Store items, and focused application set.
+  `.config/homebrew/Brewfile` is the broader host package manifest invoked
+  separately with `brew bundle --global`.
 - OpenSSH configuration and authentication state remain local and unmanaged.
 
 ## Working rules
 
 - Edit ordinary managed files through their repository paths under
-  `config/`; edit mise itself through `mise.toml` and `mise/tasks/`.
-- New files beneath `config/` are discovered by the existing
+  `.config/`; edit mise through `.config/mise/`.
+- New files beneath `.config/` are discovered by the existing
   `symlink-each` mapping; do not add per-application dotfile entries.
 - Keep bootstrap and uninstall behavior idempotent and previewable.
-- Keep shell entry points portable `/bin/sh` unless a concrete requirement
-  needs another interpreter.
-- Do not add host package or service mutations to the user bootstrap.
+- Keep root shell entry points portable `/bin/sh`. Mise task scripts may use
+  Bash when their task metadata or implementation requires it.
+- Put shared behavior in `config.toml`, OS-specific behavior in the matching
+  platform overlay, and opt-in machine-class behavior in a profile overlay.
+- Select an optional profile with `bootstrap.sh -E PROFILE`. A profile may
+  persist that selection through a mise-managed block in `~/.miserc.toml`.
+- Keep macOS bootstrap defaults, hooks, and packages narrowly scoped and
+  previewable. Put the broader manually applied host package inventory in the
+  Brewfile.
 - Do not add a global development tool when a project can declare it.
 - Add an approved global tool with `mise use -g TOOL`, then review the change
   written through the managed global-config link to
-  `mise.toml`.
+  `.config/mise/config.toml`.
+- Keep Neovim's global configuration limited to editor behavior, plugins, and
+  a small parser baseline. Language servers, formatters, linters, runtimes,
+  and debug adapters must be supplied by projects.
 
 ## Safety
 
@@ -56,21 +74,20 @@ Read `README.md` before changing this repository.
 - Do not overwrite locally owned files. Resolve dotfile conflicts explicitly.
 - Do not install, remove, or modify host packages or services unless the user
   explicitly requests that work.
+- Do not run `bootstrap.sh`, `uninstall.sh`, or commands that apply, unapply,
+  install, remove, prune, or implode managed state against the running system
+  unless the user explicitly requests it. A dry-run flag does not waive this
+  rule because wrapper scripts may perform other side effects first.
 - Preserve unrelated worktree changes and stage only the intended paths.
 
 ## Validation
 
-Before committing bootstrap or managed-configuration changes, run:
+Use only validation that reads or formats files in the checkout by default:
 
 ```sh
-sh -n bootstrap.sh uninstall.sh mise/tasks/bootstrap-git mise/tasks/update
+sh -n bootstrap.sh uninstall.sh
+bash -n .config/mise/tasks/bootstrap/*.sh
+mise fmt
 mise fmt --check
 git diff --check
-mise bootstrap status --missing
-./bootstrap.sh --dry-run
-./uninstall.sh --dry-run
 ```
-
-The bootstrap dry-run may install mise and clone the repository when they are
-absent, but it must not apply the mise bootstrap plan. The uninstall dry-run
-must never remove state.
