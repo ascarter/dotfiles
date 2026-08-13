@@ -56,8 +56,8 @@ compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
 [[ -r "$HOME/.zshrc" ]] && source "$HOME/.zshrc"
 
 # dircolors
-if [[ -f "$ZDOTDIR/dircolors" ]] && (( $+commands[dircolors] )); then
-  eval "$(dircolors "$ZDOTDIR/dircolors")"
+if [[ -f "$ZDOTDIR/dircolors" ]] && (( $+commands[coreutils] )); then
+  eval "$(coreutils dircolors "$ZDOTDIR/dircolors")"
 fi
 
 # Editor preference
