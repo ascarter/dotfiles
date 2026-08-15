@@ -9,15 +9,15 @@ Read `README.md` before changing this repository.
   and running setup tasks.
 - `.config/mise/config.toml` is both the repository bootstrap config and the
   source of the managed global mise config. It owns shared tools, aliases,
-  bootstrap orchestration, the dotfile mapping, and the managed `~/.zshenv`
-  block.
+  shared bootstrap state, the dotfile mapping, and the managed `~/.zshenv`
+  block. It does not run interactive workstation setup tasks.
 - `.config/mise/config.macos.toml` and `config.linux.toml` are platform
-  overlays. Files such as `config.laptop.toml` are opt-in profiles selected
-  during bootstrap.
+  overlays. `config.workstation.toml` is an opt-in profile that owns GUI
+  packages, workstation task orchestration, and its persisted selection.
 - `.config/mise/miserc.toml` enables mise automatic environment detection so
   the repository config and applicable overlays load from this checkout.
 - `bootstrap.sh` handles the initial mise installation and repository clone,
-  trusts the checkout, then forwards arguments such as `-E laptop` to
+  trusts the checkout, then forwards arguments such as `-E workstation` to
   `mise bootstrap`.
 - `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
   `mise implode`, preserving the checkout and nonempty local mise config.
@@ -31,14 +31,17 @@ Read `README.md` before changing this repository.
 - `.config/git/config` contains portable Git behavior. Bootstrap tasks under
   `.config/mise/tasks/bootstrap/` configure GitHub authentication, local Git
   identity, Git LFS, and optionally Git Credential Manager in the real,
-  untracked user state.
+  untracked user state. Personal Git and GitHub setup runs automatically only
+  when the workstation profile is active; its leaf tasks remain manually
+  runnable elsewhere.
 - The `dotfiles-update` alias delegates directly to `mise bootstrap`; it does
   not pull or enforce a branch or worktree policy.
 - The global tool baseline is declared in `.config/mise/config.toml`.
   Project-specific runtimes, language servers, formatters, linters, debuggers,
   and build tools belong to their projects.
-- `.config/mise/config.macos.toml` owns the bootstrap-managed macOS defaults,
-  hooks, App Store items, and focused application set.
+- `.config/mise/config.macos.toml` owns bootstrap-managed macOS defaults,
+  hooks, aliases, and platform prerequisites. `config.workstation.toml` owns
+  the focused GUI and App Store package set.
   `.config/homebrew/Brewfile` is the broader host package manifest invoked
   separately with `brew bundle --global`.
 - OpenSSH configuration and authentication state remain local and unmanaged.
@@ -50,15 +53,18 @@ Read `README.md` before changing this repository.
 - New files beneath `.config/` are discovered by the existing
   `symlink-each` mapping; do not add per-application dotfile entries.
 - Keep bootstrap and uninstall behavior idempotent and previewable.
+- Keep vendor-installer tasks minimal: guard idempotency, invoke the official
+  installer directly, and verify the result. Defer supported-platform,
+  dependency, download, and temporary-file handling to the installer.
 - Keep root shell entry points portable `/bin/sh`. Mise task scripts may use
   Bash when their task metadata or implementation requires it.
 - Put shared behavior in `config.toml`, OS-specific behavior in the matching
   platform overlay, and opt-in machine-class behavior in a profile overlay.
 - Select an optional profile with `bootstrap.sh -E PROFILE`. A profile may
   persist that selection through a mise-managed block in `~/.miserc.toml`.
-- Keep macOS bootstrap defaults, hooks, and packages narrowly scoped and
-  previewable. Put the broader manually applied host package inventory in the
-  Brewfile.
+- Keep platform defaults, hooks, and prerequisites narrowly scoped and
+  previewable. Keep the focused workstation package set in its profile and put
+  the broader manually applied macOS host inventory in the Brewfile.
 - Do not add a global development tool when a project can declare it.
 - Add an approved global tool with `mise use -g TOOL`, then review the change
   written through the managed global-config link to
@@ -87,7 +93,10 @@ Use only validation that reads or formats files in the checkout by default:
 ```sh
 sh -n bootstrap.sh uninstall.sh
 bash -n .config/mise/tasks/bootstrap/*.sh
+sh -n .config/mise/tasks/bootstrap/install/*.sh
 mise fmt
 mise fmt --check
+mise tasks validate
+mise -E workstation tasks validate
 git diff --check
 ```

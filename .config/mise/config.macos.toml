@@ -2,6 +2,7 @@
 
 [shell_alias]
 about = 'system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
+battery = 'pmset -g batt'
 dequarantine = 'xattr -d com.apple.quarantine'
 spotlight-rebuild = 'sudo mdutil -E /'
 sysver = 'sw_vers'
@@ -34,17 +35,3 @@ run = ['killall Dock || true', 'killall Finder || true']
 
 [bootstrap.hooks.pre-packages]
 run = 'xcode-select --install || true'
-
-[bootstrap.packages]
-"brew-cask:bbedit" = "latest"
-"brew-cask:ghostty" = "latest"
-"brew-cask:netnewswire" = "latest"
-"brew-cask:obsidian" = "latest"
-"brew-cask:proton-mail" = "latest"
-"brew-cask:proton-pass" = "latest"
-"brew-cask:signal" = "latest"
-"brew-cask:spotify" = "latest"
-"brew-cask:tailscale-app" = "latest"
-"brew-cask:visual-studio-code" = "latest"
-"mas:6502835663" = "latest"               # Proton Pass for Safari
-"mas:497799835" = "latest"                # Xcode

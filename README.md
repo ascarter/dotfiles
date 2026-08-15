@@ -16,7 +16,7 @@ option:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh |
-  sh -s -- -E laptop
+  sh -s -- -E workstation
 ```
 
 From an existing checkout, run:
@@ -25,10 +25,10 @@ From an existing checkout, run:
 ./bootstrap.sh
 ```
 
-To select the laptop profile:
+To select the workstation profile:
 
 ```sh
-./bootstrap.sh -E laptop
+./bootstrap.sh -E workstation
 ```
 
 The script:
@@ -36,10 +36,26 @@ The script:
 * Installs mise at `~/.local/bin/mise`
 * Clones this repository into `~/.dotfiles`
 * Runs mise bootstrap from the checkout, forwarding options such as
-  `-E laptop`
+  `-E workstation`
 
-The laptop profile persists its selection in a managed block in
-`~/.miserc.toml`, so later runs do not need `-E laptop`.
+The workstation profile persists its selection in a managed block in
+`~/.miserc.toml`, so later runs do not need `-E`.
+
+## Configuration layers
+
+Mise loads `config.toml` as the portable baseline and automatically adds the
+matching platform overlay, such as `config.macos.toml` or `config.linux.toml`.
+Explicit role profiles add machine-purpose behavior:
+
+* `workstation` declares GUI applications, runs personal Git and workstation
+  setup tasks, and persists its role selection.
+
+Installer-backed software uses leaf tasks named `bootstrap:install:<name>`.
+The workstation aggregate currently ensures Zed is present using Zed's
+official installer. Normal bootstrap runs do not reinstall or upgrade Zed when
+the `zed` command is already available. Installer tasks defer platform,
+dependency, download, and temporary-file handling to the vendor installer;
+wrappers only guard idempotency, invoke the installer, and verify the result.
 
 ## Update an existing system
 
@@ -94,7 +110,9 @@ Reconcile the complete workstation configuration at any time with:
 ./bootstrap.sh
 ```
 
-The bootstrap is idempotent. It updates only the Git settings it owns and preserves unrelated private or work settings in `~/.gitconfig`.
+The bootstrap is idempotent. When the workstation profile is active, its Git
+tasks update only the settings they own and preserve unrelated private or work
+settings in `~/.gitconfig`.
 
 ## Uninstall
 
@@ -102,6 +120,6 @@ The bootstrap is idempotent. It updates only the Git settings it owns and preser
 ./uninstall.sh
 ```
 
-Uninstall removes the configured links, managed `.zshenv` block, mise tools,
-and mise data. It preserves this checkout, GitHub authentication data, local
-Git configuration, and the current login-shell selection.
+Uninstall removes the configured links, managed `.zshenv` and profile blocks,
+mise tools, and mise data. It preserves this checkout, GitHub authentication
+data, local Git configuration, and the current login-shell selection.

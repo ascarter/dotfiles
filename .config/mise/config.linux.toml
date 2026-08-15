@@ -1,6 +1,7 @@
 # Linux platform configuration
 
 [shell_alias]
-about='fastfetch'
-pbcopy='xsel --clipboard --input'
-pbpaste='xsel --clipboard --output'
+about = 'fastfetch'
+battery = 'upower --battery'
+pbcopy = 'xsel --clipboard --input'
+pbpaste = 'xsel --clipboard --output'
