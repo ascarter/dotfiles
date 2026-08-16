@@ -51,11 +51,9 @@ Explicit role profiles add machine-purpose behavior:
   setup tasks, and persists its role selection.
 
 Installer-backed software uses leaf tasks named `bootstrap:install:<name>`.
-The workstation aggregate currently ensures Zed is present using Zed's
-official installer. Normal bootstrap runs do not reinstall or upgrade Zed when
-the `zed` command is already available. Installer tasks defer platform,
-dependency, download, and temporary-file handling to the vendor installer;
-wrappers only guard idempotency, invoke the installer, and verify the result.
+These tasks defer platform, dependency, download, temporary-file, and update
+behavior to the native installer; wrappers only guard idempotency, invoke the
+installer, and verify the result.
 
 ## Update an existing system
 

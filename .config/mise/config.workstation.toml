@@ -6,7 +6,12 @@ depends_post = ["bootstrap:git", "bootstrap:git-lfs", "bootstrap:workstation"]
 
 [tasks."bootstrap:workstation"]
 description = "Bootstrap workstation applications"
-depends = ["bootstrap:install:zed"]
+depends = [
+  "bootstrap:install:claude",
+  "bootstrap:install:codex",
+  "bootstrap:install:copilot",
+  "bootstrap:install:zed",
+]
 
 [dotfiles."~/.miserc.toml/profile"]
 comment = "#"
