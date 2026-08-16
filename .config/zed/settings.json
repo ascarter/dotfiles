@@ -106,8 +106,15 @@
       "type": "registry",
     },
     "codex-acp": {
+      "favorite_config_option_values": {
+        "model": [
+          "gpt-5.6-terra",
+          "gpt-5.6-luna",
+          "gpt-5.6-sol"
+        ]
+      },
       "default_config_options": {
-        "model": "gpt-5.6-sol",
+        "model": "gpt-5.6-terra",
         "reasoning_effort": "medium"
       },
       "type": "registry",
