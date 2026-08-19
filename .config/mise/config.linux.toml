@@ -3,5 +3,5 @@
 [shell_alias]
 about = 'fastfetch'
 battery = 'upower --battery'
-pbcopy = 'xsel --clipboard --input'
-pbpaste = 'xsel --clipboard --output'
+pbcopy = 'wl-copy'
+pbpaste = 'wl-paste'

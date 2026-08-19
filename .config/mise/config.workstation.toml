@@ -19,6 +19,9 @@ block = '''
 env = ["workstation"]
 '''
 
+[bootstrap.brew]
+adopt = true
+
 [bootstrap.packages]
 "brew-cask:bbedit" = "latest"
 "brew-cask:chatgpt" = "latest"
@@ -38,5 +41,8 @@ env = ["workstation"]
 "brew-cask:visual-studio-code" = "latest"
 "brew-cask:vivaldi" = "latest"
 "brew-cask:whatcable" = "latest"
-"mas:6502835663" = "latest" # Proton Pass for Safari
-"mas:497799835" = "latest"  # Xcode
+"brew-cask:ascarter/extras/apple-container" = "latest"
+"mas:6502835663" = "latest"                            # Proton Pass for Safari
+"mas:497799835" = "latest"                             # Xcode
+
+[tools]

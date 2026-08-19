@@ -45,7 +45,6 @@ ll = 'ls -l'
 htop = 'btm --basic'
 sshpw = 'ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
 dev = 'cd ${HOME}/Developer'
-bbcurl = 'edcurl -e bbedit'
 nvcurl = 'edcurl -e nvim'
 zcurl = 'edcurl -e zed'
 

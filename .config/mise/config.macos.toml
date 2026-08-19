@@ -3,6 +3,7 @@
 [shell_alias]
 about = 'system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
 battery = 'pmset -g batt'
+bbcurl = 'edcurl -e bbedit'
 dequarantine = 'xattr -d com.apple.quarantine'
 spotlight-rebuild = 'sudo mdutil -E /'
 sysver = 'sw_vers'
