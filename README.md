@@ -5,9 +5,26 @@ Portable, XDG-based development configuration managed by
 
 ## Bootstrap
 
-The host must provide `/bin/zsh`. If `curl` or `git` are missing, the script
-offers to install them: Xcode Command Line Tools on macOS, or the native
-package manager on Fedora, Ubuntu/Debian, and Arch Linux.
+### Prerequisites
+
+Bootstrap requires `curl` and Git. Install them before running the script:
+
+```sh
+# Fedora
+sudo dnf install -y curl git
+
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install -y curl git
+
+# Arch Linux
+sudo pacman -S --needed curl git
+
+# macOS (opens the Command Line Tools installer)
+xcode-select --install
+```
+
+After the macOS installer completes, open a new terminal session before
+continuing.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | sh
