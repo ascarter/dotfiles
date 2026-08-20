@@ -55,7 +55,7 @@ install_prerequisites() {
 
   case "$(uname -s)" in
     Darwin)
-      if ! confirm_install "Missing $missing_commands. Install the Xcode Command Line Tools?"; then
+      if ! confirm_install "Missing $missing_commands. Install Xcode Command Line Tools?"; then
         fail "curl and git are required"
       fi
 
@@ -82,11 +82,11 @@ install_prerequisites() {
           installer="pacman -S --needed --noconfirm"
           ;;
         *)
-          fail "curl and git are required; install them with your package manager and rerun bootstrap"
+          fail "curl and git are required; install with package manager and rerun bootstrap"
           ;;
       esac
 
-      if ! confirm_install "Missing $missing_commands. Install them with $installer?"; then
+      if ! confirm_install "Missing $missing_commands. Install with $installer?"; then
         fail "curl and git are required"
       fi
 
@@ -97,7 +97,7 @@ install_prerequisites() {
       sudo $installer $missing_commands
       ;;
     *)
-      fail "curl and git are required; install them with your package manager and rerun bootstrap"
+      fail "curl and git are required; install with package manager and rerun bootstrap"
       ;;
   esac
 }
