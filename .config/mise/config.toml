@@ -2,8 +2,6 @@
 idiomatic_version_file_enable_tools = ["rust"]
 python.uv_venv_auto = "source"
 
-# Dotfiles configuration
-
 [bootstrap.user]
 login_shell = "/bin/zsh"
 
@@ -33,7 +31,7 @@ path=("$XDG_BIN_HOME" $path)
 
 [shell_alias]
 dotfiles-cd = 'cd "${DOTFILES_HOME}"'
-dotfiles-update = 'mise -C "${DOTFILES_HOME}" bootstrap'
+dotfiles-update = 'mise -C "${DOTFILES_HOME}" bootstrap --update'
 dotfiles-edit = '$EDITOR "${DOTFILES_HOME}"'
 mdf = 'mise -C "${DOTFILES_HOME}"'
 mr = 'mise run'
@@ -63,3 +61,16 @@ ripgrep = "latest"
 rust = "latest"
 tree-sitter = "latest"
 usage = "latest"
+
+[tasks.bootstrap]
+description = "Bootstrap workstation environment"
+depends_post = ["bootstrap:git", "bootstrap:git-lfs", "bootstrap:workstation"]
+
+[tasks."bootstrap:workstation"]
+description = "Bootstrap workstation applications"
+depends = [
+  "bootstrap:install:claude",
+  "bootstrap:install:codex",
+  "bootstrap:install:copilot",
+  "bootstrap:install:zed",
+]

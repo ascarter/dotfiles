@@ -25,30 +25,16 @@ From an existing checkout, run:
 ./bootstrap.sh
 ```
 
-To select the workstation profile:
-
-```sh
-./bootstrap.sh -E workstation
-```
-
 The script:
 
 * Installs mise at `~/.local/bin/mise`
 * Clones this repository into `~/.dotfiles`
-* Runs mise bootstrap from the checkout, forwarding options such as
-  `-E workstation`
-
-The workstation profile persists its selection in a managed block in
-`~/.miserc.toml`, so later runs do not need `-E`.
+* Runs mise bootstrap from the checkout
 
 ## Configuration layers
 
 Mise loads `config.toml` as the portable baseline and automatically adds the
 matching platform overlay, such as `config.macos.toml` or `config.linux.toml`.
-Explicit role profiles add machine-purpose behavior:
-
-* `workstation` declares GUI applications, runs personal Git and workstation
-  setup tasks, and persists its role selection.
 
 Installer-backed software uses leaf tasks named `bootstrap:install:<name>`.
 These tasks defer platform, dependency, download, temporary-file, and update
