@@ -25,6 +25,83 @@ require_commands() {
   done
 }
 
+confirm_install() {
+  prompt="$1"
+  response=""
+
+  printf 'bootstrap: %s [y/N] ' "$prompt" >&2
+  if [ -r /dev/tty ]; then
+    IFS= read -r response </dev/tty || true
+  else
+    IFS= read -r response || true
+  fi
+
+  case "$response" in
+    [yY] | [yY][eE][sS]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+install_prerequisites() {
+  missing_commands=""
+
+  for command_name in curl git; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+      missing_commands="${missing_commands:+$missing_commands }$command_name"
+    fi
+  done
+
+  [ -z "$missing_commands" ] && return 0
+
+  case "$(uname -s)" in
+    Darwin)
+      if ! confirm_install "Missing $missing_commands. Install the Xcode Command Line Tools?"; then
+        fail "curl and git are required"
+      fi
+
+      require_commands xcode-select
+      log "Requesting the Xcode Command Line Tools installer"
+      xcode-select --install || fail "Unable to start the Xcode Command Line Tools installer"
+      fail "Complete the Xcode Command Line Tools installation, then rerun bootstrap"
+      ;;
+    Linux)
+      if [ ! -r /etc/os-release ]; then
+        fail "curl and git are required; unable to identify this Linux distribution"
+      fi
+
+      # shellcheck disable=SC1091
+      . /etc/os-release
+      case "${ID:-}" in
+        fedora)
+          installer="dnf install -y"
+          ;;
+        ubuntu | debian)
+          installer="apt-get install -y"
+          ;;
+        arch)
+          installer="pacman -S --needed --noconfirm"
+          ;;
+        *)
+          fail "curl and git are required; install them with your package manager and rerun bootstrap"
+          ;;
+      esac
+
+      if ! confirm_install "Missing $missing_commands. Install them with $installer?"; then
+        fail "curl and git are required"
+      fi
+
+      require_commands sudo
+      log "Installing $missing_commands"
+      # Deliberately expand the selected, fixed package-manager command here.
+      # shellcheck disable=SC2086
+      sudo $installer $missing_commands
+      ;;
+    *)
+      fail "curl and git are required; install them with your package manager and rerun bootstrap"
+      ;;
+  esac
+}
+
 checkout() {
   local repo_url="$1"
   local checkout_dir="$2"
@@ -61,6 +138,7 @@ install_mise() {
   [ -x "$MISE_BIN" ] || fail "mise installation did not create $MISE_BIN"
 }
 
+install_prerequisites
 require_commands curl git
 
 checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
