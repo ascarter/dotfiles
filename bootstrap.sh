@@ -68,4 +68,10 @@ install_mise
 "$MISE_BIN" -C "$DOTFILES_HOME" trust
 
 log "Running mise bootstrap in $DOTFILES_HOME"
-"$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@"
+# Keep prompts interactive when the script itself is being read from a pipe.
+if { exec 3</dev/tty; } 2>/dev/null; then
+  :
+else
+  exec 3<&0
+fi
+"$MISE_BIN" -C "$DOTFILES_HOME" bootstrap "$@" <&3
