@@ -11,14 +11,6 @@ The host must provide `curl`, `git`, and `/bin/zsh`.
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | sh
 ```
 
-Select an optional machine profile on the initial run by passing mise's `-E`
-option:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh |
-  sh -s -- -E workstation
-```
-
 From an existing checkout, run:
 
 ```sh
@@ -36,10 +28,16 @@ The script:
 Mise loads `config.toml` as the portable baseline and automatically adds the
 matching platform overlay, such as `config.macos.toml` or `config.linux.toml`.
 
-Installer-backed software uses leaf tasks named `bootstrap:install:<name>`.
-These tasks defer platform, dependency, download, temporary-file, and update
-behavior to the native installer; wrappers only guard idempotency, invoke the
-installer, and verify the result.
+Personal Git setup and workstation applications are intentionally excluded
+from the default bootstrap. Run the optional workstation task from the
+checkout when needed:
+
+```sh
+mise run bootstrap:workstation
+```
+
+The task configures Git and Git LFS, then runs the
+`bootstrap:install:<name>` tasks for the workstation applications.
 
 ## Update an existing system
 
@@ -88,15 +86,16 @@ git diff -- .config/mise/config.toml
 `.config/mise/config.toml`, so the declaration becomes a reviewable repository
 change.
 
-Reconcile the complete workstation configuration at any time with:
+Reconcile the managed dotfiles, tools, and platform configuration at any time
+with:
 
 ```sh
 ./bootstrap.sh
 ```
 
-The bootstrap is idempotent. When the workstation profile is active, its Git
-tasks update only the settings they own and preserve unrelated private or work
-settings in `~/.gitconfig`.
+The bootstrap is idempotent. The optional workstation Git tasks update only
+the settings they own and preserve unrelated private or work settings in
+`~/.gitconfig`.
 
 ## Uninstall
 
@@ -104,6 +103,6 @@ settings in `~/.gitconfig`.
 ./uninstall.sh
 ```
 
-Uninstall removes the configured links, managed `.zshenv` and profile blocks,
-mise tools, and mise data. It preserves this checkout, GitHub authentication
-data, local Git configuration, and the current login-shell selection.
+Uninstall removes the configured links, managed `.zshenv` block, mise tools,
+and mise data. It preserves this checkout, GitHub authentication data, local
+Git configuration, and the current login-shell selection.

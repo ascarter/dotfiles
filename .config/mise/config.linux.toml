@@ -9,6 +9,3 @@ pbpaste = 'wl-paste'
 [bootstrap.packages]
 "dnf:git" = "latest"
 "dnf:zsh" = "latest"
-
-[bootstrap.hooks.post-packages]
-run = ["sudo dnf -y group remove 'libreoffice'"]
