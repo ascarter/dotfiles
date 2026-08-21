@@ -1,0 +1,83 @@
+# Optional desktop-workstation profile.
+#
+# Run `mise -E workstation bootstrap` or `mise run bootstrap:workstation` to
+# apply it without expanding the baseline used by WSL and Toolbox environments.
+
+[dotfiles."~/.miserc.toml/workstation"]
+comment = "#"
+block = '''
+env = ["workstation"]
+'''
+
+[tasks."bootstrap"]
+description = "Configure this machine as a workstation"
+depends = [
+  "bootstrap:git",
+  "bootstrap:git-lfs",
+  "bootstrap:install:claude",
+  "bootstrap:install:codex",
+  "bootstrap:install:copilot",
+  "bootstrap:install:zed",
+]
+
+[tasks."bootstrap:git"]
+usage = '''
+arg "[name]" help="Git user.name"
+arg "[email]" help="Git user.email"
+'''
+env = { GITCONFIG_FILE = "${GITCONFIG_FILE:-$HOME/.gitconfig}" }
+description = "Configure Git settings"
+run = [
+  'gh auth status --active || gh auth login --git-protocol=https',
+  'git config set --file ${GITCONFIG_FILE} user.name "${usage_name:-$(gh api user --jq .name)}"',
+  'git config set --file ${GITCONFIG_FILE} user.email "${usage_email:-$(gh api user --jq .login)@users.noreply.github.com}"',
+  'gh auth setup-git --hostname github.com',
+]
+
+[tasks."bootstrap:git-lfs"]
+description = "Configure Git LFS"
+depends = ["bootstrap:git"]
+run = 'git lfs install --skip-repo'
+
+[tasks."bootstrap:gcm"]
+description = "Configure Git Credential Manager for Azure DevOps"
+depends = ["bootstrap:git"]
+run = 'git-credential-manager configure'
+
+[tasks."bootstrap:install:claude"]
+description = "Install Claude Code CLI"
+run = 'command -v claude >/dev/null 2>&1 && claude update || curl -fsSL https://claude.ai/install.sh | bash'
+
+[tasks."bootstrap:install:codex"]
+description = "Install Codex CLI"
+run = 'curl -fsSL https://chatgpt.com/codex/install.sh | sh'
+
+[tasks."bootstrap:install:copilot"]
+description = "Install GitHub Copilot CLI"
+run = 'command -v copilot >/dev/null 2>&1 && copilot update || curl -fsSL https://gh.io/copilot-install | bash'
+
+[tasks."bootstrap:install:zed"]
+description = "Install Zed"
+run = 'command -v zed >/dev/null 2>&1 || curl -fsSL https://zed.dev/install.sh | sh'
+
+[bootstrap.packages]
+"brew-cask:bbedit" = "latest"
+"brew-cask:chatgpt" = "latest"
+"brew-cask:ghostty" = "latest"
+"brew-cask:github-copilot-app" = "latest"
+"brew-cask:netnewswire" = "latest"
+"brew-cask:obsidian" = "latest"
+"brew-cask:proton-drive" = "latest"
+"brew-cask:proton-mail" = "latest"
+"brew-cask:proton-mail-bridge" = "latest"
+"brew-cask:proton-meet" = "latest"
+"brew-cask:proton-pass" = "latest"
+"brew-cask:signal" = "latest"
+"brew-cask:spotify" = "latest"
+"brew-cask:tailscale-app" = "latest"
+"brew-cask:visual-studio-code" = "latest"
+"brew-cask:vivaldi" = "latest"
+"brew-cask:whatcable" = "latest"
+"brew-cask:ascarter/extras/apple-container" = "latest"
+"mas:6502835663" = "latest"                            # Proton Pass for Safari
+"mas:497799835" = "latest"                             # Xcode

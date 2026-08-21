@@ -46,17 +46,32 @@ The script:
 
 Mise loads `config.toml` as the portable baseline and automatically adds the
 matching platform overlay, such as `config.macos.toml` or `config.linux.toml`.
+The optional `config.workstation.toml` profile contains desktop-workstation
+configuration. It is enabled only when explicitly requested, keeping the
+default bootstrap suitable for WSL and Toolbox environments.
 
 Personal Git setup and workstation applications are intentionally excluded
-from the default bootstrap. Run the optional workstation task from the
-checkout when needed:
+from the default bootstrap. To install the workstation profile on a new
+machine, use one of these commands:
 
 ```sh
-mise run bootstrap:workstation
+# From the published bootstrap script
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | MISE_ENV=workstation sh
+
+# From an existing checkout
+MISE_ENV=workstation ./bootstrap.sh
 ```
 
-The task configures Git and Git LFS, then runs the
-`bootstrap:install:<name>` tasks for the workstation applications.
+To turn an existing default installation into a workstation, run this from the
+checkout:
+
+```sh
+mise -E workstation bootstrap
+```
+
+The profile defines the `bootstrap` task for personal Git setup and workstation
+applications, and writes a managed `env = ["workstation"]` block to
+`~/.miserc.toml` so later bootstraps retain the selected profile.
 
 ## Update an existing system
 

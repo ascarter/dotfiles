@@ -9,3 +9,11 @@ pbpaste = 'wl-paste'
 [bootstrap.packages]
 "dnf:git" = "latest"
 "dnf:zsh" = "latest"
+"apt:git" = "latest"
+"apt:zsh" = "latest"
+"pacman:git" = "latest"
+"pacman:zsh" = "latest"
+"apk:git" = "latest"
+"apk:zsh" = "latest"
+
+[bootstrap.hooks.pre-packages]
