@@ -134,6 +134,7 @@ _load_generated_completion() {
 }
 
 _load_generated_completion codex completion zsh
+_load_generated_completion container --generate-completion-script zsh
 _load_generated_completion delta --generate-completion zsh
 _load_generated_completion gh completion -s zsh
 _load_generated_completion herdr completion zsh

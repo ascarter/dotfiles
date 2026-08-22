@@ -7,5 +7,3 @@
 "pacman:zsh" = "latest"
 "apk:git" = "latest"
 "apk:zsh" = "latest"
-
-[bootstrap.hooks.pre-packages]

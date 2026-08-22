@@ -1,0 +1,2 @@
+[tools]
+container = { version = "latest", os = "macos" }

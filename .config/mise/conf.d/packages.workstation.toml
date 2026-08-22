@@ -20,7 +20,6 @@ run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-re
 "brew-cask:visual-studio-code" = { os = "macos" }
 "brew-cask:vivaldi" = { os = "macos" }
 "brew-cask:whatcable" = { os = "macos" }
-"brew-cask:ascarter/extras/apple-container" = { os = "macos" }
 "dnf:code" = { os = "linux" }
 "mas:6502835663" = "latest"                                    # Proton Pass for Safari
 "mas:497799835" = "latest"                                     # Xcode

@@ -12,12 +12,13 @@ env = ["workstation"]
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
 depends = [
+  "bootstrap:container-dns",
   "bootstrap:git",
   "bootstrap:git-lfs",
   "bootstrap:install:claude",
   "bootstrap:install:codex",
   "bootstrap:install:copilot",
-  "bootstrap:install:zed",
+  "bootstrap:install:zed"
 ]
 
 [tasks."bootstrap:git"]
