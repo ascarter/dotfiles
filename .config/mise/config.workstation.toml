@@ -9,6 +9,9 @@ block = '''
 env = ["workstation"]
 '''
 
+[bootstrap.hooks.pre-packages]
+run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-repository.sh"'
+
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
 depends = [
@@ -61,6 +64,7 @@ description = "Install Zed"
 run = 'command -v zed >/dev/null 2>&1 || curl -fsSL https://zed.dev/install.sh | sh'
 
 [bootstrap.packages]
+"apt:code" = "latest"
 "brew-cask:bbedit" = "latest"
 "brew-cask:chatgpt" = "latest"
 "brew-cask:ghostty" = "latest"
@@ -79,5 +83,6 @@ run = 'command -v zed >/dev/null 2>&1 || curl -fsSL https://zed.dev/install.sh |
 "brew-cask:vivaldi" = "latest"
 "brew-cask:whatcable" = "latest"
 "brew-cask:ascarter/extras/apple-container" = "latest"
+"dnf:code" = "latest"
 "mas:6502835663" = "latest"                            # Proton Pass for Safari
 "mas:497799835" = "latest"                             # Xcode
