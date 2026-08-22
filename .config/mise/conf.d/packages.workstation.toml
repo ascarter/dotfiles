@@ -2,25 +2,25 @@
 run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-repository.sh"'
 
 [bootstrap.packages]
-"apt:code" = "latest"
-"brew-cask:bbedit" = "latest"
-"brew-cask:chatgpt" = "latest"
-"brew-cask:ghostty" = "latest"
-"brew-cask:github-copilot-app" = "latest"
-"brew-cask:netnewswire" = "latest"
-"brew-cask:obsidian" = "latest"
-"brew-cask:proton-drive" = "latest"
-"brew-cask:proton-mail" = "latest"
-"brew-cask:proton-mail-bridge" = "latest"
-"brew-cask:proton-meet" = "latest"
-"brew-cask:proton-pass" = "latest"
-"brew-cask:signal" = "latest"
-"brew-cask:spotify" = "latest"
-"brew-cask:tailscale-app" = "latest"
-"brew-cask:visual-studio-code" = "latest"
-"brew-cask:vivaldi" = "latest"
-"brew-cask:whatcable" = "latest"
-"brew-cask:ascarter/extras/apple-container" = "latest"
-"dnf:code" = "latest"
-"mas:6502835663" = "latest"                            # Proton Pass for Safari
-"mas:497799835" = "latest"                             # Xcode
+"apt:code" = { os = "linux" }
+"brew-cask:bbedit" = { os = "macos" }
+"brew-cask:chatgpt" = { os = "macos" }
+"brew-cask:ghostty" = { os = "macos" }
+"brew-cask:github-copilot-app" = { os = "macos" }
+"brew-cask:netnewswire" = { os = "macos" }
+"brew-cask:obsidian" = { os = "macos" }
+"brew-cask:proton-drive" = { os = "macos" }
+"brew-cask:proton-mail" = { os = "macos" }
+"brew-cask:proton-mail-bridge" = { os = "macos" }
+"brew-cask:proton-meet" = { os = "macos" }
+"brew-cask:proton-pass" = { os = "macos" }
+"brew-cask:signal" = { os = "macos" }
+"brew-cask:spotify" = { os = "macos" }
+"brew-cask:tailscale-app" = { os = "macos" }
+"brew-cask:visual-studio-code" = { os = "macos" }
+"brew-cask:vivaldi" = { os = "macos" }
+"brew-cask:whatcable" = { os = "macos" }
+"brew-cask:ascarter/extras/apple-container" = { os = "macos" }
+"dnf:code" = { os = "linux" }
+"mas:6502835663" = "latest"                                    # Proton Pass for Safari
+"mas:497799835" = "latest"                                     # Xcode
