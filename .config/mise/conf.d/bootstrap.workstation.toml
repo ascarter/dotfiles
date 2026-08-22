@@ -1,17 +1,3 @@
-# Optional desktop-workstation profile.
-#
-# Run `mise -E workstation bootstrap` or `mise run bootstrap:workstation` to
-# apply it without expanding the baseline used by WSL and Toolbox environments.
-
-[dotfiles."~/.miserc.toml/workstation"]
-comment = "#"
-block = '''
-env = ["workstation"]
-'''
-
-[bootstrap.hooks.pre-packages]
-run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-repository.sh"'
-
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
 depends = [
@@ -63,26 +49,3 @@ run = 'command -v copilot >/dev/null 2>&1 && copilot update || curl -fsSL https:
 description = "Install Zed"
 run = 'command -v zed >/dev/null 2>&1 || curl -fsSL https://zed.dev/install.sh | sh'
 
-[bootstrap.packages]
-"apt:code" = "latest"
-"brew-cask:bbedit" = "latest"
-"brew-cask:chatgpt" = "latest"
-"brew-cask:ghostty" = "latest"
-"brew-cask:github-copilot-app" = "latest"
-"brew-cask:netnewswire" = "latest"
-"brew-cask:obsidian" = "latest"
-"brew-cask:proton-drive" = "latest"
-"brew-cask:proton-mail" = "latest"
-"brew-cask:proton-mail-bridge" = "latest"
-"brew-cask:proton-meet" = "latest"
-"brew-cask:proton-pass" = "latest"
-"brew-cask:signal" = "latest"
-"brew-cask:spotify" = "latest"
-"brew-cask:tailscale-app" = "latest"
-"brew-cask:visual-studio-code" = "latest"
-"brew-cask:vivaldi" = "latest"
-"brew-cask:whatcable" = "latest"
-"brew-cask:ascarter/extras/apple-container" = "latest"
-"dnf:code" = "latest"
-"mas:6502835663" = "latest"                            # Proton Pass for Safari
-"mas:497799835" = "latest"                             # Xcode

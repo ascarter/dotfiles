@@ -1,0 +1,11 @@
+# Optional desktop-workstation profile.
+#
+# Run `mise -E workstation bootstrap` or `mise run bootstrap:workstation` to
+# apply it without expanding the baseline used by WSL and Toolbox environments.
+
+[dotfiles."~/.miserc.toml/workstation"]
+comment = "#"
+block = '''
+env = ["workstation"]
+'''
+

@@ -7,6 +7,7 @@ readonly DOTFILES_HOME="${HOME}/.dotfiles"
 readonly MISE_BIN="${HOME}/.local/bin/mise"
 
 export MISE_AUTO_ENV=true
+export MISE_ENV_CONF_D=true
 
 log() {
   printf 'bootstrap: %s\n' "$*"

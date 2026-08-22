@@ -1,18 +1,5 @@
 # macOS platform configuration
 
-[shell_alias]
-about = 'system_profiler SPHardwareDataType SPSoftwareDataType SPStorageDataType'
-battery = 'pmset -g batt'
-bbcurl = 'edcurl -e bbedit'
-dequarantine = 'xattr -d com.apple.quarantine'
-spotlight-rebuild = 'sudo mdutil -E /'
-sysver = 'sw_vers'
-protonmail-bridge = '"/Applications/Proton Mail Bridge.app/Contents/MacOS/Proton Mail Bridge"'
-tailscale = '/Applications/Tailscale.app/Contents/MacOS/Tailscale'
-
-[tools]
-mas = "latest"
-
 [bootstrap.brew]
 adopt = true
 

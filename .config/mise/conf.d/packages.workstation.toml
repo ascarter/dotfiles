@@ -1,0 +1,26 @@
+[bootstrap.hooks.pre-packages]
+run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-repository.sh"'
+
+[bootstrap.packages]
+"apt:code" = "latest"
+"brew-cask:bbedit" = "latest"
+"brew-cask:chatgpt" = "latest"
+"brew-cask:ghostty" = "latest"
+"brew-cask:github-copilot-app" = "latest"
+"brew-cask:netnewswire" = "latest"
+"brew-cask:obsidian" = "latest"
+"brew-cask:proton-drive" = "latest"
+"brew-cask:proton-mail" = "latest"
+"brew-cask:proton-mail-bridge" = "latest"
+"brew-cask:proton-meet" = "latest"
+"brew-cask:proton-pass" = "latest"
+"brew-cask:signal" = "latest"
+"brew-cask:spotify" = "latest"
+"brew-cask:tailscale-app" = "latest"
+"brew-cask:visual-studio-code" = "latest"
+"brew-cask:vivaldi" = "latest"
+"brew-cask:whatcable" = "latest"
+"brew-cask:ascarter/extras/apple-container" = "latest"
+"dnf:code" = "latest"
+"mas:6502835663" = "latest"                            # Proton Pass for Safari
+"mas:497799835" = "latest"                             # Xcode

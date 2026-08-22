@@ -1,0 +1,5 @@
+[shell_alias]
+about = 'fastfetch'
+battery = 'upower --battery'
+pbcopy = 'wl-copy'
+pbpaste = 'wl-paste'
