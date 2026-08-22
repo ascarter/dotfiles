@@ -1,5 +1,5 @@
 [bootstrap.hooks.pre-packages]
-run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-repository.sh"'
+run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/repos.sh"'
 
 [bootstrap.packages]
 "apt:code" = { os = "linux" }
@@ -21,5 +21,5 @@ run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/vscode-re
 "brew-cask:vivaldi" = { os = "macos" }
 "brew-cask:whatcable" = { os = "macos" }
 "dnf:code" = { os = "linux" }
-"mas:6502835663" = "latest"                                    # Proton Pass for Safari
-"mas:497799835" = "latest"                                     # Xcode
+"mas:6502835663" = "latest"                       # Proton Pass for Safari
+"mas:497799835" = "latest"                        # Xcode

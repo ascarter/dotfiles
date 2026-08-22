@@ -18,7 +18,7 @@ depends = [
   "bootstrap:install:claude",
   "bootstrap:install:codex",
   "bootstrap:install:copilot",
-  "bootstrap:install:zed"
+  "bootstrap:install:zed",
 ]
 
 [tasks."bootstrap:git"]
