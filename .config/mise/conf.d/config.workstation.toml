@@ -15,9 +15,7 @@ depends = [
   "bootstrap:container-dns",
   "bootstrap:git",
   "bootstrap:git-lfs",
-  "bootstrap:install:claude",
-  "bootstrap:install:codex",
-  "bootstrap:install:copilot",
+  "bootstrap:install:agents",
   "bootstrap:install:zed",
 ]
 
@@ -29,7 +27,7 @@ arg "[email]" help="Git user.email"
 env = { GITCONFIG_FILE = "${GITCONFIG_FILE:-$HOME/.gitconfig}" }
 description = "Configure Git settings"
 run = [
-  'gh auth status --active || gh auth login --git-protocol=https',
+  'gh auth status --active || gh auth login --web --clipboard --git-protocol=https',
   'git config set --file ${GITCONFIG_FILE} user.name "${usage_name:-$(gh api user --jq .name)}"',
   'git config set --file ${GITCONFIG_FILE} user.email "${usage_email:-$(gh api user --jq .login)@users.noreply.github.com}"',
   'gh auth setup-git --hostname github.com',
@@ -45,17 +43,28 @@ description = "Configure Git Credential Manager for Azure DevOps"
 depends = ["bootstrap:git"]
 run = 'git-credential-manager configure'
 
+[tasks."bootstrap:install:agents"]
+description = "Install AI coding agents"
+depends = ["bootstrap:git"]
+run = [
+  { tasks = [
+    "bootstrap:install:claude",
+    "bootstrap:install:codex",
+    "bootstrap:install:copilot",
+  ] },
+]
+
 [tasks."bootstrap:install:claude"]
 description = "Install Claude Code CLI"
 run = 'command -v claude >/dev/null 2>&1 && claude update || curl -fsSL https://claude.ai/install.sh | bash'
 
 [tasks."bootstrap:install:codex"]
 description = "Install Codex CLI"
-run = 'curl -fsSL https://chatgpt.com/codex/install.sh | sh'
+run = 'curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=true sh'
 
 [tasks."bootstrap:install:copilot"]
 description = "Install GitHub Copilot CLI"
-run = 'command -v copilot >/dev/null 2>&1 && copilot update || curl -fsSL https://gh.io/copilot-install | bash'
+run = 'command -v copilot >/dev/null 2>&1 && copilot update || curl -fsSL https://gh.io/copilot-install | PATH="$HOME/.local/bin:$PATH" bash'
 
 [tasks."bootstrap:install:zed"]
 description = "Install Zed"

@@ -25,7 +25,10 @@ EOF
 configure_dnf() {
   sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
   sudo dnf install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-  sudo dnf config-manager addrepo --from-repofile=https://packages.microsoft.com/yumrepos/vscode/config.repo --save-filename=vscode
+
+  if ! dnf repo list --json vscode-yum | jq -e 'length > 0' >/dev/null; then
+    sudo dnf config-manager addrepo --from-repofile=https://packages.microsoft.com/yumrepos/vscode/config.repo --save-filename=vscode
+  fi
 }
 
 configure_flatpak() {
