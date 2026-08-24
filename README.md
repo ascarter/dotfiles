@@ -55,14 +55,17 @@ from the default bootstrap. The workstation profile also installs Zsh and sets
 it as the login shell once it is available. To install the workstation profile
 on a new machine, use one of these commands:
 
+### From the published bootstrap script
 ```sh
-# From the published bootstrap script
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | MISE_ENV=workstation sh
+```
 
-# From an existing checkout
+### From an existing checkout
+```
 MISE_ENV=workstation ./bootstrap.sh
 ```
 
+### Convert an existing default installation into a workstation
 To turn an existing default installation into a workstation, run this from the
 checkout:
 
