@@ -11,12 +11,16 @@ env = ["workstation"]
 
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
-depends = [
-  "bootstrap:container-dns",
-  "bootstrap:git",
-  "bootstrap:git-lfs",
-  "bootstrap:install:agents",
-  "bootstrap:install:zed",
+run = [
+  { tasks = [
+    "bootstrap:git",
+    "bootstrap:git-lfs",
+    "bootstrap:container-dns",
+    "bootstrap:install:claude",
+    "bootstrap:install:codex",
+    "bootstrap:install:copilot",
+    "bootstrap:install:zed",
+  ] },
 ]
 
 [tasks."bootstrap:git"]
@@ -26,6 +30,7 @@ arg "[email]" help="Git user.email"
 '''
 env = { GITCONFIG_FILE = "${GITCONFIG_FILE:-$HOME/.gitconfig}" }
 description = "Configure Git settings"
+interactive = true
 run = [
   'gh auth status --active || gh auth login --web --clipboard --git-protocol=https',
   'git config set --file ${GITCONFIG_FILE} user.name "${usage_name:-$(gh api user --jq .name)}"',
@@ -43,29 +48,40 @@ description = "Configure Git Credential Manager for Azure DevOps"
 depends = ["bootstrap:git"]
 run = 'git-credential-manager configure'
 
-[tasks."bootstrap:install:agents"]
-description = "Install AI coding agents"
-depends = ["bootstrap:git"]
-run = [
-  { tasks = [
-    "bootstrap:install:claude",
-    "bootstrap:install:codex",
-    "bootstrap:install:copilot",
+[tasks."bootstrap:install:claude"]
+description = "Install Claude Code CLI"
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "claude",
+    "https://claude.ai/install.sh",
+    "bash",
   ] },
 ]
 
-[tasks."bootstrap:install:claude"]
-description = "Install Claude Code CLI"
-run = 'command -v claude >/dev/null 2>&1 && claude update || curl -fsSL https://claude.ai/install.sh | bash'
-
 [tasks."bootstrap:install:codex"]
 description = "Install Codex CLI"
-run = 'curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=true sh'
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "codex",
+    "https://chatgpt.com/codex/install.sh",
+  ], env = { CODEX_NON_INTERACTIVE = "true" } },
+]
 
 [tasks."bootstrap:install:copilot"]
 description = "Install GitHub Copilot CLI"
-run = 'command -v copilot >/dev/null 2>&1 && copilot update || curl -fsSL https://gh.io/copilot-install | PATH="$HOME/.local/bin:$PATH" bash'
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "copilot",
+    "https://gh.io/copilot-install",
+    "bash",
+  ] },
+]
 
 [tasks."bootstrap:install:zed"]
 description = "Install Zed"
-run = 'command -v zed >/dev/null 2>&1 || curl -fsSL https://zed.dev/install.sh | sh'
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "zed",
+    "https://zed.dev/install.sh",
+  ] },
+]

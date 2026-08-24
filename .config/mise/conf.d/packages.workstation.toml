@@ -1,8 +1,42 @@
+[tasks."bootstrap:rpm:repos"]
+description = "Configure Fedora package repositories"
+run = [
+  { task = "bootstrap:rpm:repo-add", args = [
+    "https://pkgs.tailscale.com/stable/fedora/tailscale.repo",
+  ] },
+  { task = "bootstrap:rpm:repo-add", args = [
+    "https://packages.microsoft.com/yumrepos/vscode/config.repo",
+    "vscode.repo",
+  ] },
+]
+
+[tasks."bootstrap:flatpak:repos"]
+description = "Configure Flatpak repositories"
+run = [
+  { task = "bootstrap:flatpak:remote-add", args = [
+    "https://flathub.org/repo/flathub.flatpakrepo",
+  ] },
+  { task = "bootstrap:flatpak:remote-add", args = [
+    "https://apt.pop-os.org/cosmic/cosmic.flatpakrepo",
+  ] },
+]
+
+[tasks."bootstrap:rpm:apps"]
+description = "Install apps directly from RPMs"
+run = [
+  { task = "bootstrap:rpm:install", args = [
+    "chatgpt",
+    "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm",
+  ] },
+]
+
 [bootstrap.hooks.pre-packages]
-run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/repos.sh"'
+run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
+
+# [bootstrap.hooks.post-packages]
+# run = 'if [ "$(uname -s)" = "Linux" ]; then mise run rpm:configure; fi'
 
 [bootstrap.packages]
-"apt:code" = { os = "linux" }
 "brew-cask:bbedit" = { os = "macos" }
 "brew-cask:chatgpt" = { os = "macos" }
 "brew-cask:ghostty" = { os = "macos" }
@@ -20,6 +54,5 @@ run = '"${DOTFILES_HOME:-$HOME/.dotfiles}/.config/mise/tasks/bootstrap/repos.sh"
 "brew-cask:visual-studio-code" = { os = "macos" }
 "brew-cask:vivaldi" = { os = "macos" }
 "brew-cask:whatcable" = { os = "macos" }
-"dnf:code" = { os = "linux" }
 "mas:6502835663" = "latest"                       # Proton Pass for Safari
 "mas:497799835" = "latest"                        # Xcode
