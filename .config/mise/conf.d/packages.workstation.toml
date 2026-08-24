@@ -26,15 +26,15 @@ description = "Install apps directly from RPMs"
 run = [
   { task = "bootstrap:rpm:install", args = [
     "chatgpt",
-    "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm",
+    "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
   ] },
 ]
 
 [bootstrap.hooks.pre-packages]
 run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
 
-# [bootstrap.hooks.post-packages]
-# run = 'if [ "$(uname -s)" = "Linux" ]; then mise run rpm:configure; fi'
+[bootstrap.hooks.post-packages]
+run = ["mise run bootstrap:rpm:apps", "mise run bootstrap:fix-openai-rpm"]
 
 [bootstrap.packages]
 "brew-cask:bbedit" = { os = "macos" }
@@ -56,3 +56,58 @@ run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
 "brew-cask:whatcable" = { os = "macos" }
 "mas:6502835663" = "latest"                       # Proton Pass for Safari
 "mas:497799835" = "latest"                        # Xcode
+
+[tasks."bootstrap:install:apps"]
+description = "Install workstation apps"
+run = [
+  { tasks = [
+    "bootstrap:install:claude",
+    "bootstrap:install:codex",
+    "bootstrap:install:copilot",
+    "bootstrap:install:zed",
+  ] },
+]
+[tasks."bootstrap:install:claude"]
+description = "Install Claude Code CLI"
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "claude",
+    "https://claude.ai/install.sh",
+    "bash",
+  ] },
+]
+
+[tasks."bootstrap:install:codex"]
+description = "Install Codex CLI"
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "codex",
+    "https://chatgpt.com/codex/install.sh",
+  ], env = { CODEX_NON_INTERACTIVE = "true" } },
+]
+
+[tasks."bootstrap:install:copilot"]
+description = "Install GitHub Copilot CLI"
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "copilot",
+    "https://gh.io/copilot-install",
+    "bash",
+  ] },
+]
+
+[tasks."bootstrap:install:zed"]
+description = "Install Zed"
+depends = [
+  { task = "bootstrap:curl-install", args = [
+    "zed",
+    "https://zed.dev/install.sh",
+  ] },
+]
+
+[tasks."bootstrap:fix-openai-rpm"]
+description = "Fix OpenAI OpenPGP key"
+hide = true
+run = '''
+[ "$(uname -s)" = "Linux" ] && gpg --enarmor < /etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt | sudo tee /etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt.asc >/dev/null
+'''

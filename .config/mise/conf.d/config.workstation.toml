@@ -16,10 +16,7 @@ run = [
     "bootstrap:git",
     "bootstrap:git-lfs",
     "bootstrap:container-dns",
-    "bootstrap:install:claude",
-    "bootstrap:install:codex",
-    "bootstrap:install:copilot",
-    "bootstrap:install:zed",
+    "bootstrap:install:apps",
   ] },
 ]
 
@@ -47,41 +44,3 @@ run = 'git lfs install --skip-repo'
 description = "Configure Git Credential Manager for Azure DevOps"
 depends = ["bootstrap:git"]
 run = 'git-credential-manager configure'
-
-[tasks."bootstrap:install:claude"]
-description = "Install Claude Code CLI"
-depends = [
-  { task = "bootstrap:curl-install", args = [
-    "claude",
-    "https://claude.ai/install.sh",
-    "bash",
-  ] },
-]
-
-[tasks."bootstrap:install:codex"]
-description = "Install Codex CLI"
-depends = [
-  { task = "bootstrap:curl-install", args = [
-    "codex",
-    "https://chatgpt.com/codex/install.sh",
-  ], env = { CODEX_NON_INTERACTIVE = "true" } },
-]
-
-[tasks."bootstrap:install:copilot"]
-description = "Install GitHub Copilot CLI"
-depends = [
-  { task = "bootstrap:curl-install", args = [
-    "copilot",
-    "https://gh.io/copilot-install",
-    "bash",
-  ] },
-]
-
-[tasks."bootstrap:install:zed"]
-description = "Install Zed"
-depends = [
-  { task = "bootstrap:curl-install", args = [
-    "zed",
-    "https://zed.dev/install.sh",
-  ] },
-]
