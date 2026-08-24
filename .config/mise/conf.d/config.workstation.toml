@@ -1,13 +1,16 @@
 # Optional desktop-workstation profile.
 #
-# Run `mise -E workstation bootstrap` or `mise run bootstrap:workstation` to
-# apply it without expanding the baseline used by WSL and Toolbox environments.
+# Run `mise run bootstrap:workstation` to enable and apply it without expanding
+# the baseline used by WSL and Toolbox environments.
 
 [dotfiles."~/.miserc.toml/workstation"]
 comment = "#"
 block = '''
 env = ["workstation"]
 '''
+
+[bootstrap.mise_shell_activate]
+zsh = true
 
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
@@ -18,6 +21,7 @@ run = [
     "bootstrap:container-dns",
     "bootstrap:install:apps",
   ] },
+  "mise run bootstrap:login-shell",
 ]
 
 [tasks."bootstrap:git"]

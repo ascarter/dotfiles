@@ -2,12 +2,15 @@
 idiomatic_version_file_enable_tools = ["rust"]
 python.uv_venv_auto = "source"
 
-[bootstrap.user]
-login_shell = "/bin/zsh"
-
 [bootstrap.mise_shell_activate]
 bash = true
-zsh = true
+
+[tasks."bootstrap:workstation"]
+description = "Enable and bootstrap the workstation profile"
+run = [
+  'mise -E workstation bootstrap dotfiles apply "~/.miserc.toml/workstation"',
+  "mise bootstrap",
+]
 
 [bootstrap.repos]
 "~/.dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }

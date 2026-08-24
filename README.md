@@ -51,8 +51,9 @@ configuration. It is enabled only when explicitly requested, keeping the
 default bootstrap suitable for WSL and Toolbox environments.
 
 Personal Git setup and workstation applications are intentionally excluded
-from the default bootstrap. To install the workstation profile on a new
-machine, use one of these commands:
+from the default bootstrap. The workstation profile also installs Zsh and sets
+it as the login shell once it is available. To install the workstation profile
+on a new machine, use one of these commands:
 
 ```sh
 # From the published bootstrap script
@@ -66,12 +67,16 @@ To turn an existing default installation into a workstation, run this from the
 checkout:
 
 ```sh
-mise -E workstation bootstrap
+mise run bootstrap:workstation
 ```
 
 The profile defines the `bootstrap` task for personal Git setup and workstation
 applications, and writes a managed `env = ["workstation"]` block to
 `~/.miserc.toml` so later bootstraps retain the selected profile.
+
+On rpm-ostree systems, Zsh is available only after the deployment containing it
+has been booted. Reboot after the first workstation bootstrap, then rerun it to
+set Zsh as the login shell.
 
 ## Update an existing system
 
