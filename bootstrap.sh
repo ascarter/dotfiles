@@ -34,8 +34,9 @@ checkout() {
 	fi
 
 	if [ -d "$checkout_dir" ]; then
+		checkout_path="$(CDPATH= cd "$checkout_dir" && pwd -P)"
 		if checkout_root="$(git -C "$checkout_dir" rev-parse --show-toplevel 2>/dev/null)" &&
-			[ "$checkout_root" = "$checkout_dir" ]; then
+			[ "$checkout_root" = "$checkout_path" ]; then
 			log "Dotfiles checkout exists at $checkout_dir"
 			return 0
 		fi
