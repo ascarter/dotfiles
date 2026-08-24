@@ -1,11 +1,11 @@
 #!/bin/sh
-#MISE description="Create the container DNS domain"
-#MISE raw=true
+#MISE description="Create container DNS domain"
+#MISE interactive=true
+#USAGE arg "[domain]" help="DNS domain (default test)" default="test"
 
-if [ "$(uname -s)" != "Darwin" ] || ! command -v container >/dev/null 2>&1; then
-  exit 0
-fi
+[ "$(uname -s)" = "Darwin" ] || exit 0
+command -v container >/dev/null 2>&1 || exit 0
 
-if ! container system dns list --quiet | grep -Fxq test; then
-  sudo -p 'Container DNS setup (create test) password: ' container system dns create test
+if ! container system dns list --quiet | grep -Fxq "${usage_domain}"; then
+  sudo -p 'Container DNS setup (create ${usage_domain}) password: ' container system dns create ${usage_domain}
 fi
