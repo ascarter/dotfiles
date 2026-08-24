@@ -7,3 +7,10 @@
 "pacman:zsh" = "latest"
 "apk:git" = "latest"
 "apk:zsh" = "latest"
+
+[bootstrap.hooks.post-packages]
+run = ["mise run bootstrap:rpm:overlay"]
+
+[tasks."bootstrap:rpm:overlay"]
+description = "Install base RPM overlays"
+run = [{ task = "bootstrap:rpm:install", args = ["zsh"] }]

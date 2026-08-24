@@ -21,11 +21,18 @@ run = [
   ] },
 ]
 
-[tasks."bootstrap:rpm:apps"]
-description = "Install apps directly from RPMs"
+[tasks."bootstrap:rpm:overlay:workstation"]
+description = "Install workstation RPM overlays"
 run = [
   { task = "bootstrap:rpm:install", args = [
+    "bolt",
+    "solaar",
+    "steam-devices",
+    "cosmic-monitor",
+  ] },
+  { task = "bootstrap:rpm:install", args = [
     "chatgpt",
+    "--url",
     "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
   ] },
 ]
@@ -34,7 +41,10 @@ run = [
 run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
 
 [bootstrap.hooks.post-packages]
-run = ["mise run bootstrap:rpm:apps", "mise run bootstrap:fix-openai-rpm"]
+run = [
+  "mise run bootstrap:rpm:overlay:workstation",
+  "mise run bootstrap:fix-openai-rpm",
+]
 
 [bootstrap.packages]
 "brew-cask:bbedit" = { os = "macos" }

@@ -1,17 +1,18 @@
 #!/bin/sh
-#MISE description="Install an RPM from a URL"
+#MISE description="Install RPM package"
 #MISE hide=true
-#USAGE arg "<name>" help="RPM package name"
-#USAGE arg "<url>" help="RPM package URL"
+#USAGE arg "<packages>..." help="RPM package names"
+#USAGE flag "--url <url>" help="RPM package URL or local path (requires one package name)"
 
 set -eu
 
-package=${usage_name:?}
-rpm_url=${usage_url:?}
+rpm_url=${usage_url:-}
+
+# usage encodes variadic values as shell-escaped words.
+eval "set -- ${usage_packages:?}"
 
 [ "$(uname -s)" = "Linux" ] || exit 0
 command -v rpm >/dev/null 2>&1 || exit 0
-command -v curl >/dev/null 2>&1 || exit 0
 
 if command -v rpm-ostree >/dev/null 2>&1 && rpm-ostree status >/dev/null 2>&1; then
   installer=rpm-ostree
@@ -21,21 +22,25 @@ else
   exit 0
 fi
 
-if rpm -q --quiet "$package"; then
-  echo "$package is already installed"
-  exit 0
+if [ -n "$rpm_url" ]; then
+  if [ "$#" -ne 1 ]; then
+    echo "--url requires exactly one package name" >&2
+    exit 2
+  fi
+
+  if rpm -q --quiet "$1"; then
+    echo "$1 is already installed"
+    exit 0
+  fi
+
+  set -- "$rpm_url"
 fi
-
-tmp=$(mktemp)
-trap 'rm -f "$tmp"' EXIT
-
-curl -fsSL -o "$tmp" "$rpm_url"
 
 case "$installer" in
   rpm-ostree)
-    rpm-ostree install -y --idempotent "$tmp"
+    rpm-ostree install -y --idempotent "$@"
     ;;
   dnf)
-    sudo dnf install -y "$tmp"
+    sudo dnf install -y "$@"
     ;;
 esac
