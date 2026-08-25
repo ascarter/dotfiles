@@ -12,6 +12,7 @@ run = [
     "https://packages.microsoft.com/yumrepos/vscode/config.repo",
     "vscode.repo",
   ] },
+  { task = "bootstrap:rpm:install-proton-vpn-beta-repo" },
 ]
 
 [tasks."bootstrap:flatpak:repos"]
@@ -34,6 +35,7 @@ run = [
     "bolt",
     "cosmic-monitor",
     "ghostty",
+    "proton-vpn-gnome-desktop",
     "solaar",
     "steam-devices",
   ] },
@@ -62,10 +64,6 @@ run = [
     "chatgpt",
     "--url",
     "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
-  ] },
-  { task = "bootstrap:rpm:install-proton-vpn-beta-repo" },
-  { task = "bootstrap:rpm:install", args = [
-    "proton-vpn-gnome-desktop",
   ] },
   { task = "bootstrap:rpm:install-proton", args = [
     "proton-authenticator",
