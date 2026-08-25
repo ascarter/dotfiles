@@ -14,15 +14,7 @@ zsh = true
 
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
-run = [
-  { tasks = [
-    "bootstrap:git",
-    "bootstrap:git-lfs",
-    "bootstrap:container-dns",
-    "bootstrap:install:apps",
-  ] },
-  "mise run bootstrap:login-shell",
-]
+run = [{ tasks = ["bootstrap:install:apps"] }, "mise run bootstrap:login-shell"]
 
 [tasks."bootstrap:git"]
 usage = '''
@@ -30,7 +22,7 @@ arg "[name]" help="Git user.name"
 arg "[email]" help="Git user.email"
 '''
 env = { GITCONFIG_FILE = "${GITCONFIG_FILE:-$HOME/.gitconfig}" }
-description = "Configure Git settings"
+description = "Configure Git settings and GitHub authentication"
 interactive = true
 run = [
   'gh auth status --active || gh auth login --web --clipboard --git-protocol=https',
@@ -41,7 +33,6 @@ run = [
 
 [tasks."bootstrap:git-lfs"]
 description = "Configure Git LFS"
-depends = ["bootstrap:git"]
 run = 'git lfs install --skip-repo'
 
 [tasks."bootstrap:gcm"]

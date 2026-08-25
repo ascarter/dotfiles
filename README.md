@@ -73,9 +73,23 @@ checkout:
 mise run bootstrap:workstation
 ```
 
-The profile defines the `bootstrap` task for personal Git setup and workstation
-applications, and writes a managed `env = ["workstation"]` block to
+The profile defines the `bootstrap` task for workstation applications and the
+login shell, and writes a managed `env = ["workstation"]` block to
 `~/.miserc.toml` so later bootstraps retain the selected profile.
+
+Configure personal Git identity and GitHub authentication explicitly when needed:
+
+```sh
+mise run bootstrap:git
+```
+
+The related personal Git and development-environment tasks are also opt-in:
+
+```sh
+mise run bootstrap:git-lfs
+mise run bootstrap:gcm
+mise run bootstrap:container-dns
+```
 
 On rpm-ostree systems, Zsh is available only after the deployment containing it
 has been booted. Reboot after the first workstation bootstrap, then rerun it to

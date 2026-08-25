@@ -66,6 +66,7 @@ run = [
 "brew-cask:signal" = { os = "macos" }
 "brew-cask:spotify" = { os = "macos" }
 "brew-cask:tailscale-app" = { os = "macos" }
+"brew-cask:utm" = { os = "macos" }
 "brew-cask:visual-studio-code" = { os = "macos" }
 "brew-cask:vivaldi" = { os = "macos" }
 "brew-cask:whatcable" = { os = "macos" }
@@ -119,10 +120,3 @@ depends = [
     "https://zed.dev/install.sh",
   ] },
 ]
-
-[tasks."bootstrap:fix-openai-rpm"]
-description = "Fix OpenAI OpenPGP key"
-hide = true
-run = '''
-[ "$(uname -s)" = "Linux" ] && gpg --enarmor < /etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt | sudo tee /etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt.asc >/dev/null
-'''
