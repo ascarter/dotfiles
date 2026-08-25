@@ -89,15 +89,16 @@ Mise loads `config.toml` as the portable baseline and configuration fragments
 from `conf.d/` for active environments. The optional
 `config.workstation.toml` profile contains desktop-workstation configuration.
 It is enabled only when explicitly requested, keeping the default bootstrap
-suitable for WSL and Toolbox environments. On Fedora, its managed profile
-block also enables the `fedora` environment, which loads the Fedora-specific
-configuration and package fragments.
+suitable for WSL and Toolbox environments. On systems with `/etc/os-release`,
+its managed profile block also enables the distribution's `ID` environment
+(for example, `fedora`, `ubuntu`, or `arch`), which loads matching
+distribution-specific fragments.
 
 Personal Git setup and workstation applications are intentionally excluded
 from the default bootstrap. The workstation profile configures Zsh as the login
-shell after the documented prerequisites are installed; on Fedora, it also
-declares Zsh for the appropriate package manager. To install the workstation
-profile on a new machine, use one of these commands:
+shell after the documented prerequisites are installed; on Fedora, Ubuntu, and
+Arch, it also declares Zsh for the appropriate package manager. To install the
+workstation profile on a new machine, use one of these commands:
 
 ### From the published bootstrap script
 ```sh
@@ -119,9 +120,9 @@ mise run bootstrap:workstation
 
 The profile defines the `bootstrap` task for workstation applications and the
 login shell, and writes a managed environment block to `~/.miserc.toml` so
-later bootstraps retain the selected profile. The block is
-`env = ["workstation", "fedora"]` on Fedora and `env = ["workstation"]`
-elsewhere.
+later bootstraps retain the selected profile. The block includes the
+distribution `ID` when `/etc/os-release` is present—for example,
+`env = ["workstation", "fedora"]`—and is `env = ["workstation"]` elsewhere.
 
 Configure personal Git identity and GitHub authentication explicitly when needed:
 

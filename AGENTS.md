@@ -15,11 +15,12 @@ Read `README.md` before changing this repository.
   `config.workstation.toml` owns the optional workstation profile;
   `config.fedora.toml` owns the Fedora-only `rpm-ostree` plugin; and
   `packages.fedora.toml` owns Fedora repositories, packages, and RPM app
-  setup.
+  setup. `packages.ubuntu.toml` and `packages.arch.toml` own their
+  distributions' workstation prerequisites.
 - `.config/mise/miserc.toml` enables mise automatic environment detection so
   the repository config and applicable fragments load from this checkout. The
   workstation profile writes a rendered `~/.miserc.toml` block that activates
-  `workstation` and, on Fedora, `fedora`.
+  `workstation` and, when `/etc/os-release` is present, its distribution `ID`.
 - `bootstrap.sh` handles the initial mise installation and repository clone,
   trusts the checkout, then forwards arguments to `mise bootstrap`.
 - `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
