@@ -1,6 +1,6 @@
-{% set distro_id = exec(command='if [ -r /etc/os-release ]; then . /etc/os-release && printf "%s" "$ID"; fi') | trim %}
-{% if distro_id != "" %}
+{%- set distro_id = exec(command='if [ -r /etc/os-release ]; then . /etc/os-release && printf "%s" "$ID"; fi') | trim -%}
+{%- if distro_id != "" -%}
 env = ["workstation", "{{ distro_id }}"]
-{% else %}
+{%- else -%}
 env = ["workstation"]
-{% endif %}
+{%- endif -%}

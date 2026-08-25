@@ -39,4 +39,4 @@ esac
 repo_filename="$copr_owner-$copr_repo-fedora-$VERSION_ID.repo"
 repo_url="https://copr.fedorainfracloud.org/coprs/$copr_owner/$copr_repo/repo/fedora-$VERSION_ID/$repo_filename"
 
-exec mise run bootstrap:rpm:repo-add "$repo_url" "$repo_filename"
+exec mise run bootstrap:rpm:repo "$repo_url" "$repo_filename"
