@@ -14,7 +14,7 @@ run = [
   ] },
   { task = "bootstrap:rpm:repos:chatgpt" },
   { task = "bootstrap:rpm:repo-add", args = [
-    "{{ config_root }}/repositories/protonvpn-beta.repo",
+    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/protonvpn-beta.repo",
   ] },
 ]
 
@@ -23,11 +23,11 @@ description = "Configure the ChatGPT RPM repository"
 hide = true
 run = [
   { task = "bootstrap:rpm:gpgkey-add", args = [
-    "{{ config_root }}/repositories/RPM-GPG-KEY-chatgpt.asc",
+    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/RPM-GPG-KEY-chatgpt.asc",
     "RPM-GPG-KEY-chatgpt.asc",
   ] },
   { task = "bootstrap:rpm:repo-add", args = [
-    "{{ config_root }}/repositories/chatgpt.repo",
+    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/chatgpt.repo",
   ] },
 ]
 
