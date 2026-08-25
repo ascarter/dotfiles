@@ -1,5 +1,6 @@
 [tasks."bootstrap:rpm:repos"]
 description = "Configure Fedora package repositories"
+hide = true
 run = [
   { task = "bootstrap:rpm:repo-add", args = [
     "https://pkgs.tailscale.com/stable/fedora/tailscale.repo",
@@ -12,6 +13,7 @@ run = [
 
 [tasks."bootstrap:flatpak:repos"]
 description = "Configure Flatpak repositories"
+hide = true
 run = [
   { task = "bootstrap:flatpak:remote-add", args = [
     "https://flathub.org/repo/flathub.flatpakrepo",
@@ -23,6 +25,7 @@ run = [
 
 [tasks."bootstrap:rpm:overlay:workstation"]
 description = "Install workstation RPM overlays"
+hide = true
 run = [
   { task = "bootstrap:rpm:install", args = [
     "bolt",
@@ -30,6 +33,12 @@ run = [
     "steam-devices",
     "cosmic-monitor",
   ] },
+]
+
+[tasks."bootstrap:rpm:overlay:apps"]
+description = "Install app RPM overlays"
+hide = true
+run = [
   { task = "bootstrap:rpm:install", args = [
     "chatgpt",
     "--url",
@@ -43,6 +52,7 @@ run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
 [bootstrap.hooks.post-packages]
 run = [
   "mise run bootstrap:rpm:overlay:workstation",
+  "mise run bootstrap:rpm:overlay:apps",
   "mise run bootstrap:fix-openai-rpm",
 ]
 
@@ -73,6 +83,7 @@ run = [
 
 [tasks."bootstrap:install:apps"]
 description = "Install workstation apps"
+hide = true
 run = [
   { tasks = [
     "bootstrap:install:claude",
@@ -81,8 +92,10 @@ run = [
     "bootstrap:install:zed",
   ] },
 ]
+
 [tasks."bootstrap:install:claude"]
 description = "Install Claude Code CLI"
+hide = true
 depends = [
   { task = "bootstrap:curl-install", args = [
     "claude",
@@ -93,6 +106,7 @@ depends = [
 
 [tasks."bootstrap:install:codex"]
 description = "Install Codex CLI"
+hide = true
 depends = [
   { task = "bootstrap:curl-install", args = [
     "codex",
@@ -102,6 +116,7 @@ depends = [
 
 [tasks."bootstrap:install:copilot"]
 description = "Install GitHub Copilot CLI"
+hide = true
 depends = [
   { task = "bootstrap:curl-install", args = [
     "copilot",
@@ -112,6 +127,7 @@ depends = [
 
 [tasks."bootstrap:install:zed"]
 description = "Install Zed"
+hide = true
 depends = [
   { task = "bootstrap:curl-install", args = [
     "zed",

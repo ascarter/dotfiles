@@ -6,7 +6,7 @@ python.uv_venv_auto = "source"
 bash = true
 
 [tasks."bootstrap:workstation"]
-description = "Enable and bootstrap the workstation profile"
+description = "Enable workstation profile"
 run = [
   'mise -E workstation bootstrap dotfiles apply "~/.miserc.toml/workstation"',
   "mise bootstrap",
