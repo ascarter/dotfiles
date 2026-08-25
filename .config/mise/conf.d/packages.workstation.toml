@@ -39,6 +39,21 @@ run = [
   ] },
 ]
 
+[tasks."bootstrap:rpm:install-proton-vpn-beta-repo"]
+description = "Install the Proton VPN beta repository"
+hide = true
+run = '''
+if [ "$(uname -s)" != Linux ] || [ ! -f /etc/os-release ]; then
+  exit 0
+fi
+
+. /etc/os-release
+[ "${ID:-}" = fedora ] || exit 0
+
+mise run bootstrap:rpm:install protonvpn-beta-release --url \
+  "https://repo.protonvpn.com/fedora-${VERSION_ID}-unstable/protonvpn-beta-release/protonvpn-beta-release-1.0.4-1.noarch.rpm"
+'''
+
 [tasks."bootstrap:rpm:overlay:apps"]
 description = "Install app RPM overlays"
 hide = true
@@ -47,6 +62,10 @@ run = [
     "chatgpt",
     "--url",
     "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
+  ] },
+  { task = "bootstrap:rpm:install-proton-vpn-beta-repo" },
+  { task = "bootstrap:rpm:install", args = [
+    "proton-vpn-gnome-desktop",
   ] },
   { task = "bootstrap:rpm:install-proton", args = [
     "proton-authenticator",
