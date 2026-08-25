@@ -44,6 +44,22 @@ run = [
     "--url",
     "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
   ] },
+  { task = "bootstrap:rpm:install-proton", args = [
+    "proton-authenticator",
+    "https://proton.me/download/authenticator/linux/version.json",
+  ] },
+  { task = "bootstrap:rpm:install-proton", args = [
+    "proton-mail",
+    "https://proton.me/download/mail/linux/version.json",
+  ] },
+  { task = "bootstrap:rpm:install-proton", args = [
+    "proton-pass",
+    "https://proton.me/download/PassDesktop/linux/x64/version.json",
+  ] },
+  { task = "bootstrap:rpm:install-proton", args = [
+    "proton-meet",
+    "https://proton.me/download/meet/linux/version.json",
+  ] },
 ]
 
 [bootstrap.hooks.pre-packages]
