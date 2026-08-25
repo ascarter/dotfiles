@@ -9,22 +9,73 @@ Portable, XDG-based development configuration managed by
 
 Bootstrap requires `curl` and Git. Install them before running the script:
 
+<details open>
+<summary>Fedora Atomic</summary>
+
+On a newly installed system, update the initial deployment and reboot before
+bootstrap. The installer image can be behind the current RPM repositories;
+updating first prevents dependency conflicts while layering workstation RPMs
+such as `cosmic-monitor`.
+
 ```sh
-# Fedora
+rpm-ostree upgrade
+systemctl reboot
+```
+
+After the reboot, verify that the bootstrap prerequisites are available:
+
+```sh
+command -v curl && command -v git
+```
+
+If either command is missing, layer both packages and reboot once more:
+
+```sh
+rpm-ostree install curl git
+systemctl reboot
+```
+
+</details>
+
+<details>
+<summary>Fedora Workstation</summary>
+
+```sh
+sudo dnf upgrade --refresh
 sudo dnf install -y curl git
+```
 
-# Ubuntu/Debian
+</details>
+
+<details>
+<summary>Ubuntu or Debian</summary>
+
+```sh
 sudo apt-get update && sudo apt-get install -y curl git
+```
 
-# Arch Linux
+</details>
+
+<details>
+<summary>Arch Linux</summary>
+
+```sh
 sudo pacman -S --needed curl git
+```
 
-# macOS (opens the Command Line Tools installer)
+</details>
+
+<details>
+<summary>macOS</summary>
+
+```sh
 xcode-select --install
 ```
 
-After the macOS installer completes, open a new terminal session before
-continuing.
+After the installer completes, open a new terminal session before continuing.
+
+</details>
+
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | sh
