@@ -24,7 +24,7 @@ fi
 copr_owner=${copr_project%%/*}
 copr_repo=${copr_project#*/}
 
-if [ "$copr_owner" = "$copr_project" ] || [ "$copr_repo" = "${copr_repo#*/}" ]; then
+if [ "$copr_owner" = "$copr_project" ] || [ "$copr_repo" != "${copr_repo#*/}" ]; then
   echo "COPR project must be OWNER/PROJECT" >&2
   exit 2
 fi
