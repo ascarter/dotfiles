@@ -1,5 +1,0 @@
-[bootstrap.packages]
-"dnf:git" = "latest"
-"apt:git" = "latest"
-"pacman:git" = "latest"
-"apk:git" = "latest"

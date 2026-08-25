@@ -12,9 +12,12 @@ env = ["workstation"]
 [bootstrap.mise_shell_activate]
 zsh = true
 
+[bootstrap.user]
+login_shell = "/bin/zsh"
+
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
-run = [{ tasks = ["bootstrap:install:apps"] }, "mise run bootstrap:login-shell"]
+run = [{ tasks = ["bootstrap:install:apps"] }]
 
 [tasks."bootstrap:git"]
 usage = '''

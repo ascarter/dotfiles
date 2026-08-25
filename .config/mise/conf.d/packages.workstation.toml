@@ -25,7 +25,6 @@ run = [
 description = "Install workstation RPM overlays"
 run = [
   { task = "bootstrap:rpm:install", args = [
-    "zsh",
     "bolt",
     "solaar",
     "steam-devices",
@@ -51,7 +50,6 @@ run = [
 "dnf:zsh" = { version = "latest", os = "linux" }
 "apt:zsh" = { version = "latest", os = "linux" }
 "pacman:zsh" = { version = "latest", os = "linux" }
-"apk:zsh" = { version = "latest", os = "linux" }
 "brew-cask:bbedit" = { os = "macos" }
 "brew-cask:chatgpt" = { os = "macos" }
 "brew-cask:ghostty" = { os = "macos" }

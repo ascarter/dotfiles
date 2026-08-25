@@ -7,31 +7,20 @@ Portable, XDG-based development configuration managed by
 
 ### Prerequisites
 
-Bootstrap requires `curl` and Git. Install them before running the script:
+Bootstrap expects these prerequisites to be installed before running the script:
+
+* `curl`
+* `git`
 
 <details open>
 <summary>Fedora Atomic</summary>
 
 On a newly installed system, update the initial deployment and reboot before
-bootstrap. The installer image can be behind the current RPM repositories;
-updating first prevents dependency conflicts while layering workstation RPMs
-such as `cosmic-monitor`.
+bootstrap. The installer image can be behind the current RPM repositories.
 
 ```sh
 rpm-ostree upgrade
-systemctl reboot
-```
-
-After the reboot, verify that the bootstrap prerequisites are available:
-
-```sh
-command -v curl && command -v git
-```
-
-If either command is missing, layer both packages and reboot once more:
-
-```sh
-rpm-ostree install curl git
+rpm-ostree install --idempotent curl git zsh
 systemctl reboot
 ```
 
@@ -72,7 +61,8 @@ sudo pacman -S --needed curl git
 xcode-select --install
 ```
 
-After the installer completes, open a new terminal session before continuing.
+macOS includes Zsh. After the installer completes, open a new terminal session
+before continuing.
 
 </details>
 
@@ -102,9 +92,10 @@ configuration. It is enabled only when explicitly requested, keeping the
 default bootstrap suitable for WSL and Toolbox environments.
 
 Personal Git setup and workstation applications are intentionally excluded
-from the default bootstrap. The workstation profile also installs Zsh and sets
-it as the login shell once it is available. To install the workstation profile
-on a new machine, use one of these commands:
+from the default bootstrap. The workstation profile configures Zsh as the login
+shell after the documented prerequisites are installed; on mutable Linux, it
+also installs Zsh. To install the workstation profile on a new machine, use one
+of these commands:
 
 ### From the published bootstrap script
 ```sh
@@ -141,10 +132,6 @@ mise run bootstrap:git-lfs
 mise run bootstrap:gcm
 mise run bootstrap:container-dns
 ```
-
-On rpm-ostree systems, Zsh is available only after the deployment containing it
-has been booted. Reboot after the first workstation bootstrap, then rerun it to
-set Zsh as the login shell.
 
 ## Update an existing system
 
