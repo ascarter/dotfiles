@@ -12,7 +12,34 @@ run = [
     "https://packages.microsoft.com/yumrepos/vscode/config.repo",
     "vscode.repo",
   ] },
-  { task = "bootstrap:rpm:install-proton-vpn-beta-repo" },
+  { task = "bootstrap:rpm:repos:chatgpt" },
+  { task = "bootstrap:rpm:repo-add", args = [
+    "{{ config_root }}/repositories/protonvpn-beta.repo",
+  ] },
+]
+
+[tasks."bootstrap:rpm:repos:chatgpt"]
+description = "Configure the ChatGPT RPM repository"
+hide = true
+run = [
+  { task = "bootstrap:rpm:gpgkey-add", args = [
+    "{{ config_root }}/repositories/RPM-GPG-KEY-chatgpt.asc",
+    "RPM-GPG-KEY-chatgpt.asc",
+  ] },
+  { task = "bootstrap:rpm:repo-add", args = [
+    "{{ config_root }}/repositories/chatgpt.repo",
+  ] },
+]
+
+[tasks."bootstrap:rpm:install-chatgpt"]
+description = "Install ChatGPT"
+hide = true
+run = [
+  { task = "bootstrap:rpm:repos:chatgpt", env = { CHATGPT_REPOSITORY_PHASE = "pre-install" } },
+  { task = "bootstrap:rpm:install", args = [
+    "chatgpt",
+  ] },
+  { task = "bootstrap:rpm:repos:chatgpt", env = { CHATGPT_REPOSITORY_PHASE = "post-install" } },
 ]
 
 [tasks."bootstrap:flatpak:repos"]
@@ -41,30 +68,11 @@ run = [
   ] },
 ]
 
-[tasks."bootstrap:rpm:install-proton-vpn-beta-repo"]
-description = "Install the Proton VPN beta repository"
-hide = true
-run = '''
-if [ "$(uname -s)" != Linux ] || [ ! -f /etc/os-release ]; then
-  exit 0
-fi
-
-. /etc/os-release
-[ "${ID:-}" = fedora ] || exit 0
-
-mise run bootstrap:rpm:install protonvpn-beta-release --url \
-  "https://repo.protonvpn.com/fedora-${VERSION_ID}-unstable/protonvpn-beta-release/protonvpn-beta-release-1.0.4-1.noarch.rpm"
-'''
-
 [tasks."bootstrap:rpm:overlay:apps"]
 description = "Install app RPM overlays"
 hide = true
 run = [
-  { task = "bootstrap:rpm:install", args = [
-    "chatgpt",
-    "--url",
-    "https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.{{ arch(x64=\"x86_64\", arm64=\"aarch64\") }}.rpm",
-  ] },
+  { task = "bootstrap:rpm:install-chatgpt" },
   { task = "bootstrap:rpm:install-proton", args = [
     "proton-authenticator",
     "https://proton.me/download/authenticator/linux/version.json",
@@ -90,7 +98,6 @@ run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
 run = [
   "mise run bootstrap:rpm:overlay:workstation",
   "mise run bootstrap:rpm:overlay:apps",
-  "mise run bootstrap:fix-openai-rpm",
 ]
 
 [bootstrap.packages]
