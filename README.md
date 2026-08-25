@@ -85,17 +85,19 @@ The script:
 
 ## Configuration layers
 
-Mise loads `config.toml` as the portable baseline and automatically adds the
-matching platform overlay, such as `config.macos.toml` or `config.linux.toml`.
-The optional `config.workstation.toml` profile contains desktop-workstation
-configuration. It is enabled only when explicitly requested, keeping the
-default bootstrap suitable for WSL and Toolbox environments.
+Mise loads `config.toml` as the portable baseline and configuration fragments
+from `conf.d/` for active environments. The optional
+`config.workstation.toml` profile contains desktop-workstation configuration.
+It is enabled only when explicitly requested, keeping the default bootstrap
+suitable for WSL and Toolbox environments. On Fedora, its managed profile
+block also enables the `fedora` environment, which loads the Fedora-specific
+configuration and package fragments.
 
 Personal Git setup and workstation applications are intentionally excluded
 from the default bootstrap. The workstation profile configures Zsh as the login
-shell after the documented prerequisites are installed; on mutable Linux, it
-also installs Zsh. To install the workstation profile on a new machine, use one
-of these commands:
+shell after the documented prerequisites are installed; on Fedora, it also
+declares Zsh for the appropriate package manager. To install the workstation
+profile on a new machine, use one of these commands:
 
 ### From the published bootstrap script
 ```sh
@@ -116,8 +118,10 @@ mise run bootstrap:workstation
 ```
 
 The profile defines the `bootstrap` task for workstation applications and the
-login shell, and writes a managed `env = ["workstation"]` block to
-`~/.miserc.toml` so later bootstraps retain the selected profile.
+login shell, and writes a managed environment block to `~/.miserc.toml` so
+later bootstraps retain the selected profile. The block is
+`env = ["workstation", "fedora"]` on Fedora and `env = ["workstation"]`
+elsewhere.
 
 Configure personal Git identity and GitHub authentication explicitly when needed:
 
@@ -130,7 +134,7 @@ The related personal Git and development-environment tasks are also opt-in:
 ```sh
 mise run bootstrap:git-lfs
 mise run bootstrap:gcm
-mise run bootstrap:container-dns
+mise run bootstrap:container:dns
 ```
 
 ## Update an existing system

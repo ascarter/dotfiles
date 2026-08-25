@@ -1,0 +1,5 @@
+{% if exec(command='if [ -r /etc/os-release ]; then . /etc/os-release && printf "%s" "$ID"; fi') | trim == "fedora" %}
+env = ["workstation", "fedora"]
+{% else %}
+env = ["workstation"]
+{% endif %}

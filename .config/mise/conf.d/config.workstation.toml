@@ -1,13 +1,12 @@
-# Optional desktop-workstation profile.
+# Workstation profile.
 #
-# Run `mise run bootstrap:workstation` to enable and apply it without expanding
-# the baseline used by WSL and Toolbox environments.
+# Run `mise run bootstrap:workstation` to enable.
+# Not needed in containers/toolbox generally
 
 [dotfiles."~/.miserc.toml/workstation"]
 comment = "#"
-block = '''
-env = ["workstation"]
-'''
+source = "../templates/miserc.workstation.toml.tera"
+template = "tera"
 
 [bootstrap.mise_shell_activate]
 zsh = true
@@ -17,7 +16,7 @@ login_shell = "/bin/zsh"
 
 [tasks."bootstrap"]
 description = "Configure this machine as a workstation"
-run = [{ tasks = ["bootstrap:install:apps"] }]
+run = [{ tasks = ["bootstrap:apps:install"] }]
 
 [tasks."bootstrap:git"]
 usage = '''

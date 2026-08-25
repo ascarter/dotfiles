@@ -1,0 +1,4 @@
+# Fedora configuration
+
+[bootstrap.plugins]
+rpm-ostree = "https://github.com/ascarter/mise-rpm-ostree"

@@ -1,109 +1,4 @@
-[tasks."bootstrap:rpm:repos"]
-description = "Configure Fedora package repositories"
-hide = true
-run = [
-  { task = "bootstrap:rpm:copr-add", args = [
-    "scottames/ghostty",
-  ] },
-  { task = "bootstrap:rpm:repo-add", args = [
-    "https://pkgs.tailscale.com/stable/fedora/tailscale.repo",
-  ] },
-  { task = "bootstrap:rpm:repo-add", args = [
-    "https://packages.microsoft.com/yumrepos/vscode/config.repo",
-    "vscode.repo",
-  ] },
-  { task = "bootstrap:rpm:repos:chatgpt" },
-  { task = "bootstrap:rpm:repo-add", args = [
-    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/protonvpn-beta.repo",
-  ] },
-]
-
-[tasks."bootstrap:rpm:repos:chatgpt"]
-description = "Configure the ChatGPT RPM repository"
-hide = true
-run = [
-  { task = "bootstrap:rpm:gpgkey-add", args = [
-    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/RPM-GPG-KEY-chatgpt.asc",
-    "RPM-GPG-KEY-chatgpt.asc",
-  ] },
-  { task = "bootstrap:rpm:repo-add", args = [
-    "{% if env.XDG_CONFIG_HOME is defined %}{{ env.XDG_CONFIG_HOME }}{% else %}{{ env.HOME }}/.config{% endif %}/mise/repositories/chatgpt.repo",
-  ] },
-]
-
-[tasks."bootstrap:rpm:install-chatgpt"]
-description = "Install ChatGPT"
-hide = true
-run = [
-  { task = "bootstrap:rpm:repos:chatgpt", env = { CHATGPT_REPOSITORY_PHASE = "pre-install" } },
-  { task = "bootstrap:rpm:install", args = [
-    "chatgpt",
-  ] },
-  { task = "bootstrap:rpm:repos:chatgpt", env = { CHATGPT_REPOSITORY_PHASE = "post-install" } },
-]
-
-[tasks."bootstrap:flatpak:repos"]
-description = "Configure Flatpak repositories"
-hide = true
-run = [
-  { task = "bootstrap:flatpak:remote-add", args = [
-    "https://flathub.org/repo/flathub.flatpakrepo",
-  ] },
-  { task = "bootstrap:flatpak:remote-add", args = [
-    "https://apt.pop-os.org/cosmic/cosmic.flatpakrepo",
-  ] },
-]
-
-[tasks."bootstrap:rpm:overlay:workstation"]
-description = "Install workstation RPM overlays"
-hide = true
-run = [
-  { task = "bootstrap:rpm:install", args = [
-    "bolt",
-    "cosmic-monitor",
-    "ghostty",
-    "proton-vpn-gnome-desktop",
-    "solaar",
-    "steam-devices",
-  ] },
-]
-
-[tasks."bootstrap:rpm:overlay:apps"]
-description = "Install app RPM overlays"
-hide = true
-run = [
-  { task = "bootstrap:rpm:install-chatgpt" },
-  { task = "bootstrap:rpm:install-proton", args = [
-    "proton-authenticator",
-    "https://proton.me/download/authenticator/linux/version.json",
-  ] },
-  { task = "bootstrap:rpm:install-proton", args = [
-    "proton-mail",
-    "https://proton.me/download/mail/linux/version.json",
-  ] },
-  { task = "bootstrap:rpm:install-proton", args = [
-    "proton-pass",
-    "https://proton.me/download/PassDesktop/linux/x64/version.json",
-  ] },
-  { task = "bootstrap:rpm:install-proton", args = [
-    "proton-meet",
-    "https://proton.me/download/meet/linux/version.json",
-  ] },
-]
-
-[bootstrap.hooks.pre-packages]
-run = ["mise run bootstrap:rpm:repos", "mise run bootstrap:flatpak:repos"]
-
-[bootstrap.hooks.post-packages]
-run = [
-  "mise run bootstrap:rpm:overlay:workstation",
-  "mise run bootstrap:rpm:overlay:apps",
-]
-
 [bootstrap.packages]
-"dnf:zsh" = { version = "latest", os = "linux" }
-"apt:zsh" = { version = "latest", os = "linux" }
-"pacman:zsh" = { version = "latest", os = "linux" }
 "brew-cask:bbedit" = { os = "macos" }
 "brew-cask:chatgpt" = { os = "macos" }
 "brew-cask:ghostty" = { os = "macos" }
@@ -122,12 +17,11 @@ run = [
 "brew-cask:visual-studio-code" = { os = "macos" }
 "brew-cask:vivaldi" = { os = "macos" }
 "brew-cask:whatcable" = { os = "macos" }
-"mas:6502835663" = "latest"                         # Proton Pass for Safari
-"mas:497799835" = "latest"                          # Xcode
+"mas:6502835663" = "latest"                       # Proton Pass for Safari
+"mas:497799835" = "latest"                        # Xcode
 
-[tasks."bootstrap:install:apps"]
+[tasks."bootstrap:apps:install"]
 description = "Install workstation apps"
-hide = true
 run = [
   { tasks = [
     "bootstrap:install:claude",
@@ -141,7 +35,7 @@ run = [
 description = "Install Claude Code CLI"
 hide = true
 depends = [
-  { task = "bootstrap:curl-install", args = [
+  { task = "bootstrap:curl:install", args = [
     "claude",
     "https://claude.ai/install.sh",
     "bash",
@@ -152,7 +46,7 @@ depends = [
 description = "Install Codex CLI"
 hide = true
 depends = [
-  { task = "bootstrap:curl-install", args = [
+  { task = "bootstrap:curl:install", args = [
     "codex",
     "https://chatgpt.com/codex/install.sh",
   ], env = { CODEX_NON_INTERACTIVE = "true" } },
@@ -162,7 +56,7 @@ depends = [
 description = "Install GitHub Copilot CLI"
 hide = true
 depends = [
-  { task = "bootstrap:curl-install", args = [
+  { task = "bootstrap:curl:install", args = [
     "copilot",
     "https://gh.io/copilot-install",
     "bash",
@@ -173,7 +67,7 @@ depends = [
 description = "Install Zed"
 hide = true
 depends = [
-  { task = "bootstrap:curl-install", args = [
+  { task = "bootstrap:curl:install", args = [
     "zed",
     "https://zed.dev/install.sh",
   ] },

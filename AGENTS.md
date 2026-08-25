@@ -11,10 +11,15 @@ Read `README.md` before changing this repository.
   source of the managed global mise config. It owns shared tools, aliases,
   bootstrap orchestration, the dotfile mapping, the managed `~/.zshenv`
   block, and the optional `bootstrap:workstation` task.
-- `.config/mise/config.macos.toml` and `config.linux.toml` are platform
-  overlays.
+- `.config/mise/conf.d/` contains environment-specific fragments.
+  `config.workstation.toml` owns the optional workstation profile;
+  `config.fedora.toml` owns the Fedora-only `rpm-ostree` plugin; and
+  `packages.fedora.toml` owns Fedora repositories, packages, and RPM app
+  setup.
 - `.config/mise/miserc.toml` enables mise automatic environment detection so
-  the repository config and applicable overlays load from this checkout.
+  the repository config and applicable fragments load from this checkout. The
+  workstation profile writes a rendered `~/.miserc.toml` block that activates
+  `workstation` and, on Fedora, `fedora`.
 - `bootstrap.sh` handles the initial mise installation and repository clone,
   trusts the checkout, then forwards arguments to `mise bootstrap`.
 - `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
@@ -55,7 +60,7 @@ Read `README.md` before changing this repository.
 - Keep root shell entry points portable `/bin/sh`. Mise task scripts may use
   Bash when their task metadata or implementation requires it.
 - Put shared behavior in `config.toml`, OS-specific behavior in the matching
-  platform overlay, and optional workstation setup in
+  environment fragment, and optional workstation setup in
   `bootstrap:workstation`.
 - Keep platform defaults, hooks, and prerequisites narrowly scoped and
   previewable. Keep the focused macOS package set in its platform overlay and
