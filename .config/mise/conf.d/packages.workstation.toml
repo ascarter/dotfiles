@@ -2,6 +2,9 @@
 description = "Configure Fedora package repositories"
 hide = true
 run = [
+  { task = "bootstrap:rpm:copr-add", args = [
+    "scottames/ghostty",
+  ] },
   { task = "bootstrap:rpm:repo-add", args = [
     "https://pkgs.tailscale.com/stable/fedora/tailscale.repo",
   ] },
@@ -29,9 +32,10 @@ hide = true
 run = [
   { task = "bootstrap:rpm:install", args = [
     "bolt",
+    "cosmic-monitor",
+    "ghostty",
     "solaar",
     "steam-devices",
-    "cosmic-monitor",
   ] },
 ]
 
