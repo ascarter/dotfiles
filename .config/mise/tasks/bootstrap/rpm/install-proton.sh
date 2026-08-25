@@ -18,7 +18,7 @@ category=${usage_category:-Stable}
 install_cosmic_icon() {
   icon_source=$1
   icon_name=$(basename "$icon_source" .png)
-  icon_file="$icon_dir/$icon_name.png"
+  icon_file="$icon_dir/$icon_name.svg"
 
   if [ -e "$icon_file" ] || [ -L "$icon_file" ]; then
     return 0
