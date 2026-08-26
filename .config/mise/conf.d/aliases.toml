@@ -1,6 +1,6 @@
 [shell_alias]
 dotfiles-cd = 'cd "${DOTFILES_HOME}"'
-dotfiles-update = 'mise -C "${DOTFILES_HOME}" bootstrap --update'
+dotfiles-update = 'git -C "${DOTFILES_HOME}" pull && mise -C "${DOTFILES_HOME}" bootstrap --update'
 dotfiles-edit = '$EDITOR "${DOTFILES_HOME}"'
 mdf = 'mise -C "${DOTFILES_HOME}"'
 mr = 'mise run'
