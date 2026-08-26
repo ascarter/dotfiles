@@ -9,5 +9,9 @@
 
 set -eu
 
-command -v "${usage_name}" >/dev/null 2>&1 && exit 0
+if command -v "${usage_name}" >/dev/null 2>&1; then
+  echo "${usage_name} is installed"
+  exit 0
+fi
+
 curl -fsSL "${usage_url}" | "${usage_command}"
