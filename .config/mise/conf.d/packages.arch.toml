@@ -1,4 +1,0 @@
-[bootstrap.packages]
-"pacman:curl" = "latest"
-"pacman:git" = "latest"
-"pacman:zsh" = "latest"

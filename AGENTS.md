@@ -11,16 +11,15 @@ Read `README.md` before changing this repository.
   source of the managed global mise config. It owns shared tools, aliases,
   bootstrap orchestration, the dotfile mapping, the managed `~/.zshenv`
   block, and the optional `bootstrap:workstation` task.
-- `.config/mise/conf.d/` contains environment-specific fragments.
-  `config.workstation.toml` owns the optional workstation profile;
-  `config.fedora.toml` owns the Fedora-only `rpm-ostree` plugin; and
-  `packages.fedora.toml` owns Fedora repositories, packages, and RPM app
-  setup. `packages.ubuntu.toml` and `packages.arch.toml` own their
-  distributions' workstation prerequisites.
+- `.config/mise/conf.d/` contains environment- and platform-specific
+  fragments. `config.workstation.toml` owns the optional workstation profile,
+  including the `rpm-ostree` plugin, login-shell selection, and its managed
+  environment block. `packages.workstation.toml` owns workstation packages,
+  Fedora repositories and RPM app setup, and workstation app installers.
 - `.config/mise/miserc.toml` enables mise automatic environment detection so
   the repository config and applicable fragments load from this checkout. The
-  workstation profile writes a rendered `~/.miserc.toml` block that activates
-  `workstation` and, when `/etc/os-release` is present, its distribution `ID`.
+  workstation profile writes a managed `~/.miserc.toml` block that activates
+  the `workstation` environment.
 - `bootstrap.sh` handles the initial mise installation and repository clone,
   trusts the checkout, then forwards arguments to `mise bootstrap`.
 - `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
@@ -60,8 +59,8 @@ Read `README.md` before changing this repository.
   directly.
 - Keep root shell entry points portable `/bin/sh`. Mise task scripts may use
   Bash when their task metadata or implementation requires it.
-- Put shared behavior in `config.toml`, OS-specific behavior in the matching
-  environment fragment, and optional workstation setup in
+- Put shared behavior in `config.toml`, macOS-specific behavior in the macOS
+  fragment, and optional workstation setup in the workstation fragments and
   `bootstrap:workstation`.
 - Keep platform defaults, hooks, and prerequisites narrowly scoped and
   previewable. Keep the focused macOS package set in its platform overlay and

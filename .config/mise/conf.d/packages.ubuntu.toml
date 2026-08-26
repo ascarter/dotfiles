@@ -1,4 +1,0 @@
-[bootstrap.packages]
-"apt:curl" = "latest"
-"apt:git" = "latest"
-"apt:zsh" = "latest"
