@@ -1,26 +1,35 @@
-# Workstation profile.
-#
-# Run `mise run bootstrap:workstation` to enable.
-# Not needed in containers/toolbox generally
-
-[dotfiles."~/.miserc.toml/workstation"]
-comment = "#"
-block = '''
-env = ["workstation"]
-'''
+[settings]
+idiomatic_version_file_enable_tools = ["rust"]
+python.uv_venv_auto = "source"
 
 [bootstrap.mise_shell_activate]
+bash = true
 zsh = true
 
 [bootstrap.user]
 login_shell = "/bin/zsh"
 
-[bootstrap.plugins]
-rpm-ostree = "https://github.com/ascarter/mise-rpm-ostree"
+[bootstrap.repos]
+"~/.dotfiles" = { url = "https://github.com/ascarter/dotfiles.git", ref = "main" }
 
-[tasks."bootstrap"]
-description = "Configure this machine as a workstation"
-run = [{ tasks = ["bootstrap:apps:install"] }]
+[dotfiles]
+"~/.config" = { source = "~/.dotfiles/config", mode = "symlink-each" }
+"~/.config/mise" = { source = "~/.dotfiles/mise", mode = "symlink-each" }
+
+[dotfiles."~/.zshenv/xdg"]
+comment = "#"
+block = '''
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
+export DOTFILES_HOME="${DOTFILES_HOME:-${HOME}/.dotfiles}"
+
+typeset -U path PATH
+path=("$XDG_BIN_HOME" $path)
+'''
 
 [tasks."bootstrap:git"]
 usage = '''

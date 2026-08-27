@@ -1,5 +1,3 @@
-# macOS platform configuration
-
 [bootstrap.brew]
 adopt = true
 

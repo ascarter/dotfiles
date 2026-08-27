@@ -1,7 +1,7 @@
 # dotfiles
 
-Portable, XDG-based development configuration managed by
-[mise](https://mise.jdx.dev/). Tested on macOS and Fedora Atomic Linux.
+XDG-based workstation configuration managed by [mise](https://mise.jdx.dev/).
+Tested on macOS and Fedora Atomic Linux.
 
 ## Bootstrap
 
@@ -85,43 +85,20 @@ The script:
 
 ## Configuration layers
 
-Mise loads `config.toml` as the portable baseline and configuration fragments
-from `conf.d/` for active environments. The optional
-`config.workstation.toml` profile contains desktop-workstation configuration.
-It is enabled only when explicitly requested, keeping the default bootstrap
-suitable for WSL and Toolbox environments. Enabling the profile writes a
-managed `~/.miserc.toml` block with `env = ["workstation"]`, so later
-bootstraps retain the selection.
+The `mise/` directory is managed as `~/.config/mise`, while `config/`
+is managed as the rest of `~/.config`.
 
-Personal Git setup and workstation applications are intentionally excluded
-from the default bootstrap. The workstation profile configures Zsh as the login
-shell after it is installed. Its managed package configuration currently covers
-the macOS application set and Fedora Atomic RPM overlays; Ubuntu and Arch use
-the portable default profile unless their workstation package support is added
-back. To install the workstation profile on a new machine, use one of these
-commands:
+`mise/config.toml` contains the baseline: shell activation,
+the Zsh login shell, repository bootstrap, dotfile mappings, and personal Git
+tasks. Mise automatically loads `mise/config.macos.toml` or
+`mise/config.linux.toml` for the host platform. `mise/miserc.toml` enables
+automatic environment detection and environment-aware `mise/conf.d/` fragments;
+those fragments divide platform packages, aliases, tools, and app tasks by
+concern.
 
-### From the published bootstrap script
-```sh
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | MISE_ENV=workstation sh
-```
-
-### From an existing checkout
-```
-MISE_ENV=workstation ./bootstrap.sh
-```
-
-### Convert an existing default installation into a workstation
-To turn an existing default installation into a workstation, run this from the
-checkout:
-
-```sh
-mise run bootstrap:workstation
-```
-
-The profile defines the `bootstrap` task for workstation applications and the
-login shell. It writes a managed environment block to `~/.miserc.toml` so later
-bootstraps retain the selected profile: `env = ["workstation"]`.
+The Linux setup is currently intended for Fedora Atomic systems and uses the
+`rpm-ostree` package plugin. macOS defaults and the focused macOS application
+set load automatically on macOS.
 
 Configure personal Git identity and GitHub authentication explicitly when needed:
 
@@ -135,6 +112,12 @@ The related personal Git and development-environment tasks are also opt-in:
 mise run bootstrap:git-lfs
 mise run bootstrap:gcm
 mise run bootstrap:container:dns
+```
+
+Install vendor-distributed developer applications explicitly when wanted:
+
+```sh
+mise run bootstrap:apps
 ```
 
 ## Update an existing system
@@ -159,12 +142,14 @@ Files already managed with `symlink-each` are live links. Edit their source in
 this repository and verify the change normally:
 
 ```sh
-$EDITOR .config/ghostty/config
+$EDITOR config/ghostty/config
 git diff --check
 ```
 
-To add a new dotfile, create it beneath `.config/` at its intended XDG path,
 then preview and apply the new link:
+To add a new non-mise dotfile, create it beneath `config/` at its intended XDG
+path. New files beneath `mise/` are managed as `~/.config/mise`. Then preview
+and apply the new links:
 
 ```sh
 mise bootstrap dotfiles apply --yes
@@ -176,13 +161,12 @@ Add a global tool only when it is required outside project environments:
 ```sh
 mise use -g jq
 mise which jq
-git diff -- .config/mise/config.toml
+git diff -- mise/config.toml
 ```
 
 `mise use -g` installs the tool, selects it globally, and writes
-`~/.config/mise/config.toml`. That file is a managed link to
-`.config/mise/config.toml`, so the declaration becomes a reviewable repository
-change.
+`~/.config/mise/config.toml`. That file is a managed link to `mise/config.toml`,
+so the declaration becomes a reviewable repository change.
 
 Reconcile the managed dotfiles, tools, and platform configuration at any time
 with:
@@ -191,9 +175,8 @@ with:
 ./bootstrap.sh
 ```
 
-The bootstrap is idempotent. The optional workstation Git tasks update only
-the settings they own and preserve unrelated private or work settings in
-`~/.gitconfig`.
+The bootstrap is idempotent. The Git tasks update only the settings they own and
+preserve unrelated private or work settings in `~/.gitconfig`.
 
 ## Uninstall
 

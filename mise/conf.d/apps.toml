@@ -1,0 +1,22 @@
+[tasks."bootstrap:apps"]
+description = "Install apps"
+depends = [
+  { task = "bootstrap:curl:install", args = [
+    "claude",
+    "https://claude.ai/install.sh",
+    "bash",
+  ] },
+  { task = "bootstrap:curl:install", args = [
+    "codex",
+    "https://chatgpt.com/codex/install.sh",
+  ], env = { CODEX_NON_INTERACTIVE = "true" } },
+  { task = "bootstrap:curl:install", args = [
+    "copilot",
+    "https://gh.io/copilot-install",
+    "bash",
+  ] },
+  { task = "bootstrap:curl:install", args = [
+    "zed",
+    "https://zed.dev/install.sh",
+  ] },
+]

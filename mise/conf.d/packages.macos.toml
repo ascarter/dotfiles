@@ -1,0 +1,21 @@
+[bootstrap.packages]
+"brew-cask:bbedit" = { os = "macos" }
+"brew-cask:chatgpt" = { os = "macos" }
+"brew-cask:ghostty" = { os = "macos" }
+"brew-cask:github-copilot-app" = { os = "macos" }
+"brew-cask:netnewswire" = { os = "macos" }
+"brew-cask:obsidian" = { os = "macos" }
+"brew-cask:proton-drive" = { os = "macos" }
+"brew-cask:proton-mail" = { os = "macos" }
+"brew-cask:proton-mail-bridge" = { os = "macos" }
+"brew-cask:proton-meet" = { os = "macos" }
+"brew-cask:proton-pass" = { os = "macos" }
+"brew-cask:signal" = { os = "macos" }
+"brew-cask:spotify" = { os = "macos" }
+"brew-cask:tailscale-app" = { os = "macos" }
+"brew-cask:utm" = { os = "macos" }
+"brew-cask:visual-studio-code" = { os = "macos" }
+"brew-cask:vivaldi" = { os = "macos" }
+"brew-cask:whatcable" = { os = "macos" }
+"mas:6502835663" = "latest"                       # Proton Pass for Safari
+"mas:497799835" = "latest"                        # Xcode
