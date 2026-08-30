@@ -14,44 +14,56 @@ Bootstrap expects these prerequisites to be installed before running the script:
 
 <details>
 <summary>Fedora Atomic</summary>
+
 On a newly installed system, update the initial deployment and reboot before
 bootstrap. The installer image can be behind the current RPM repositories.
+
 ```sh
 rpm-ostree upgrade
 rpm-ostree install --idempotent curl git zsh
 systemctl reboot
 ```
+
 </details>
 
 <details>
 <summary>Fedora Workstation</summary>
+
 ```sh
 sudo dnf upgrade --refresh
 sudo dnf install -y curl git
 ```
+
 </details>
 
 <details>
 <summary>Ubuntu or Debian</summary>
+
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git
 ```
+
 </details>
 
 <details>
 <summary>Arch Linux</summary>
+
 ```sh
 sudo pacman -S --needed curl git
 ```
+
 </details>
 
 <details>
 <summary>macOS</summary>
+
 ```sh
 xcode-select --install
 ```
+
 macOS includes Zsh. After the installer completes, open a new terminal session
 before continuing.
+
 </details>
 
 ### Install
@@ -94,22 +106,29 @@ The profiles have distinct purposes:
 
 <details>
 <summary>Fedora Atomic / Fedora Workstation host</summary>
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=workstation sh
 ```
+
 </details>
 
 <details>
 <summary>Fedora Toolbox / devcontainer / Apple container machine</summary>
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=developer,container sh
-  ```
+```
+  
 </details>
 
 <summary>macOS host</summary>
 <details>
+
+```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=workstation,developer sh
 ```
+
 </details>
 
 ### Existing checkout
