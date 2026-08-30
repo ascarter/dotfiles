@@ -77,6 +77,105 @@ From an existing checkout, run:
 ./bootstrap.sh
 ```
 
+### Profiles
+
+Bootstrap is minimal by default: it applies shared dotfiles and the baseline
+command-line tools, without selecting either optional profile. Select profiles
+explicitly with `MISE_ENV`; multiple profiles are comma-separated and load in
+order. A workstation bootstrap persists its selection in `~/.miserc.toml`.
+
+```sh
+# Fedora Atomic or Fedora Workstation host
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
+  | env MISE_ENV=workstation sh
+
+# Toolbox, devcontainer, or Apple container machine
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
+  | env MISE_ENV=developer,container sh
+
+# Typical macOS host: host configuration plus developer tools
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
+  | env MISE_ENV=workstation,developer sh
+```
+
+For an existing checkout, use the same environment variable:
+
+```sh
+MISE_ENV=developer,container ./bootstrap.sh
+MISE_ENV=workstation,developer ./bootstrap.sh
+```
+
+The first `workstation` bootstrap writes the selected host profiles to
+`~/.miserc.toml`. A `container` bootstrap records the exact selected profile
+list in its own `/etc/profile.d/mise-container.sh`, which overrides that
+shared-home default before mise starts.
+
+The profiles have distinct purposes:
+
+* `workstation` configures a Fedora Atomic or Fedora Workstation host, including
+  RPM-managed host tools, Flatpak remotes, and machine-management applications.
+  Do not use it in a Toolbox or other development container.
+* `developer` installs developer runtimes and build prerequisites, including a
+  C compiler on Fedora. Use it in a Fedora Toolbox, Apple container machine, or
+  devcontainer instead of layering compilers onto a Fedora Atomic host.
+* `container` is the Linux-container companion to `developer`. It gives the
+  container its own `/opt/mise` binary, installs, state, and cache while using
+  the shared `~/.config/mise` configuration and `~/.dotfiles` checkout. Its
+  profile file enables the default in later container login shells.
+  It uses full Mise activation in interactive Bash and Zsh shells
+  and shim activation otherwise. The first bootstrap requires `sudo` only to
+  create the container-owned `/opt/mise` root; the user-owned binary continues
+  to support normal Mise self-updates.
+* On macOS, install the Xcode Command Line Tools first, then use both profiles.
+  macOS can cleanly serve as both the host and development environment.
+
+#### Fedora Toolbox
+
+Create a Toolbox for development, enter it, and bootstrap the developer
+profile from inside the container:
+
+```sh
+toolbox create developer
+toolbox enter developer
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
+  | env MISE_ENV=developer,container sh
+```
+
+Bootstrap creates `/etc/profile.d/mise-container.sh`; subsequent logins 
+select the developer profile and `/opt/mise` automatically:
+
+```sh
+toolbox enter developer
+```
+
+The container uses the same `~/.dotfiles` checkout and `~/.config/mise`
+configuration as the Fedora host, but its Mise binary, installs, cache, and
+state live beneath `/opt/mise`.
+
+#### Apple container machine
+
+On macOS, create a persistent Linux machine, then bootstrap the developer
+profile inside it:
+
+```sh
+container machine create ubuntu:24.04 --name developer
+container machine run -n developer
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
+  | env MISE_ENV=developer,container sh
+```
+
+Later sessions need no environment flags:
+
+```sh
+container machine run -n developer
+```
+
+Container machines map the macOS home directory into the guest, so the
+container uses that shared checkout and mise configuration. The mise
+binary and state remain under the guest's persistent `/opt/mise`. Running
+bootstrap in the container applies the same shared dotfiles as running it on
+the host.
+
 The script:
 
 * Installs mise at `~/.local/bin/mise`
@@ -88,13 +187,16 @@ The script:
 The `mise/` directory is managed as `~/.config/mise`, while `config/`
 is managed as the rest of `~/.config`.
 
-`mise/config.toml` contains the baseline: shell activation,
-the Zsh login shell, repository bootstrap, dotfile mappings, and personal Git
-tasks. Mise automatically loads `mise/config.macos.toml` or
-`mise/config.linux.toml` for the host platform. `mise/miserc.toml` enables
+`mise/config.toml` contains the baseline: repository bootstrap, dotfile
+mappings, and personal Git tasks. Shell activation and the Zsh login shell are
+workstation responsibilities in `mise/config.workstation.toml`.
+`mise/config.macos.toml` is the macOS platform overlay.
+`mise/miserc.toml` enables
 automatic environment detection and environment-aware `mise/conf.d/` fragments;
 those fragments divide platform packages, aliases, tools, and app tasks by
-concern.
+concern. The `workstation` and `developer` profiles are selected explicitly
+with `MISE_ENV`. Workstation selection is persisted in the host's
+`~/.miserc.toml`; Linux containers use `/etc/profile.d` override instead.
 
 The Linux setup is currently intended for Fedora Atomic systems and uses the
 `rpm-ostree` package plugin. macOS defaults and the focused macOS application
@@ -156,7 +258,8 @@ mise bootstrap dotfiles apply --yes
 mise bootstrap dotfiles status --missing
 ```
 
-Add a global tool only when it is required outside project environments:
+Add a baseline global tool only when it is required outside project
+environments. Developer-only tools belong in the `developer` profile:
 
 ```sh
 mise use -g jq

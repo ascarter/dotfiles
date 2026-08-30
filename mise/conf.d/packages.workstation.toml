@@ -1,11 +1,14 @@
+[bootstrap.plugins]
+rpm-ostree = "https://github.com/ascarter/mise-rpm-ostree"
+
 [bootstrap.packages]
-"rpm-ostree:bolt" = "latest"
-"rpm-ostree:cosmic-monitor" = "latest"
-"rpm-ostree:ghostty" = "latest"
+"rpm-ostree:bolt" = { version = "latest", os = "linux" }
+"rpm-ostree:cosmic-monitor" = { version = "latest", os = "linux" }
+"rpm-ostree:ghostty" = { version = "latest", os = "linux" }
 #"rpm-ostree:proton-vpn-gnome-desktop" = "latest"
-"rpm-ostree:solaar" = "latest"
-"rpm-ostree:steam-devices" = "latest"
-"rpm-ostree:zsh" = "latest"
+"rpm-ostree:solaar" = { version = "latest", os = "linux" }
+"rpm-ostree:steam-devices" = { version = "latest", os = "linux" }
+"rpm-ostree:zsh" = { version = "latest", os = "linux" }
 
 [tasks."bootstrap:rpm:repos"]
 description = "Configure Fedora package repositories"

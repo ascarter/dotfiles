@@ -1,0 +1,6 @@
+[bootstrap.packages]
+"apt:build-essential" = "latest"
+"dnf:clang" = "latest"
+"dnf:make" = "latest"
+"dnf:pkgconf-pkg-config" = "latest"
+"dnf:zsh" = "latest"

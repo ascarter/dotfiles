@@ -1,0 +1,18 @@
+[bootstrap.files."/etc/profile.d/mise-container.sh"]
+content = '''
+export MISE_ENV="{{ mise_env | join(sep=",") }}"
+export MISE_CACHE_DIR="/opt/mise/cache"
+export MISE_DATA_DIR="/opt/mise/data"
+export MISE_STATE_DIR="/opt/mise/state"
+
+case "${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}:$-" in
+  bash:*i*) eval "$(/opt/mise/bin/mise activate bash)" ;;
+  bash:*) eval "$(/opt/mise/bin/mise activate bash --shims)" ;;
+  zsh:*i*) eval "$(/opt/mise/bin/mise activate zsh)" ;;
+  zsh:*) eval "$(/opt/mise/bin/mise activate zsh --shims)" ;;
+esac
+'''
+template = true
+owner = "root"
+group = "root"
+mode = "0644"

@@ -3,8 +3,8 @@
 set -eu
 
 readonly DOTFILES_REPO_URL="https://github.com/ascarter/dotfiles.git"
-readonly DOTFILES_HOME="${HOME}/.dotfiles"
-readonly MISE_BIN="${HOME}/.local/bin/mise"
+DOTFILES_HOME="${DOTFILES_HOME:-${HOME}/.dotfiles}"
+MISE_BIN="${MISE_BIN:-${HOME}/.local/bin/mise}"
 
 export MISE_AUTO_ENV=true
 export MISE_ENV_CONF_D=true
@@ -18,11 +18,34 @@ fail() {
   exit 1
 }
 
+is_container() {
+  case ",${MISE_ENV:-}," in
+    *,container,*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 require_commands() {
   for command_name in "$@"; do
     command -v "$command_name" >/dev/null 2>&1 ||
       fail "$command_name is required"
   done
+}
+
+configure_container() {
+  [ "$(uname -s)" = "Linux" ] || fail "container profile requires Linux"
+
+  require_commands sudo install id
+
+  mise_root=/opt/mise
+
+  log "Create mise root at $mise_root"
+  sudo install -d -o "$(id -u)" -g "$(id -g)" -m 0755 "$mise_root"
+
+  MISE_BIN="$mise_root/bin/mise"
+  export MISE_CACHE_DIR="$mise_root/cache"
+  export MISE_DATA_DIR="$mise_root/data"
+  export MISE_STATE_DIR="$mise_root/state"
 }
 
 checkout() {
@@ -64,7 +87,11 @@ install_mise() {
 
 require_commands curl git
 
-checkout ${DOTFILES_REPO_URL} ${DOTFILES_HOME}
+if is_container; then
+  configure_container
+fi
+
+checkout "$DOTFILES_REPO_URL" "$DOTFILES_HOME"
 install_mise
 "$MISE_BIN" -C "$DOTFILES_HOME" trust
 
