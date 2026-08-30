@@ -2,5 +2,6 @@
 "apt:build-essential" = "latest"
 "dnf:clang" = "latest"
 "dnf:make" = "latest"
+"dnf:ncurses" = "latest"
 "dnf:pkgconf-pkg-config" = "latest"
 "dnf:zsh" = "latest"
