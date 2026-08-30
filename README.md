@@ -122,8 +122,8 @@ curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh
   
 </details>
 
-<summary>macOS host</summary>
 <details>
+<summary>macOS host</summary>
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=workstation,developer sh
