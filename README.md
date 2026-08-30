@@ -52,7 +52,7 @@ xcode-select --install
 ```
 macOS includes Zsh. After the installer completes, open a new terminal session
 before continuing.
-</ details>
+</details>
 
 ### Install
 
