@@ -12,60 +12,49 @@ Bootstrap expects these prerequisites to be installed before running the script:
 * `curl`
 * `git`
 
-<details open>
+<details>
 <summary>Fedora Atomic</summary>
-
 On a newly installed system, update the initial deployment and reboot before
 bootstrap. The installer image can be behind the current RPM repositories.
-
 ```sh
 rpm-ostree upgrade
 rpm-ostree install --idempotent curl git zsh
 systemctl reboot
 ```
-
 </details>
 
 <details>
 <summary>Fedora Workstation</summary>
-
 ```sh
 sudo dnf upgrade --refresh
 sudo dnf install -y curl git
 ```
-
 </details>
 
 <details>
 <summary>Ubuntu or Debian</summary>
-
 ```sh
 sudo apt-get update && sudo apt-get install -y curl git
 ```
-
 </details>
 
 <details>
 <summary>Arch Linux</summary>
-
 ```sh
 sudo pacman -S --needed curl git
 ```
-
 </details>
 
 <details>
 <summary>macOS</summary>
-
 ```sh
 xcode-select --install
 ```
-
 macOS includes Zsh. After the installer completes, open a new terminal session
 before continuing.
+</ details>
 
-</details>
-
+### Install
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | sh
@@ -83,32 +72,6 @@ Bootstrap is minimal by default: it applies shared dotfiles and the baseline
 command-line tools, without selecting either optional profile. Select profiles
 explicitly with `MISE_ENV`; multiple profiles are comma-separated and load in
 order. A workstation bootstrap persists its selection in `~/.miserc.toml`.
-
-```sh
-# Fedora Atomic or Fedora Workstation host
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
-  | env MISE_ENV=workstation sh
-
-# Toolbox, devcontainer, or Apple container machine
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
-  | env MISE_ENV=developer,container sh
-
-# Typical macOS host: host configuration plus developer tools
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
-  | env MISE_ENV=workstation,developer sh
-```
-
-For an existing checkout, use the same environment variable:
-
-```sh
-MISE_ENV=developer,container ./bootstrap.sh
-MISE_ENV=workstation,developer ./bootstrap.sh
-```
-
-The first `workstation` bootstrap writes the selected host profiles to
-`~/.miserc.toml`. A `container` bootstrap records the exact selected profile
-list in its own `/etc/profile.d/mise-container.sh`, which overrides that
-shared-home default before mise starts.
 
 The profiles have distinct purposes:
 
@@ -129,6 +92,38 @@ The profiles have distinct purposes:
 * On macOS, install the Xcode Command Line Tools first, then use both profiles.
   macOS can cleanly serve as both the host and development environment.
 
+<details>
+<summary>Fedora Atomic / Fedora Workstation host</summary>
+```sh
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=workstation sh
+```
+</details>
+
+<details>
+<summary>Fedora Toolbox / devcontainer / Apple container machine</summary>
+```sh
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=developer,container sh
+  ```
+</details>
+
+<summary>macOS host</summary>
+<details>
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=workstation,developer sh
+```
+</details>
+
+### Existing checkout
+
+```sh
+MISE_ENV=developer,container ./bootstrap.sh
+MISE_ENV=workstation,developer ./bootstrap.sh
+```
+
+The first `workstation` bootstrap writes the selected host profiles to
+`~/.miserc.toml`. A `container` bootstrap records the exact selected profile
+list in its own `/etc/profile.d/mise-container.sh`, which overrides that
+shared-home default before mise starts.
+
 #### Fedora Toolbox
 
 Create a Toolbox for development, enter it, and bootstrap the developer
@@ -137,8 +132,7 @@ profile from inside the container:
 ```sh
 toolbox create developer
 toolbox enter developer
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
-  | env MISE_ENV=developer,container sh
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=developer,container sh
 ```
 
 Bootstrap creates `/etc/profile.d/mise-container.sh`; subsequent logins 
@@ -160,8 +154,7 @@ profile inside it:
 ```sh
 container machine create ubuntu:24.04 --name developer
 container machine run -n developer
-curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh \
-  | env MISE_ENV=developer,container sh
+curl -fsSL https://raw.githubusercontent.com/ascarter/dotfiles/main/bootstrap.sh | env MISE_ENV=developer,container sh
 ```
 
 Later sessions need no environment flags:
