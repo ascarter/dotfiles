@@ -163,7 +163,9 @@ toolbox enter developer
 
 The container uses the same `~/.dotfiles` checkout and `~/.config/mise`
 configuration as the Fedora host, but its Mise binary, installs, cache, and
-state live beneath `/opt/mise`.
+state live beneath `/opt/mise`. On Fedora, bootstrap also installs the packaged
+Ghostty terminfo capabilities under the `xterm-ghostty` name used by the
+terminal, so applications inside the Toolbox do not need a `TERM` fallback.
 
 #### Apple container machine
 
