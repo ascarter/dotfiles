@@ -2,7 +2,10 @@
 
 set -eu
 
-readonly MISE_BIN="${HOME}/.local/bin/mise"
+MISE_BIN="${MISE_BIN:-${XDG_BIN_HOME:-${HOME}/.local/bin}/mise}"
+MISE_CONFIG_DIR="${MISE_CONFIG_DIR:-${XDG_CONFIG_HOME:-${HOME}/.config}/mise}"
+
+export MISE_CONFIG_DIR
 
 log() {
   printf 'uninstall: %s\n' "$*"
@@ -15,13 +18,15 @@ fail() {
 
 usage() {
   cat <<'EOF'
-Usage: uninstall.sh [--dry-run] [--yes]
+Usage: uninstall.sh [-n|--dry-run] [-y|--yes]
 
-Unapply dotfiles and use `mise implode` to remove mise.
+Unapply dotfiles and use `mise implode` to remove mise while preserving the
+global configuration checkout.
 
 Options:
-  --dry-run  Preview every removal without applying it
-  --yes      Skip this script's confirmation prompt
+  -n, --dry-run  Preview every removal without applying it
+  -y, --yes      Skip this script's confirmation prompt
+  -h, --help     Show this help
 EOF
 }
 
@@ -34,18 +39,29 @@ confirm_uninstall() {
   esac
 }
 
-require_commands() {
-  for command_name in "$@"; do
-    command -v "$command_name" >/dev/null 2>&1 ||
-      fail "$command_name is required"
-  done
-}
+dry_run=false
+assume_yes=false
+for option in "$@"; do
+  case "$option" in
+    --dry-run | -n) dry_run=true ;;
+    --yes | -y) assume_yes=true ;;
+    --help | -h)
+      usage
+      exit 0
+      ;;
+    *) fail "unsupported option: $option" ;;
+  esac
+done
 
-run_mise() {
-  exec "$MISE_BIN" -C "$DOTFILES_HOME" "$@" || fail "mise failed: $*"
-}
+[ -x "$MISE_BIN" ] || fail "mise is not installed at $MISE_BIN"
 
-require_commands mise
+if [ "$dry_run" = false ] && [ "$assume_yes" = false ]; then
+  confirm_uninstall || {
+    log "Uninstall cancelled."
+    exit 0
+  }
+  set -- "$@" --yes
+fi
 
 log "mise dotfile removal"
 "$MISE_BIN" bootstrap dotfiles unapply "$@"
@@ -53,9 +69,6 @@ log "mise dotfile removal"
 log "mise implode"
 "$MISE_BIN" implode "$@"
 
-# `mise implode` preserves its config directory by default. Remove it only
-# when dotfile unapply left it empty; preserve any local configuration files.
-rmdir "$HOME/.config/mise" 2>/dev/null || true
-
 log "Uninstall complete."
+log "Configuration checkout preserved at $MISE_CONFIG_DIR."
 log "Restart session to discard the current shell environment."

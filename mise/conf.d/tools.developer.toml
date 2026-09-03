@@ -1,5 +1,0 @@
-[tools]
-"aqua:spinel-coop/rv" = "latest"
-neovim = "latest"
-rust = "latest"
-tree-sitter = "latest"

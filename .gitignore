@@ -3,7 +3,9 @@
 # Local mise configuration and generated state
 mise.local.toml
 .mise.local.toml
+config.local.toml
+config.*.local.toml
+conf.d/*.local.toml
 
 # Local review and test artifacts
 .tmp/
-

@@ -1,7 +1,0 @@
-{%- if mise_env is defined -%}
-env = [{%- for profile in mise_env -%}
-{{ profile | json_encode }}{% if not loop.last %}, {% endif -%}
-{%- endfor %}]
-{%- else -%}
-env = []
-{%- endif %}

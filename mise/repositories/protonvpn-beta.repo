@@ -1,9 +1,0 @@
-# ProtonVPN unstable release
-[protonvpn-fedora-unstable]
-name=ProtonVPN Fedora Beta repository
-baseurl=https://repo.protonvpn.com/fedora-$releasever-unstable
-enabled=1
-gpgcheck=1
-repo_gpgcheck=0
-skip_if_unavailable=true
-gpgkey=https://repo.protonvpn.com/fedora-$releasever-unstable/public_key.asc

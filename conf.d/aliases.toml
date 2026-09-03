@@ -1,8 +1,8 @@
 [shell_alias]
-dotfiles-cd = 'cd "${DOTFILES_HOME}"'
-dotfiles-update = 'git -C "${DOTFILES_HOME}" pull && mise -C "${DOTFILES_HOME}" bootstrap --update'
-dotfiles-edit = '$EDITOR "${DOTFILES_HOME}"'
-mdf = 'mise -C "${DOTFILES_HOME}"'
+dotfiles-cd = 'cd "${MISE_CONFIG_DIR}"'
+dotfiles-update = 'mise bootstrap --from-git https://github.com/ascarter/dotfiles.git --update'
+dotfiles-edit = '$EDITOR "${MISE_CONFIG_DIR}"'
+mdf = 'mise -C "${MISE_CONFIG_DIR}"'
 mr = 'mise run'
 dircolors = 'coreutils dircolors'
 ls = 'coreutils ls --group-directories-first --color=auto --human-readable'

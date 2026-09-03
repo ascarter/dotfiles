@@ -6,81 +6,66 @@ Read `README.md` before changing this repository.
 
 - Mise is the control plane for applying dotfiles, installing the global CLI
   baseline, applying platform settings and packages, and running setup tasks.
-- `mise/config.toml` is both the repository bootstrap config and the source of
-  the managed global mise config. It owns the shared workstation baseline,
-  bootstrap orchestration, dotfile mappings, the managed `~/.zshenv` block,
+- The repository is the global mise configuration. `mise bootstrap --from-git`
+  clones it directly into `$MISE_CONFIG_DIR`, normally `~/.config/mise`, where
+  the checkout remains active for future mise invocations.
+- Root `config.toml` owns the shared host baseline, bootstrap orchestration,
+  dotfile mappings, managed `~/.zshenv` block, shell activation, login shell,
   and personal Git tasks.
-- `mise/config.macos.toml` is selected automatically on macOS and owns
-  bootstrap-managed macOS defaults and hooks. `mise/config.workstation.toml`
-  owns Fedora workstation state, including the `rpm-ostree` plugin, shell
-  activation, the login shell, and the managed host profile block.
-- `mise/conf.d/` divides aliases, tools, packages, and app tasks by concern.
-  `mise/miserc.toml` enables automatic environments and environment-aware
-  `conf.d` fragments. `workstation` configures a Fedora host; `developer`
-  configures development tools and build prerequisites; `container` makes a
-  Linux development container self-contained. A workstation bootstrap writes
-  its profile selection to `~/.miserc.toml`; the container profile overrides it
-  from `/etc/profile.d/mise-container.sh`.
-- `bootstrap.sh` handles the initial mise installation and repository clone,
-  trusts the checkout, then forwards arguments to `mise bootstrap`. With the
-  `container` profile active, it initializes `/opt/mise` before starting Mise;
-  bootstrap otherwise applies the same shared dotfiles from the container or
-  host.
+- `config.macos.toml` is selected automatically on macOS and owns managed
+  macOS defaults and hooks. `conf.d/packages.linux.toml` owns the Fedora Atomic
+  package baseline and `rpm-ostree` plugin.
+- `conf.d/` divides aliases, tools, packages, and app tasks by concern.
+  `miserc.toml` enables automatic platform environments and environment-aware
+  fragments. There are no explicit workstation, developer, or container
+  profiles.
+- `bootstrap.sh` installs or updates mise, exports early config-discovery
+  settings, and forwards arguments to `mise bootstrap --from-git`. Mise owns
+  clone validation, trust for the bootstrap invocation, and fast-forward
+  updates.
 - `uninstall.sh` unapplies managed dotfiles and delegates mise removal to
-  `mise implode`, preserving the checkout and nonempty local mise config.
-- `config/` mirrors `$XDG_CONFIG_HOME` except for `mise/`, which is managed
-  separately as `~/.config/mise`; both mappings use `symlink-each`. They must
-  coexist with application-owned and local files; new children are picked up
-  without adding individual mappings.
+  `mise implode`, preserving the global configuration checkout.
+- `src/config/` mirrors `$XDG_CONFIG_HOME` through `symlink-each`. It must
+  coexist with the repository at `~/.config/mise` and with application-owned
+  or local files; new children are picked up without individual mappings.
 - Root home files remain locally owned. Mise manages marker-delimited blocks
-  in `~/.zshenv` and, for a workstation bootstrap, `~/.miserc.toml`. Managed
-  Zsh files under `.config/zsh/` source local
+  in `~/.zshenv`. Managed Zsh files under `src/config/zsh/` source local
   `~/.zprofile` and `~/.zshrc` extensions.
-- `config/git/config` contains portable Git behavior. Bootstrap tasks under
-  `mise/config.toml` configure GitHub authentication, local Git
-  identity, Git LFS, and optionally Git Credential Manager in the real,
-  untracked user state. Personal Git and GitHub setup runs only when its leaf
-  tasks are invoked directly.
-- The `dotfiles-update` alias pulls the configured checkout branch, then runs
-  `mise bootstrap --update` from that checkout.
-- The minimal global tool baseline is declared in `mise/conf.d/tools.toml`.
-  Developer-only global tools and build prerequisites belong in the
-  `developer` fragments. Project-specific runtimes, language servers,
-  formatters, linters, debuggers, and build tools belong to their projects.
-- `mise/conf.d/packages.macos.toml` owns the focused macOS GUI and App Store
-  package set. `config/homebrew/Brewfile` is the broader host package manifest invoked
-  separately with `brew bundle --global`.
+- `src/config/git/config` contains portable Git behavior. Bootstrap tasks in
+  `config.toml` configure GitHub authentication, local Git identity, Git LFS,
+  and optionally Git Credential Manager in real, untracked user state.
+- The `dotfiles-update` alias delegates checkout refresh and reconciliation to
+  `mise bootstrap --from-git ... --update`.
+- The minimal global tool baseline is declared in `conf.d/tools.toml`.
+  Project-specific runtimes, language servers, formatters, linters, debuggers,
+  and build tools belong to their projects.
+- `conf.d/packages.macos.toml` owns the focused macOS GUI and App Store package
+  set.
 - OpenSSH configuration and authentication state remain local and unmanaged.
 
 ## Working rules
 
-- Edit ordinary managed files through their repository paths under `config/`;
-  edit mise through `mise/`.
-- New files beneath `config/` or `mise/` are discovered by the existing
-  `symlink-each` mappings; do not add per-application dotfile entries.
+- Edit ordinary managed files through `src/config/`; edit mise configuration
+  through the root config files, `conf.d/`, and `tasks/`.
+- New files beneath `src/config/` are discovered by the existing
+  `symlink-each` mapping; do not add per-application dotfile entries.
 - Keep bootstrap and uninstall behavior idempotent and previewable.
 - Keep vendor-installer tasks minimal and invoke the official installer
   directly.
 - Keep root shell entry points portable `/bin/sh`. Mise task scripts may use
   Bash when their task metadata or implementation requires it.
-- Put shared behavior in `mise/config.toml`, platform settings in the matching
-  `mise/config.<platform>.toml` overlay, and concern-specific configuration in
-  `mise/conf.d/`. Use explicit `MISE_ENV` profiles only for host-versus-
-  developer responsibilities, not ordinary platform differences. Multiple
-  profiles are comma-separated, for example `MISE_ENV=workstation,developer`.
-- Use `MISE_ENV=developer,container` for the first container bootstrap. The
-  resulting `/etc/profile.d/mise-container.sh` makes that selection persistent
-  inside the Linux container without inferring container state. Keep container
-  Mise binary, data, cache, and state under `/opt/mise`; reuse the shared-home
-  Mise configuration and dotfiles inside containers.
+- Put shared behavior in `config.toml`, platform settings in the matching
+  `config.<platform>.toml` overlay, and concern-specific configuration in
+  `conf.d/`. Use automatic platform environments instead of explicit profiles.
+- Keep the default bootstrap scoped to clean macOS and Fedora Atomic hosts.
+  Add Fedora Workstation, development, or container behavior only in targeted
+  follow-up work.
 - Keep platform defaults, hooks, and prerequisites narrowly scoped and
-  previewable. Keep the focused macOS package set in its platform-specific
-  fragment and put the broader manually applied macOS host inventory in the
-  Brewfile.
+  previewable. Keep platform-only plugins, hooks, packages, and aliases in
+  environment-suffixed fragments so they do not load on other platforms.
 - Do not add a global development tool when a project can declare it.
 - Add an approved global tool with `mise use -g TOOL`, then review the change
-  written through the managed global-config link to
-  `mise/config.toml`.
+  written directly to `config.toml` in the global checkout.
 - Keep Neovim's global configuration limited to editor behavior, plugins, and
   a small parser baseline. Language servers, formatters, linters, runtimes,
   and debug adapters must be supplied by projects.
@@ -100,12 +85,13 @@ Read `README.md` before changing this repository.
 
 ## Validation
 
-Use only validation that reads or formats files in the checkout by default:
+Use only validation that reads files in the checkout by default. Mise config
+and task checks must see the repository in a simulated or real
+`$MISE_CONFIG_DIR` layout so global file tasks resolve correctly:
 
 ```sh
 sh -n bootstrap.sh uninstall.sh
-mise fmt
-mise fmt --check
+mise fmt --all --check
 mise tasks validate
 git diff --check
 ```
